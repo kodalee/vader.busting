@@ -396,6 +396,7 @@ public:
 		bool bReleaseGrenade = false;
 		bool m_bAimbotShot = false;
 		bool m_bOldShot = false;
+		bool m_bOldPacket;
 		int TickbaseAmount = 0;
 		int m_iNetworkedTick = 0;
 		int LastChokedCommands = 0;
