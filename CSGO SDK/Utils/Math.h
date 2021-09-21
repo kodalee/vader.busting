@@ -50,6 +50,10 @@ namespace Math
 		return to * percent + from * (1.f - percent);
 	}
 
+	__forceinline constexpr float deg_to_rad(float val) {
+		return val * (pi / 180.f);
+	}
+
 	__forceinline static void MatrixSetOrigin(Vector pos, matrix3x4_t& matrix) {
 		matrix[0][3] = pos.x;
 		matrix[1][3] = pos.y;
