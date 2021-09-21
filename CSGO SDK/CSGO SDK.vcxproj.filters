@@ -345,6 +345,13 @@
       <Filter>Features\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Features\Rage\Resolver.cpp" />
+    <ClCompile Include="ShittierMenu\menu.cpp" />
+    <ClCompile Include="ShittierMenu\retard.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui_draw.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui_widgets.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -837,6 +844,17 @@
     </ClInclude>
     <ClInclude Include="Features\Rage\Resolver.hpp" />
     <ClInclude Include="SDK\Classes\INetworkStringTable.h" />
+    <ClInclude Include="ShittierMenu\Fonts.h" />
+    <ClInclude Include="ShittierMenu\menu.hpp" />
+    <ClInclude Include="ShittierMenu\retard.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imconfig.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imgui.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imgui_internal.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imstb_rectpack.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imstb_textedit.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imstb_truetype.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">
@@ -899,5 +917,8 @@
     <Filter Include="Hooks">
       <UniqueIdentifier>{37e10c39-2606-4f55-955f-f25d426f3b21}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ShittierMenu\IMGAY\LICENSE.txt" />
   </ItemGroup>
 </Project>
