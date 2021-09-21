@@ -7,16 +7,6 @@
 #include "../../SDK/Classes/entity.hpp"
 #include "../../SDK/Classes/player.hpp"
 
-#include "../../ShittierMenu/menu.hpp"
-#include "../../ShittierMenu/IMGAY/imgui.h"
-#include "../../ShittierMenu/IMGAY/imgui_internal.h"
-#include "../../ShittierMenu/IMGAY/impl/imgui_impl_dx9.h"
-#include "../../ShittierMenu/IMGAY/impl/imgui_impl_win32.h"
-
-DWORD dwOld_D3DRS_COLORWRITEENABLE;
-IDirect3DVertexDeclaration9* vertDec;
-IDirect3DVertexShader9* vertShader;
-
 HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourceRect, const RECT* pDestRect, HWND hDestWindowOverride, const RGNDATA* pDirtyRegion ) {
 	g_Vars.globals.szLastHookCalled = XorStr( "27" );
 	g_Vars.globals.m_pD3D9Device = pDevice;
@@ -29,17 +19,15 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 			g_Vars.globals.menuOpen = !g_Vars.globals.menuOpen;
 		}
 
-		if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_DELETE)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
-
 		Render::DirectX::begin( );
 		{
-			GUI::ctx->animation = g_Vars.globals.menuOpen ? (GUI::ctx->animation + (1.0f / 0.2f) * Interfaces::m_pGlobalVars->frametime)
-				: ((GUI::ctx->animation - (1.0f / 0.2f) * Interfaces::m_pGlobalVars->frametime));
+			GUI::ctx->animation = g_Vars.globals.menuOpen ? ( GUI::ctx->animation + ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime )
+				: ( ( GUI::ctx->animation - ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime ) );
 
-			if (!g_Vars.globals.menuOpen)
+			if( !g_Vars.globals.menuOpen )
 				GUI::ctx->ColorPickerInfo.HashedID = 0;
 
-			GUI::ctx->animation = std::clamp<float>(GUI::ctx->animation, 0.f, 1.0f);
+			GUI::ctx->animation = std::clamp<float>( GUI::ctx->animation, 0.f, 1.0f );
 
 			if( g_Vars.antiaim.enabled && false ) {
 				auto m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
@@ -74,7 +62,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 			}
 
 			Hitmarkers::RenderHitmarkers( );
-			Menu::Draw();
+			Menu::Draw( );
 		}
 		Render::DirectX::end( );
 
@@ -83,7 +71,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		}
 
 		// chat isn't open && console isn't open
-		if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) && !g_IMGUIMenu.Opened ) {
+		if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) && !g_Vars.globals.menuOpen ) {
 			// we aren't tabbed out
 				// shit compiler, that's why no ternary operators
 			if( InputHelper::Pressed( g_Vars.antiaim.manual_left_bind.key ) ) {
@@ -160,36 +148,6 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 
 		InputSys::Get( )->SetScrollMouse( 0.f );
 	}
-
-	g_IMGUIMenu.Initialized = g_IMGUIMenu.Initialize(pDevice); if (!g_IMGUIMenu.Initialized) return oPresent(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-
-	pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
-	pDevice->GetVertexDeclaration(&vertDec);
-	pDevice->GetVertexShader(&vertShader);
-	pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
-	pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
-	pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-	pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-	pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP);
-	pDevice->SetSamplerState(NULL, D3DSAMP_SRGBTEXTURE, NULL);
-
-	ImGui_ImplDX9_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	/*render stuff*/
-	{
-		g_IMGUIMenu.Render();
-	}
-
-	ImGui::EndFrame();
-	ImGui::Render();
-	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-
-	pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, dwOld_D3DRS_COLORWRITEENABLE);
-	pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, true);
-	pDevice->SetVertexDeclaration(vertDec);
-	pDevice->SetVertexShader(vertShader);
 
 	return oPresent( pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion );
 }

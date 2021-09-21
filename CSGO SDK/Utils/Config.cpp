@@ -23,7 +23,7 @@ std::vector<std::string> ConfigManager::GetConfigs( ) {
 	if( created_cfg ) {
 		namespace fs = std::experimental::filesystem;
 		fs::path full_path( fs::current_path( ) );
-		std::wstring str = full_path.wstring( ) + XorStr( L"\\vader.tech" );
+		std::wstring str = full_path.wstring( ) + XorStr( L"\\amnesia" );
 
 		CreateDirectoryW( str.c_str( ), nullptr );
 		str += XorStr( L"\\cfg" );
@@ -32,11 +32,11 @@ std::vector<std::string> ConfigManager::GetConfigs( ) {
 		created_cfg = false;
 	}
 
-	std::string config_extension = XorStr( ".json" );
+	std::string config_extension = XorStr( ".PDR" );
 	std::vector<std::string> names;
 
 	WIN32_FIND_DATAA find_data;
-	HANDLE preset_file = FindFirstFileA( ( XorStr( "vader.tech\\cfg\\*" ) + config_extension ).c_str( ), &find_data );
+	HANDLE preset_file = FindFirstFileA( ( XorStr( "amnesia\\cfg\\*" ) + config_extension ).c_str( ), &find_data );
 
 	if( preset_file != INVALID_HANDLE_VALUE ) {
 		do {
@@ -44,7 +44,7 @@ std::vector<std::string> ConfigManager::GetConfigs( ) {
 				continue;
 
 			std::string s = find_data.cFileName;
-			int pos = s.find( XorStr( ".json" ) );
+			int pos = s.find( XorStr( ".pdr" ) );
 
 			s.erase( s.begin( ) + pos, s.begin( ) + pos + 5 );
 
@@ -58,7 +58,7 @@ std::vector<std::string> ConfigManager::GetConfigs( ) {
 }
 
 void ConfigManager::LoadConfig( std::string configname ) {
-	std::ifstream input_file = std::ifstream( ( XorStr( "vader.tech\\cfg\\" ) + configname + XorStr( ".json" ) ).c_str( ) );
+	std::ifstream input_file = std::ifstream( ( XorStr( "amnesia\\cfg\\" ) + configname + XorStr( ".pdr" ) ).c_str( ) );
 	if( !input_file.good( ) )
 		return;
 
@@ -71,16 +71,15 @@ void ConfigManager::LoadConfig( std::string configname ) {
 			return;
 
 		auto decoded_string = base64::decode( content.str( ) );
-		// this a vader config nigga?
+		// this a amnesia config nigga?
 		if( decoded_string[ 0 ] != '[' ||
-			decoded_string[ 1 ] != 't' ||
-			decoded_string[ 2 ] != 'e' ||
-			decoded_string[ 3 ] != 'c' ||
-			decoded_string[ 4 ] != 'h' ||
-			decoded_string[ 5 ] != ']' ||
-			decoded_string[ 6 ] != ' ' ||
-			decoded_string[ 7 ] != '-' ||
-			decoded_string[ 8 ] != ' ' )
+			decoded_string[ 1 ] != 'p' ||
+			decoded_string[ 2 ] != 'd' ||
+			decoded_string[ 3 ] != 'r' ||
+			decoded_string[ 4 ] != ']' ||
+			decoded_string[ 5 ] != ' ' ||
+			decoded_string[ 6 ] != '-' ||
+			decoded_string[ 7 ] != ' ' )
 			return;
 
 		// yes it is nigga
@@ -100,7 +99,7 @@ void ConfigManager::LoadConfig( std::string configname ) {
 }
 
 void ConfigManager::SaveConfig( std::string configname ) {
-	std::ofstream o( ( XorStr( "vader.tech\\cfg\\" ) + configname + XorStr( ".json" ) ).c_str( ) );
+	std::ofstream o( ( XorStr( "amnesia\\cfg\\" ) + configname + XorStr( ".pdr" ) ).c_str( ) );
 	if( !o.is_open( ) )
 		return;
 
@@ -113,7 +112,7 @@ void ConfigManager::SaveConfig( std::string configname ) {
 	}
 
 	o.clear( );
-	auto str = base64::encode( ( std::string( XorStr( "[tech] - " ) ).append( g_Vars.m_json.dump( -1, '~', true ) ) ).c_str( ) );
+	auto str = base64::encode( ( std::string( XorStr( "[pdr] - " ) ).append( g_Vars.m_json.dump( -1, '~', true ) ) ).c_str( ) );
 	o << str;
 	o.close( );
 
@@ -121,11 +120,11 @@ void ConfigManager::SaveConfig( std::string configname ) {
 }
 
 void ConfigManager::RemoveConfig( std::string configname ) {
-	std::remove( ( XorStr( "vader.tech\\cfg\\" ) + configname + XorStr( ".json" ) ).c_str( ) );
+	std::remove( ( XorStr( "amnesia\\cfg\\" ) + configname + XorStr( ".pdr" ) ).c_str( ) );
 }
 
 void ConfigManager::CreateConfig( std::string configname ) {
-	std::ofstream o( ( XorStr( "vader.tech\\cfg\\" ) + configname + XorStr( ".json" ) ).c_str( ) );
+	std::ofstream o( ( XorStr( "amnesia\\cfg\\" ) + configname + XorStr( ".pdr" ) ).c_str( ) );
 }
 
 void ConfigManager::ResetConfig( ) {
@@ -138,7 +137,7 @@ void ConfigManager::OpenConfigFolder( ) {
 	namespace fs = std::experimental::filesystem;
 	fs::path full_path( fs::current_path( ) );
 
-	std::wstring str = full_path.wstring( ) + XorStr( L"\\vader.tech\\cfg" );
+	std::wstring str = full_path.wstring( ) + XorStr( L"\\amnesia\\cfg" );
 
 	PIDLIST_ABSOLUTE pidl;
 	if( SUCCEEDED( SHParseDisplayName( str.c_str( ), 0, &pidl, 0, 0 ) ) ) {

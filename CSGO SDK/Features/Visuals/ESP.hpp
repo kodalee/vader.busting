@@ -1,7 +1,6 @@
 #pragma once
 #pragma once
 #include "../../SDK/sdk.hpp"
-#include "../../ShittierMenu/menu.hpp"
 
 class C_Window {
 public:
@@ -26,7 +25,7 @@ public:
 
 	void Drag( ) {
 		auto current_mouse_pos = InputSys::Get( )->GetMousePosition( );
-		if( g_IMGUIMenu.Opened && !GUI::ctx->dragging
+		if( g_Vars.globals.menuOpen && !GUI::ctx->dragging
 			&& InputSys::Get( )->IsKeyDown( VirtualKeys::LeftButton )
 			&& ( IsInBox( current_mouse_pos, pos, size ) || IsInBox( mouse_pos, pos, size ) ) ) {
 			pos += current_mouse_pos - mouse_pos;

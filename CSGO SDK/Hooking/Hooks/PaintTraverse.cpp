@@ -44,7 +44,7 @@ namespace Hooked
 			static bool done = false;
 
 			if( !done ) {
-				MsgCol( Color( 255, 255, 255, 255 ), XorStr( "Welcome to vader.tech.\n" ) );
+				MsgCol( Color( 255, 255, 255, 255 ), XorStr( "Welcome to amnesia.\n" ) );
 				done = true;
 			}
 		}

@@ -88,7 +88,7 @@ void CLogger::PushEvent( std::string msg, FloatColor clr, bool visualise, std::s
 		m_notify_text.push_back( std::make_shared< NotifyText >( std::string( XorStr( "" ) ).append( prefix.data( ) ).append( XorStr( "" ) ).append( msg ), clr.ToRegularColor( ), 8.f ) );
 	}
 
-	Interfaces::m_pCvar->ConsoleColorPrintf( g_Vars.menu.ascent.ToRegularColor( ), XorStr( "[ vader.tech ] " ) );
+	Interfaces::m_pCvar->ConsoleColorPrintf( g_Vars.menu.ascent.ToRegularColor( ), XorStr( "[ amnesia ] " ) );
 	if( !prefix.empty( ) ) {
 		Interfaces::m_pCvar->ConsoleColorPrintf( g_Vars.menu.ascent.ToRegularColor( ), std::string( XorStr( "" ) ).append( prefix.data( ) ).append( XorStr( "" ) ).data( ) );
 	}

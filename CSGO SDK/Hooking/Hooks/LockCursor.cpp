@@ -1,6 +1,5 @@
 #include "../Hooked.hpp"
 #include "../../SDK/Classes/Player.hpp"
-#include "../../ShittierMenu/menu.hpp"
 
 void __stdcall Hooked::LockCursor( ) {
    g_Vars.globals.szLastHookCalled = XorStr( "16" );
@@ -11,11 +10,11 @@ void __stdcall Hooked::LockCursor( ) {
 
    bool state = true;
    if( !Interfaces::m_pEngine->IsInGame( ) || ( pLocal && pLocal->IsDead( ) ) || GUI::ctx->typing ) {
-	   state = !g_IMGUIMenu.Opened;
+	   state = !g_Vars.globals.menuOpen;
    }
 
    Interfaces::m_pInputSystem->EnableInput( state );
 
-   if ( g_IMGUIMenu.Opened )
+   if ( g_Vars.globals.menuOpen )
 	  Interfaces::m_pSurface->UnlockCursor( );
 }

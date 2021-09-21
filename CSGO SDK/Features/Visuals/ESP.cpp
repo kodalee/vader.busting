@@ -532,7 +532,7 @@ void CEsp::SpectatorList( bool window ) {
 		Vector2D pos = { g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y };
 
 		static float alpha = 0.f;
-		bool condition = !( spectators.empty( ) && !g_IMGUIMenu.Opened );
+		bool condition = !( spectators.empty( ) && !g_Vars.globals.menuOpen );
 		float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
 		if( condition && ( !pLocal ? true : pLocal->m_iObserverMode( ) != 6 ) ) {
 			alpha += multiplier * ( 1.0f - alpha );
@@ -623,7 +623,7 @@ void CEsp::Keybinds( ) {
 	//	AddBind( XorStr( "Instant stop in air" ), g_Vars.misc.instant_stop_key );
 	//}
 
-	//AddBind( XorStr( "Anti-aim invert" ), g_Vars.antiaim.desync_flip_bind );
+	AddBind( XorStr( "Anti-aim invert" ), g_Vars.antiaim.desync_flip_bind );
 	//AddBind( XorStr( "Thirdperson" ), g_Vars.misc.third_person_bind );
 	//AddBind( XorStr( "Desync jitter" ), g_Vars.antiaim.desync_jitter_key );
 	AddBind( XorStr( "Hitscan override" ), g_Vars.rage.override_key );
@@ -643,7 +643,7 @@ void CEsp::Keybinds( ) {
 	float gaySize = this->m_KeyBinds.size.y;
 
 	static float alpha = 0.f;
-	bool condition = ( ( vecNames.empty( ) && g_IMGUIMenu.Opened) || !vecNames.empty( ) );
+	bool condition = ( ( vecNames.empty( ) && g_Vars.globals.menuOpen ) || !vecNames.empty( ) );
 	float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
 	if( condition ) {
 		alpha += multiplier * ( 1.0f - alpha );

@@ -92,8 +92,8 @@
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
-    <IncludePath>G:\Programs\DX9 SDK\Include;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>G:\Programs\DX9 SDK\lib;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
     <TargetExt>.dll</TargetExt>
     <IntDir>$(SolutionDir)$(Configuration)\Intermediate\</IntDir>
   </PropertyGroup>
@@ -139,7 +139,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
     <ClCompile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>DEV;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
@@ -217,13 +217,6 @@
     <ClCompile Include="SDK\Classes\CCSGO_HudDeathNotice.cpp" />
     <ClCompile Include="SDK\Classes\IInputSystem.cpp" />
     <ClCompile Include="SDK\Valve\characterset.cpp" />
-    <ClCompile Include="ShittierMenu\IMGAY\imgui.cpp" />
-    <ClCompile Include="ShittierMenu\IMGAY\imgui_draw.cpp" />
-    <ClCompile Include="ShittierMenu\IMGAY\imgui_widgets.cpp" />
-    <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.cpp" />
-    <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
-    <ClCompile Include="ShittierMenu\menu.cpp" />
-    <ClCompile Include="ShittierMenu\retard.cpp" />
     <ClCompile Include="Utils\CrashHandler.cpp" />
     <ClCompile Include="Hooking\Hooks\DispatchUserMessage.cpp" />
     <ClCompile Include="Hooking\Hooks\IsBoxVisible.cpp" />
@@ -365,19 +358,6 @@
     <ClInclude Include="SDK\Classes\CCSGO_HudDeathNotice.hpp" />
     <ClInclude Include="SDK\Valve\characterset.hpp" />
     <ClInclude Include="SDK\CColor.hpp" />
-    <ClInclude Include="ShittierMenu\Fonts.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\imconfig.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\imgui.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\imgui_internal.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\imstb_rectpack.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\imstb_textedit.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\imstb_truetype.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\misc\ft2build.h" />
-    <ClInclude Include="ShittierMenu\IMGAY\misc\imgui_freetype.h" />
-    <ClInclude Include="ShittierMenu\menu.hpp" />
-    <ClInclude Include="ShittierMenu\retard.h" />
     <ClInclude Include="Utils\Config.hpp" />
     <ClInclude Include="SDK\core.hpp" />
     <ClInclude Include="SDK\Classes\CPlayerResource.hpp" />
@@ -605,9 +585,6 @@
     <ClInclude Include="SDK\Classes\weapon.hpp" />
     <ClInclude Include="SDK\Classes\WeaponInfo.hpp" />
     <ClInclude Include="Utils\XorStr.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ShittierMenu\IMGAY\LICENSE.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

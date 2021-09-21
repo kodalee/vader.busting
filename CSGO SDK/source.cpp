@@ -445,7 +445,7 @@ bool __fastcall sv_cheats_get_bool( void* pConVar, void* edx ) {
 	return oSvCheatsGetBool( pConVar );
 }
 
-void* GetF(void* class_, int index) { return (void*)((unsigned int)(*(int**)class_)[index]); }
+
 namespace Interfaces
 {
 	Encrypted_t<IBaseClientDLL> m_pClient = nullptr;

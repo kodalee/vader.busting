@@ -302,45 +302,11 @@ namespace Engine {
 			}
 		}
 
-		else if (!data.m_bCollectedValidMoveData && data.m_bCollectedFreestandData) {
-			// https://www.unknowncheats.me/forum/counterstrike-global-offensive/292854-animation-syncing.html
-
-			// lets bruteforce since we have no idea where he at.
-			switch (nMisses % 5) {
-			case 0:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
-				break;
-
-			case 1:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
-				break;
-
-			case 2:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
-				break;
-
-			case 3:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
-				break;
-
-			case 4:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
-				break;
-
-			default:
-				break;
-			}
-		}
-
-		else if (data.m_bCollectedValidMoveData && data.m_bCollectedFreestandData) {
-			// https://www.unknowncheats.me/forum/counterstrike-global-offensive/292854-animation-syncing.html
-
-			// lets bruteforce since we have no idea where he at.
+		else if (data.m_bCollectedFreestandData && data.m_bCollectedValidMoveData) {
 			switch (nMisses % 6) {
 			case 0:
 				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
 				break;
-
 			case 1:
 				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
 				break;
@@ -365,6 +331,7 @@ namespace Engine {
 				break;
 			}
 		}
+
 
 		// if there isn't any valid move data
 	    // lets bruteforce.
@@ -396,6 +363,7 @@ namespace Engine {
 			}
 		}
 
+		//shouldn't happen but just in case.
 		else {
 			switch (nMisses % 5) {
 			case 0:

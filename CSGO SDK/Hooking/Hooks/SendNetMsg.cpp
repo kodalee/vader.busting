@@ -6,7 +6,6 @@
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
 
-
 struct CIncomingSequence {
 	int InSequence;
 	int ReliableState;

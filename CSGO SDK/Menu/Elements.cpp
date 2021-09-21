@@ -9,7 +9,7 @@
 namespace Menu {
 
 	void DrawMenu( ) {
-		if( GUI::Form::BeginWindow( XorStr( "vader.tech" ) ) || GUI::ctx->setup ) {
+		if( GUI::Form::BeginWindow( XorStr( "amnesia" ) ) || GUI::ctx->setup ) {
 			static int current_weapon = 0;
 			static int rage_current_group = 0;
 			static int current_group = 0;
@@ -1043,7 +1043,7 @@ namespace Menu {
 
 								/*g_Vars.globals.m_hitsounds.clear( );
 
-								std::string dir = GetDocumentsDirectory( ).append( XorStr( "\\json\\" ) );
+								std::string dir = GetDocumentsDirectory( ).append( XorStr( "\\pdr\\" ) );
 								for( auto& file_path : std::filesystem::directory_iterator( dir ) ) {
 									if( !file_path.path( ).string( ).empty( ) ) {
 										if( file_path.path( ).string( ).find( ".wav" ) != std::string::npos ) {
