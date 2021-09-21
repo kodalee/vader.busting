@@ -5203,6 +5203,7 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 		window->DC.CursorPos = ImVec2(pos.x + button_offset_x, pos.y);
 
 		ImVec4 col_v4(col[0], col[1], col[2], alpha ? col[3] : 1.0f);
+		ImVec4 old_col_v4 = col_v4;
 		if (ColorButton("##ColorButton", col_v4, flags))
 		{
 			if (!(flags & ImGuiColorEditFlags_NoPicker))
@@ -5215,6 +5216,16 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 		}
 		if (!(flags & ImGuiColorEditFlags_NoOptions))
 			OpenPopupOnItemClick("context");
+
+		if (old_col_v4.x != col_v4.x ||
+			old_col_v4.y != col_v4.y ||
+			old_col_v4.z != col_v4.z ||
+			old_col_v4.w != col_v4.w) {
+			col[0] = col_v4.x;
+			col[1] = col_v4.y;
+			col[2] = col_v4.z;
+			col[3] = col_v4.w;
+		}
 
 		if (BeginPopup("picker"))
 		{
