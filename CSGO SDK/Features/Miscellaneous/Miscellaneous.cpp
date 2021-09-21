@@ -182,20 +182,37 @@ namespace Interfaces
 
 		run_once = true;
 
-		std::string szClanTag = XorStr( "amnesia" );
+		std::string szClanTag = XorStr( "vader.tech" );
 		std::string szSuffix = XorStr( "" );
 		static int iPrevFrame = 0;
 		static bool bReset = false;
-		int iCurFrame = ( ( int )( Interfaces::m_pPrediction->GetUnpredictedGlobals( )->curtime ) ) % 9;
+		int iCurFrame = (int(Interfaces::m_pGlobalVars->curtime * 2.9) % 23);
 
-		if( iPrevFrame != iCurFrame ) {
-			switch( iCurFrame % 5 ) {
-				// cba LOlolLllL
-			case 0: szClanTag = XorStr( "am" ); break;
-			case 1: szClanTag = XorStr( "amne" ); break;
-			case 2: szClanTag = XorStr( "amnesia" ); break;
-			case 3: szClanTag = XorStr( "amne" ); break;
-			case 4: szClanTag = XorStr( "am" ); break;
+		if (iPrevFrame != int(Interfaces::m_pGlobalVars->curtime * 2.9) % 20) {
+			switch (iCurFrame) {
+			case 0: szClanTag = XorStr( "v " ); break;
+			case 1: szClanTag = XorStr( "va " ); break;
+			case 2: szClanTag = XorStr( "vad " ); break;
+			case 3: szClanTag = XorStr( "vade " ); break;
+			case 4: szClanTag = XorStr( "vader " ); break;
+			case 5: szClanTag = XorStr( "vader. " ); break;
+			case 6: szClanTag = XorStr( "vader.t " ); break;
+			case 7: szClanTag = XorStr( "vader.te " ); break;
+			case 8: szClanTag = XorStr( "vader.tec " ); break;
+			case 9: szClanTag = XorStr( "vader.tech " ); break;
+			case 10: szClanTag = XorStr( "vader.tech " ); break;
+			case 11: szClanTag = XorStr( "vader.tech " ); break;
+			case 12: szClanTag = XorStr( "vader.tec " ); break;
+			case 13: szClanTag = XorStr( "vader.te " ); break;
+			case 14: szClanTag = XorStr( "vader.t " ); break;
+			case 15: szClanTag = XorStr( "vader. " ); break;
+			case 16: szClanTag = XorStr( "vader " ); break;
+			case 17: szClanTag = XorStr( "vade " ); break;
+			case 18: szClanTag = XorStr( "vad " ); break;
+			case 19: szClanTag = XorStr( "va " ); break;
+			case 20: szClanTag = XorStr( "v " ); break;
+			case 21: szClanTag = XorStr( " " ); break;
+			case 22: szClanTag = XorStr( " " ); break;
 			}
 
 			// set our clantag
