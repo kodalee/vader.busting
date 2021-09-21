@@ -5,7 +5,6 @@
 #include "../../SDK/Valve/CBaseHandle.hpp"
 #include "../../Features/Rage/LagCompensation.hpp"
 #include "../../Features/Rage/Resolver.hpp"
-#include "../../Utils/address.h"
 #include "../../Utils/stack.h"
 
 namespace Hooked
@@ -22,23 +21,22 @@ namespace Hooked
 		}
 	}
 
-	void RecvProxy_m_flLowerBodyYawTarget(CRecvProxyData* data, Address ptr, Address out) {
+	void RecvProxy_m_flLowerBodyYawTarget(CRecvProxyData* data, void* ptr, void* out) {
+		printf("haha porn cum asshole\n");
+
 		Stack stack;
 
-		static Address RecvTable_Decode{ Memory::Scan(XorStr("engine.dll"), XorStr("EB 0D FF 77 10")) };
+		static Address RecvTable_Decode = (void*)Memory::Scan(XorStr("engine.dll"), XorStr("EB 0D FF 77 10"));
 
 		// call from entity going into pvs.
 		if (stack.next().next().ReturnAddress() != RecvTable_Decode) {
-			// convert to player.
-			C_CSPlayer* player = ptr.as< C_CSPlayer* >();
+			auto player = (C_CSPlayer*)ptr;
 
-			// store data about the update.
 			Engine::g_Resolver.OnBodyUpdate(player, data->m_Value.m_Float);
 		}
 
 		// call original proxy.
-		if (g_hooks.m_Body_original)
-			g_hooks.m_Body_original(data, ptr, out);
+		if (Interfaces::m_Body_original) Interfaces::m_Body_original->GetOriginalFunction()(data, ptr, out);
 	}
 
 	void RecvProxy_m_flAbsYaw( CRecvProxyData* pData, void* pStruct, void* pOut ) {

@@ -147,6 +147,8 @@ namespace Render {
 		extern Font damage;
 		extern Font icon;
 		extern Font indi;
+		extern Font watermark;
+		extern Font keybinds;
 
 		extern int m_width;
 		extern int m_height;

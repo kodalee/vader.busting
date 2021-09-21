@@ -493,6 +493,8 @@ namespace Render::Engine {
 	Font damage;
 	Font icon;
 	Font indi;
+	Font watermark;
+	Font keybinds;
 
 	int m_width;
 	int m_height;
@@ -501,7 +503,7 @@ namespace Render::Engine {
 void Render::Engine::Initialise( ) {
 	LoadFontFromResource( weaponicons, sizeof( weaponicons ) );
 
-	esp = Font( XorStr( "Tahoma" ), 11, FW_NORMAL, FONTFLAG_DROPSHADOW );
+	esp = Font( XorStr( "Tahoma" ), 12, FW_NORMAL, FONTFLAG_DROPSHADOW | FONTFLAG_OUTLINE);
 	segoe = Font( XorStr( "Segoe UI" ), 13, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW | FONTFLAG_DROPSHADOW );
 	pixel = Font( XorStr( "04B03" ), 8, FW_NORMAL, FONTFLAG_OUTLINE );
 	pixel_reg = Font( XorStr( "Small Fonts" ), 8, FW_NORMAL, FONTFLAG_OUTLINE );
@@ -511,6 +513,8 @@ void Render::Engine::Initialise( ) {
 	cs_large = Font( XorStr( "WeaponIcons" ), 22, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
 	damage = Font( XorStr( "Segoe UI" ), 26, FW_THIN, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
 	indi = Font( XorStr( "Tahoma" ), 15, FW_BOLD, FONTFLAG_ANTIALIAS );
+	watermark = Font(XorStr("Verdana"), 13, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
+	keybinds = Font(XorStr("Verdana"), 12, FW_NORMAL, FONTFLAG_DROPSHADOW | FONTFLAG_ANTIALIAS);
 
 	Interfaces::m_pEngine->GetScreenSize( m_width, m_height );
 }
