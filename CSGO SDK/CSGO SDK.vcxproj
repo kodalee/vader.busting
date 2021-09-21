@@ -217,6 +217,8 @@
     <ClCompile Include="SDK\Classes\CCSGO_HudDeathNotice.cpp" />
     <ClCompile Include="SDK\Classes\IInputSystem.cpp" />
     <ClCompile Include="SDK\Valve\characterset.cpp" />
+    <ClCompile Include="ShittierMenu\clip.cpp" />
+    <ClCompile Include="ShittierMenu\clip_win.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_draw.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_widgets.cpp" />
@@ -364,6 +366,8 @@
     <ClInclude Include="SDK\Classes\CCSGO_HudDeathNotice.hpp" />
     <ClInclude Include="SDK\Valve\characterset.hpp" />
     <ClInclude Include="SDK\CColor.hpp" />
+    <ClInclude Include="ShittierMenu\clip.hpp" />
+    <ClInclude Include="ShittierMenu\clip_lock_impl.h" />
     <ClInclude Include="ShittierMenu\Fonts.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imconfig.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui.h" />

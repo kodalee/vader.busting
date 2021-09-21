@@ -5202,7 +5202,7 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 		const float button_offset_x = ((flags & ImGuiColorEditFlags_NoInputs) || (style.ColorButtonPosition == ImGuiDir_Left)) ? 0.0f : w_inputs + style.ItemInnerSpacing.x;
 		window->DC.CursorPos = ImVec2(pos.x + button_offset_x, pos.y);
 
-		const ImVec4 col_v4(col[0], col[1], col[2], alpha ? col[3] : 1.0f);
+		ImVec4 col_v4(col[0], col[1], col[2], alpha ? col[3] : 1.0f);
 		if (ColorButton("##ColorButton", col_v4, flags))
 		{
 			if (!(flags & ImGuiColorEditFlags_NoPicker))
@@ -5728,31 +5728,27 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 	return value_changed;
 }
 
+#include "../clip.hpp" // for copy & pasteable color pickers
+
 // A little colored square. Return true when clicked.
 // FIXME: May want to display/ignore the alpha component in the color display? Yet show it in the tooltip.
 // 'desc_id' is not called 'label' because we don't display it next to the button, but only in the tooltip.
 // Note that 'col' may be encoded in HSV if ImGuiColorEditFlags_InputHSV is set.
-bool ImGui::ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFlags flags, ImVec2 size)
+bool ImGui::ColorButton(const char* desc_id, ImVec4& col, ImGuiColorEditFlags flags, ImVec2 size)
 {
 	ImGuiWindow* window = GetCurrentWindow();
-
 	if (window->SkipItems)
 		return false;
 
 	ImGuiContext& g = *GImGui;
-
 	const ImGuiID id = window->GetID(desc_id);
 	float default_size = GetFrameHeight();
-
 	if (size.x == 0.0f)
 		size.x = default_size;
-
 	if (size.y == 0.0f)
-		size.y = default_size;
-
-	const ImRect bb(window->DC.CursorPos + ImVec2(0, 3), window->DC.CursorPos + size - ImVec2(0, 5));
+		size.y = default_size / 2;
+	const ImRect bb(window->DC.CursorPos + ImVec2(0, 2), window->DC.CursorPos + size + ImVec2(0, 2));
 	ItemSize(bb, (size.y >= default_size) ? g.Style.FramePadding.y : 0.0f);
-
 	if (!ItemAdd(bb, id))
 		return false;
 
@@ -5763,22 +5759,44 @@ bool ImGui::ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFl
 		flags &= ~(ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaPreviewHalf);
 
 	ImVec4 col_without_alpha(col.x, col.y, col.z, 1.0f);
-
 	float grid_step = ImMin(size.x, size.y) / 2.99f;
 	float rounding = ImMin(g.Style.FrameRounding, grid_step * 0.5f);
-
 	ImRect bb_inner = bb;
-
-	ImVec4 col_source = (flags & ImGuiColorEditFlags_AlphaPreview) ? col : col_without_alpha;
-	auto gradient = GetColorU32(col_source) - ImColor(0, 0, 0, 100);
-	window->DrawList->AddRectFilledMultiColor(bb_inner.Min, bb_inner.Max, GetColorU32(col_source), GetColorU32(col_source), gradient, gradient);
-
-	RenderNavHighlight(bb, id);
-
-	if (g.Style.FrameBorderSize > 0.0f)
-		RenderFrameBorder(bb.Min, bb.Max, rounding);
+	float off = -0.75f; // The border (using Col_FrameBg) tends to look off when color is near-opaque and rounding is enabled. This offset seemed like a good middle ground to reduce those artifacts.
+	bb_inner.Expand(off);
+	if ((flags & ImGuiColorEditFlags_AlphaPreviewHalf) && col.w < 1.0f)
+	{
+		float mid_x = (float)(int)((bb_inner.Min.x + bb_inner.Max.x) * 0.5f + 0.5f);
+		RenderColorRectWithAlphaCheckerboard(ImVec2(bb_inner.Min.x + grid_step, bb_inner.Min.y), bb_inner.Max, GetColorU32(col), grid_step, ImVec2(-grid_step + off, off), rounding, ImDrawCornerFlags_TopRight | ImDrawCornerFlags_BotRight);
+		window->DrawList->AddRectFilled(bb_inner.Min, ImVec2(mid_x, bb_inner.Max.y), GetColorU32(col_without_alpha), rounding, ImDrawCornerFlags_TopLeft | ImDrawCornerFlags_BotLeft);
+	}
 	else
-		window->DrawList->AddRect(bb.Min, bb.Max, ImColor(10, 10, 10, 255), rounding); // Color button are often in need of some sort of border
+	{
+		// Because GetColorU32() multiplies by the global style Alpha and we don't want to display a checkerboard if the source code had no alpha
+		ImVec4 col_source = (flags & ImGuiColorEditFlags_AlphaPreview) ? col : col_without_alpha;
+		if (col_source.w < 1.0f)
+			RenderColorRectWithAlphaCheckerboard(bb_inner.Min, bb_inner.Max, GetColorU32(col_source), grid_step, ImVec2(off, off), rounding);
+		else
+			window->DrawList->AddRectFilled(bb_inner.Min, bb_inner.Max, GetColorU32(col_source), rounding, ImDrawCornerFlags_All);
+
+		window->DrawList->AddRectFilledMultiColor(bb_inner.Min, bb_inner.Max,
+			ImColor(0.f, 0.f, 0.f, 0.f), ImColor(0.f, 0.f, 0.f, 0.f),
+			ImColor(0.f, 0.f, 0.f, 0.5f), ImColor(0.f, 0.f, 0.f, 0.5f));
+	}
+
+	// Drag and Drop Source
+	// NB: The ActiveId test is merely an optional micro-optimization, BeginDragDropSource() does the same test.
+	if (g.ActiveId == id && !(flags & ImGuiColorEditFlags_NoDragDrop) && BeginDragDropSource())
+	{
+		if (flags & ImGuiColorEditFlags_NoAlpha)
+			SetDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F, &col, sizeof(float) * 3, ImGuiCond_Once);
+		else
+			SetDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F, &col, sizeof(float) * 4, ImGuiCond_Once);
+		ColorButton(desc_id, col, flags);
+		SameLine();
+		TextUnformatted("Color");
+		EndDragDropSource();
+	}
 
 	// Tooltip
 	if (!(flags & ImGuiColorEditFlags_NoTooltip) && hovered)
@@ -5787,8 +5805,78 @@ bool ImGui::ColorButton(const char* desc_id, const ImVec4& col, ImGuiColorEditFl
 	if (pressed)
 		MarkItemEdited(id);
 
+	bool popup_open = IsPopupOpen(id);
+	if (GetIO().MouseClicked[1] && hovered) {
+		if (!popup_open)
+			OpenPopupEx(id);
+	}
+
+	if (popup_open) {
+		SetNextWindowSize(ImVec2(80, CalcMaxPopupHeightFromItemCount(2)));
+
+		char name[16];
+		ImFormatString(name, IM_ARRAYSIZE(name), "##Combo_%02d", g.BeginPopupStack.Size); // Recycle windows based on depth
+
+		// Peak into expected window size so we can position it
+		if (ImGuiWindow* popup_window = FindWindowByName(name))
+			if (popup_window->WasActive)
+			{
+				ImVec2 size_expected = CalcWindowExpectedSize(popup_window);
+				ImRect r_outer = GetWindowAllowedExtentRect(popup_window);
+				ImVec2 pos = FindBestWindowPosForPopupEx(bb.GetBL(), size_expected, &popup_window->AutoPosLastDirection, r_outer, bb, ImGuiPopupPositionPolicy_ComboBox);
+				SetNextWindowPos(pos);
+			}
+
+		// Horizontally align ourselves with the framed text
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_Popup | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
+		PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(g.Style.FramePadding.x, g.Style.WindowPadding.y));
+		bool ret = Begin(name, NULL, window_flags);
+		PopStyleVar();
+
+		if (Selectable("Copy"))
+			clip::set_text(
+				std::to_string((int)(col.x * 255.f)) + "," +
+				std::to_string((int)(col.y * 255.f)) + "," +
+				std::to_string((int)(col.z * 255.f)) + "," +
+				std::to_string((int)(col.w * 255.f)));
+
+		if (Selectable("Paste")) {
+			static auto split = [](std::string str, const char* del) -> std::vector<std::string>
+			{
+				char* pTempStr = _strdup(str.c_str());
+				char* pWord = strtok(pTempStr, del);
+				std::vector<std::string> dest;
+
+				while (pWord != NULL)
+				{
+					dest.push_back(pWord);
+					pWord = strtok(NULL, del);
+				}
+
+				free(pTempStr);
+
+				return dest;
+			};
+
+			std::string colt = "255,255,255,255";
+
+			if (clip::get_text(colt)) {
+				std::vector<std::string> cols = split(colt, ",");
+				if (cols.size() == 4) {
+					col.x = std::stoi(cols.at(0)) / 255.f;
+					col.y = std::stoi(cols.at(1)) / 255.f;
+					col.z = std::stoi(cols.at(2)) / 255.f;
+					col.w = std::stoi(cols.at(3)) / 255.f;
+				}
+			}
+		}
+
+		EndPopup();
+	}
+
 	return pressed;
 }
+
 
 // Initialize/override default color options
 void ImGui::SetColorEditOptions(ImGuiColorEditFlags flags)

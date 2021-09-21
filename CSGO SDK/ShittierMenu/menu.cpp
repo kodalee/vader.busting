@@ -62,7 +62,12 @@ void Ragebot()
 	ImGui::NewLine();
 	{
 		static bool testbox1 = false;
+		Color testpicker1;
+		Color testpicker2;
 		InsertCheckbox(Testbox, "Cum", &testbox1);
+
+		ImGuiEx::ColorEdit4("##testpicker1", &testpicker1, true);
+		ImGuiEx::ColorEdit4("##testpicker2", &testpicker2, true);
 	}
 	ImGui::EndColumns();
 }
