@@ -1767,8 +1767,10 @@ namespace ImGui
 	IMGUI_API bool          TitleButtonEx(const char* label, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
 	IMGUI_API bool          SelectedTabEx(const char* label, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
 	IMGUI_API bool          TabEx(const char* label, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
+	IMGUI_API bool          TrueTab(const char* label, int& tab, int set_to, const ImVec2& size_arg = ImVec2(0,0), ImGuiButtonFlags flags = 0);
 	IMGUI_API bool          SelectedSubTabEx(const char* label, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
 	IMGUI_API bool          SubTabEx(const char* label, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
+	IMGUI_API bool          TrueSubTab(const char* label, int& tab, int set_to, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
 	IMGUI_API bool          CloseButton(ImGuiID id, const ImVec2& pos);
 	IMGUI_API bool          CollapseButton(ImGuiID id, const ImVec2& pos);
 	IMGUI_API bool          ArrowButtonEx(const char* str_id, ImGuiDir dir, ImVec2 size_arg, ImGuiButtonFlags flags);

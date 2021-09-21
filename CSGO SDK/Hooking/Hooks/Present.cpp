@@ -7,7 +7,7 @@
 #include "../../SDK/Classes/entity.hpp"
 #include "../../SDK/Classes/player.hpp"
 
-#include "../../ShittierMenu/menu.hpp"
+#include "../../ShittierMenu/Menu.hpp"
 #include "../../ShittierMenu/IMGAY/imgui.h"
 #include "../../ShittierMenu/IMGAY/imgui_internal.h"
 #include "../../ShittierMenu/IMGAY/impl/imgui_impl_dx9.h"

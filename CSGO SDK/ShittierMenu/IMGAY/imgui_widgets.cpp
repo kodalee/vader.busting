@@ -33,7 +33,7 @@ Index of this file:
 #endif
 
 #include "imgui.h"
-#include "../menu.hpp"
+#include "../Menu.hpp"
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
@@ -781,6 +781,57 @@ bool ImGui::TabEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags fl
 	return pressed;
 }
 
+bool ImGui::TrueTab(const char* label, int& tab, int set_to, const ImVec2& size_arg, ImGuiButtonFlags flags)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
+	const ImVec2 label_size = CalcTextSize(label, NULL, true);
+
+	ImVec2 pos = window->DC.CursorPos;
+	if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+		pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+	ImVec2 size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+	const ImRect bb(pos, pos + size);
+	ItemSize(size, style.FramePadding.y);
+	if (!ItemAdd(bb, id))
+		return false;
+
+	if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
+		flags |= ImGuiButtonFlags_Repeat;
+	bool hovered, held;
+	bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
+
+	if (pressed) tab = set_to;
+
+	// Render
+
+	if (hovered || tab == set_to) {
+
+		PushStyleColor(ImGuiCol_Text, ImGuiCol_MenuAccent);
+		RenderTextClipped(bb.Min, bb.Max, label, NULL, &label_size, ImVec2(0.5f, 0.5f), &bb);
+		PopStyleColor();
+
+		window->DrawList->AddRectFilled(bb.Min + ImVec2(0.f, 32.f), bb.Max, GetColorU32(ImGuiCol_MenuAccent), 4.f);
+	}
+	else {
+
+		RenderTextClipped(bb.Min, bb.Max, label, NULL, &label_size, ImVec2(0.5f, 0.5f), &bb);
+	}
+
+
+
+
+	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, window->DC.LastItemStatusFlags);
+
+	return pressed;
+}
+
 bool ImGui::Tab(const char* label, const ImVec2& size_arg)
 {
 	return TabEx(label, size_arg, 0);
@@ -824,6 +875,52 @@ bool ImGui::SelectedSubTabEx(const char* label, const ImVec2& size_arg, ImGuiBut
 bool ImGui::SelectedSubTab(const char* label, const ImVec2& size_arg)
 {
 	return SelectedSubTabEx(label, size_arg, 0);
+}
+
+bool ImGui::TrueSubTab(const char* label, int& tab, int set_to, const ImVec2& size_arg, ImGuiButtonFlags flags)
+{
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
+	const ImVec2 label_size = CalcTextSize(label, NULL, true);
+
+	ImVec2 pos = window->DC.CursorPos;
+	if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+		pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+	ImVec2 size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+	const ImRect bb(pos, pos + size);
+	ItemSize(size, style.FramePadding.y);
+	if (!ItemAdd(bb, id))
+		return false;
+
+	if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
+		flags |= ImGuiButtonFlags_Repeat;
+	bool hovered, held;
+	bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
+
+	if (pressed) tab = set_to;
+
+	// Render
+
+	if (hovered || tab == set_to) {
+
+		RenderTextClipped(bb.Min, bb.Max, label, NULL, &label_size, ImVec2(0.5f, 0.5f), &bb);
+	}
+	else {
+
+		PushStyleColor(ImGuiCol_Text, ImGuiCol_TextDisabled);
+		RenderTextClipped(bb.Min, bb.Max, label, NULL, &label_size, ImVec2(0.5f, 0.5f), &bb);
+		PopStyleColor();
+	}
+
+	IMGUI_TEST_ENGINE_ITEM_INFO(id, label, window->DC.LastItemStatusFlags);
+
+	return pressed;
 }
 
 bool ImGui::SubTabEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags flags)

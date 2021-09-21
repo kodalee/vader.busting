@@ -345,8 +345,7 @@
       <Filter>Features\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Features\Rage\Resolver.cpp" />
-    <ClCompile Include="ShittierMenu\menu.cpp" />
-    <ClCompile Include="ShittierMenu\retard.cpp" />
+    <ClCompile Include="ShittierMenu\Menu.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_draw.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_widgets.cpp" />
@@ -845,8 +844,7 @@
     <ClInclude Include="Features\Rage\Resolver.hpp" />
     <ClInclude Include="SDK\Classes\INetworkStringTable.h" />
     <ClInclude Include="ShittierMenu\Fonts.h" />
-    <ClInclude Include="ShittierMenu\menu.hpp" />
-    <ClInclude Include="ShittierMenu\retard.h" />
+    <ClInclude Include="ShittierMenu\Menu.hpp" />
     <ClInclude Include="ShittierMenu\IMGAY\imconfig.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui_internal.h" />

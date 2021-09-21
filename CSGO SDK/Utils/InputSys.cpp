@@ -94,7 +94,7 @@ void Win32InputSys::Destroy( ) {
 	m_ulOldWndProc = 0;
 }
 
-#include "../ShittierMenu/menu.hpp"
+#include "../ShittierMenu/Menu.hpp"
 #include "../ShittierMenu/IMGAY/impl/imgui_impl_dx9.h"
 #include "../ShittierMenu/IMGAY/impl/imgui_impl_win32.h"
 extern LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

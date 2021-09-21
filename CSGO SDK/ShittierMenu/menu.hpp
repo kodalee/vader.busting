@@ -1,12 +1,19 @@
 #pragma once
+#include "../SDK/sdk.hpp"
+#include "IMGAY/imgui.h"
 
 #include <string>
-#include "IMGAY/imgui.h"
 
 struct IDirect3DDevice9;
 
 extern ImFont* gravity;
 extern ImFont* gravityBold;
+
+#define InsertSliderInt(x1,x2,x3,x4,x5) ImGui::NewLine(); ImGui::PushItemWidth(159.f); ImGui::SliderInt(x1, x2, x3, x4, x5); ImGui::PopItemWidth();
+#define InsertSliderFloat(x1,x2,x3,x4,x5) ImGui::NewLine(); ImGui::PushItemWidth(159.f); ImGui::SliderFloat(x1, x2, x3, x4, x5); ImGui::PopItemWidth();
+#define InsertCombo(x1,x2,x3,x4) ImGui::NewLine(); ImGui::PushItemWidth(159.f); style->Colors[ImGuiCol_Border] = ImColor(0, 0, 0); ImGui::Combo(x1, x2, x3, x4); style->Colors[ImGuiCol_Border] = ImColor(0, 0, 0, 0); ImGui::PopItemWidth();
+#define InsertCheckbox(x1, x2, x3) static CustomCheckbox x1; x1.Draw(x2,x3);
+#define InsertEmpty() static bool Placeholder = true; static CustomCheckbox emptyc; emptyc.Draw("##", &Placeholder);
 
 class IMGUIMenu
 {
@@ -16,7 +23,7 @@ public:
 
     void OnDeviceLost();
     void OnDeviceReset();
-
+    void CustomCheckbox(std::string title, bool* value);
 
     //IDirect3DTexture9* menuLogo;;
 
@@ -33,6 +40,16 @@ private:
     ImGuiStyle        _style;
     bool              _visible;
 
+};
+
+class CustomCheckbox
+{
+public:
+    void Draw(std::string title, bool* value);
+protected:
+    int AnimStep;
+    int LastStep;
+    bool FirstDraw;
 };
 
 inline IMGUIMenu g_IMGUIMenu;

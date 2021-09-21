@@ -222,8 +222,7 @@
     <ClCompile Include="ShittierMenu\IMGAY\imgui_widgets.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
-    <ClCompile Include="ShittierMenu\menu.cpp" />
-    <ClCompile Include="ShittierMenu\retard.cpp" />
+    <ClCompile Include="ShittierMenu\Menu.cpp" />
     <ClCompile Include="Utils\CrashHandler.cpp" />
     <ClCompile Include="Hooking\Hooks\DispatchUserMessage.cpp" />
     <ClCompile Include="Hooking\Hooks\IsBoxVisible.cpp" />
@@ -374,8 +373,7 @@
     <ClInclude Include="ShittierMenu\IMGAY\imstb_rectpack.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_textedit.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_truetype.h" />
-    <ClInclude Include="ShittierMenu\menu.hpp" />
-    <ClInclude Include="ShittierMenu\retard.h" />
+    <ClInclude Include="ShittierMenu\Menu.hpp" />
     <ClInclude Include="Utils\Config.hpp" />
     <ClInclude Include="SDK\core.hpp" />
     <ClInclude Include="SDK\Classes\CPlayerResource.hpp" />

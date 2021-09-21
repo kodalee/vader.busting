@@ -1,6 +1,6 @@
 #include "../Hooked.hpp"
 #include "../../SDK/Classes/Player.hpp"
-#include "../../ShittierMenu/menu.hpp"
+#include "../../ShittierMenu/Menu.hpp"
 void __stdcall Hooked::LockCursor( ) {
    g_Vars.globals.szLastHookCalled = XorStr( "16" );
 
