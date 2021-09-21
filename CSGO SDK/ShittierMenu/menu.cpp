@@ -81,7 +81,7 @@ void Ragebot()
 	ImGui::SetColumnOffset(3, group_w);
 	ImGui::NewLine();
 
-	InsertCheckbox(Ragebot, "Enable", &g_Vars.rage.enabled); ImGui::SameLine; ImGui::Hotkey("##enablekey", &g_Vars.rage.key.key, ImVec2{ 60,20 }); InsertEmpty();
+	InsertCheckbox(Ragebot, "Enable", &g_Vars.rage.enabled); ImGui::SameLine; ImGui::Hotkey("##enablekey", &g_Vars.rage.key.key, &g_Vars.esp.box_type /* this needs to be a config int so it will save on config */, ImVec2{ 60,20 }); InsertEmpty();
 	InsertCheckbox(Testbox, "Cum", &testbox1);
 
 

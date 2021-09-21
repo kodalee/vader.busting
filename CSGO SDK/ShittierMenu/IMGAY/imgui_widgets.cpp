@@ -1650,6 +1650,14 @@ void ImGui::ShrinkWidths(ImGuiShrinkWidthItem* items, int count, float width_exc
 #define VK_BACK           0x08
 #define VK_RMENU          0xA5
 
+static float CalcMaxPopupHeightFromItemCount2(int items_count)
+{
+	ImGuiContext& g = *GImGui;
+	if (items_count <= 0)
+		return FLT_MAX;
+	return 19 * items_count + items_count % 4;
+}
+
 const char* const keyNames[] = {
 
 	"UNKNOWN",
@@ -1864,7 +1872,7 @@ bool ImGui::IsHovered(const ImRect& bb, ImGuiID id, bool flattenChilds) {
 // - Hotkey()
 //-------------------------------------------------------------------------
 
-bool ImGui::Hotkey(const char* label, int* variable, const ImVec2& getSize) {
+bool ImGui::Hotkey(const char* label, int* variable, int* key_style, const ImVec2& getSize) {
 
 	ImGuiWindow* window = GetCurrentWindow();
 	if (window->SkipItems)
@@ -1896,6 +1904,7 @@ bool ImGui::Hotkey(const char* label, int* variable, const ImVec2& getSize) {
 	}
 
 	const bool user_clicked = hovered && io.MouseClicked[0];
+	const bool style_requested = hovered && io.MouseClicked[1];
 
 	if (focus_requested || user_clicked)
 	{
@@ -1955,6 +1964,51 @@ bool ImGui::Hotkey(const char* label, int* variable, const ImVec2& getSize) {
 		}
 		else {
 			*variable = key;
+		}
+	}
+	else {
+		if (key_style) {
+			bool popup_open = IsPopupOpen(id);
+
+			if (style_requested && !popup_open)
+				OpenPopupEx(id);
+
+			if (popup_open) {
+				SetNextWindowSize(ImVec2(100, CalcMaxPopupHeightFromItemCount2(4)));
+
+				char name[16];
+				ImFormatString(name, IM_ARRAYSIZE(name), "##Combo_%02d", g.BeginPopupStack.Size); // Recycle windows based on depth
+
+				// Peak into expected window size so we can position it
+				if (ImGuiWindow* popup_window = FindWindowByName(name))
+					if (popup_window->WasActive)
+					{
+						ImVec2 size_expected = CalcWindowExpectedSize(popup_window);
+						ImRect r_outer = GetWindowAllowedExtentRect(popup_window);
+						ImVec2 pos = FindBestWindowPosForPopupEx(frame_bb.GetBL(), size_expected, &popup_window->AutoPosLastDirection, r_outer, frame_bb, ImGuiPopupPositionPolicy_ComboBox);
+						SetNextWindowPos(pos);
+					}
+
+				// Horizontally align ourselves with the framed text
+				ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_Popup | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
+				PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(style.FramePadding.x, style.WindowPadding.y));
+				bool ret = Begin(name, NULL, window_flags);
+				PopStyleVar();
+
+				if (Selectable("Always On", *key_style == 0))
+					*key_style = 0;
+
+				if (Selectable("On Hotkey", *key_style == 1))
+					*key_style = 1;
+
+				if (Selectable("Toggle", *key_style == 2))
+					*key_style = 2;
+
+				if (Selectable("Off Hotkey", *key_style == 3))
+					*key_style = 3;
+
+				EndPopup();
+			}
 		}
 	}
 
