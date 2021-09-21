@@ -163,6 +163,49 @@ namespace Engine {
 		}
 	}
 
+	void CResolver::OnBodyUpdate(C_CSPlayer* data, float value) {
+		// set data.
+		data->m_old_body = data->m_body;
+		data->m_body = value;
+	}
+
+	void CResolver::MatchShot(C_CSPlayer* data, C_AnimationRecord* record) {
+		// do not attempt to do this in nospread mode.
+		//if (g_menu.main.config.mode.get() == 1)
+		//	return;
+
+		auto anim_data = AnimationSystem::Get()->GetAnimationData(data->m_entIndex);
+		if (!anim_data)
+			return;
+
+		if (anim_data->m_AnimationRecord.empty())
+			return;
+
+		float shoot_time = -1.f;
+
+		auto weapon = (C_WeaponCSBaseGun*)(data->m_hActiveWeapon().Get());
+
+		if (weapon) {
+			// with logging this time was always one tick behind.
+			// so add one tick to the last shoot time.
+			shoot_time = weapon->m_fLastShotTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+		}
+
+		// this record has a shot on it.
+		if (TIME_TO_TICKS(shoot_time) == TIME_TO_TICKS(record->m_flSimulationTime)) {
+			//if (record->m_iChokeTicks <= 2)
+			//	record->m_shot = true;
+
+			// more then 1 choke, cant hit pitch, apply prev pitch.
+			if (anim_data->m_AnimationRecord.size() >= 2 && !record->m_iChokeTicks <= 2) {
+				C_AnimationRecord* previous = &anim_data->m_AnimationRecord[1];
+
+				if (previous && !previous->m_bIsInvalid)
+					record->m_angEyeAngles.x = data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
+			}
+		}
+	}
+
 	void CResolver::ResolveAngles( C_CSPlayer* player, C_AnimationRecord* record ) {
 		FindBestAngle( player );
 
@@ -179,6 +222,8 @@ namespace Engine {
 
 	void CResolver::ResolveYaw( C_CSPlayer* player, C_AnimationRecord* record ) {
 		float speed = record->m_vecAnimationVelocity.Length( );
+
+		MatchShot(player, record);
 
 		if( ( record->m_fFlags & FL_ONGROUND ) && speed > 0.1f && !( record->m_bFakeWalking || record->m_bUnsafeVelocityTransition ) )
 			record->m_iResolverMode = EResolverModes::RESOLVE_WALK;

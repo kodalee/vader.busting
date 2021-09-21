@@ -140,6 +140,9 @@ public:
 	SDK_pad( 0x64 );
 	int m_entIndex;
 
+	float m_body;
+	float m_old_body;
+
 	// Entity flags that are only for the client (ENTCLIENTFLAG_ defines).
 	unsigned short m_EntClientFlags;
 
