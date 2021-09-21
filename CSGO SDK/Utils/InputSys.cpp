@@ -94,11 +94,6 @@ void Win32InputSys::Destroy( ) {
 	m_ulOldWndProc = 0;
 }
 
-#include "../ShittierMenu/Menu.hpp"
-#include "../ShittierMenu/IMGAY/impl/imgui_impl_dx9.h"
-#include "../ShittierMenu/IMGAY/impl/imgui_impl_win32.h"
-extern LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 LRESULT __stdcall Win32InputSys::WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
 	auto win32input = static_cast< Win32InputSys* >( Get( ).Xor( ) );
 	if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) ) {
@@ -117,8 +112,6 @@ LRESULT __stdcall Win32InputSys::WndProc( HWND hWnd, UINT msg, WPARAM wParam, LP
 		if( msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL )
 			return true;
 	}
-
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam) && g_IMGUIMenu.Opened && g_IMGUIMenu.Initialized) return true;
 
 	return CallWindowProc( ( WNDPROC )win32input->m_ulOldWndProc, hWnd, msg, wParam, lParam );
 }

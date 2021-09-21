@@ -551,7 +551,7 @@ namespace Interfaces
 		else if( moving && !g_Vars.fakelag.when_moving )
 			return false;
 
-		fakelagData->m_iMaxChoke = !moving ? 0 : ( int )g_Vars.fakelag.choke;
+		fakelagData->m_iMaxChoke = !moving ? 3 : ( int )g_Vars.fakelag.choke;
 		return true;
 	}
 }
