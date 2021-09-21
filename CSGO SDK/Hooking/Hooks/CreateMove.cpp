@@ -170,9 +170,9 @@ namespace Hooked
 		// current angle will be animated.
 		g_Vars.globals.RegularAngles = cmd->viewangles;
 
-		// fix landing anim.
-		if( state->m_bHitground && g_Vars.globals.m_fFlags & FL_ONGROUND && local->m_fFlags( ) & FL_ONGROUND )
-			g_Vars.globals.RegularAngles.x = -12.f;
+		// fix landing anim. - 0 pitch on land
+		//if( state->m_bHitground && g_Vars.globals.m_fFlags & FL_ONGROUND && local->m_fFlags( ) & FL_ONGROUND )
+		//	g_Vars.globals.RegularAngles.x = -12.f;
 
 		Math::Clamp( g_Vars.globals.RegularAngles.x, -90.f, 90.f );
 		g_Vars.globals.RegularAngles.Normalize( );
@@ -438,6 +438,7 @@ namespace Hooked
 			UpdateInformation( cmd.Xor( ) );
 
 			g_Vars.globals.m_bOldShot = g_Vars.globals.m_bAimbotShot;
+			g_Vars.globals.m_bOldPacket = *bSendPacket;
 
 			//	g_TickbaseController.PostMovement( bSendPacket, cmd.Xor( ) );
 		}
