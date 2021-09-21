@@ -438,6 +438,7 @@ namespace Hooked
 			UpdateInformation( cmd.Xor( ) );
 
 			g_Vars.globals.m_bOldShot = g_Vars.globals.m_bAimbotShot;
+			g_Vars.globals.m_bOldPacket = *bSendPacket;
 
 			//	g_TickbaseController.PostMovement( bSendPacket, cmd.Xor( ) );
 		}

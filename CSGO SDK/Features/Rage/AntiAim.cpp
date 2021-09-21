@@ -191,6 +191,11 @@ namespace Interfaces
 		cmd->viewangles.x = GetAntiAimX( settings );
 		float flYaw = GetAntiAimY( settings, cmd );
 
+		// do not allow 2 consecutive sendpacket true if faking angles.
+		if (*bSendPacket && g_Vars.globals.m_bOldPacket)
+			*bSendPacket = false;
+
+
 		// https://github.com/VSES/SourceEngine2007/blob/master/se2007/engine/cl_main.cpp#L1877-L1881
 		if ( !*bSendPacket || !*bFinalPacket ) {
 			cmd->viewangles.y = flYaw;
@@ -198,8 +203,7 @@ namespace Interfaces
 			Distort( cmd );
 		}
 		else {
-			// make our fake 180 degrees away from our real, and let's add a jitter 
-			// ranging from -90 to 90 to make shit even fuckier 
+
 			std::uniform_int_distribution random( -90, 90 );
 
 			cmd->viewangles.y = Math::AngleNormalize( flYaw + 180 + random( generator ) );
@@ -295,35 +299,41 @@ namespace Interfaces
 		// lets do our real yaw.'
 		switch( settings->base_yaw ) {
 		case 1: // backwards.
-			flRetValue = flViewAnlge + 180.f;
+			if (!bUsingManualAA) {
+				flRetValue = flViewAnlge + 180.f;
+			}
 			break;
 		case 2: // freestand.
 		{
-			const C_AntiAimbot::Directions Direction = HandleDirection( cmd );
-			switch( Direction ) {
-			case Directions::YAW_BACK:
-				// backwards yaw.
-				flRetValue = flViewAnlge + 180.f;
-				break;
-			case Directions::YAW_LEFT:
-				// left yaw.
-				flRetValue = flViewAnlge + 90.f;
-				break;
-			case Directions::YAW_RIGHT:
-				// right yaw.
-				flRetValue = flViewAnlge - 90.f;
-				break;
-			case Directions::YAW_NONE:			
-				// 180z, cuz wat else to do.
-				flRetValue = (flViewAnlge + 180.f / 2.f);
-				flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
-				break;
+			if (!bUsingManualAA) {
+				const C_AntiAimbot::Directions Direction = HandleDirection(cmd);
+				switch (Direction) {
+				case Directions::YAW_BACK:
+					// backwards yaw.
+					flRetValue = flViewAnlge + 180.f;
+					break;
+				case Directions::YAW_LEFT:
+					// left yaw.
+					flRetValue = flViewAnlge + 90.f;
+					break;
+				case Directions::YAW_RIGHT:
+					// right yaw.
+					flRetValue = flViewAnlge - 90.f;
+					break;
+				case Directions::YAW_NONE:
+					// 180z, cuz wat else to do.
+					flRetValue = (flViewAnlge + 180.f / 2.f);
+					flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
+					break;
+				}
 			}
 		}
 			break;
 		case 3: // 180z
-			flRetValue = ( flViewAnlge - 180.f / 2.f );
-			flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * ( 3.5 * 20.f ), 180.f );
+			if (!bUsingManualAA) {
+				flRetValue = (flViewAnlge - 180.f / 2.f);
+				flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
+			}
 			break;
 		default:
 			break;
