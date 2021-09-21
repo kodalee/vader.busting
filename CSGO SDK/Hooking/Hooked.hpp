@@ -109,10 +109,6 @@ namespace Hooked
 	inline CheckFileCRCsWithServerFn oCheckFileCRCsWithServer;
 	void __fastcall CheckFileCRCsWithServer( void* ecx, void* edx );
 
-	typedef long(__stdcall* EndScene_t)(IDirect3DDevice9*);
-	inline EndScene_t o_EndScene;
-	long __stdcall EndScene(IDirect3DDevice9* pDevice);
-
 	using DrawModelFn = void( __thiscall* )( void*, void*, DrawModelInfo_t*, const matrix3x4_t*, float*, float*, Vector&, int );
 	inline DrawModelFn oDrawModel;
 	void __fastcall DrawModel( void* ECX, void* EDX, void* pResults, DrawModelInfo_t* pInfo, matrix3x4_t* pBoneToWorld, float* flpFlexWeights, float* flpFlexDelayedWeights, Vector& vrModelOrigin, int32_t iFlags );

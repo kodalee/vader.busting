@@ -932,11 +932,6 @@ namespace Interfaces
 		static auto update_client_side_animation = Memory::Scan( XorStr( "client.dll" ), XorStr( "55 8B EC 51 56 8B F1 80 BE ? ? ? ? ? 74 36" ) );
 		oUpdateClientSideAnimation = Hooked::HooksManager.CreateHook<decltype( oUpdateClientSideAnimation ) >( &hkUpdateClientSideAnimation, ( void* )update_client_side_animation );
 
-		static auto d3ddevice = **(IDirect3DDevice9***)(Memory::Scan(XorStr("shaderapidx9.dll"), XorStr("A1 ? ? ? ? 50 8B 08 FF 51 0C")) + 1);
-
-		MH_CreateHook(GetF(d3ddevice, 42), &EndScene, (void**)&o_EndScene);
-		MH_EnableHook(GetF(d3ddevice, 42));
-
 		Hooked::HooksManager.Enable( );
 		return true;
 	}
