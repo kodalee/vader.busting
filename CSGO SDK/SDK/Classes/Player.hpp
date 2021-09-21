@@ -76,7 +76,6 @@ public:
    static C_CSPlayer* GetPlayerByIndex( int index );
 
    bool IsTeammate( C_CSPlayer* player );
-   Vector GetShootPosition();
    bool CanShoot( bool skip_revolver = false);
    bool IsReloading( );
 
