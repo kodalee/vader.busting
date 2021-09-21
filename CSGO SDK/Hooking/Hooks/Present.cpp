@@ -15,6 +15,10 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		// gay idc
 		InputHelper::Update( );
 
+		if (InputSys::Get()->WasKeyPressed(VK_DELETE)) { // temp
+			g_Vars.globals.menuOpen = !g_Vars.globals.menuOpen;
+		}
+
 		Render::DirectX::begin( );
 		{
 			GUI::ctx->animation = g_Vars.globals.menuOpen ? ( GUI::ctx->animation + ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime )
