@@ -24,21 +24,10 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 	if( Render::DirectX::initialized ) {
 		// gay idc
 		InputHelper::Update( );
-
-		if (InputSys::Get()->WasKeyPressed(VK_DELETE)) { // temp
-			g_Vars.globals.menuOpen = !g_Vars.globals.menuOpen;
-		}
+		if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_INSERT)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
 
 		Render::DirectX::begin( );
 		{
-			GUI::ctx->animation = g_Vars.globals.menuOpen ? ( GUI::ctx->animation + ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime )
-				: ( ( GUI::ctx->animation - ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime ) );
-
-			if( !g_Vars.globals.menuOpen )
-				GUI::ctx->ColorPickerInfo.HashedID = 0;
-
-			GUI::ctx->animation = std::clamp<float>( GUI::ctx->animation, 0.f, 1.0f );
-
 			if( g_Vars.antiaim.enabled && false ) {
 				auto m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
 				if( g_Vars.globals.HackIsReady && m_LocalPlayer && Interfaces::m_pEngine->IsInGame( ) && !m_LocalPlayer->IsDead() ) {
@@ -72,7 +61,6 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 			}
 
 			Hitmarkers::RenderHitmarkers( );
-			//Menu::Draw( );
 		}
 		Render::DirectX::end( );
 
@@ -160,7 +148,6 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 	}
 
 	g_IMGUIMenu.Initialized = g_IMGUIMenu.Initialize(pDevice); if (!g_IMGUIMenu.Initialized) return oPresent(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-	if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && (GetAsyncKeyState(VK_INSERT) & 1)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
 
 	pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
 	pDevice->GetVertexDeclaration(&vertDec);
