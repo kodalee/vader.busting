@@ -532,7 +532,7 @@ void CEsp::SpectatorList( bool window ) {
 		Vector2D pos = { g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y };
 
 		static float alpha = 0.f;
-		bool condition = !( spectators.empty( ) && !g_Vars.globals.menuOpen );
+		bool condition = !( spectators.empty( ) && !g_IMGUIMenu.Opened );
 		float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
 		if( condition && ( !pLocal ? true : pLocal->m_iObserverMode( ) != 6 ) ) {
 			alpha += multiplier * ( 1.0f - alpha );
@@ -643,7 +643,7 @@ void CEsp::Keybinds( ) {
 	float gaySize = this->m_KeyBinds.size.y;
 
 	static float alpha = 0.f;
-	bool condition = ( ( vecNames.empty( ) && g_Vars.globals.menuOpen ) || !vecNames.empty( ) );
+	bool condition = ( ( vecNames.empty( ) && g_IMGUIMenu.Opened) || !vecNames.empty( ) );
 	float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
 	if( condition ) {
 		alpha += multiplier * ( 1.0f - alpha );

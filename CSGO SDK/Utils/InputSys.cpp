@@ -112,7 +112,7 @@ LRESULT __stdcall Win32InputSys::WndProc( HWND hWnd, UINT msg, WPARAM wParam, LP
 		win32input->m_ScrollMouse += ( float )GET_WHEEL_DELTA_WPARAM( wParam ) / ( float )WHEEL_DELTA;
 	}
 
-	if( g_Vars.globals.menuOpen ) {
+	if( g_IMGUIMenu.Opened ) {
 		if( msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL )
 			return true;
 	}
