@@ -1902,7 +1902,7 @@ namespace Interfaces
 			}
 		}
 		else {
-			pPoint->healthRatio = 100;
+			pPoint->healthRatio = int(float(pPoint->target->player->m_iHealth()) / pPoint->damage) + 1;
 			pPoint->hitchance = 0.0f;
 			pPoint->damage = 0.f;
 		}
