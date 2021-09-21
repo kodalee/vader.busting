@@ -137,8 +137,8 @@ private:
 			return false;
 	};
 
-	C_Window m_KeyBinds = { Vector2D( g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y ), Vector2D( 180, 10 ), 0 };
-	C_Window m_SpecList = { Vector2D( g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y ), Vector2D( 180, 10 ), 1 };
+	C_Window m_KeyBinds = { Vector2D( g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y ), Vector2D( 145, 10 ), 0 };
+	C_Window m_SpecList = { Vector2D( g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y ), Vector2D( 145, 10 ), 1 };
 
 	void SpectatorList( bool window = false );
 	void Keybinds( );
@@ -207,70 +207,66 @@ void DrawWatermark( ) {
 		return;
 	}
 
-	bool connected = Interfaces::m_pEngine->IsInGame( );
+	// constants for colors.
+	// Constants for padding, etc...
+	const auto margin = 10; // Padding between screen edges and watermark
+	const auto padding = 4; // Padding between watermark elements
+
+	// Constants for colors
+	const auto col_background = Color(41, 32, 59, 175); // Watermark background color
+	const auto col_accent = Color(255, 215, 0); // Watermark line accent color
+	const auto col_text = Color(255, 255, 255); // Watermark text color
+
+	static auto framerate = 0.0f;
+	framerate = framerate * 0.9f + Interfaces::m_pGlobalVars->frametime * 0.1f;
+	auto fps = (int)(1.0f / framerate, 0.0f, 999.0f);
 
 
-	std::string text = XorStr( "geico " );
-	char char1 = g_Vars.globals.c_login[ 0 ], char2 = g_Vars.globals.c_login[ 1 ], char3 = g_Vars.globals.c_login[ 2 ], char5 = g_Vars.globals.c_login[ 5 ];
-
-	bool is_undercover = char1 == 'd' && char2 == 'e' && char3 == 'v';
-
+	// Cheat variables
+	std::string logo = XorStr("vader.tech");
 #ifdef DEV
-	text += XorStr( "[dev] | " );
-	std::string dev = g_Vars.misc.what_developer_is_this == 1 ? XorStr( "geico" ) : g_Vars.misc.what_developer_is_this == 2 ? XorStr( "xxxxx" ) : XorStr( "admin" );
-	text += dev;
-#else
-#ifdef BETA_MODE
+	logo.append(XorStr(" [dev]")); // :)
+#endif
+#ifdef BETA
+	logo.append(XorStr(" [beta]")); // :)
+#endif
+	const std::string user = XorStr("admin") /*g_cl.m_user*/;
 
-#ifdef DEBUG_MODE
-	text += XorStr( "[debug] " );
-#else
-	if( g_Vars.misc.undercover_watermark ) {
+	std::string text = logo + XorStr(" | ") + user;
 
-	}
-	else {
-		if( is_undercover ) {
-
-		}
-		else {
-			text += XorStr( "[beta] " );
-		}
-	}
-#endif //DEBUG_MODE
-#endif //BETA_MODE
-	text += XorStr( "| " );
-	text += is_undercover ? XorStr( "" ) : g_Vars.globals.c_login;
-#endif //DEV
-
-	if( connected ) {
-		auto netchannel = Encrypted_t<INetChannel>( Interfaces::m_pEngine->GetNetChannelInfo( ) );
-		if( !netchannel.IsValid( ) )
+	if (Interfaces::m_pEngine->IsInGame())
+	{
+		auto netchannel = Encrypted_t<INetChannel>(Interfaces::m_pEngine->GetNetChannelInfo());
+		if (!netchannel.IsValid())
 			return;
 
-		// get round trip time in milliseconds.
-		int ms = std::max( 0, ( int )std::round( netchannel->GetLatency( FLOW_OUTGOING ) * 1000.f ) );
+		// Game variables
+		auto delay = std::max(0, (int)std::round(netchannel->GetLatency(FLOW_OUTGOING) * 1000.f));
+		static auto framerate = 0.0f;
+		framerate = framerate * 0.9f + Interfaces::m_pGlobalVars->frametime * 0.1f;
+		auto fps = (int)(1.0f / framerate);
 
-		text += XorStr( " | " );
-		text += std::to_string( int( 1.0f / Interfaces::m_pGlobalVars->interval_per_tick ) );
-		text += XorStr( " ticks" );
-		text += XorStr( " | " );
-		text += std::to_string( ms );
-		text += XorStr( " ms" );
-	}
-	else {
-		text += XorStr( "" );
+		text = logo + XorStr(" | ") + user + XorStr(" | latency: ") + std::to_string(delay) + XorStr(" ms | ") + std::to_string(fps) + XorStr(" fps");
+
 	}
 
-	Render::Engine::FontSize_t size = Render::Engine::segoe.size( text );
+	Vector2D screen = Render::GetScreenSize();
 
-	Vector2D screen = Render::GetScreenSize( );
+	// Calculating text size and position
+	auto text_size = Render::Engine::watermark.size(text);
+	auto text_pos = Vector2D(screen.x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
+		margin + padding); // Top align
 
-	// background.
-	Render::Engine::RectFilled( screen.x - size.m_width - 20, 10, size.m_width + 10, size.m_height + 2, Color( 39, 41, 54, 220 ) );
-	Render::Engine::RectFilled( screen.x - size.m_width - 20, 10, 2, 16, g_Vars.menu.ascent.ToRegularColor( ) );
+	// Calculating watermark background size and position
+	auto bg_size = Vector2D(padding + text_size.m_width + padding, // Width
+		padding + text_size.m_height + padding); // Height
+	auto bg_pos = Vector2D(screen.x - margin - padding - text_size.m_width - padding, // Right align + margin
+		margin); // Top align
 
-	// text.
-	Render::Engine::segoe.string( screen.x - 15, 10, { 220, 220, 220, 250 }, text, Render::Engine::ALIGN_RIGHT );
+	Render::Engine::RectFilled(bg_pos.x, bg_pos.y, bg_size.x, bg_size.y, col_background); // Background
+	Render::Engine::Rect(bg_pos.x, bg_pos.y, bg_size.x, 2, col_accent); // Accent line
+	Render::Engine::watermark.string(text_pos.x, text_pos.y, col_text, text); // Text
+
 }
 
 bool CEsp::Begin( C_CSPlayer* player ) {
@@ -623,7 +619,7 @@ void CEsp::Keybinds( ) {
 	//	AddBind( XorStr( "Instant stop in air" ), g_Vars.misc.instant_stop_key );
 	//}
 
-	AddBind( XorStr( "Anti-aim invert" ), g_Vars.antiaim.desync_flip_bind );
+	//AddBind( XorStr( "Anti-aim invert" ), g_Vars.antiaim.desync_flip_bind );
 	//AddBind( XorStr( "Thirdperson" ), g_Vars.misc.third_person_bind );
 	//AddBind( XorStr( "Desync jitter" ), g_Vars.antiaim.desync_jitter_key );
 	AddBind( XorStr( "Hitscan override" ), g_Vars.rage.override_key );
@@ -667,39 +663,42 @@ void CEsp::Keybinds( ) {
 	this->m_KeyBinds.size.y = 20.0f;
 
 	// header
-	Render::Engine::RectFilled( pos, this->m_KeyBinds.size, Color( 39, 41, 54, 220 * alpha ) );
+	Render::Engine::RectFilled( pos, this->m_KeyBinds.size, Color( 41, 32, 59, 230 * alpha ) );
+
+	//line
+	Render::Engine::Rect(pos.x, pos.y, this->m_KeyBinds.size.x, 1.5f, Color(255, 215, 0, 240 * alpha));
 
 	// line splitting
-	Render::Engine::Line( pos + Vector2D( 0, this->m_KeyBinds.size.y ), pos + this->m_KeyBinds.size, accent );
-	Render::Engine::Line( pos + Vector2D( 0, this->m_KeyBinds.size.y + 1 ), pos + Vector2D( this->m_KeyBinds.size.x, this->m_KeyBinds.size.y + 1 ), accent );
+	//Render::Engine::Line( pos + Vector2D( 0, this->m_KeyBinds.size.y ), pos + this->m_KeyBinds.size, accent );
+	//Render::Engine::Line( pos + Vector2D( 0, this->m_KeyBinds.size.y + 1 ), pos + Vector2D( this->m_KeyBinds.size.x, this->m_KeyBinds.size.y + 1 ), accent );
 
 	this->m_KeyBinds.size.y = gaySize;
 
 	// the actual window
-	Render::Engine::RectFilled( pos + Vector2D( 0, 20 + 2 ), Vector2D( this->m_KeyBinds.size.x, this->m_KeyBinds.size.y - 1 ), main );
+	//Render::Engine::RectFilled( pos + Vector2D( 0, 20 + 2 ), Vector2D( this->m_KeyBinds.size.x, this->m_KeyBinds.size.y - 1 ), main );
 
-	auto hold_size = Render::Engine::segoe.size( XorStr( "[Hold]" ) );
-	auto toggle_size = Render::Engine::segoe.size( XorStr( "[Toggle]" ) );
-	auto always_size = Render::Engine::segoe.size( XorStr( "[Always]" ) );
+	auto hold_size = Render::Engine::keybinds.size( XorStr( "[Hold]" ) );
+	auto toggle_size = Render::Engine::keybinds.size( XorStr( "[Toggle]" ) );
+	auto always_size = Render::Engine::keybinds.size( XorStr( "[Always]" ) );
 
 	if( !vecNames.empty( ) ) {
-		float offset = 14.0f;
+		float offset = 15.0f;
 		for( auto name : vecNames ) {
 			// hotkey name
-			Render::Engine::segoe.string( pos.x + 2, pos.y + 9 + offset, Color::White( ).OverrideAlpha( 255 * alpha ), name.first.c_str( ) );
+			Render::Engine::keybinds.string( pos.x + 2, pos.y + 9 + offset, Color::White( ).OverrideAlpha( 255 * alpha ), name.first.c_str( ) );
 
 			// hotkey type
-			Render::Engine::segoe.string( pos.x + ( this->m_KeyBinds.size.x - ( name.second == KeyBindType::HOLD ? hold_size.m_width : name.second == KeyBindType::TOGGLE ? toggle_size.m_width : always_size.m_width ) ), pos.y + 9 + offset, Color::White( ).OverrideAlpha( 255 * alpha ),
-				name.second == KeyBindType::HOLD ? XorStr( "Hold" ) : name.second == KeyBindType::TOGGLE ? XorStr( "Toggle" ) : XorStr( "Always" ) );
+			Render::Engine::keybinds.string( pos.x + ( this->m_KeyBinds.size.x - ( name.second == KeyBindType::HOLD ? hold_size.m_width : name.second == KeyBindType::TOGGLE ? toggle_size.m_width : always_size.m_width ) ), pos.y + 9 + offset, Color::White( ).OverrideAlpha( 255 * alpha ),
+				name.second == KeyBindType::HOLD ? XorStr( "[Hold]" ) : name.second == KeyBindType::TOGGLE ? XorStr( "[Toggle]" ) : XorStr( "[Always]" ) );
 
 			// add offset
-			offset += 13.0f;
+			offset += 14.0f;
 		}
 	}
 
 	// title
-	auto size = Render::Engine::segoe.size( XorStr( "Hotkeys" ) );
-	Render::Engine::segoe.string( pos.x + ( this->m_KeyBinds.size.x * 0.5 ) - 2, pos.y + ( size.m_height * 0.5 ) - 4, Color::White( ).OverrideAlpha( 255 * alpha ), XorStr( "Hotkeys" ), Render::Engine::ALIGN_CENTER );
+	auto size = Render::Engine::esp.size( XorStr( "keybinds" ) );
+	Render::Engine::esp.string( pos.x + ( this->m_KeyBinds.size.x * 0.5 ) - 2, pos.y + ( size.m_height * 0.5 ) - 4, Color::White( ).OverrideAlpha( 255 * alpha ), XorStr( "keybinds" ), Render::Engine::ALIGN_CENTER );
 }
 
 // lol
@@ -1146,7 +1145,7 @@ void CEsp::Main( ) {
 									if( !valid_molotovs.empty( ) )
 										for( int m = 0; m < valid_molotovs.size( ); ++m ) {
 											auto ba = valid_molotovs[ m ];
-											Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
+											//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
 											Render::Engine::Line( ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 220 ) );
 										}
 								}
@@ -1155,7 +1154,7 @@ void CEsp::Main( ) {
 								if( !valid_molotovs.empty( ) )
 									for( int m = 0; m < valid_molotovs.size( ); ++m ) {
 										auto ba = valid_molotovs[ m ];
-										Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
+										//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
 										Render::Engine::Line( ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 220 ) );
 									}
 							}
@@ -1452,13 +1451,13 @@ void CEsp::Main( ) {
 				continue;
 
 			if( g_Vars.esp.dropped_weapons ) {
-				Render::Engine::segoe.string( out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ), name );
+				Render::Engine::esp.string( out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ), name );
 			}
 
 			if( g_Vars.esp.dropped_weapons_ammo ) {
 				auto clip = weapon->m_iClip1( );
 				if( clip > 0 ) {
-					const auto TextSize = Render::Engine::segoe.size( name );
+					const auto TextSize = Render::Engine::esp.size( name );
 
 					const auto MaxClip = weapondata->m_iMaxClip;
 					auto Width = TextSize.m_width;
@@ -1922,10 +1921,10 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	//	name.append( XorStr( " (" ) ).append( std::to_string( player->m_entIndex ) ).append( XorStr( ")" ) );
 	//#endif
 
-	Color clr = g_Vars.esp.name_color.ToRegularColor( ).OverrideAlpha( 180, true );
+	Color clr = g_Vars.esp.name_color.ToRegularColor( ).OverrideAlpha( 255, true );
 	clr.RGBA[ 3 ] *= m_flAlpha[ player->EntIndex( ) ];
 
-	Render::Engine::segoe.string( bbox.x + bbox.w / 2, bbox.y - Render::Engine::segoe.m_size.m_height - 1, clr, name, Render::Engine::ALIGN_CENTER );
+	Render::Engine::esp.string( bbox.x + bbox.w / 2, bbox.y - Render::Engine::segoe.m_size.m_height - 1, clr, name, Render::Engine::ALIGN_CENTER );
 
 	/*if( g_Vars.globals.nOverrideEnemy == player->EntIndex( ) ) {
 		Color clr = Color( 255, 255, 255, 180 );
