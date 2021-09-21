@@ -90,6 +90,7 @@ namespace Engine {
 			}
 		};
 		void FindBestAngle( C_CSPlayer* player );
+		void MatchShot(C_CSPlayer* data, C_AnimationRecord* record);
 	};
 
 	extern CResolver g_Resolver;

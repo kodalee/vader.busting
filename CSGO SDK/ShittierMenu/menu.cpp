@@ -20,7 +20,7 @@ namespace ImGuiEx
         };
 
         if(ImGui::ColorEdit4(label, &clr.x, show_alpha | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip)) {
-        //    v->SetColor(clr.x, clr.y, clr.z, clr.w); ???????????
+            v->SetColor(clr.x, clr.y, clr.z, clr.w);
             return true;
         }
         return false;
@@ -62,8 +62,8 @@ void Ragebot()
 	ImGui::NewLine();
 	{
 		static bool testbox1 = false;
-		Color testpicker1;
-		Color testpicker2;
+		Color testpicker1(255, 255, 255, 255);
+		Color testpicker2(255, 255, 255, 255);
 		InsertCheckbox(Testbox, "Cum", &testbox1);
 
 		ImGuiEx::ColorEdit4("##testpicker1", &testpicker1, true);

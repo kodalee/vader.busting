@@ -4,6 +4,7 @@
 #include <sstream>      // std::stringstream
 #include <iomanip>      // std::stringstream
 #include "../../Utils/XorStr.hpp"
+#include <intrin.h>
 
 #define IS_IN_RANGE( value, max, min ) ( value >= max && value <= min )
 #define GET_BITS( value ) ( IS_IN_RANGE( value, '0', '9' ) ? ( value - '0' ) : ( ( value & ( ~0x20 ) ) - 'A' + 0xA ) )
@@ -253,6 +254,11 @@ namespace SDK::Memory
 
 		// We for some odd reason didn't find any valid xrefs
 		return nullptr;
+	}
+
+	// get base ptr ( EBP (x86_32) / RBP (x86_64) ).
+	std::uintptr_t GetBasePointer() {
+		return (uintptr_t)_AddressOfReturnAddress() - sizeof(uintptr_t);
 	}
 
 	std::uintptr_t Scan( const std::string& image_name, const std::string& signature, bool LOL ) {

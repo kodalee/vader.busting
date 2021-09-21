@@ -5,6 +5,8 @@
 #include "../../SDK/Valve/CBaseHandle.hpp"
 #include "../../Features/Rage/LagCompensation.hpp"
 #include "../../Features/Rage/Resolver.hpp"
+#include "../../Utils/address.h"
+#include "../../Utils/stack.h"
 
 namespace Hooked
 {
@@ -18,6 +20,25 @@ namespace Hooked
 		if( g_Vars.esp.remove_smoke ) {
 			*reinterpret_cast< bool* >( reinterpret_cast< uintptr_t >( pOut ) + 0x1 ) = true;
 		}
+	}
+
+	void RecvProxy_m_flLowerBodyYawTarget(CRecvProxyData* data, Address ptr, Address out) {
+		Stack stack;
+
+		static Address RecvTable_Decode{ Memory::Scan(XorStr("engine.dll"), XorStr("EB 0D FF 77 10")) };
+
+		// call from entity going into pvs.
+		if (stack.next().next().ReturnAddress() != RecvTable_Decode) {
+			// convert to player.
+			C_CSPlayer* player = ptr.as< C_CSPlayer* >();
+
+			// store data about the update.
+			Engine::g_Resolver.OnBodyUpdate(player, data->m_Value.m_Float);
+		}
+
+		// call original proxy.
+		if (g_hooks.m_Body_original)
+			g_hooks.m_Body_original(data, ptr, out);
 	}
 
 	void RecvProxy_m_flAbsYaw( CRecvProxyData* pData, void* pStruct, void* pOut ) {
