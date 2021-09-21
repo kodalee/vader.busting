@@ -50,6 +50,8 @@ namespace Engine {
 	public:
 		void ResolveManual( C_CSPlayer* player, C_AnimationRecord* record, bool bDisallow = false );
 		void ResolveYaw( C_CSPlayer* player, C_AnimationRecord* record );
+		void OnBodyUpdate(C_CSPlayer* player, float value);
+		void MatchShot(C_CSPlayer* data, C_AnimationRecord* record);
 
 		void PredictBodyUpdates( C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev );
 		 
@@ -90,7 +92,6 @@ namespace Engine {
 			}
 		};
 		void FindBestAngle( C_CSPlayer* player );
-		void MatchShot(C_CSPlayer* data, C_AnimationRecord* record);
 	};
 
 	extern CResolver g_Resolver;
