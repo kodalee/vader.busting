@@ -2150,6 +2150,336 @@ bool ImGui::Hotkey(const char* label, int* variable, int* key_style, const ImVec
 	return value_changed;
 }
 
+
+static float CalcMaxPopupHeightFromItemCount3(int items_count)
+{
+	ImGuiContext& g = *GImGui;
+	if (items_count <= 0)
+		return FLT_MAX;
+	return 19 * items_count + items_count % 4;
+}
+
+const char* keys[] = {
+	"[-]",
+	"[M1]",
+	"[M2]",
+	"[CN]",
+	"[M3]",
+	"[M4]",
+	"[M5]",
+	"[-]",
+	"[BAC]",
+	"[TAB]",
+	"[-]",
+	"[-]",
+	"[CLR]",
+	"[RET]",
+	"[-]",
+	"[-]",
+	"[SHI]",
+	"[CTL]",
+	"[MEN]",
+	"[PAU]",
+	"[CAP]",
+	"[KAN]",
+	"[-]",
+	"[JUN]",
+	"[FIN]",
+	"[KAN]",
+	"[-]",
+	"[ESC]",
+	"[CON]",
+	"[NCO]",
+	"[ACC]",
+	"[MAD]",
+	"[SPA]",
+	"[PGU]",
+	"[PGD]",
+	"[END]",
+	"[HOM]",
+	"[LEF]",
+	"[UP]",
+	"[RIG]",
+	"[DOW]",
+	"[SEL]",
+	"[PRI]",
+	"[EXE]",
+	"[PRI]",
+	"[INS]",
+	"[DEL]",
+	"[HEL]",
+	"[0]",
+	"[1]",
+	"[2]",
+	"[3]",
+	"[4]",
+	"[5]",
+	"[6]",
+	"[7]",
+	"[8]",
+	"[9]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[A]",
+	"[B]",
+	"[C]",
+	"[D]",
+	"[E]",
+	"[F]",
+	"[G]",
+	"[H]",
+	"[I]",
+	"[J]",
+	"[K]",
+	"[L]",
+	"[M]",
+	"[N]",
+	"[O]",
+	"[P]",
+	"[Q]",
+	"[R]",
+	"[S]",
+	"[T]",
+	"[U]",
+	"[V]",
+	"[W]",
+	"[X]",
+	"[Y]",
+	"[Z]",
+	"[WIN]",
+	"[WIN]",
+	"[APP]",
+	"[-]",
+	"[SLE]",
+	"[NUM]",
+	"[NUM]",
+	"[NUM]",
+	"[NUM]",
+	"[NUM]",
+	"[NUM]",
+	"[NUM]",
+	"[NUM]",
+	"[NUM]",
+	"[NUM]",
+	"[MUL]",
+	"[ADD]",
+	"[SEP]",
+	"[MIN]",
+	"[DEC]",
+	"[DIV]",
+	"[F1]",
+	"[F2]",
+	"[F3]",
+	"[F4]",
+	"[F5]",
+	"[F6]",
+	"[F7]",
+	"[F8]",
+	"[F9]",
+	"[F10]",
+	"[F11]",
+	"[F12]",
+	"[F13]",
+	"[F14]",
+	"[F15]",
+	"[F16]",
+	"[F17]",
+	"[F18]",
+	"[F19]",
+	"[F20]",
+	"[F21]",
+	"[F22]",
+	"[F23]",
+	"[F24]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[NUM]",
+	"[SCR]",
+	"[EQU]",
+	"[MAS]",
+	"[TOY]",
+	"[OYA]",
+	"[OYA]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[-]",
+	"[SHI]",
+	"[SHI]",
+	"[CTR]",
+	"[CTR]",
+	"[ALT]",
+	"[ALT]"
+};
+
+#define VK_LBUTTON        0x01
+#define VK_RBUTTON        0x02
+#define VK_MBUTTON        0x04
+#define VK_XBUTTON1       0x05
+#define VK_XBUTTON2       0x06
+#define VK_BACK           0x08
+#define VK_RMENU          0xA5
+ImFont* ImGui::SmallestPixel;
+bool ImGui::Keybind(const char* str_id, int* current_key, int* key_style) {
+	ImGuiWindow* window = GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	SameLine(window->Size.x - 35);
+
+	ImGuiContext& g = *GImGui;
+
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(str_id);
+	ImGuiIO* io = &GetIO();
+
+	const ImVec2 label_size = CalcTextSize(keys[*current_key]);
+	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + label_size);
+	const ImRect total_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(window->Pos.x + window->Size.x - window->DC.CursorPos.x, label_size.y));
+	ItemSize(total_bb, style.FramePadding.y);
+	if (!ItemAdd(total_bb, id, &frame_bb))
+		return false;
+
+	const bool hovered = IsItemHovered();
+	const bool edit_requested = hovered && io->MouseClicked[0];
+	const bool style_requested = hovered && io->MouseClicked[1];
+
+	if (edit_requested) {
+		if (g.ActiveId != id) {
+			memset(io->MouseDown, 0, sizeof(io->MouseDown));
+			memset(io->KeysDown, 0, sizeof(io->KeysDown));
+			*current_key = 0;
+		}
+
+		SetActiveID(id, window);
+		FocusWindow(window);
+	}
+	else if (!hovered && io->MouseClicked[0] && g.ActiveId == id)
+		ClearActiveID();
+
+	bool value_changed = false;
+	int key = *current_key;
+
+	if (g.ActiveId == id) {
+		for (auto i = 0; i < 5; i++) {
+			if (io->MouseDown[i]) {
+				switch (i) {
+				case 0:
+					key = VK_LBUTTON;
+					break;
+				case 1:
+					key = VK_RBUTTON;
+					break;
+				case 2:
+					key = VK_MBUTTON;
+					break;
+				case 3:
+					key = VK_XBUTTON1;
+					break;
+				case 4:
+					key = VK_XBUTTON2;
+				}
+				value_changed = true;
+				ClearActiveID();
+			}
+		}
+
+		if (!value_changed) {
+			for (auto i = VK_BACK; i <= VK_RMENU; i++) {
+				if (io->KeysDown[i]) {
+					key = i;
+					value_changed = true;
+					ClearActiveID();
+				}
+			}
+		}
+
+		if (IsKeyPressedMap(ImGuiKey_Escape)) {
+			*current_key = 0;
+			ClearActiveID();
+		}
+		else
+			*current_key = key;
+	}
+	else {
+		if (key_style) {
+			bool popup_open = IsPopupOpen(id);
+
+			if (style_requested && !popup_open)
+				OpenPopupEx(id);
+
+			if (popup_open) {
+				SetNextWindowSize(ImVec2(100, CalcMaxPopupHeightFromItemCount3(4)));
+
+				char name[16];
+				ImFormatString(name, IM_ARRAYSIZE(name), "##Combo_%02d", g.BeginPopupStack.Size); // Recycle windows based on depth
+
+				// Peak into expected window size so we can position it
+				if (ImGuiWindow* popup_window = FindWindowByName(name))
+					if (popup_window->WasActive)
+					{
+						ImVec2 size_expected = CalcWindowExpectedSize(popup_window);
+						ImRect r_outer = GetWindowAllowedExtentRect(popup_window);
+						ImVec2 pos = FindBestWindowPosForPopupEx(frame_bb.GetBL(), size_expected, &popup_window->AutoPosLastDirection, r_outer, frame_bb, ImGuiPopupPositionPolicy_ComboBox);
+						SetNextWindowPos(pos);
+					}
+
+				// Horizontally align ourselves with the framed text
+				ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_Popup | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
+				PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(style.FramePadding.x, style.WindowPadding.y));
+				bool ret = Begin(name, NULL, window_flags);
+				PopStyleVar();
+
+				if (Selectable("Always On", *key_style == 0))
+					*key_style = 0;
+
+				if (Selectable("On Hotkey", *key_style == 1))
+					*key_style = 1;
+
+				if (Selectable("Toggle", *key_style == 2))
+					*key_style = 2;
+
+				if (Selectable("Off Hotkey", *key_style == 3))
+					*key_style = 3;
+
+				EndPopup();
+			}
+		}
+	}
+
+	char buf_display[64] = "[-]";
+
+	if (*current_key != 0 && g.ActiveId != id)
+		strcpy_s(buf_display, keys[*current_key]);
+	else if (g.ActiveId == id)
+		strcpy_s(buf_display, "[-]");
+
+	ImColor text_color = ImColor(90 / 255.f, 90 / 255.f, 90 / 255.f, 1.0f);
+	if (hovered) text_color = ImColor(145 / 255.f, 145 / 255.f, 145 / 255.f, 1.0f);
+	if (g.ActiveId == id) text_color = ImColor(195 / 255.f, 195 / 255.f, 195 / 255.f, 1.0f);
+
+	window->DrawList->AddText(frame_bb.Min, text_color, buf_display);
+
+	return value_changed;
+}
+
+
 //-------------------------------------------------------------------------
 // [SECTION] Widgets: ComboBox
 //-------------------------------------------------------------------------
@@ -2167,8 +2497,7 @@ static float CalcMaxPopupHeightFromItemCount(int items_count)
 	return (g.FontSize + g.Style.ItemSpacing.y) * items_count - g.Style.ItemSpacing.y + (g.Style.WindowPadding.y * 2);
 }
 
-bool ImGui::MultiCombo(const char* name, const char** displayName, bool* data, int dataSize) {
-
+bool ImGui::MultiCombo(const char* name, std::vector< MultiItem_t > options) {
 	ImGui::PushID(name);
 
 	char previewText[1024] = { 0 };
@@ -2177,14 +2506,13 @@ bool ImGui::MultiCombo(const char* name, const char** displayName, bool* data, i
 	int currentPreviewTextLen = 0;
 	float multicomboWidth = 185.f;
 
-	for (int i = 0; i < dataSize; i++) {
-
-		if (data[i] == true) {
+	for (int i = 0; i < options.size(); i++) {
+		if (*options.at(i).value) {
 
 			if (currentPreviewTextLen == 0)
-				sprintf(buf, "%s", displayName[i]);
+				sprintf(buf, "%s", options.at(i).name.c_str());
 			else
-				sprintf(buf, ", %s", displayName[i]);
+				sprintf(buf, ", %s", options.at(i).name.c_str());
 
 			strcpy(buf2, previewText);
 			sprintf(buf2 + currentPreviewTextLen, buf);
@@ -2211,15 +2539,10 @@ bool ImGui::MultiCombo(const char* name, const char** displayName, bool* data, i
 
 	if (ImGui::BeginCombo(name, previewText)) {
 
-		for (int i = 0; i < dataSize; i++) {
+		for (int i = 0; i < options.size(); i++) {
 
-			sprintf(buf, displayName[i]);
-
-			if (ImGui::Selectable(buf, data[i], ImGuiSelectableFlags_DontClosePopups)) {
-
-				data[i] = !data[i];
-				isDataChanged = true;
-			}
+			sprintf(buf, options.at(i).name.c_str());
+			ImGui::Selectable(buf, options.at(i).value, ImGuiSelectableFlags_DontClosePopups);
 		}
 
 		ImGui::EndCombo();

@@ -45,12 +45,8 @@ namespace Hooked
 	}
 
 	void RecvProxy_m_flLowerBodyYawTarget(CRecvProxyData* data, void* ptr, void* out) {
-
-		static DWORD fnCopyNewEntity = Memory::Scan(XorStr("engine.dll"), XorStr("EB 3F FF 77 10"));
-
-		if (fnCopyNewEntity != GetReturnAddress(2)) 
-			Engine::g_Resolver.OnBodyUpdate((C_CSPlayer*)ptr, data->m_Value.m_Float);
-
+		static DWORD fnCopyNewEntity = Memory::Scan(XorStr("engine.dll"), XorStr("EB 0D FF 77 10"));
+		if (fnCopyNewEntity != GetReturnAddress(2)) Engine::g_Resolver.OnBodyUpdate((C_CSPlayer*)ptr, data->m_Value.m_Float);
 		if (Interfaces::m_Body_original) Interfaces::m_Body_original->GetOriginalFunction()(data, ptr, out);
 	}
 
