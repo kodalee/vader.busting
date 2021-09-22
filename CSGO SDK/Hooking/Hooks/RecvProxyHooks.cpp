@@ -26,7 +26,7 @@ namespace Hooked
 
 		Stack stack;
 
-		static Address RecvTable_Decode = (void*)Memory::Scan(XorStr("engine.dll"), XorStr("EB 0D FF 77 10"));
+		static Address RecvTable_Decode = Memory::Scan(XorStr("engine.dll"), XorStr("EB 0D FF 77 10"));
 
 		// call from entity going into pvs.
 		if (stack.next().next().ReturnAddress() != RecvTable_Decode) {
