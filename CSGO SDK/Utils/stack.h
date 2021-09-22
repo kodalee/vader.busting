@@ -1,6 +1,5 @@
 #pragma once
 #include "address.h"
-#include "../SDK/Utils/PatternScan.hpp"
 
 class Stack : public Address {
 public:
