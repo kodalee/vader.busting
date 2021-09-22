@@ -281,20 +281,21 @@ namespace Engine
 
 						player_info_t info;
 						if (Interfaces::m_pEngine->GetPlayerInfo(it->snapshot->playerIdx, &info)) {
+							msg << XorStr("missed shot ");
 #if defined (BETA_MODE) || defined(DEV)
 							msg << XorStr("reason: ") << reason.data() << XorStr(" | ");
-							msg << XorStr("flick: ") << int(it->snapshot->resolve_record.m_iResolverMode == EResolverModes::RESOLVE_PRED) << XorStr(" | ");
+							msg << XorStr("lby: ") << int(it->snapshot->resolve_record.m_iResolverMode == EResolverModes::RESOLVE_PRED) << XorStr(" | ");
 							//msg << XorStr( "dmg: " ) << it->snapshot->m_nSelectedDamage << XorStr( " | " );
 							msg << XorStr("hitgroup: ") << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" | ");
-							msg << XorStr("player: ") << FixedStrLength(info.szName).data();
+							msg << FixedStrLength(info.szName).data();
 
-							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), !g_Vars.misc.undercover_log, XorStr("missed shot "));
+							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), !g_Vars.misc.undercover_log, XorStr(""));
 #else
 							msg << XorStr("reason: ") << reason.data() << XorStr(" | ");
 							msg << XorStr("hitgroup: ") << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" | ");
 							msg << XorStr("ent: ") << FixedStrLength(info.szName).data();
 
-							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), false, XorStr("missed shot "));
+							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), false, XorStr(""));
 #endif
 						}
 					};

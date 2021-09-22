@@ -1532,14 +1532,14 @@ namespace Interfaces
 				continue;
 			}
 			else {
-				// if damage to the head is higher than hp, prioritize head or safe points
-				if (int(flMaxHeadDamage) > iHealth) {
-					// don't shoot at body if we can shoot head and kill enemy
-					if (!p.isHead) {
+				// if damage to body higher than hp, prioritize body or safe points
+				if (int(flMaxBodyDamage) >= (iHealth / 2) || g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+					// don't shoot at head if we can shoot body and kill enemy
+					if (!p.isBody) {
 						continue; // go to next point
 					}
 
-					// possibly good head point?
+					// possibly good body point?
 					if ((!bestPoint->center && p.target->hasCenter) || (!p.target->hasCenter && (int)p.damage > (int)bestPoint->damage))
 						bestPoint = &p;
 
@@ -1548,16 +1548,16 @@ namespace Interfaces
 						break;
 					}
 				}
-				// we cant do damage to the head, lets procced with bodyaim conditions.
+				// run head aim after baim conditions (body > head)
 				else {
-					// if damage to body higher than hp, prioritize body or safe points
-					if (int(flMaxBodyDamage) >= iHealth) {
-						// don't shoot at head if we can shoot body and kill enemy
-						if (!p.isBody) {
+					// if damage to the head is higher than hp, prioritize head or safe points
+					if (int(flMaxHeadDamage) > iHealth) {
+						//// don't shoot at body if we can shoot head and kill enemy
+						if (!p.isHead) {
 							continue; // go to next point
 						}
 
-						// possibly good body point?
+						// possibly good head point?
 						if ((!bestPoint->center && p.target->hasCenter) || (!p.target->hasCenter && (int)p.damage > (int)bestPoint->damage))
 							bestPoint = &p;
 
@@ -1566,6 +1566,7 @@ namespace Interfaces
 							break;
 						}
 					}
+
 				}
 			}
 
@@ -1603,8 +1604,8 @@ namespace Interfaces
 						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
 						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
 
-						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
-						//	targedt -= 3;
+						if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
+							targedt -= 3;
 
 						m_rage_data->m_pCmd->tick_count = targedt;
 
@@ -1715,15 +1716,15 @@ namespace Interfaces
 									buffer = XorStr("none");
 								}
 
-								msg << XorStr("dmg: ") << int(bestPoint->damage) << XorStr(" | ");
-								msg << XorStr("hitgroup: ") << TranslateHitbox(bestPoint->hitboxIndex).c_str() << XorStr("(") << int(bestPoint->pointscale * 100.f) << XorStr("%%%%)") << XorStr(" | ");
-								msg << XorStr("flick: ") << int(bestPoint->target->record->m_iResolverMode == 6) << XorStr(" | ");
+								//msg << XorStr("dmg: ") << int(bestPoint->damage) << XorStr(" | ");
+								msg << XorStr("hitgroup: ") << TranslateHitbox(bestPoint->hitboxIndex).c_str() /*<< XorStr("(") << int(bestPoint->pointscale * 100.f) << XorStr("%%%%)")*/ << XorStr(" | ");
+								msg << XorStr("lby: ") << int(bestPoint->target->record->m_iResolverMode == 6) << XorStr(" | ");
 								//msg << XorStr( "bt: " ) << TIME_TO_TICKS( m_lag_data->m_History.front( ).m_flSimulationTime - bestPoint->target->record->m_flSimulationTime ) << XorStr( " | " );
-								msg << XorStr("sent: ") << int(*m_rage_data->m_pSendPacket) << XorStr(" | ");
-								msg << XorStr("hc: ") << int(bestPoint->hitchance) << XorStr(" | ");
+								msg << XorStr("clientside: ") << int(*m_rage_data->m_pSendPacket) << XorStr(" | ");
+								msg << XorStr("hitchance: ") << int(bestPoint->hitchance) << XorStr(" | ");
 								//msg << XorStr( "miss: " ) << m_lag_data->m_iMissedShots << XorStr( ":" ) << m_lag_data->m_iMissedShotsLBY << XorStr( ":" ) << bestPoint->target->record->m_iResolverMode << XorStr( " | " );
 								//msg << XorStr( "flag: " ) << buffer.data( ) << XorStr( " | " );
-								msg << XorStr("player: ") << FixedStrLength(info.szName).data() << XorStr(" | ");
+								msg << FixedStrLength(info.szName).data() << XorStr(" | ");
 
 								ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(0.f, 0.518f, 1.f), !g_Vars.misc.undercover_log, XorStr("shot packet sent "));
 								//ILoggerEvent::Get()->PushEvent(std::to_string(m_lag_data->m_iMissedShots), FloatColor(0.8f, 0.8f, 0.0f), !g_Vars.misc.undercover_log, XorStr(""));
@@ -1843,7 +1844,7 @@ namespace Interfaces
 			auto hitbox = hitboxSet->pHitbox(pPoint->hitboxIndex);
 
 			pPoint->isHead = pPoint->hitboxIndex == HITBOX_HEAD || pPoint->hitboxIndex == HITBOX_NECK;
-			pPoint->isBody = pPoint->hitboxIndex == HITBOX_PELVIS || pPoint->hitboxIndex == HITBOX_STOMACH;
+			pPoint->isBody = pPoint->hitboxIndex == HITBOX_PELVIS || pPoint->hitboxIndex == HITBOX_STOMACH || pPoint->hitboxIndex == HITBOX_CHEST || pPoint->hitboxIndex == HITBOX_UPPER_CHEST || pPoint->hitboxIndex == HITBOX_LOWER_CHEST;
 
 			// nospread enabled
 			if (m_rage_data->m_flSpread != 0.0f && m_rage_data->m_flInaccuracy != 0.0f) {

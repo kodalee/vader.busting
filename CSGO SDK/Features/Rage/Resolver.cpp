@@ -296,7 +296,7 @@ namespace Engine {
 		// that we will have to later on use in our resolver.
 		g_ResolverData[ player->EntIndex( ) ].m_sMoveData.m_flAnimTime = player->m_flAnimationTime( );
 		g_ResolverData[ player->EntIndex( ) ].m_sMoveData.m_vecOrigin = record->m_vecOrigin;
-		g_ResolverData[ player->EntIndex( ) ].m_sMoveData.m_flLowerBodyYawTarget = record->m_flLowerBodyYawTarget;
+		//g_ResolverData[ player->EntIndex( ) ].m_sMoveData.m_flLowerBodyYawTarget = record->m_flLowerBodyYawTarget;
 		g_ResolverData[ player->EntIndex( ) ].m_sMoveData.m_flSimulationTime = record->m_flSimulationTime;
 	}
 
