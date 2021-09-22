@@ -56,6 +56,8 @@ namespace Hooked
 		if (fnCopyNewEntity != GetReturnAddress(2))
 			Engine::g_Resolver.on_lby_proxy((C_CSPlayer*)ptr, &data->m_Value.m_Float);
 
+		// BALLS
+
 		return Interfaces::m_Body_original->GetOriginalFunction()(data, ptr, out);
 	}
 
