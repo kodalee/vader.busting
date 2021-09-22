@@ -45,7 +45,8 @@ Index of this file:
 #include <stdarg.h>                 // va_list, va_start, va_end
 #include <stddef.h>                 // ptrdiff_t, NULL
 #include <string.h>                 // memset, memmove, memcpy, strlen, strchr, strcpy, strcmp
-
+#include <vector>
+#include "../../Menu/Framework/GUI.h"
 // Version
 // (Integer encoded as XYYZZ for use in #if preprocessor conditionals. Work in progress versions typically starts at XYY99 then bounce up to XYY00, XYY01 etc. when release tagging happens)
 #define IMGUI_VERSION               "1.74 WIP"
@@ -272,6 +273,8 @@ namespace ImGui
 
 	IMGUI_API bool CheckBoxAnimated(const char* label, bool* v, int animstep);
 
+	extern ImFont* SmallestPixel;
+
 	// Windows Utilities
 	// - 'current window' = the window we are appending into while inside a Begin()/End() block. 'next window' = next window we will Begin() into.
 	IMGUI_API bool          IsWindowAppearing();
@@ -436,7 +439,7 @@ namespace ImGui
 	// Widgets: Combo Box
 	// - The BeginCombo()/EndCombo() api allows you to manage your contents and selection state however you want it, by creating e.g. Selectable() items.
 	// - The old Combo() api are helpers over BeginCombo()/EndCombo() which are kept available for convenience purpose.
-	IMGUI_API bool			MultiCombo(const char* name, const char** displayName, bool* data, int dataSize);
+	IMGUI_API bool			MultiCombo(const char* name, std::vector< MultiItem_t > options);
 	IMGUI_API bool          BeginCombo(const char* label, const char* preview_value, ImGuiComboFlags flags = 0);
 	IMGUI_API void          EndCombo(); // only call EndCombo() if BeginCombo() returns true!
 	IMGUI_API bool          Combo(const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
@@ -499,6 +502,7 @@ namespace ImGui
 	IMGUI_API bool          InputScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_step = NULL, const void* p_step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags flags = 0);
 	IMGUI_API bool          InputScalarN(const char* label, ImGuiDataType data_type, void* p_data, int components, const void* p_step = NULL, const void* p_step_fast = NULL, const char* format = NULL, ImGuiInputTextFlags flags = 0);
 	IMGUI_API bool			Hotkey(const char* label, int* variable, int* current_key, const ImVec2& getSize);
+	IMGUI_API bool Keybind(const char* str_id, int* current_key, int* key_style = NULL);
 
 	// Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little colored preview square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
 	// - Note that in C++ a 'float v[X]' function argument is the _same_ as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible.

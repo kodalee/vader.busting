@@ -34,6 +34,18 @@ namespace ImGuiEx
  
 int tab = 0, aimbotTab = 1, rageTab = 0, legitTab = 0;
 
+enum WeaponGroup_t {
+	WEAPONGROUP_PISTOL,
+	WEAPONGROUP_HEAVYPISTOL,
+	WEAPONGROUP_RIFLE,
+	WEAPONGROUP_SNIPER,
+	WEAPONGROUP_AUTOSNIPER,
+	WEAPONGROUP_SUBMACHINE,
+	WEAPONGROUP_HEAVY,
+	WEAPONGROUP_SHOTGUN,
+	WEAPONGROUP_MAX
+};
+
 bool testbox = false, testbox1 = false;
 void Legitbot()
 {
@@ -61,13 +73,115 @@ void Ragebot()
 	ImGui::SetColumnOffset(3, group_w);
 	ImGui::NewLine();
 	{
-		static bool testbox1 = false;
-		Color testpicker1(255, 255, 255, 255);
-		Color testpicker2(255, 255, 255, 255);
-		InsertCheckbox(Testbox, "Cum", &testbox1);
+		static int current_weapon = 0, rage_current_group = 0, current_group = 0;
 
-		ImGuiEx::ColorEdit4("##testpicker1", &testpicker1, true);
-		ImGuiEx::ColorEdit4("##testpicker2", &testpicker2, true);
+		InsertCheckbox(EnableRagebot, XorStr("Enable"), &g_Vars.rage.enabled); ImGui::SameLine();
+		ImGui::Hotkey("##Aimkey", &g_Vars.rage.key.key, &g_Vars.rage.key.cond, ImVec2{ 60,20 });
+
+		InsertCheckbox(SilentAim, XorStr("Silent aim"), &g_Vars.rage.silent_aim);
+		InsertCheckbox(Autoshoot, XorStr("Automatic fire"), &g_Vars.rage.auto_fire);
+
+		CVariables::RAGE* rbot = nullptr;
+		switch (rageTab - 1) {
+		case WEAPONGROUP_PISTOL:
+			rbot = &g_Vars.rage_pistols;
+			break;
+		case WEAPONGROUP_HEAVYPISTOL:
+			rbot = &g_Vars.rage_heavypistols;
+			break;
+		case WEAPONGROUP_SUBMACHINE + 1:
+			rbot = &g_Vars.rage_smgs;
+			break;
+		case WEAPONGROUP_RIFLE:
+			rbot = &g_Vars.rage_rifles;
+			break;
+		case WEAPONGROUP_SHOTGUN + 1:
+			rbot = &g_Vars.rage_shotguns;
+			break;
+		case WEAPONGROUP_SNIPER:
+			rbot = &g_Vars.rage_awp;
+			break;
+		case WEAPONGROUP_SNIPER + 1:
+			rbot = &g_Vars.rage_scout;
+			break;
+		case WEAPONGROUP_HEAVY + 1:
+			rbot = &g_Vars.rage_heavys;
+			break;
+		case WEAPONGROUP_AUTOSNIPER + 1:
+			rbot = &g_Vars.rage_autosnipers;
+			break;
+		default:
+			rbot = &g_Vars.rage_default;
+			break;
+		}
+
+		InsertCheckbox(OverrideWeaponGroup, XorStr("Override weapon group") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->active);
+
+		const char* TargetSelection[] = { XorStr("Highest damage"), XorStr("Nearest to crosshair"), XorStr("Lowest health"), XorStr("Lowest distance"), XorStr("Lowest latency") };
+		InsertCombo(std::string(XorStr("Target selection") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->target_selection, TargetSelection);
+
+		std::vector<MultiItem_t> hitboxes = {
+			{ XorStr("Head"), &rbot->hitboxes_head },
+			{ XorStr("Neck"), &rbot->hitboxes_neck },
+			{ XorStr("Chest"), &rbot->hitboxes_chest },
+			{ XorStr("Stomach"), &rbot->hitboxes_stomach },
+			{ XorStr("Pelvis"), &rbot->hitboxes_pelvis },
+			{ XorStr("Arms"), &rbot->hitboxes_arms },
+			{ XorStr("Legs"), &rbot->hitboxes_legs },
+			{ XorStr("Feet"), &rbot->hitboxes_feets },
+		};
+		InsertMultiCombo(std::string(XorStr("Hitboxes") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), hitboxes);
+
+		InsertCheckbox(IgnoreLimbs, XorStr("Ignore limbs when moving") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->ignorelimbs_ifwalking);
+		InsertCheckbox(OverrideHitscan, XorStr("Override hitscan") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->override_hitscan);
+		ImGui::SameLine();
+		ImGui::Hotkey("##OverrideHitscanKey", &g_Vars.rage.override_key.key, &g_Vars.rage.override_key.cond, ImVec2{ 60,20 });
+		
+		if (rbot->override_hitscan) {
+			std::vector<MultiItem_t> override_hitboxes = {
+				{ XorStr("Head"), &rbot->bt_hitboxes_head },
+				{ XorStr("Neck"), &rbot->bt_hitboxes_neck },
+				{ XorStr("Chest"), &rbot->bt_hitboxes_chest },
+				{ XorStr("Stomach"), &rbot->bt_hitboxes_stomach },
+				{ XorStr("Pelvis"), &rbot->bt_hitboxes_pelvis },
+				{ XorStr("Arms"), &rbot->bt_hitboxes_arms },
+				{ XorStr("Legs"), &rbot->bt_hitboxes_legs },
+				{ XorStr("Feet"), &rbot->bt_hitboxes_feets },
+			};
+
+			InsertMultiCombo(std::string(XorStr("Override hitboxes") + std::string(XorStr("#") + std::to_string(rage_current_group))).c_str(), override_hitboxes);
+		}
+
+		std::vector<MultiItem_t> mp_safety_hitboxes = {
+			{ XorStr("Head"), &rbot->mp_hitboxes_head },
+			{ XorStr("Chest"), &rbot->mp_hitboxes_chest },
+			{ XorStr("Stomach"), &rbot->mp_hitboxes_stomach },
+			{ XorStr("Legs"), &rbot->mp_hitboxes_legs },
+			{ XorStr("Feet"), &rbot->mp_hitboxes_feets },
+		};
+
+		//	if (!mp_safety_hitboxes.empty())
+		//		GUI::Controls::MultiDropdown(XorStr("Multipoints") + std::string(XorStr("#") + std::to_string(rage_current_group)), mp_safety_hitboxes);
+
+		InsertCheckbox(StaticPointscale, XorStr("Static pointscale") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->static_point_scale);
+		InsertSliderFloat(std::string(XorStr("Point scale##687687675") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
+		InsertSliderFloat(std::string(XorStr("Stomach scale##68776678") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->body_point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
+		InsertSliderFloat(std::string(XorStr("Minimum hitchance") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->hitchance, 0.f, 100.f, XorStr("%.0f%%"));
+		InsertSliderInt(std::string(XorStr("Minimum dmg") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage_visible, 1, 130, std::string(rbot->min_damage_visible > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_visible - 100)))) : XorStr("%d hp")).c_str());
+		InsertCheckbox(AutomaticPenetration, XorStr("Automatic penetration") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->autowall);
+		if (rbot->autowall) {
+			InsertSliderInt(std::string(XorStr("Minimum penetration dmg") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage, 1.f, 130.f, std::string(rbot->min_damage > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage - 100)))) : XorStr("%d hp")).c_str());
+		}
+
+		InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.rage.exploit);
+		ImGui::SameLine();
+		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 60,20 });
+
+		InsertCheckbox(MinDmgOverride, XorStr("Minimum dmg override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
+		ImGui::SameLine();
+		ImGui::Hotkey("##MinDmgOverride", &g_Vars.rage.key_dmg_override.key, &g_Vars.rage.key_dmg_override.cond, ImVec2{ 60,20 });
+		//ImGui::Keybind(std::string(XorStr("Minimum dmg override key#key") + std::string(XorStr("#") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.key_dmg_override.key);
+		InsertSliderInt(std::string(XorStr("Dmg override amount##slider") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
 	}
 	ImGui::EndColumns();
 }
@@ -232,14 +346,15 @@ void IMGUIMenu::Render()
 		{
 			case 0:
 			{
-				ImGui::TrueSubTab("  Rage  ", aimbotTab, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab("  Legit  ", aimbotTab, 1, ImVec2(0.f, 25.f)); ImGui::SameLine();
-
-				ImGui::SameLine(195.f);
-				ImGui::TrueSubTab("  Rifle  ", legitTab, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab("  Sniper  ", legitTab, 1, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab("  Pistol  ", legitTab, 2, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab("  Other  ", legitTab, 3, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Pistols  ", rageTab, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Heavy pistols  ", rageTab, 1, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Rifles  ", rageTab, 2, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  AWP  ", rageTab, 3, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Scout  ", rageTab, 4, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Auto snipers  ", rageTab, 5, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Sub machines  ", rageTab, 6, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Heavys  ", rageTab, 7, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Shotguns  ", rageTab, 8, ImVec2(0.f, 25.f)); ImGui::SameLine();
 
 				break;
 			}
@@ -321,7 +436,7 @@ void IMGUIMenu::CreateStyle()
 	StarWars = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(star_wars_compressed_data, star_wars_compressed_size, 50.f);
 	watermark = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravityb_compressed_data, gravityb_compressed_size, 16.f);
 	gravityBold = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravityb_compressed_data, gravityb_compressed_size, 13.f);
-
+	ImGui::SmallestPixel = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(smallestpixel_compressed_data, smallestpixel_compressed_size, 10, NULL, io.Fonts->GetGlyphRangesCyrillic());
 
 }
 
