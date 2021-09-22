@@ -1086,7 +1086,7 @@ void CEsp::Main( ) {
 
 					if( player->m_iTeamNum( ) == m_LocalPlayer->m_iTeamNum( ) && player->EntIndex( ) != m_LocalPlayer->EntIndex( ) ) {
 						if( g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt( ) == 0 ) {
-							color = FloatColor( 0, 0, 0, 0 );
+							color = FloatColor( 66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.f);
 						}
 					}
 
@@ -1159,12 +1159,14 @@ void CEsp::Main( ) {
 									}
 							}
 
-							char buf[ 128 ] = { };
-							sprintf( buf, XorStr( "Fire : %.2fs" ), time );
-							Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
-								Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
+							char buf[128] = { };
+							sprintf(buf, XorStr(" - %.2fs"), time);
+							//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
+							//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-							Render::Engine::segoe.string( new_pos.x + ( Render::Engine::segoe.size( buf ).m_width * 0.5f ), new_pos.y - 15, Color( 255, 0, 0, 220 ), buf, Render::Engine::ALIGN_CENTER );
+							Render::Engine::cs_huge.string( new_pos.x - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color( 255, 255, 255, 255 ), "n", Render::Engine::ALIGN_CENTER );
+							Render::Engine::grenades.string(new_pos.x + 2, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+
 						}
 						else {
 							if( !valid_molotovs.empty( ) )
@@ -1194,7 +1196,7 @@ void CEsp::Main( ) {
 					static const auto size = Vector2D( 70.f, 4.f );
 
 					auto new_pos = Vector2D( screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5 );
-					if( time > 0.05f ) {
+					if( time > 0.f ) {
 						auto radius = 120.f;
 
 						const int accuracy = 25;
@@ -1228,7 +1230,7 @@ void CEsp::Main( ) {
 								if( !valid_smokes.empty( ) )
 									for( int m = 0; m < valid_smokes.size( ); ++m ) {
 										auto ba = valid_smokes[ m ];
-										Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
+										//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
 										Render::Engine::Line( ba.a, ba.b, Color( 220, 220, 220, 220 ) );
 									}
 							}
@@ -1237,17 +1239,19 @@ void CEsp::Main( ) {
 							if( !valid_smokes.empty( ) )
 								for( int m = 0; m < valid_smokes.size( ); ++m ) {
 									auto ba = valid_smokes[ m ];
-									Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
+									//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
 									Render::Engine::Line( ba.a, ba.b, Color( 220, 220, 220, 220 ) );
 								}
 						}
 
 						char buf[ 128 ] = { };
-						sprintf( buf, XorStr( "Smoke : %.2fs" ), time );
-						Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
-							Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
+						sprintf( buf, XorStr( " - %.2fs" ), time );
+						//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
+						//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-						Render::Engine::segoe.string( new_pos.x + ( Render::Engine::segoe.size( buf ).m_width * 0.5f ), new_pos.y - 15, Color( 0, 230, 255, 180 ), buf, Render::Engine::ALIGN_CENTER );
+						Render::Engine::cs_huge.string(new_pos.x - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "m", Render::Engine::ALIGN_CENTER);
+						Render::Engine::grenades.string(new_pos.x + 2, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+
 					}
 					else {
 						if( !valid_smokes.empty( ) )
@@ -1589,16 +1593,16 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 	switch( nade->GetClientClass( )->m_ClassID ) {
 	case ClassId_t::CBaseCSGrenadeProjectile:
 		if( Name[ 16 ] == 's' ) {
-			Name = XorStr( "FLASH" );
+			Name = XorStr( "k" );
 			item_definition = WEAPON_FLASHBANG;
 		}
 		else {
-			Name = XorStr( "FRAG" );
+			Name = XorStr( "l" );
 			item_definition = WEAPON_HEGRENADE;
 		}
 		break;
 	case ClassId_t::CSmokeGrenadeProjectile:
-		Name = XorStr( "SMOKE" );
+		Name = XorStr( "m" );
 		item_definition = WEAPON_SMOKE;
 		pSmokeEffect = reinterpret_cast< C_SmokeGrenadeProjectile* >( nade );
 		if( pSmokeEffect ) {
@@ -1614,7 +1618,7 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 		}
 		break;
 	case ClassId_t::CMolotovProjectile:
-		Name = XorStr( "FIRE" );
+		Name = XorStr( "n" );
 		// bich
 		if( nade && ( nade->m_hOwnerEntity( ).Get( ) ) && ( ( C_CSPlayer* )( nade->m_hOwnerEntity( ).Get( ) ) ) ) {
 			item_definition = ( ( C_CSPlayer* )( nade->m_hOwnerEntity( ).Get( ) ) )->m_iTeamNum( ) == TEAM_CT ? WEAPON_FIREBOMB : WEAPON_MOLOTOV;
@@ -1632,7 +1636,7 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 		}
 		break;
 	case ClassId_t::CDecoyProjectile:
-		Name = XorStr( "DECOY" );
+		Name = XorStr( "o" );
 		item_definition = WEAPON_DECOY;
 		break;
 	default:
@@ -1645,7 +1649,7 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 	if( !GetBBox( nade, points_transformed, size ) || dont_render )
 		return;
 
-	Render::Engine::segoe.string( size.x, size.y - 2, Color( 255, 255, 255, 220 ), Name.c_str( ), Render::Engine::ALIGN_CENTER );
+	Render::Engine::cs_huge.string( size.x, size.y - 2, Color( 255, 255, 255, 220 ), Name.c_str( ), Render::Engine::ALIGN_CENTER );
 }
 
 void CEsp::DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player ) {
