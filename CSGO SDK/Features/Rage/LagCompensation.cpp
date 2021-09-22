@@ -114,32 +114,31 @@ namespace Engine
 		}
 	}
 
-	bool C_LagCompensation::IsRecordOutOfBounds( const Engine::C_LagRecord& record, float flTargetTime, int nTickbaseShiftTicks, bool bDeadTimeCheck ) const {
-		Encrypted_t<INetChannel> pNetChannel = Encrypted_t<INetChannel>( Interfaces::m_pEngine->GetNetChannelInfo( ) );
-		if( !pNetChannel.IsValid( ) )
+	bool C_LagCompensation::IsRecordOutOfBounds(const Engine::C_LagRecord& record, float flTargetTime, int nTickbaseShiftTicks, bool bDeadTimeCheck) const {
+		Encrypted_t<INetChannel> pNetChannel = Encrypted_t<INetChannel>(Interfaces::m_pEngine->GetNetChannelInfo());
+		if (!pNetChannel.IsValid())
 			return true;
 
-		C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer( );
-		if( !pLocal )
+		C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer();
+		if (!pLocal)
 			return true;
 
 		// use prediction curtime for this.
-		float curtime = TICKS_TO_TIME( pLocal->m_nTickBase( ) - g_TickbaseController.s_nExtraProcessingTicks );
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
 
 		// correct is the amount of time we have to correct game time,
-		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor( )->m_flOutLatency;
+		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flServerLatency;
 
 		// stupid fake latency goes into the incoming latency.
-		correct += lagData.Xor( )->m_flServerLatency;
+		//correct += lagData.Xor( )->m_flServerLatency;
 
 		// check bounds [ 0, sv_maxunlag ]
-		Math::Clamp( correct, 0.f, 1.0f );
+		Math::Clamp(correct, 0.f, 1.0f);
 
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
-		return std::fabsf( correct - ( curtime - record.m_flSimulationTime ) ) <= flTargetTime;
+		return std::fabsf(correct - (curtime - record.m_flSimulationTime)) < flTargetTime;
 	}
-
 	void C_LagCompensation::SetupLerpTime( ) {
 		float updaterate = g_Vars.cl_updaterate->GetFloat( );
 

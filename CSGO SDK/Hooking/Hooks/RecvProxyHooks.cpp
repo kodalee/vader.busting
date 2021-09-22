@@ -44,14 +44,19 @@ namespace Hooked
 		}
 	}
 
-	void RecvProxy_m_flLowerBodyYawTarget(CRecvProxyData* data, void* ptr, void* out) {
+	void __cdecl RecvProxy_m_flLowerBodyYawTarget(CRecvProxyData* data, void* ptr, void* out) {
+
+		if (!data || !ptr || !out)
+			return;
+
+		g_Vars.globals.szLastHookCalled = XorStr("48");
 
 		static DWORD fnCopyNewEntity = Memory::Scan(XorStr("engine.dll"), XorStr("EB 3F FF 77 10"));
 
-		if (fnCopyNewEntity != GetReturnAddress(2)) 
-			Engine::g_Resolver.OnBodyUpdate((C_CSPlayer*)ptr, data->m_Value.m_Float);
+		if (fnCopyNewEntity != GetReturnAddress(2))
+			Engine::g_Resolver.on_lby_proxy((C_CSPlayer*)ptr, &data->m_Value.m_Float);
 
-		if (Interfaces::m_Body_original) Interfaces::m_Body_original->GetOriginalFunction()(data, ptr, out);
+		return Interfaces::m_Body_original->GetOriginalFunction()(data, ptr, out);
 	}
 
 	void RecvProxy_m_flAbsYaw( CRecvProxyData* pData, void* pStruct, void* pOut ) {

@@ -11,6 +11,56 @@ namespace Engine
 		bool is_correct;
 	};
 
+	//bool CanHitPlayer(C_LagRecord* animation, const Vector start, const Vector end,  int iHitboxIndex)
+	//{
+	//	if (!animation || !animation->player)
+	//		return false;
+
+	//	const model_t* model = animation->player->GetModel();
+	//	if (!model)
+	//		return false;
+
+	//	studiohdr_t* hdr = Interfaces::m_pModelInfo->GetStudiomodel(model);
+	//	if (!hdr)
+	//		return false;
+
+	//	mstudiohitboxset_t* set = hdr->pHitboxSet(animation->player->m_nHitboxSet());
+	//	if (!set)
+	//		return false;
+
+	//	mstudiobbox_t* bbox = set->pHitbox(iHitboxIndex);
+	//	if (!bbox)
+	//		return false;
+
+
+	//	Vector min, max;
+
+	//	const auto is_capsule = /*bbox->m_radius != -1.f*/ bbox->m_flRadius > 0.f;
+
+	//	if (is_capsule)
+	//	{
+	//		Math::VectorTransform(bbox->bbmin, animation->m_BoneMatrix[bbox->bone], min);
+	//		Math::VectorTransform(bbox->bbmax, animation->m_BoneMatrix[bbox->bone], max);
+	//		const auto dist = Math::SegmentToSegment(start, end, min, max);
+
+	//		if (dist < bbox->m_flRadius)
+	//			return true;
+	//	}
+	//	else
+	//	{
+	//		Math::VectorTransform(Math::vector_rotate(bbox->bbmin, bbox->m_angAngles), animation->m_BoneMatrix[bbox->bone], min);
+	//		Math::VectorTransform(Math::vector_rotate(bbox->bbmax, bbox->m_angAngles), animation->m_BoneMatrix[bbox->bone], max);
+
+	//		Math::VectorITransform(start, animation->m_BoneMatrix[bbox->bone], min);
+	//		Math::vector_i_rotate(end, animation->m_BoneMatrix[bbox->bone], max);
+
+	//		if (Math::IntersectionBoundingBox(min, max, bbox->bbmin, bbox->bbmax))
+	//			return true;
+	//	}
+
+	//	return false;
+	//}
+
 	bool CanHitPlayer(C_LagRecord* pRecord, int iSide, const Vector& vecEyePos, const Vector& vecEnd, int iHitboxIndex) {
 		auto hdr = *(studiohdr_t**)pRecord->player->m_pStudioHdr();
 		if (!hdr)
@@ -50,7 +100,7 @@ namespace Engine
 
 		pRecord->Apply(Player);
 
-		TraceData.is_resolver_issue = CanHitPlayer(pRecord, iSide, vecStart, vecEnd, iHitboxIndex);
+		TraceData.is_resolver_issue = CanHitPlayer(pRecord, iSide, vecStart, vecEnd, iHitboxIndex);//CanHitPlayer(pRecord, vecStart, vecEnd, iHitboxIndex);
 		TraceData.is_correct = TraceData.is_resolver_issue == bDidHit;
 	}
 
@@ -74,7 +124,7 @@ namespace Engine
 		while (it != this->m_Shapshots.end()) {
 			if (it->correctSequence && Interfaces::m_pClientState->m_nLastCommandAck() >= it->outSequence + latency) {
 #if defined(DEBUG_MODE) || defined(DEV)
-				ILoggerEvent::Get()->PushEvent(XorStr("Missed shot due to prediction error"), FloatColor(0.5f, 0.5f, 0.5f), false);
+				//ILoggerEvent::Get()->PushEvent(XorStr("Missed shot due to prediction error"), FloatColor(0.5f, 0.5f, 0.5f), false);
 #endif
 
 				it = this->m_Shapshots.erase(it);
@@ -259,11 +309,11 @@ namespace Engine
 							AddMissLog(XorStr("resolver"));
 						}
 					}
-					//else if( aimpoint_distance > impact_distance ) { // occulusion issue
-					//	if( g_Vars.esp.event_resolver ) {
-					//		AddMissLog( XorStr( "occlusion" ) );
-					//	}
-					//}
+					else if( aimpoint_distance > impact_distance ) { // occulusion issue
+						if( g_Vars.esp.event_resolver ) {
+							AddMissLog( XorStr( "occlusion" ) );
+						}
+					}
 					else { // spread issue
 						if (g_Vars.esp.event_resolver) {
 							AddMissLog(XorStr("spread"));

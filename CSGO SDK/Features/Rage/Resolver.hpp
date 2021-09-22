@@ -19,6 +19,7 @@ namespace Engine {
 	struct CResolverData {
 		struct LastMoveData_t {
 			float m_flLowerBodyYawTarget;
+			float m_flLastMovingLowerBodyYawTargetTime;
 			float m_flSimulationTime;
 			float m_flAnimTime;
 			Vector m_vecOrigin;
@@ -34,10 +35,13 @@ namespace Engine {
 		float m_flBestYaw;
 		float m_flBestDistance;
 		bool  m_bCollectedFreestandData;
+		bool fakewalking;
 
 		float m_flNextBodyUpdate;
+		float m_flLastLowerBodyYawTargetUpdateTime;
 		float m_flFinalResolverYaw;
 		float m_flOldLowerBodyYawTarget;
+		float m_flLowerBodyYawTarget;
 	};
 	
 	class CResolver {
@@ -91,6 +95,7 @@ namespace Engine {
 				m_dist -= penalty;
 			}
 		};
+		void on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw);
 		void FindBestAngle( C_CSPlayer* player );
 	};
 

@@ -13,6 +13,43 @@ namespace Engine {
 	CResolver g_Resolver;
 	CResolverData g_ResolverData[ 65 ];
 
+	void CResolver::on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw)
+	{
+		float oldBodyYaw; // xmm4_4
+		float nextPredictedSimtime; // xmm3_4
+		float nextBodyUpdate = 0.f; // xmm3_4
+
+
+		oldBodyYaw = Engine::g_ResolverData[entity->EntIndex()].m_flLowerBodyYawTarget;
+		if (oldBodyYaw != *LowerBodyYaw)
+		{
+			if (entity != C_CSPlayer::GetLocalPlayer() && entity->m_fFlags() & FL_ONGROUND)
+			{
+				nextPredictedSimtime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+				float vel = entity->m_vecVelocity().Length2D();
+				if (vel > 0.1f)
+					nextBodyUpdate = nextPredictedSimtime + 0.22f;
+				else /*if ( PlayerRecord->nextBodyUpdate <= nextPredictedSimtime )*/
+					nextBodyUpdate = nextPredictedSimtime + 1.1f;
+
+				if (nextBodyUpdate != 0.f)
+					Engine::g_ResolverData[entity->EntIndex()].m_flNextBodyUpdate = nextBodyUpdate;
+			}
+
+			Engine::g_ResolverData[entity->EntIndex()].m_flLastLowerBodyYawTargetUpdateTime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+			Engine::g_ResolverData[entity->EntIndex()].m_flOldLowerBodyYawTarget = oldBodyYaw;
+			Engine::g_ResolverData[entity->EntIndex()].m_flLowerBodyYawTarget = Math::AngleNormalize(*LowerBodyYaw);
+
+			//util::print_dev_console( true, Color::Green(), "update time = %f\n", PlayerRecord->m_flLastLowerBodyYawTargetUpdateTime );
+		}
+
+		if (entity->m_vecVelocity().Length2D() > 0.1f && !(Engine::g_ResolverData[entity->EntIndex()].fakewalking)/* || entity->m_fFlags() & FL_DUCKING && entity->m_vecVelocity().Length2D() > 20.f*/)
+		{
+			Engine::g_ResolverData[entity->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget = Math::AngleNormalize(*LowerBodyYaw);
+			Engine::g_ResolverData[entity->EntIndex()].m_sMoveData.m_flLastMovingLowerBodyYawTargetTime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+		}
+	}
+
 	void CResolver::FindBestAngle( C_CSPlayer* player ) {
 		auto pLocal = C_CSPlayer::GetLocalPlayer( );
 		if( !pLocal )
@@ -588,37 +625,37 @@ namespace Engine {
 		m_flLastDelta = m_flDelta;
 	}
 
-	void CResolver::PredictBodyUpdates( C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev ) {
-		auto local = C_CSPlayer::GetLocalPlayer( );
-		if( !local )
+	void CResolver::PredictBodyUpdates(C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev) {
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
 			return;
 
-		if ( !( local->m_fFlags( ) & FL_ONGROUND ) )
+		if (!(local->m_fFlags() & FL_ONGROUND))
 			return;
 
 		// nah
-		if( local->IsDead( ) ) {
-			Engine::g_ResolverData[ player->EntIndex( ) ].m_bPredictingUpdates = false;
-			g_ResolverData[ player->EntIndex( ) ].m_bCollectedValidMoveData = false;
+		if (local->IsDead()) {
+			Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
+			g_ResolverData[player->EntIndex()].m_bCollectedValidMoveData = false;
 			return;
 		}
 
 		// we have no reliable move data, we can't predict
-		if( !Engine::g_ResolverData[ player->EntIndex( ) ].m_bCollectedValidMoveData ) {
-			Engine::g_ResolverData[ player->EntIndex( ) ].m_bPredictingUpdates = false;
+		if (!Engine::g_ResolverData[player->EntIndex()].m_bCollectedValidMoveData) {
+			Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
 			return;
 		}
 
 		// fake flick shit.
-		if ( !record->m_bUnsafeVelocityTransition ) {
-			Engine::g_ResolverData[ player->EntIndex( ) ].m_bPredictingUpdates = false;
+		if (!record->m_bUnsafeVelocityTransition) {
+			Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
 			return;
 		}
 
 		// get lag data about this player
-		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get( )->GetLagData( player->m_entIndex );
-		if( !pLagData.IsValid( ) ) {
-			Engine::g_ResolverData[ player->EntIndex( ) ].m_bPredictingUpdates = false;
+		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+		if (!pLagData.IsValid()) {
+			Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
 			return;
 		}
 
@@ -628,21 +665,21 @@ namespace Engine {
 		}
 
 		// inform esp that we're about to be the prediction process
-		Engine::g_ResolverData[ player->EntIndex( ) ].m_bPredictingUpdates = true;
+		Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = true;
 
 		//check if the player is walking
 		// no need for the extra fakewalk check since we null velocity when they're fakewalking anyway
-		if( /*record->m_vecAnimationVelocity.Length( ) > 0.1f*/record->m_vecVelocity.Length2D() > 0.1f && !record->m_bFakeWalking ) {
+		if ( /*record->m_vecAnimationVelocity.Length( ) > 0.1f*/record->m_vecVelocity.Length2D() > 0.1f && !record->m_bFakeWalking) {
 			// predict the first flick they have to do after they stop moving
-			Engine::g_ResolverData[ player->EntIndex( ) ].m_flNextBodyUpdate = player->m_flAnimationTime( ) + 0.22f;
+			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + 0.22f;
 
 			// since we are still not in the prediction process, inform the cheat that we arent predicting yet
 			// this is only really used to determine if we should draw the lby timer bar on esp, no other real purpose
-			Engine::g_ResolverData[ player->EntIndex( ) ].m_bPredictingUpdates = false;
+			Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
 		}
 
-		// lby updated on this tick
-		else if( player->m_flAnimationTime( ) >= Engine::g_ResolverData[ player->EntIndex( ) ].m_flNextBodyUpdate  ) {
+		// lby updated on this tick via timing or proxy
+		else if (player->m_flAnimationTime() >= Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate/* || player->m_body != player->m_old_body*/) {
 			// inform the cheat of the resolver method
 			record->m_iResolverMode = EResolverModes::RESOLVE_PRED;
 
