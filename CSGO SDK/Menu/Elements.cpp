@@ -603,7 +603,7 @@ namespace Menu {
 					GUI::Controls::Checkbox( XorStr( "Taser range" ), &g_Vars.esp.zeus_distance );
 					GUI::Controls::ColorPicker( XorStr( "Taser range color" ), &g_Vars.esp.zeus_distance_color );
 					GUI::Controls::Checkbox( XorStr( "Keybind list" ), &g_Vars.esp.keybind_window_enabled );
-					GUI::Controls::Checkbox( XorStr( "Spectator list" ), &g_Vars.esp.spec_window_enabled );
+					//GUI::Controls::Checkbox( XorStr( "Spectator list" ), &g_Vars.esp.spec_window_enabled );
 
 					GUI::Controls::Checkbox( XorStr( "Radar" ), &g_Vars.misc.ingame_radar );
 					GUI::Controls::Checkbox( XorStr( "Penetration crosshair" ), &g_Vars.esp.autowall_crosshair );

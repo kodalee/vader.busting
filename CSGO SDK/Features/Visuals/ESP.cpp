@@ -27,6 +27,9 @@
 #include "../Miscellaneous/Movement.hpp"
 
 #include <iomanip>
+#include <psapi.h>
+#include <Windows.h>
+
 
 extern Vector AutoPeekPos;
 
@@ -138,9 +141,9 @@ private:
 	};
 
 	C_Window m_KeyBinds = { Vector2D( g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y ), Vector2D( 145, 10 ), 0 };
-	C_Window m_SpecList = { Vector2D( g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y ), Vector2D( 145, 10 ), 1 };
+	//C_Window m_SpecList = { Vector2D( g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y ), Vector2D( 145, 10 ), 1 };
 
-	void SpectatorList( bool window = false );
+	//void SpectatorList( bool window = false );
 	void Keybinds( );
 
 	struct C_HitMatrixEntry {
@@ -268,6 +271,90 @@ void DrawWatermark( ) {
 	Render::Engine::watermark.string(text_pos.x, text_pos.y, col_text, text); // Text
 
 }
+
+void spotify() {
+
+	std::string song_title = "";
+
+	static HWND spotify_hwnd = nullptr;
+	static float last_hwnd_time = 0.f;
+	int text_width = 0;
+
+	if ((!spotify_hwnd || spotify_hwnd == INVALID_HANDLE_VALUE) && last_hwnd_time < Interfaces::m_pGlobalVars->realtime + 2.f) {
+		for (HWND hwnd = GetTopWindow(0); hwnd; hwnd = GetWindow(hwnd, GW_HWNDNEXT)) {
+
+			last_hwnd_time = Interfaces::m_pGlobalVars->realtime;
+
+			if (!(IsWindowVisible)(hwnd))
+				continue;
+
+			int length = (GetWindowTextLengthW)(hwnd);
+			if (length == 0)
+				continue;
+
+			WCHAR filename[300];
+			DWORD pid;
+			(GetWindowThreadProcessId)(hwnd, &pid);
+
+			const auto spotify_handle = (OpenProcess)(PROCESS_QUERY_INFORMATION, FALSE, pid);
+			(K32GetModuleFileNameExW)(spotify_handle, nullptr, filename, 300);
+
+			std::wstring sane_filename{ filename };
+
+			(CloseHandle)(spotify_handle);
+
+			if (sane_filename.find((L"Spotify.exe")) != std::string::npos)
+				spotify_hwnd = hwnd;
+		}
+	}
+	else if (spotify_hwnd && spotify_hwnd != INVALID_HANDLE_VALUE) {
+		WCHAR title[300];
+
+		if (!(GetWindowTextW)(spotify_hwnd, title, 300)) {
+			spotify_hwnd = nullptr;
+		}
+		else {
+			std::wstring sane_title{ title };
+			std::string Title = " ";
+			std::string Song(sane_title.begin(), sane_title.end());
+			Title += Song;
+			if (sane_title.find((L"-")) != std::string::npos) {
+
+				const auto margin = 10; // Padding between screen edges and watermark
+				const auto padding = 4; // Padding between watermark elements
+
+				auto text_size = Render::Engine::esp.size(Title);
+				auto text_pos = Vector2D(Render::GetScreenSize().x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
+					margin + padding); // Top align
+
+				Render::Engine::esp.string(text_pos.x, text_pos.y + 17, Color(255, 255, 255), Title.c_str());
+				song_title = Title;
+			}
+			else if (sane_title.find((L"Advertisment")) != std::string::npos) {
+				song_title = "advertisment";
+			}
+			else if (sane_title.find((L"Spotify")) != std::string::npos) {
+				song_title = "stopped / not playing";
+			}
+			else {
+				song_title = "advertisment";
+			}
+
+		}
+	}
+
+	const auto margin = 10; // Padding between screen edges and watermark
+	const auto padding = 4; // Padding between watermark elements
+
+	auto text_size = Render::Engine::esp.size(song_title);
+	auto text_pos = Vector2D(Render::GetScreenSize().x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
+		margin + padding); // Top align
+
+	Render::Engine::esp.string(text_pos.x, text_pos.y + 17, Color(255, 255, 255), song_title);
+
+
+}
+
 
 bool CEsp::Begin( C_CSPlayer* player ) {
 	m_Data.player = player;
@@ -462,127 +549,127 @@ void CEsp::Indicators( ) {
 	}
 }
 
-void CEsp::SpectatorList( bool window ) {
-	std::vector< std::string > spectators{ };
-	int h = Render::Engine::hud.m_size.m_height;
-	C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer( );
-
-	if( window )
-		this->m_SpecList.size.y = 20.0f;
-
-	if( Interfaces::m_pEngine->IsInGame( ) && pLocal ) {
-		const auto local_observer = pLocal->m_hObserverTarget( );
-		for( int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i ) {
-			C_CSPlayer* player = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( i );
-			if( !player )
-				continue;
-
-			if( !player->IsDead( ) )
-				continue;
-
-			if( player->IsDormant( ) )
-				continue;
-
-			if( player->EntIndex( ) == pLocal->EntIndex( ) )
-				continue;
-
-			player_info_t info;
-			if( !Interfaces::m_pEngine->GetPlayerInfo( i, &info ) )
-				continue;
-
-			if( pLocal->IsDead( ) ) {
-				auto observer = player->m_hObserverTarget( );
-				if( local_observer.IsValid( ) && observer.IsValid( ) ) {
-					const auto spec = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntityFromHandle( local_observer );
-					auto target = reinterpret_cast< C_CSPlayer* >( Interfaces::m_pEntList->GetClientEntityFromHandle( observer ) );
-
-					if( target == spec && spec ) {
-						spectators.push_back( std::string( info.szName ).substr( 0, 24 ) );
-					}
-				}
-			}
-			else {
-				if( player->m_hObserverTarget( ) != pLocal )
-					continue;
-
-				spectators.push_back( std::string( info.szName ).substr( 0, 24 ) );
-			}
-		}
-	}
-
-	if( !window ) {
-		if( spectators.empty( ) )
-			return;
-
-		size_t total_size = spectators.size( ) * ( h - 1 );
-
-		for( size_t i{ }; i < spectators.size( ); ++i ) {
-			const std::string& name = spectators[ i ];
-
-			Render::Engine::hud.string( Render::GetScreenSize( ).x - 10, ( Render::GetScreenSize( ).y / 2 ) - ( total_size / 2 ) + ( i * ( h - 1 ) ),
-				{ 255, 255, 255, 179 }, name, Render::Engine::ALIGN_RIGHT );
-		}
-	}
-	else {
-		this->m_SpecList.Drag( );
-		Vector2D pos = { g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y };
-
-		static float alpha = 0.f;
-		bool condition = !( spectators.empty( ) && !g_Vars.globals.menuOpen );
-		float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
-		if( condition && ( !pLocal ? true : pLocal->m_iObserverMode( ) != 6 ) ) {
-			alpha += multiplier * ( 1.0f - alpha );
-		}
-		else {
-			if( alpha > 0.01f )
-				alpha += multiplier * ( 0.0f - alpha );
-			else
-				alpha = 0.0f;
-		}
-
-		alpha = std::clamp( alpha, 0.f, 1.0f );
-
-		if( alpha <= 0.f )
-			return;
-
-		Color main = Color( 39, 41, 54, 150 * alpha );
-
-		// header
-		Render::Engine::RectFilled( pos, this->m_SpecList.size, Color( 39, 41, 54, 220 * alpha ) );
-
-		Color accent_color = g_Vars.menu.ascent.ToRegularColor( );
-		accent_color.RGBA[ 3 ] *= alpha;
-
-		// line splitting
-		Render::Engine::Line( pos + Vector2D( 0, this->m_SpecList.size.y ), pos + this->m_SpecList.size, accent_color );
-		Render::Engine::Line( pos + Vector2D( 0, this->m_SpecList.size.y + 1 ), pos + Vector2D( this->m_SpecList.size.x, this->m_SpecList.size.y + 1 ), accent_color );
-
-		for( size_t i{ }; i < spectators.size( ); ++i ) {
-			if( i > 0 )
-				this->m_SpecList.size.y += 13.0f;
-		}
-
-		// the actual window
-		Render::Engine::RectFilled( pos + Vector2D( 0, 20 + 2 ), Vector2D( this->m_SpecList.size.x, this->m_SpecList.size.y - 1 ), main );
-
-		// title
-		auto size = Render::Engine::segoe.size( XorStr( "Spectators" ) );
-		Render::Engine::segoe.string( pos.x + ( this->m_SpecList.size.x * 0.5 ) - 2, pos.y + ( size.m_height * 0.5 ) - 4, Color::White( ).OverrideAlpha( 255 * alpha ), XorStr( "Spectators" ), Render::Engine::ALIGN_CENTER );
-
-		if( spectators.empty( ) )
-			return;
-
-		float offset = 14.0f;
-		for( size_t i{ }; i < spectators.size( ); ++i ) {
-			const std::string& name = spectators[ i ];
-
-			// name
-			Render::Engine::segoe.string( pos.x + 2, pos.y + 10 + offset, Color::White( ).OverrideAlpha( 255 * alpha ), name );
-
-			offset += 13.0f;
-		}
-	}
-}
+//void CEsp::SpectatorList( bool window ) {
+//	std::vector< std::string > spectators{ };
+//	int h = Render::Engine::hud.m_size.m_height;
+//	C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer( );
+//
+//	if( window )
+//		this->m_SpecList.size.y = 20.0f;
+//
+//	if( Interfaces::m_pEngine->IsInGame( ) && pLocal ) {
+//		const auto local_observer = pLocal->m_hObserverTarget( );
+//		for( int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i ) {
+//			C_CSPlayer* player = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( i );
+//			if( !player )
+//				continue;
+//
+//			if( !player->IsDead( ) )
+//				continue;
+//
+//			if( player->IsDormant( ) )
+//				continue;
+//
+//			if( player->EntIndex( ) == pLocal->EntIndex( ) )
+//				continue;
+//
+//			player_info_t info;
+//			if( !Interfaces::m_pEngine->GetPlayerInfo( i, &info ) )
+//				continue;
+//
+//			if( pLocal->IsDead( ) ) {
+//				auto observer = player->m_hObserverTarget( );
+//				if( local_observer.IsValid( ) && observer.IsValid( ) ) {
+//					const auto spec = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntityFromHandle( local_observer );
+//					auto target = reinterpret_cast< C_CSPlayer* >( Interfaces::m_pEntList->GetClientEntityFromHandle( observer ) );
+//
+//					if( target == spec && spec ) {
+//						spectators.push_back( std::string( info.szName ).substr( 0, 24 ) );
+//					}
+//				}
+//			}
+//			else {
+//				if( player->m_hObserverTarget( ) != pLocal )
+//					continue;
+//
+//				spectators.push_back( std::string( info.szName ).substr( 0, 24 ) );
+//			}
+//		}
+//	}
+//
+//	if( !window ) {
+//		if( spectators.empty( ) )
+//			return;
+//
+//		size_t total_size = spectators.size( ) * ( h - 1 );
+//
+//		for( size_t i{ }; i < spectators.size( ); ++i ) {
+//			const std::string& name = spectators[ i ];
+//
+//			Render::Engine::hud.string( Render::GetScreenSize( ).x - 10, ( Render::GetScreenSize( ).y / 2 ) - ( total_size / 2 ) + ( i * ( h - 1 ) ),
+//				{ 255, 255, 255, 179 }, name, Render::Engine::ALIGN_RIGHT );
+//		}
+//	}
+//	else {
+//		this->m_SpecList.Drag( );
+//		Vector2D pos = { g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y };
+//
+//		static float alpha = 0.f;
+//		bool condition = !( spectators.empty( ) && !g_Vars.globals.menuOpen );
+//		float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
+//		if( condition && ( !pLocal ? true : pLocal->m_iObserverMode( ) != 6 ) ) {
+//			alpha += multiplier * ( 1.0f - alpha );
+//		}
+//		else {
+//			if( alpha > 0.01f )
+//				alpha += multiplier * ( 0.0f - alpha );
+//			else
+//				alpha = 0.0f;
+//		}
+//
+//		alpha = std::clamp( alpha, 0.f, 1.0f );
+//
+//		if( alpha <= 0.f )
+//			return;
+//
+//		Color main = Color( 39, 41, 54, 150 * alpha );
+//
+//		// header
+//		Render::Engine::RectFilled( pos, this->m_SpecList.size, Color( 39, 41, 54, 220 * alpha ) );
+//
+//		Color accent_color = g_Vars.menu.ascent.ToRegularColor( );
+//		accent_color.RGBA[ 3 ] *= alpha;
+//
+//		// line splitting
+//		Render::Engine::Line( pos + Vector2D( 0, this->m_SpecList.size.y ), pos + this->m_SpecList.size, accent_color );
+//		Render::Engine::Line( pos + Vector2D( 0, this->m_SpecList.size.y + 1 ), pos + Vector2D( this->m_SpecList.size.x, this->m_SpecList.size.y + 1 ), accent_color );
+//
+//		for( size_t i{ }; i < spectators.size( ); ++i ) {
+//			if( i > 0 )
+//				this->m_SpecList.size.y += 13.0f;
+//		}
+//
+//		// the actual window
+//		Render::Engine::RectFilled( pos + Vector2D( 0, 20 + 2 ), Vector2D( this->m_SpecList.size.x, this->m_SpecList.size.y - 1 ), main );
+//
+//		// title
+//		auto size = Render::Engine::segoe.size( XorStr( "Spectators" ) );
+//		Render::Engine::segoe.string( pos.x + ( this->m_SpecList.size.x * 0.5 ) - 2, pos.y + ( size.m_height * 0.5 ) - 4, Color::White( ).OverrideAlpha( 255 * alpha ), XorStr( "Spectators" ), Render::Engine::ALIGN_CENTER );
+//
+//		if( spectators.empty( ) )
+//			return;
+//
+//		float offset = 14.0f;
+//		for( size_t i{ }; i < spectators.size( ); ++i ) {
+//			const std::string& name = spectators[ i ];
+//
+//			// name
+//			Render::Engine::segoe.string( pos.x + 2, pos.y + 10 + offset, Color::White( ).OverrideAlpha( 255 * alpha ), name );
+//
+//			offset += 13.0f;
+//		}
+//	}
+//}
 
 void CEsp::Keybinds( ) {
 	std::vector<
@@ -976,12 +1063,13 @@ void CEsp::DrawZeusDistance( ) {
 
 void CEsp::Main( ) {
 	DrawWatermark( );
+	spotify();
 
 	if( g_Vars.esp.keybind_window_enabled )
 		Keybinds( );
 
-	if( g_Vars.esp.spec_window_enabled )
-		SpectatorList( true );
+	//if( g_Vars.esp.spec_window_enabled )
+	//	SpectatorList( true );
 
 	m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
 	if( !g_Vars.globals.HackIsReady || !m_LocalPlayer || !Interfaces::m_pEngine->IsInGame( ) )
