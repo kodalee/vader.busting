@@ -330,7 +330,7 @@ public:
 	int m_nSmokeEffectTickBegin( );
 
 	static float GetExpiryTime( ) {
-		return 19.f;
+		return 18.041f;
 	}
 };
 
