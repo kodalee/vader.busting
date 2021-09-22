@@ -7,15 +7,15 @@
 #include "../../Features/Rage/Resolver.hpp"
 #include "../../Utils/stack.h"
 
-struct stack_frame
+struct StackFrame
 {
-	stack_frame* next;
-	DWORD ret;
+	StackFrame* Next;
+	DWORD Return;
 };
 
-__forceinline DWORD get_ret_addr(int depth = 0)
+__forceinline DWORD GetReturnAddress(int depth = 0)
 {
-	stack_frame* fp;
+	StackFrame* fp;
 
 	_asm mov fp, ebp;
 
@@ -24,10 +24,10 @@ __forceinline DWORD get_ret_addr(int depth = 0)
 		if (!fp)
 			break;
 
-		fp = fp->next;
+		fp = fp->Next;
 	}
 
-	return fp ? fp->ret : 0;
+	return fp ? fp->Return : 0;
 }
 
 namespace Hooked
@@ -45,20 +45,12 @@ namespace Hooked
 	}
 
 	void RecvProxy_m_flLowerBodyYawTarget(CRecvProxyData* data, void* ptr, void* out) {
-			printf("haha porn cum asshole\n");
 
-			static DWORD fnCopyNewEntity = Memory::Scan(XorStr("engine.dll"), XorStr("EB 3F FF 77 10"));
+		static DWORD fnCopyNewEntity = Memory::Scan(XorStr("engine.dll"), XorStr("EB 3F FF 77 10"));
 
-			// skip "unwanted" lowerbody updates originating from CopyNewEntity.
-			// happens on entity creation + pvs re-enter.
+		if (fnCopyNewEntity != GetReturnAddress(2)) 
+			Engine::g_Resolver.OnBodyUpdate((C_CSPlayer*)ptr, data->m_Value.m_Float);
 
-			if (fnCopyNewEntity != get_ret_addr(2)) {
-
-				auto player = (C_CSPlayer*)ptr;
-
-				Engine::g_Resolver.OnBodyUpdate(player, data->m_Value.m_Float);
-			}
-		// call original proxy.
 		if (Interfaces::m_Body_original) Interfaces::m_Body_original->GetOriginalFunction()(data, ptr, out);
 	}
 
