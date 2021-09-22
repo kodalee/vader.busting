@@ -47,10 +47,11 @@ namespace Engine {
 		void ResolveWalk( C_CSPlayer* player, C_AnimationRecord* record );
 		void ResolveStand( C_CSPlayer* player, C_AnimationRecord* record );
 		void ResolveAir( C_CSPlayer* player, C_AnimationRecord* record );
+
 	public:
 		void ResolveManual( C_CSPlayer* player, C_AnimationRecord* record, bool bDisallow = false );
 		void ResolveYaw( C_CSPlayer* player, C_AnimationRecord* record );
-
+		void OnBodyUpdate(C_CSPlayer* data, float value); //fucking retard holy shit holy fucking shit why didn't yo ufucking add it ot hefk.,th. dwalpl
 		void PredictBodyUpdates( C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev );
 		 
 	public:

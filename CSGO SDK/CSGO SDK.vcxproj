@@ -92,8 +92,8 @@
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
-    <IncludePath>$(ProjectDir)Libraries;G:\Programs\DX9 SDK\Include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>G:\Programs\DX9 SDK\lib;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Libraries;D:\Programs\DX9 SDK\Include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Programs\DX9 SDK\lib;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
     <TargetExt>.dll</TargetExt>
     <IntDir>$(SolutionDir)$(Configuration)\Intermediate\</IntDir>
   </PropertyGroup>

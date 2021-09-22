@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../source.hpp"
+#include "../Utils/address.h"
 
 struct vrect_t {
 	int				x, y, width, height;
@@ -194,7 +195,7 @@ namespace Hooked
    // Recv proxy hook
    void m_nSmokeEffectTickBegin( CRecvProxyData* pData, void* pStruct, void* pOut );
    void RecvProxy_m_flAbsYaw( CRecvProxyData* pData, void* pStruct, void* pOut );
-   void RecvProxy_m_flLowerBodyYawTarget( CRecvProxyData* pData, void* pStruct, void* pOut );
+   void RecvProxy_m_flLowerBodyYawTarget(CRecvProxyData* data, void* ptr, void* out);
    void RecvProxy_PlaybackRate( CRecvProxyData* pData, void* pStruct, void* pOut );
    void m_bClientSideAnimation( CRecvProxyData* pData, void* pStruct, void* pOut );
 }
