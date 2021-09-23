@@ -1629,7 +1629,7 @@ void CEsp::Main( ) {
 						FloatColor( 0.f, 0.f, 0.f, ( initial_alpha / 255.f ) * 0.58f ).ToRegularColor( ) );
 
 
-					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 2, 11 ), Vector2D( Width - 1, 2 ),
+					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 2, 12 ), Vector2D( Width - 1, 2 ),
 						g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ) );
 
 					if( clip <= static_cast< int >( MaxClip * 0.75 ) ) {
