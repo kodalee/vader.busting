@@ -79,7 +79,7 @@ public:
   virtual int                   GameLumpSize( int lumpId ) const = 0; // 40
   virtual bool                  LoadGameLump( int lumpId, void* pBuffer, int size ) = 0;
   virtual int                   LevelLeafCount( ) const = 0;
-  virtual ISpatialQuery*        GetBSPTreeQuery( ) = 0;
+  virtual void*                 GetBSPTreeQuery( ) = 0;
   virtual void                  LinearToGamma( float* linear, float* gamma ) = 0;
   virtual float                 LightStyleValue( int style ) = 0; // 45
   virtual void                  ComputeDynamicLighting( const Vector& pt, const Vector* pNormal, Vector& color ) = 0;
