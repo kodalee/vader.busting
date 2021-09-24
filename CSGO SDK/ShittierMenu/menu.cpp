@@ -7,6 +7,11 @@
 #include "IMGAY/impl/imgui_impl_dx9.h"
 #include "IMGAY/impl/imgui_impl_win32.h"
 
+//lua
+#include "../lua/clua.h"
+#include "../lua/clua_hooks.h"
+//
+
 
 namespace ImGuiEx
 {
@@ -429,6 +434,43 @@ void Misc()
 	ImGui::EndColumns();
 }
 
+void Scripts()
+{
+	ImGuiStyle* style = &ImGui::GetStyle();
+	float group_w = ImGui::GetCurrentWindow()->Size.x - style->WindowPadding.x * 2;
+	ImGui::Columns(3, nullptr, false);
+	ImGui::SetColumnOffset(1, group_w / 3.0f);
+	ImGui::SetColumnOffset(2, 2 * group_w / 2.9f);
+	ImGui::SetColumnOffset(3, group_w);
+
+
+	ImGui::NewLine();
+	{
+
+		ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+
+		ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Reload active scripts", ImVec2(100, 0))) g_lua.reload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+
+		ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+
+		ImGui::Text("scripts");
+
+		for (auto s : g_lua.scripts)
+		{
+			ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
+			if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
+				auto scriptId = g_lua.get_script_id(s);
+				if (g_lua.loaded.at(scriptId))
+					g_lua.unload_script(scriptId);
+				else
+					g_lua.load_script(scriptId);
+			}
+		}
+
+	}
+	ImGui::EndColumns();
+}
+
 bool IMGUIMenu::Initialize(IDirect3DDevice9* pDevice)
 {
 	static bool initialized = false;
@@ -589,6 +631,8 @@ void IMGUIMenu::Render()
 			break;
 		case 3:
 			Misc();
+		case 5:
+			Scripts();
 		default:
 			break;
 	}

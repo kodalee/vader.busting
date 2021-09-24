@@ -1520,6 +1520,16 @@ void ImGui::Spacing()
 	ItemSize(ImVec2(0, 0));
 }
 
+void ImGui::CustomSpacing(float h) {
+
+	ImGuiWindow* window = GetCurrentWindow();
+
+	if (window->SkipItems)
+		return;
+
+	ItemSize(ImVec2(0, h));
+}
+
 void ImGui::Dummy(const ImVec2& size)
 {
 	ImGuiWindow* window = GetCurrentWindow();

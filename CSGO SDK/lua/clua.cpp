@@ -205,19 +205,19 @@ namespace ns_engine {
 		Interfaces::m_pEngine->ExecuteClientCmd(cmd.c_str());
 	}
 }
-namespace ns_entity_list {
-	IClientEntity* get_client_entity(int idx) {
-		return Interfaces::m_pEntList->GetClientEntity(idx);
-	}
-
-	int get_highest_entity_index() {
-		return Interfaces::m_pEntList->GetHighestEntityIndex();
-	}
-
-	//IClientEntity* get_client_entity_from_handle(const auto ent) { // idk
-	//	return Interfaces::m_pEntList->GetClientEntityFromHandle(ent);
-	//}
-}
+//namespace ns_entity_list {
+//	IClientEntity* get_client_entity(int idx) {
+//		return Interfaces::m_pEntList->GetClientEntity(idx);
+//	}
+//
+//	int get_highest_entity_index() {
+//		return Interfaces::m_pEntList->GetHighestEntityIndex();
+//	}
+//
+//	//IClientEntity* get_client_entity_from_handle(const auto ent) { // idk
+//	//	return Interfaces::m_pEntList->GetClientEntityFromHandle(ent);
+//	//}
+//}
 namespace ns_utils {
 	sol::table get_player_data(player_info_t& p) {
 		sol::table t = g_lua.lua.create_table();
@@ -840,71 +840,6 @@ void c_lua::init() {
 		"ADDITIVE", FontFlags_t::FONTFLAG_ADDITIVE,
 		"OUTLINE", FontFlags_t::FONTFLAG_OUTLINE
 	);
-	this->lua.new_enum("BEAMFLAGS",
-		"STARTENTITY", FBEAM_STARTENTITY,
-		"ENDENTITY", FBEAM_ENDENTITY,
-		"FADEIN", FBEAM_FADEIN,
-		"FADEOUT", FBEAM_FADEOUT,
-		"SINENOISE", FBEAM_SINENOISE,
-		"SOLID", FBEAM_SOLID,
-		"SHADEIN", FBEAM_SHADEIN,
-		"SHADEOUT", FBEAM_SHADEOUT,
-		"ONLYNOISEONCE", FBEAM_ONLYNOISEONCE,
-		"NOTILE", FBEAM_NOTILE,
-		"USE_HITBOXES", FBEAM_USE_HITBOXES,
-		"STARTVISIBLE", FBEAM_STARTVISIBLE,
-		"ENDVISIBLE", FBEAM_ENDVISIBLE,
-		"ISACTIVE", FBEAM_ISACTIVE,
-		"FOREVER", FBEAM_FOREVER,
-		"HALOBEAM", FBEAM_HALOBEAM,
-		"REVERSED", FBEAM_REVERSED
-	);
-	this->lua.new_enum("BEAMTYPES",
-		"POINTS", TE_BEAMPOINTS,
-		"SPRITE", TE_SPRITE,
-		"DISK", TE_BEAMDISK,
-		"CYLINDER", TE_BEAMCYLINDER,
-		"FOLLOW", TE_BEAMFOLLOW,
-		"RING", TE_BEAMRING,
-		"SPLINE", TE_BEAMSPLINE,
-		"RINGPOINT", TE_BEAMRINGPOINT,
-		"LASER", TE_BEAMLASER,
-		"TESLA", TE_BEAMTESLA
-	);
-	this->lua.new_usertype<BeamInfo_t>("c_beaminfo",
-		sol::constructors<BeamInfo_t()>(),
-		"type", &BeamInfo_t::m_nType,
-		"start_ent", &BeamInfo_t::m_pStartEnt,
-		"start_attachment", &BeamInfo_t::m_nStartAttachment,
-		"end_ent", &BeamInfo_t::m_pEndEnt,
-		"end_attachment", &BeamInfo_t::m_nEndAttachment,
-		"start", &BeamInfo_t::m_vecStart,
-		"end", &BeamInfo_t::m_vecEnd,
-		"model_index", &BeamInfo_t::m_nModelIndex,
-		"model_name", &BeamInfo_t::m_pszModelName,
-		"halo_index", &BeamInfo_t::m_nHaloIndex,
-		"halo_name", &BeamInfo_t::m_pszHaloName,
-		"halo_scale", &BeamInfo_t::m_flHaloScale,
-		"life", &BeamInfo_t::m_flLife,
-		"width", &BeamInfo_t::m_flWidth,
-		"end_width", &BeamInfo_t::m_flEndWidth,
-		"fade_length", &BeamInfo_t::m_flFadeLength,
-		"amplitude", &BeamInfo_t::m_flAmplitude,
-		"brightness", &BeamInfo_t::m_flBrightness,
-		"speed", &BeamInfo_t::m_flSpeed,
-		"start_frame", &BeamInfo_t::m_nStartFrame,
-		"framerate", &BeamInfo_t::m_flFrameRate,
-		"red", &BeamInfo_t::m_flRed,
-		"green", &BeamInfo_t::m_flGreen,
-		"blue", &BeamInfo_t::m_flBlue,
-		"renderable", &BeamInfo_t::m_bRenderable,
-		"segments", &BeamInfo_t::m_nSegments,
-		"flags", &BeamInfo_t::m_nFlags,
-		"center", &BeamInfo_t::m_vecCenter,
-		"start_radius", &BeamInfo_t::m_flStartRadius,
-		"end_radius", &BeamInfo_t::m_flEndRadius
-		);
-	this->lua.new_usertype<Beam_t>("c_beam");
 	this->lua.new_usertype<player_info_t>("c_playerinfo");
 	this->lua.new_usertype<ConVar>("c_convar");
 	this->lua.new_usertype<INetChannel>("c_netchannelinfo",
@@ -1045,7 +980,6 @@ void c_lua::init() {
 	surface["draw_text"] = ns_surface::draw_text;
 	surface["draw_textured_rect"] = ns_surface::draw_textured_rect;
 	surface["get_text_size"] = ns_surface::get_text_size;
-	//surface["indicator"] = ns_surface::indicator;
 	surface["set_color"] = ns_surface::set_color;
 	surface["set_texture"] = sol::overload(ns_surface::set_texture, ns_surface::set_texture_rgba);
 	surface["set_text_color"] = ns_surface::set_text_color;
@@ -1070,11 +1004,6 @@ void c_lua::init() {
 	engine["is_in_game"] = ns_engine::is_in_game;
 	engine["is_paused"] = ns_engine::is_paused;
 	engine["set_view_angles"] = ns_engine::set_view_angles;
-
-	auto entity_list = this->lua.create_table();
-	entity_list["get_client_entity"] = ns_entity_list::get_client_entity;
-	//entity_list["get_client_entity_from_handle"] = ns_entity_list::get_client_entity_from_handle;
-	entity_list["get_highest_entity_index"] = ns_entity_list::get_highest_entity_index;
 
 	auto utils = this->lua.create_table();
 	utils["get_player_data"] = ns_utils::get_player_data;
@@ -1114,10 +1043,6 @@ void c_lua::init() {
 	overlay["add_capsule_overlay"] = ns_overlay::add_capsule_overlay;
 	overlay["add_text_overlay"] = ns_overlay::add_text_overlay;
 
-	auto beams = this->lua.create_table();
-	beams["create_points"] = ns_beams::create_points;
-	beams["draw_beam"] = ns_beams::draw_beam;
-
 	auto ui = this->lua.create_table();
 	ui["new_checkbox"] = ns_ui::new_checkbox;
 	ui["new_colorpicker"] = ns_ui::new_colorpicker;
@@ -1154,13 +1079,11 @@ void c_lua::init() {
 	this->lua["surface"] = surface;
 	this->lua["models"] = models;
 	this->lua["engine"] = engine;
-	this->lua["entity_list"] = entity_list;
 	this->lua["utils"] = utils;
 	this->lua["globals"] = globals;
 	this->lua["trace"] = trace;
 	this->lua["cvar"] = cvar;
 	this->lua["overlay"] = overlay;
-	this->lua["beams"] = beams;
 	this->lua["ui"] = ui;
 	this->lua["render"] = render;
 	//this->lua["file"] = file;

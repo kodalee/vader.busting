@@ -10,6 +10,11 @@
 #include "../../Features/Miscellaneous/BulletBeamTracer.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
 
+//lua
+#include "../../lua/clua.h"
+#include "../../lua/clua_hooks.h"
+//
+
 //#define TICKBASE_DEBUG 
 
 namespace Hooked
@@ -73,6 +78,10 @@ namespace Hooked
 				IBulletBeamTracer::Get()->Main();
 
 			PrintOnInject();
+
+			for (auto hk : g_lua_hook.getHooks("painttraverse"))
+				hk.func();
+
 
 		}
 	}

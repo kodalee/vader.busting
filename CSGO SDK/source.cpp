@@ -22,6 +22,11 @@
 #include "Features/Game/Prediction.hpp"
 #include "Loader/Exports.h"
 
+//lua
+#include "../lua/clua.h"
+#include "../lua/clua_hooks.h"
+//
+
 #include <fstream>
 
 extern ClientClass* CCSPlayerClass;
@@ -937,6 +942,7 @@ namespace Interfaces
 		oUpdateClientSideAnimation = Hooked::HooksManager.CreateHook<decltype( oUpdateClientSideAnimation ) >( &hkUpdateClientSideAnimation, ( void* )update_client_side_animation );
 
 		Hooked::HooksManager.Enable( );
+		g_lua.init();
 		return true;
 	}
 
