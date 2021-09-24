@@ -422,131 +422,199 @@ int fps( ) {
 }
 
 void CEsp::Indicators( ) {
-	return; 
 	struct Indicator_t { Color color; std::string text; };
 	std::vector< Indicator_t > indicators{ };
-	std::vector< Indicator_t > bottom_indicators{ };
 
-	if( g_Vars.esp.indicator_aimbot ) {
-		if( g_Vars.rage.prefer_body.enabled ) {
-			Indicator_t ind{ };
-			ind.color = g_Vars.esp.indicator_color.ToRegularColor( );
-			ind.text = XorStr( "baim" );
+	//if (g_Vars.esp.indicator_aimbot) {
+	//	if (g_Vars.rage.prefer_body.enabled) {
+	//		Indicator_t ind{ };
+	//		ind.color = g_Vars.esp.indicator_color.ToRegularColor();
+	//		ind.text = XorStr("BAIM");
 
-			indicators.push_back( ind );
-		}
+	//		indicators.push_back(ind);
+	//	}
 
 
-		if( g_Vars.misc.extended_backtrack_key.enabled && g_Vars.misc.extended_backtrack ) {
-			Indicator_t ind{ };
-			ind.color = g_Vars.esp.indicator_color.ToRegularColor( );
-			ind.text = XorStr( "ping" );
+	//	if (g_Vars.misc.extended_backtrack_key.enabled && g_Vars.misc.extended_backtrack) {
+	//		Indicator_t ind{ };
+	//		ind.color = g_Vars.esp.indicator_color.ToRegularColor();
+	//		ind.text = XorStr("PING");
 
-			indicators.push_back( ind );
-		}
+	//		indicators.push_back(ind);
+	//	}
 
-		if( g_Vars.rage.force_safe_point.enabled ) {
-			Indicator_t ind{ };
-			ind.color = g_Vars.esp.indicator_color.ToRegularColor( );
-			ind.text = XorStr( "safety" );
+	//	//if (g_Vars.rage.force_safe_point.enabled) {
+	//	//	Indicator_t ind{ };
+	//	//	ind.color = g_Vars.esp.indicator_color.ToRegularColor();
+	//	//	ind.text = XorStr("safety");
 
-			indicators.push_back( ind );
-		}
+	//	//	indicators.push_back(ind);
+	//	//}
 
-		if( g_Vars.rage.key_dmg_override.enabled && g_Vars.globals.OverridingMinDmg ) {
-			Indicator_t ind{ };
-			ind.color = g_Vars.esp.indicator_color.ToRegularColor( );
-			ind.text = XorStr( "dmg" );
+	//	if (g_Vars.rage.key_dmg_override.enabled && g_Vars.globals.OverridingMinDmg) {
+	//		Indicator_t ind{ };
+	//		ind.color = g_Vars.esp.indicator_color.ToRegularColor();
+	//		ind.text = XorStr("DMG");
 
-			indicators.push_back( ind );
-		}
+	//		indicators.push_back(ind);
+	//	}
 
-		if( g_Vars.globals.OverridingHitscan ) {
-			Indicator_t ind{ };
-			ind.color = g_Vars.esp.indicator_color.ToRegularColor( );
-			ind.text = XorStr( "hitscan" );
+	//	if (g_Vars.globals.OverridingHitscan) {
+	//		Indicator_t ind{ };
+	//		ind.color = g_Vars.esp.indicator_color.ToRegularColor();
+	//		ind.text = XorStr("HITSCAN");
 
-			indicators.push_back( ind );
-		}
+	//		indicators.push_back(ind);
+	//	}
+	//}
 
-		if( !indicators.empty( ) ) {
-			// iterate and draw indicators.
-			for( size_t i{ }; i < indicators.size( ); ++i ) {
-				auto& indicator = indicators[ i ];
-				auto TextSize = Render::Engine::segoe.size( indicator.text );
+		if (auto pLocal = C_CSPlayer::GetLocalPlayer(); pLocal) {
+			if (pLocal->m_vecVelocity().Length2D() > 270.f || g_Vars.globals.bBrokeLC) {
+				Indicator_t ind{ };
+				ind.color = g_Vars.globals.bBrokeLC ? Color(100, 255, 25) : Color(255, 0, 0);
+				ind.text = XorStr("LC ");
 
-				if( g_Vars.antiaim.manual ) {
-					Render::Engine::segoe.string( Render::GetScreenSize( ).x * 0.5f - TextSize.m_width * 0.5f, Render::GetScreenSize( ).y * 0.5f + 80 + ( 14 * i ), indicator.color, indicator.text );
-				}
-				else {
-					Render::Engine::segoe.string( Render::GetScreenSize( ).x * 0.5f - TextSize.m_width * 0.5f, Render::GetScreenSize( ).y * 0.5f + 20 + ( 14 * i ), indicator.color, indicator.text );
-				}
+				indicators.push_back(ind);
+			}
+
+			if (g_Vars.antiaim.enabled && (pLocal->m_vecVelocity().Length2D() <= 0.1f || g_Vars.globals.Fakewalking)) {
+				Indicator_t ind{ };
+				// get the absolute change between current lby and animated angle.
+				float change = std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+				ind.color = change > 35.f ? Color(100, 255, 25) : Color(255, 0, 0);
+				ind.text = XorStr("LBY ");
+
+				indicators.push_back(ind);
 			}
 		}
-	}
+
+		if (indicators.empty())
+			return;
+
+		// iterate and draw indicators.
+		for( size_t i{ }; i < indicators.size( ); ++i ) {
+			auto& indicator = indicators[ i ];
+			auto TextSize = Render::Engine::indi.size( indicator.text );
 
 
-	struct adada_t {
-		std::string str;
-		float flProgress;
-		bool bRenderRects = true;
-		Color clrOverride = Color::Black( );
-	};
-
-	std::vector<adada_t> inds;
-
-	inds.push_back( { "FPS: " + std::to_string( fps( ) ), 0.5f, false, Color( 150, 200, 60 ) } );
-
-	inds.push_back( { "CHOKE ", float( std::clamp<int>( Interfaces::m_pClientState->m_nChokedCommands( ), 0, 14 ) ) / 14.f } );
-
-	if( auto pLocal = C_CSPlayer::GetLocalPlayer( ); pLocal ) {
-		if( pLocal->m_vecVelocity( ).Length2D( ) > 270.f || g_Vars.globals.bBrokeLC ) {
-			inds.push_back( { "LC ", g_Vars.globals.delta / 4096.f } );
+			Render::Engine::indi.string( 20.f, Render::GetScreenSize( ).y - 80.f - ( 30 * i ), indicator.color, indicator.text );
+				
 		}
+		
+	
+		//auto pLocal = C_CSPlayer::GetLocalPlayer();
 
-		if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) ) {
-			// get the absolute change between current lby and animated angle.
-			float change = std::abs( Math::AngleNormalize( g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y ) );
+		//static float next_lby_update[65];
 
-			inds.push_back( { "LBY ", 0.5f, false, change > 35.f ? Color( 100, 255, 25 ) : Color( 255, 0, 0 ) } );
-		}
+		//const float curtime = Interfaces::m_pGlobalVars->curtime;
+
+		//if (pLocal->m_vecVelocity().Length2D() > 0.1f && !g_Vars.globals.Fakewalking)
+		//	return;
+
+		//CCSGOPlayerAnimState* state = pLocal->m_PlayerAnimState();
+		//if (!state)
+		//	return;
+
+		//static float last_lby[65];
+		//if (last_lby[pLocal->EntIndex()] != pLocal->m_flLowerBodyYawTarget())
+		//{
+		//	last_lby[pLocal->EntIndex()] = pLocal->m_flLowerBodyYawTarget();
+		//	next_lby_update[pLocal->EntIndex()] = curtime + 1.125f + Interfaces::m_pGlobalVars->interval_per_tick;
+		//}
+
+		//if (next_lby_update[pLocal->EntIndex()] < curtime)
+		//{
+		//	next_lby_update[pLocal->EntIndex()] = curtime + 1.125f;
+		//}
+
+		//float time_remain_to_update = next_lby_update[pLocal->EntIndex()] - pLocal->m_flSimulationTime();
+		//float time_update = next_lby_update[pLocal->EntIndex()];
+
+		//float fill = 0;
+		//fill = (((time_remain_to_update)));
+		//static float add = 0.000f;
+		//add = 1.125f - fill;
+
+		//float change1337 = std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+
+		//Color color1337 = {  };
+
+		//if (change1337 > 35.f) {
+		//	color1337 = { 124,195,13,255 }; // green color
+		//}
+
+		//Render::Engine::RectFilled(13, Render::GetScreenSize().y - 74 + 26, 48, 4, { 10, 10, 10, 125 });
+		//Render::Engine::RectFilled(13, Render::GetScreenSize().y - 74 + 26, add * 40, 2, color1337);
 
 
-		const Vector2D pos = { 10, ( Render::GetScreenSize( ) / 2 ).y };
-		const int nMaxRectsOnOneLineLol = 10;
-		const int nRectWidth = 10;
-		const int nRectHeight = 16;
-		int iAdd = 1;
 
-		if( inds.size( ) ) {
-			int nHeigthXDDDDDDDDDDD = ( ( nRectHeight + 12 ) * inds.size( ) ) + 15;
-			if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) )
-				nHeigthXDDDDDDDDDDD -= 15;
 
-			Render::Engine::RectFilled( pos - Vector2D( 5, 15 ), Vector2D( ( ( nRectWidth + 4 ) * nMaxRectsOnOneLineLol ) + 10, nHeigthXDDDDDDDDDDD ), Color( 0, 0, 0, 200 ) );
 
-			for( int i = 0; i < inds.size( ); ++i ) {
-				auto dumbass = inds[ i ];
 
-				Render::Engine::indi.string( pos.x, pos.y - ( nRectHeight - 3 ) + ( ( nRectHeight * 1.5 ) * i * iAdd ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride, dumbass.str );
 
-				if( !dumbass.bRenderRects )
-					continue;
 
-				++iAdd;
 
-				// background rects
-				for( int n = 0; n < nMaxRectsOnOneLineLol; ++n ) {
-					Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), ( dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride ).OverrideAlpha( 45 ) );
-				}
+	//struct adada_t {
+	//	std::string str;
+	//	float flProgress;
+	//	bool bRenderRects = true;
+	//	Color clrOverride = Color::Black( );
+	//};
 
-				// actual rects
-				for( int n = 0; n < int( nMaxRectsOnOneLineLol * dumbass.flProgress ); ++n ) {
-					Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride );
-				}
-			}
-		}
-	}
+	//std::vector<adada_t> inds;
+
+	//inds.push_back( { "FPS: " + std::to_string( fps( ) ), 0.5f, false, Color( 150, 200, 60 ) } );
+
+	//inds.push_back( { "CHOKE ", float( std::clamp<int>( Interfaces::m_pClientState->m_nChokedCommands( ), 0, 14 ) ) / 14.f } );
+
+	//if( auto pLocal = C_CSPlayer::GetLocalPlayer( ); pLocal ) {
+	//	if( pLocal->m_vecVelocity( ).Length2D( ) > 270.f || g_Vars.globals.bBrokeLC ) {
+	//		inds.push_back( { "LC ", g_Vars.globals.delta / 4096.f } );
+	//	}
+
+	//	if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) ) {
+	//		// get the absolute change between current lby and animated angle.
+	//		float change = std::abs( Math::AngleNormalize( g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y ) );
+
+	//		inds.push_back( { "LBY ", 0.5f, false, change > 35.f ? Color( 100, 255, 25 ) : Color( 255, 0, 0 ) } );
+	//	}
+
+
+	//	const Vector2D pos = { 10, ( Render::GetScreenSize( ) / 2 ).y };
+	//	const int nMaxRectsOnOneLineLol = 10;
+	//	const int nRectWidth = 10;
+	//	const int nRectHeight = 16;
+	//	int iAdd = 1;
+
+	//	if( inds.size( ) ) {
+	//		int nHeigthXDDDDDDDDDDD = ( ( nRectHeight + 12 ) * inds.size( ) ) + 15;
+	//		if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) )
+	//			nHeigthXDDDDDDDDDDD -= 15;
+
+	//		Render::Engine::RectFilled( pos - Vector2D( 5, 15 ), Vector2D( ( ( nRectWidth + 4 ) * nMaxRectsOnOneLineLol ) + 10, nHeigthXDDDDDDDDDDD ), Color( 0, 0, 0, 200 ) );
+
+	//		for( int i = 0; i < inds.size( ); ++i ) {
+	//			auto dumbass = inds[ i ];
+
+	//			Render::Engine::indi.string( pos.x, pos.y - ( nRectHeight - 3 ) + ( ( nRectHeight * 1.5 ) * i * iAdd ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride, dumbass.str );
+
+	//			if( !dumbass.bRenderRects )
+	//				continue;
+
+	//			++iAdd;
+
+	//			// background rects
+	//			for( int n = 0; n < nMaxRectsOnOneLineLol; ++n ) {
+	//				Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), ( dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride ).OverrideAlpha( 45 ) );
+	//			}
+
+	//			// actual rects
+	//			for( int n = 0; n < int( nMaxRectsOnOneLineLol * dumbass.flProgress ); ++n ) {
+	//				Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride );
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 //void CEsp::SpectatorList( bool window ) {
@@ -1557,11 +1625,11 @@ void CEsp::Main( ) {
 					Width *= clip;
 					Width /= MaxClip;
 
-					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 1, 9 ), Vector2D( TextSize.m_width + 1, 4 ),
+					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 1, 11 ), Vector2D( TextSize.m_width + 1, 4 ),
 						FloatColor( 0.f, 0.f, 0.f, ( initial_alpha / 255.f ) * 0.58f ).ToRegularColor( ) );
 
 
-					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 2, 10 ), Vector2D( Width - 1, 2 ),
+					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 2, 12 ), Vector2D( Width - 1, 2 ),
 						g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ) );
 
 					if( clip <= static_cast< int >( MaxClip * 0.75 ) ) {
