@@ -1972,8 +1972,7 @@ bool ImGui::IsHovered(const ImRect& bb, ImGuiID id, bool flattenChilds) {
 bool ImGui::Hotkey(const char* label, int* variable, int* key_style, const ImVec2& getSize) {
 
 	ImGuiWindow* window = GetCurrentWindow();
-	if (window->SkipItems)
-		return false;
+	if (window->SkipItems) return false;
 
 	ImGuiContext& g = *GImGui;
 	ImGuiIO& io = g.IO;
