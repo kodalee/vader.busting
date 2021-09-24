@@ -212,6 +212,8 @@
     <ClCompile Include="Hooking\Hooks\RetrieveMessage.cpp" />
     <ClCompile Include="Loader\Exports.cpp" />
     <ClCompile Include="Loader\Security\Security.cpp" />
+    <ClCompile Include="lua\clua.cpp" />
+    <ClCompile Include="lua\lua_hooks.cpp" />
     <ClCompile Include="Renderer\Wrapper\sprite\sprite.cpp" />
     <ClCompile Include="SDK\Classes\CClientState.cpp" />
     <ClCompile Include="SDK\Classes\CCSGO_HudDeathNotice.cpp" />
@@ -351,6 +353,14 @@
     <ClInclude Include="Features\Rage\ZeusBot.hpp" />
     <ClInclude Include="Loader\Exports.h" />
     <ClInclude Include="Loader\Security\Security.hpp" />
+    <ClInclude Include="lua\clua.h" />
+    <ClInclude Include="lua\clua_hooks.h" />
+    <ClInclude Include="lua\lauxlib.h" />
+    <ClInclude Include="lua\lua.h" />
+    <ClInclude Include="lua\lua.hpp" />
+    <ClInclude Include="lua\luaconf.h" />
+    <ClInclude Include="lua\lualib.h" />
+    <ClInclude Include="lua\sol.hpp" />
     <ClInclude Include="Renderer\Textures\weaponicons.h" />
     <ClInclude Include="Renderer\Wrapper\font\font.h" />
     <ClInclude Include="Renderer\Wrapper\sprite\sprite.h" />
@@ -608,6 +618,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ShittierMenu\IMGAY\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lua\Lua.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

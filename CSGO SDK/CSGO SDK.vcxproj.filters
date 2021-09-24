@@ -353,6 +353,8 @@
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
     <ClCompile Include="ShittierMenu\clip_win.cpp" />
     <ClCompile Include="ShittierMenu\clip.cpp" />
+    <ClCompile Include="lua\lua_hooks.cpp" />
+    <ClCompile Include="lua\clua.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -857,6 +859,14 @@
     <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.h" />
     <ClInclude Include="ShittierMenu\clip_lock_impl.h" />
     <ClInclude Include="ShittierMenu\clip.hpp" />
+    <ClInclude Include="lua\luaconf.h" />
+    <ClInclude Include="lua\lualib.h" />
+    <ClInclude Include="lua\sol.hpp" />
+    <ClInclude Include="lua\clua.h" />
+    <ClInclude Include="lua\clua_hooks.h" />
+    <ClInclude Include="lua\lauxlib.h" />
+    <ClInclude Include="lua\lua.h" />
+    <ClInclude Include="lua\lua.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">
@@ -922,5 +932,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ShittierMenu\IMGAY\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lua\Lua.lib" />
   </ItemGroup>
 </Project>
