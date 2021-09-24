@@ -158,6 +158,7 @@ namespace Menu {
 					GUI::Controls::MultiDropdown( XorStr( "Conditions" ), fakelag_cond );
 					GUI::Controls::Dropdown( XorStr( "Type" ), { XorStr( "Maximum" ), XorStr( "Dynamic" ), XorStr( "Fluctuate" ) }, &g_Vars.fakelag.choke_type );
 					GUI::Controls::Slider( XorStr( "Limit" ), &g_Vars.fakelag.choke, 0, 16 );
+					GUI::Controls::Slider( XorStr( "Double-tap Limit" ), &g_Vars.fakelag.dt_choke, 0, 16 );
 
 					g_Vars.fakelag.trigger_duck = g_Vars.fakelag.trigger_weapon_activity = g_Vars.fakelag.trigger_shooting = false;
 					g_Vars.fakelag.trigger_land = true;

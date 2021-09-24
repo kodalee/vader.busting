@@ -50,6 +50,186 @@ namespace Engine {
 		}
 	}
 
+	/*
+	void CResolver::collect_wall_detect(const ClientFrameStage_t stage)
+	{
+		if (stage != FRAME_NET_UPDATE_POSTDATAUPDATE_START)
+			return;
+
+		if (!C_CSPlayer::GetLocalPlayer())
+			return;
+
+		auto g_pLocalPlayer = C_CSPlayer::GetLocalPlayer();
+
+		last_eye_positions.insert(last_eye_positions.begin(), g_pLocalPlayer->m_vecOrigin() + g_pLocalPlayer->m_vecViewOffset());
+		if (last_eye_positions.size() > 128)
+			last_eye_positions.pop_back();
+
+		auto nci = Interfaces::m_pEngine->GetNetChannelInfo();
+		if (!nci)
+			return;
+
+
+		const int latency_ticks = TIME_TO_TICKS(nci->GetLatency(FLOW_OUTGOING));
+		auto latency_based_eye_pos = last_eye_positions.size() <= latency_ticks ? last_eye_positions.back() : last_eye_positions[latency_ticks];
+
+		for (auto i = 1; i < Interfaces::m_pGlobalVars->maxClients; i++)
+		{
+			//auto& log = player_log::get().get_log(i);
+			C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
+
+			if (!player || player == g_pLocalPlayer)
+			{
+				continue;
+			}
+
+			if (player->IsTeammate(g_pLocalPlayer))
+			{
+				continue;
+			}
+
+			if (!player->m_iHealth() > 0)
+			{
+				continue;
+			}
+
+			if (player->IsDormant())
+			{
+				continue;
+			}
+
+			if (player->m_vecVelocity().Length2D() > 0.1f)
+			{
+				continue;
+			}
+
+			//if (!log.record.empty() && player->get_simtime() - log.record[0].m_sim_time == 0)
+			//	continue;
+
+			//if (log.m_vecLastNonDormantOrig != player->get_origin() && g_pLocalPlayer->get_alive())
+			//{
+			//	log.m_iMode = RMODE_WALL;
+			//}
+
+			//else if (player->get_simtime() - log.m_flLastLowerBodyYawTargetUpdateTime > 1.35f && log.m_vecLastNonDormantOrig == player->get_origin() && log.m_iMode == RMODE_MOVING)
+			//{
+			//	if (player->get_simtime() - log.m_flLastLowerBodyYawTargetUpdateTime > 1.65f)
+			//	{
+			//		log.m_iMode = RMODE_WALL;
+			//	}
+			//}
+			//else {
+			//	log.m_iMode = RMODE_NORMAL;
+			//}
+
+			if (m_iMode == 1)
+			{
+				const auto at_target_angle = Math::CalcAngle(player->m_vecOrigin(), last_eye);
+
+				//Vector left_dir, right_dir, back_dir;
+				//math::get().angle_vectors(Vector(0.f, at_target_angle.y - 90.f, 0.f), &left_dir);
+				//math::get().angle_vectors(Vector(0.f, at_target_angle.y + 90.f, 0.f), &right_dir);
+				//math::get().angle_vectors(Vector(0.f, at_target_angle.y + 180.f, 0.f), &back_dir);
+
+				const auto eye_pos = player->GetEyePosition();
+				//auto left_eye_pos = eye_pos + (left_dir * 16.f);
+				//auto right_eye_pos = eye_pos + (right_dir * 16.f);
+				//auto back_eye_pos = eye_pos + (back_dir * 16.f);
+
+				const float height = 64;
+
+				Vector direction_1, direction_2, direction_3;
+				Math::AngleVectors(QAngle(0.f, Math::CalcAngle(g_pLocalPlayer->m_vecOrigin(), player->m_vecOrigin()).y - 90.f, 0.f), &direction_1);
+				Math::AngleVectors(QAngle(0.f, Math::CalcAngle(g_pLocalPlayer->m_vecOrigin(), player->m_vecOrigin()).y + 90.f, 0.f), &direction_2);
+				Math::AngleVectors(QAngle(0.f, Math::CalcAngle(g_pLocalPlayer->m_vecOrigin(), player->m_vecOrigin()).y + 180.f, 0.f), &direction_3);
+
+				const auto left_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_1 * 16.f);
+				const auto right_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_2 * 16.f);
+				const auto back_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_3 * 16.f);
+
+				//log.anti_freestanding_record.left_damage = penetration::get().get_damage(latency_based_eye_pos,
+				anti_freestanding_record.left_damage = penetration::scale(player, left_damage[i], 1.f, HITGROUP_CHEST);
+
+				//anti_freestanding_record.left_damage = penetration::scale(player, &left_damage[i],
+				//	HITGROUP_CHEST);
+				//data->anti_freestanding_record.right_damage = FEATURES::RAGEBOT::autowall.CalculateDamage(latency_based_eye_pos,
+				//	right_eye_pos, local_player, entity, 1).damage;
+				anti_freestanding_record.right_damage = penetration::scale(player, right_damage[i], 1.f, HITGROUP_CHEST);
+				//penetration::get().get_damage(g_cl.m_local, player, right_eye_pos, &right_damage[i],
+				//get_big_fucking_gun(), &latency_based_eye_pos);
+			//BACKWARDS
+				anti_freestanding_record.back_damage = penetration::scale(player, back_damage[i], 1.f, HITGROUP_CHEST);
+
+				Ray ray;
+				CGameTrace trace;
+				CTraceFilterWorldOnly filter;
+
+				Ray first_ray(left_eye_pos, latency_based_eye_pos);
+				g_csgo.m_engine_trace->TraceRay(first_ray, MASK_ALL, &filter, &trace);
+				anti_freestanding_record.left_fraction = trace.m_fraction;
+
+				Ray second_ray(right_eye_pos, latency_based_eye_pos);
+				g_csgo.m_engine_trace->TraceRay(second_ray, MASK_ALL, &filter, &trace);
+				anti_freestanding_record.right_fraction = trace.m_fraction;
+
+				Ray third_ray(back_eye_pos, latency_based_eye_pos);
+				g_csgo.m_engine_trace->TraceRay(third_ray, MASK_ALL, &filter, &trace);
+				anti_freestanding_record.back_fraction = trace.m_fraction;
+
+
+				//penetration::get().get_damage(g_pLocalPlayer, player, left_eye_pos, &left_damage[i], get_big_fucking_gun(), &last_eye);
+				//penetration::get().get_damage(g_pLocalPlayer, player, right_eye_pos, &right_damage[i], get_big_fucking_gun(), &last_eye);
+				//penetration::get().get_damage(g_pLocalPlayer, player, back_eye_pos, &back_damage[i], get_big_fucking_gun(), &last_eye);
+			}
+		}
+	}
+
+	bool CResolver::AntiFreestanding(C_CSPlayer* entity, float& yaw)
+	{
+
+		const auto freestanding_record = anti_freestanding_record;
+
+		//g_pEntitiyList->GetClientEntity(g_pEngine->GetLocalPlayer())
+
+		auto local_player = C_CSPlayer::GetLocalPlayer();
+		if (!local_player)
+			return false;
+
+		const float at_target_yaw = Math::CalcAngle(local_player->m_vecOrigin(), entity->m_vecOrigin()).y;
+
+		if (freestanding_record.left_damage >= 20 && freestanding_record.right_damage >= 20)
+			yaw = at_target_yaw + 180.f;
+
+		auto set = false;
+
+		if (freestanding_record.left_damage <= 0 && freestanding_record.right_damage <= 0)
+		{
+			if (freestanding_record.right_fraction < freestanding_record.left_fraction) {
+				set = true;
+				yaw = at_target_yaw + 125.f;
+			}
+			else if (freestanding_record.right_fraction > freestanding_record.left_fraction) {
+				set = true;
+				yaw = at_target_yaw - 73.f;
+			}
+			else {
+				yaw = at_target_yaw + 180.f;
+			}
+		}
+		else
+		{
+			if (freestanding_record.left_damage > freestanding_record.right_damage) {
+				yaw = at_target_yaw + 130.f;
+				set = true;
+			}
+			else
+				yaw = at_target_yaw + 180.f;
+		}
+
+		return true;
+	}
+	*/
+
 	void CResolver::FindBestAngle( C_CSPlayer* player ) {
 		auto pLocal = C_CSPlayer::GetLocalPlayer( );
 		if( !pLocal )
@@ -100,16 +280,17 @@ namespace Engine {
 		Vector angAway;
 		Math::VectorAngles( pLocal->m_vecOrigin( ) - m_vecOrigin, angAway );
 
-		if( !target.player ) {
-			// set angle to backwards.
-			g_ResolverData[ player->EntIndex( ) ].m_flBestYaw = angAway.y + 180.f;
-			g_ResolverData[ player->EntIndex( ) ].m_flBestDistance = -1.f;
-			g_ResolverData[ player->EntIndex( ) ].m_bCollectedFreestandData = false;
-			return;
-		}
+		//if( !target.player ) {
+		//	// set angle to backwards.
+		//	g_ResolverData[ player->EntIndex( ) ].m_flBestYaw = angAway.y + 180.f;
+		//	g_ResolverData[ player->EntIndex( ) ].m_flBestDistance = -1.f;
+		//	g_ResolverData[ player->EntIndex( ) ].m_bCollectedFreestandData = false;
+		//	return;
+		//}
 
 		// construct vector of angles to test.
 		std::vector< AdaptiveAngle > angles{ };
+		angles.emplace_back( angAway.y - 180.f);
 		angles.emplace_back( angAway.y - 90.f );
 		angles.emplace_back( angAway.y + 90.f );
 
@@ -123,49 +304,49 @@ namespace Engine {
 		bool valid{ false };
 
 		// iterate vector of angles.
-		for( auto it = angles.begin( ); it != angles.end( ); ++it ) {
+		for (auto it = angles.begin(); it != angles.end(); ++it) {
 
 			// compute the 'rough' estimation of where our head will be.
-			Vector end{ end.x + std::cos( DEG2RAD( it->m_yaw ) ) * RANGE,
-				end.y + std::sin( DEG2RAD( it->m_yaw ) ) * RANGE,
+			Vector end{ end.x + std::cos(DEG2RAD(it->m_yaw)) * RANGE,
+				end.y + std::sin(DEG2RAD(it->m_yaw)) * RANGE,
 				end.z };
 
 			// compute the direction.
 			Vector dir = end - start;
-			float len = dir.Normalize( );
+			float len = dir.Normalize();
 
 			// should never happen.
-			if( len <= 0.f )
+			if (len <= 0.f)
 				continue;
 
 			// step thru the total distance, 4 units per step.
-			for( float i{ 0.f }; i < len; i += STEP ) {
+			for (float i{ 0.f }; i < len; i += STEP) {
 				// get the current step position.
-				Vector point = start + ( dir * i );
+				Vector point = start + (dir * i);
 
 				// get the contents at this point.
-				int contents = Interfaces::m_pEngineTrace->GetPointContents( point, MASK_SHOT_HULL );
+				int contents = Interfaces::m_pEngineTrace->GetPointContents(point, MASK_SHOT_HULL);
 
 				// contains nothing that can stop a bullet.
-				if( !( contents & MASK_SHOT_HULL ) )
+				if (!(contents & MASK_SHOT_HULL))
 					continue;
 
 				float mult = 1.f;
 
 				// over 50% of the total length, prioritize this shit.
-				if( i > ( len * 0.5f ) )
+				if (i > (len * 0.5f))
 					mult = 1.25f;
 
 				// over 90% of the total length, prioritize this shit.
-				if( i > ( len * 0.75f ) )
+				if (i > (len * 0.75f))
 					mult = 1.25f;
 
 				// over 90% of the total length, prioritize this shit.
-				if( i > ( len * 0.9f ) )
+				if (i > (len * 0.9f))
 					mult = 2.f;
 
 				// append 'penetrated distance'.
-				it->m_dist += ( STEP * mult );
+				it->m_dist += (STEP * mult);
 
 				// mark that we found anything.
 				valid = true;

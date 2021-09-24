@@ -720,7 +720,7 @@ void CEsp::Keybinds( ) {
 	}
 
 	if( g_Vars.misc.slow_walk ) {
-		AddBind( XorStr( "Slow motion" ), g_Vars.misc.slow_walk_bind );
+		AddBind( XorStr( "Fake-walk" ), g_Vars.misc.slow_walk_bind );
 	}
 
 	float gaySize = this->m_KeyBinds.size.y;

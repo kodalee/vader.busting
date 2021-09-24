@@ -865,6 +865,7 @@ public:
 
 	config_option( bool, enabled, false );
 	config_option( int, choke, 0 );
+	config_option( int, dt_choke, 0 );
 	config_option( int, choke_type, 0 );
 	config_option( float, variance, 0.f );
 	config_option( int, iLagLimit, 14 );

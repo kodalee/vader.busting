@@ -3,6 +3,12 @@
 #include <vector>
 #include <deque>
 
+struct AntiFreestandingRecord
+{
+	int right_damage = 0, left_damage = 0, back_damage = 0;
+	float right_fraction = 0.f, left_fraction = 0.f, back_fraction = 0.f;
+};
+
 namespace Engine {
 	// taken from supremacy
 	enum EResolverModes : size_t {
@@ -47,10 +53,18 @@ namespace Engine {
 	class CResolver {
 	private:
 		void ResolveAngles( C_CSPlayer* player, C_AnimationRecord* record );
-		Engine::C_LagRecord* FindIdealRecord(C_CSPlayer* data);
 		void ResolveWalk( C_CSPlayer* player, C_AnimationRecord* record );
 		void ResolveStand( C_CSPlayer* player, C_AnimationRecord* record );
 		void ResolveAir( C_CSPlayer* player, C_AnimationRecord* record );
+
+		Vector last_eye;
+
+		float left_damage[64];
+		float right_damage[64];
+		float back_damage[64];
+
+		std::vector<Vector> last_eye_positions;
+
 	public:
 		void ResolveManual( C_CSPlayer* player, C_AnimationRecord* record, bool bDisallow = false );
 		void ResolveYaw( C_CSPlayer* player, C_AnimationRecord* record );
@@ -59,6 +73,23 @@ namespace Engine {
 
 		void PredictBodyUpdates( C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev );
 		 
+		AntiFreestandingRecord anti_freestanding_record;
+
+		class PlayerResolveRecord
+		{
+		public:
+			struct AntiFreestandingRecord
+			{
+				int right_damage = 0, left_damage = 0;
+				float right_fraction = 0.f, left_fraction = 0.f;
+			};
+
+		public:
+			AntiFreestandingRecord m_sAntiEdge;
+		};
+
+		PlayerResolveRecord player_resolve_records[33];
+
 	public:
 		// check if the players yaw is sideways.
 		bool IsLastMoveValid( C_AnimationRecord* record, float m_yaw ) {
@@ -96,6 +127,8 @@ namespace Engine {
 			}
 		};
 		void on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw);
+		void collect_wall_detect(const ClientFrameStage_t stage);
+		bool AntiFreestanding(C_CSPlayer* entity, float& yaw);
 		void FindBestAngle( C_CSPlayer* player );
 	};
 

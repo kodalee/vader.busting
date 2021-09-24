@@ -1330,6 +1330,9 @@ namespace Interfaces
 		for (auto& target : m_rage_data->m_targets) {
 			std::vector<C_AimPoint> tempPoints;
 
+			if (target.player->IsTeammate(m_rage_data->m_pLocal))
+				continue;
+
 			for (auto& point : m_rage_data->m_aim_points) {
 				if (point.target->player->EntIndex() == target.player->EntIndex())
 					tempPoints.emplace_back(point);
@@ -1412,7 +1415,7 @@ namespace Interfaces
 			if (!a || !b)
 				goto fuck_yeah;
 
-			if (m_rage_data->m_pLastTarget != nullptr && !m_rage_data->m_pLastTarget->IsDead() && a->player->EntIndex() == m_rage_data->m_pLastTarget->EntIndex())
+			if (m_rage_data->m_pLastTarget != nullptr && !m_rage_data->m_pLastTarget->IsDead() && a->player->EntIndex() == m_rage_data->m_pLastTarget->EntIndex() && !m_rage_data->m_pLastTarget->IsTeammate(m_rage_data->m_pLocal))
 				return true;
 
 			switch (m_rage_data->rbot->target_selection) {
@@ -1500,6 +1503,9 @@ namespace Interfaces
 		bool doubleTap = /*( g_TickbaseController.bExploiting || g_TickbaseController.bUseDoubletapHitchance ) && */g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit;
 		for (auto& p : m_rage_data->m_aim_points) {
 			if (p.damage < 1.0f)
+				continue;
+
+			if (p.target->player->IsTeammate(m_rage_data->m_pLocal))
 				continue;
 
 			// if we got no bestPoint yet, we should always take the first point
@@ -1604,8 +1610,8 @@ namespace Interfaces
 						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
 						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
 
-						if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
-							targedt -= 3;
+						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
+						//	targedt -= 3;
 
 						m_rage_data->m_pCmd->tick_count = targedt;
 
@@ -1720,7 +1726,7 @@ namespace Interfaces
 								msg << XorStr("hitgroup: ") << TranslateHitbox(bestPoint->hitboxIndex).c_str() /*<< XorStr("(") << int(bestPoint->pointscale * 100.f) << XorStr("%%%%)")*/ << XorStr(" | ");
 								msg << XorStr("lby: ") << int(bestPoint->target->record->m_iResolverMode == 6) << XorStr(" | ");
 								//msg << XorStr( "bt: " ) << TIME_TO_TICKS( m_lag_data->m_History.front( ).m_flSimulationTime - bestPoint->target->record->m_flSimulationTime ) << XorStr( " | " );
-								msg << XorStr("clientside: ") << int(*m_rage_data->m_pSendPacket) << XorStr(" | ");
+								msg << XorStr("clientside: ") << int(!(*m_rage_data->m_pSendPacket)) << XorStr(" | ");
 								msg << XorStr("hitchance: ") << int(bestPoint->hitchance) << XorStr(" | ");
 								//msg << XorStr( "miss: " ) << m_lag_data->m_iMissedShots << XorStr( ":" ) << m_lag_data->m_iMissedShotsLBY << XorStr( ":" ) << bestPoint->target->record->m_iResolverMode << XorStr( " | " );
 								//msg << XorStr( "flag: " ) << buffer.data( ) << XorStr( " | " );
