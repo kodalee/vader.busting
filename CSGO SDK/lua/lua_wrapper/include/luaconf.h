@@ -1,7 +1,7 @@
 /*
 ** $Id: luaconf.h,v 1.259.1.1 2017/04/19 17:29:57 roberto Exp $
 ** Configuration file for Lua
-** See Copyright Notice in lua.h
+** See Copyright Notice in src.h
 */
 
 
@@ -201,12 +201,12 @@
 #else			/* }{ */
 
 #define LUA_ROOT	"/usr/local/"
-#define LUA_LDIR	LUA_ROOT "share/lua/" LUA_VDIR "/"
-#define LUA_CDIR	LUA_ROOT "lib/lua/" LUA_VDIR "/"
+#define LUA_LDIR	LUA_ROOT "share/src/" LUA_VDIR "/"
+#define LUA_CDIR	LUA_ROOT "lib/src/" LUA_VDIR "/"
 #define LUA_PATH_DEFAULT  \
-		LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
-		LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua;" \
-		"./?.lua;" "./?/init.lua"
+		LUA_LDIR"?.src;"  LUA_LDIR"?/init.src;" \
+		LUA_CDIR"?.src;"  LUA_CDIR"?/init.src;" \
+		"./?.src;" "./?/init.src"
 #define LUA_CPATH_DEFAULT \
 		LUA_CDIR"?.so;" LUA_CDIR"loadall.so;" "./?.so"
 #endif			/* } */

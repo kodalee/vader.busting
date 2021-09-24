@@ -1906,7 +1906,7 @@ namespace sol {
 #define SOL_EXCEPTIONS_SAFE_PROPAGATION 1
 #endif // Exceptions can be propagated safely using C++-compiled Lua
 #else
-#include "lua.hpp"
+#include "lua_wrapper/include/lua.hpp"
 #endif // C++ Mangling for Lua
 
 #ifdef LUAJIT_VERSION
