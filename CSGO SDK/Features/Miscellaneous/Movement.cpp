@@ -17,6 +17,7 @@
 #include "../../Utils/Threading/threading.h"
 #include "../Rage/TickbaseShift.hpp"
 #include "../Visuals/EventLogger.hpp"
+#include "../Rage/Resolver.hpp"
 
 // todo: move this
 C_AnimationLayer FakeAnimLayers[ 13 ];
@@ -830,7 +831,14 @@ namespace Interfaces
 		// stop when necessary
 		if( Interfaces::m_pClientState->m_nChokedCommands( ) > ( g_Vars.misc.slow_walk_speed - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) {
 			InstantStop( );
+			g_Vars.globals.breakHere = true;
 		}
+		else {
+			g_Vars.globals.breakHere = false;
+		}
+
+		//if (m_movement_data->m_pCmd->sidemove < 11.01f || m_movement_data->m_pCmd->forwardmove < 11.01f)
+		//	*m_movement_data->m_pSendPacket = true;
 
 		// fix event delay
 		g_Vars.globals.FakeWalkWillChoke = g_Vars.misc.slow_walk_speed - Interfaces::m_pClientState->m_nChokedCommands( );

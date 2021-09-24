@@ -48,6 +48,7 @@ namespace Engine {
 		float m_flFinalResolverYaw;
 		float m_flOldLowerBodyYawTarget;
 		float m_flLowerBodyYawTarget;
+
 	};
 	
 	class CResolver {

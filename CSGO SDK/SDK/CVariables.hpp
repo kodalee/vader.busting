@@ -501,6 +501,7 @@ public:
 		float m_flBody;
 		float m_flBodyPred;
 		bool  m_bUpdate;
+		bool breakHere;
 		float m_bGround;
 		int m_fFlags;
 

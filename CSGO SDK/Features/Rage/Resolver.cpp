@@ -23,18 +23,18 @@ namespace Engine {
 		oldBodyYaw = Engine::g_ResolverData[entity->EntIndex()].m_flLowerBodyYawTarget;
 		if (oldBodyYaw != *LowerBodyYaw)
 		{
-			if (entity != C_CSPlayer::GetLocalPlayer() && entity->m_fFlags() & FL_ONGROUND)
-			{
-				nextPredictedSimtime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
-				float vel = entity->m_vecVelocity().Length2D();
-				if (vel > 0.1f)
-					nextBodyUpdate = nextPredictedSimtime + 0.22f;
-				else /*if ( PlayerRecord->nextBodyUpdate <= nextPredictedSimtime )*/
-					nextBodyUpdate = nextPredictedSimtime + 1.1f;
+			//if (entity != C_CSPlayer::GetLocalPlayer() && entity->m_fFlags() & FL_ONGROUND)
+			//{
+			//	nextPredictedSimtime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+			//	float vel = entity->m_vecVelocity().Length2D();
+			//	if (vel > 0.1f)
+			//		nextBodyUpdate = nextPredictedSimtime + 0.22f;
+			//	else /*if ( PlayerRecord->nextBodyUpdate <= nextPredictedSimtime )*/
+			//		nextBodyUpdate = nextPredictedSimtime + 1.1f;
 
-				if (nextBodyUpdate != 0.f)
-					Engine::g_ResolverData[entity->EntIndex()].m_flNextBodyUpdate = nextBodyUpdate;
-			}
+			//	if (nextBodyUpdate != 0.f)
+			//		Engine::g_ResolverData[entity->EntIndex()].m_flNextBodyUpdate = nextBodyUpdate;
+			//}
 
 			Engine::g_ResolverData[entity->EntIndex()].m_flLastLowerBodyYawTargetUpdateTime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
 			Engine::g_ResolverData[entity->EntIndex()].m_flOldLowerBodyYawTarget = oldBodyYaw;
@@ -556,7 +556,7 @@ namespace Engine {
 					break;
 
 				case 4:
-					g_ResolverData[ player->EntIndex( ) ].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+					g_ResolverData[ player->EntIndex( ) ].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
 					break;
 
 				default:
@@ -587,7 +587,7 @@ namespace Engine {
 				break;
 
 			case 5:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
 				break;
 
 			default:
@@ -618,7 +618,7 @@ namespace Engine {
 				break;
 
 			case 4:
-				g_ResolverData[ player->EntIndex( ) ].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+				g_ResolverData[ player->EntIndex( ) ].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
 				break;
 
 			default:
@@ -646,7 +646,7 @@ namespace Engine {
 				break;
 
 			case 4:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
 				break;
 
 			default:
@@ -860,7 +860,7 @@ namespace Engine {
 		}
 
 		// lby updated on this tick via timing or proxy
-		else if (player->m_flAnimationTime() >= Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate/* || player->m_body != player->m_old_body*/) {
+		else if (player->m_flAnimationTime() >= Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate || Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget != Engine::g_ResolverData[player->EntIndex()].m_flOldLowerBodyYawTarget) {
 			// inform the cheat of the resolver method
 			record->m_iResolverMode = EResolverModes::RESOLVE_PRED;
 
@@ -868,7 +868,7 @@ namespace Engine {
 			Engine::g_ResolverData[ player->EntIndex( ) ].m_flNextBodyUpdate = player->m_flAnimationTime( ) + 1.1f;
 
 			// set eyeangles to lby
-			record->m_angEyeAngles.y = player->m_angEyeAngles( ).y = record->m_flLowerBodyYawTarget;
+			record->m_angEyeAngles.y = player->m_angEyeAngles( ).y = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
 
 			// this is also only really used for esp flag
 			record->m_bResolved = true;

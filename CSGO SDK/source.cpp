@@ -959,14 +959,25 @@ namespace Interfaces
 
 	void* CreateInterface( const std::string& image_name, const std::string& name ) {
 #ifndef DEV
-		char buf[ 128 ] = { 0 };
-		wsprintfA( buf, XorStr( "%s::%s" ), image_name.data( ), name.data( ) );
-		auto iface = interfaces_get_interface( loader_hash( buf ) );
+		auto image = GetModuleHandleA(image_name.c_str());
+		if (!image)
+			return nullptr;
 
-		if( !iface )
-			MessageBoxA( 0, buf, buf, 0 );
+		auto fn = (CreateInterfaceFn)(GetProcAddress(image, XorStr("CreateInterface")));
+		if (!fn)
+			return nullptr;
 
-		return reinterpret_cast< void* >( iface );
+		return fn(name.c_str(), nullptr);
+
+
+//		char buf[ 128 ] = { 0 };
+//		wsprintfA( buf, XorStr( "%s::%s" ), image_name.data( ), name.data( ) );
+//		auto iface = interfaces_get_interface( loader_hash( buf ) );
+//
+//		if( !iface )
+//			MessageBoxA( 0, buf, buf, 0 );
+//
+//		return reinterpret_cast< void* >( iface );
 #else
 		auto image = GetModuleHandleA( image_name.c_str( ) );
 		if( !image )

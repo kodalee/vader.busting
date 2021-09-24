@@ -14,6 +14,7 @@
 #include "TickbaseShift.hpp"
 #include "../Visuals/ESP.hpp"
 #include <random>
+#include "Resolver.hpp"
 
 namespace Interfaces
 {
@@ -47,6 +48,7 @@ namespace Interfaces
 		float  m_auto_last;
 		float  m_view;
 		float  m_auto_time;
+
 	};
 
 	bool C_AntiAimbot::IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings) {
@@ -224,7 +226,7 @@ namespace Interfaces
 			case 2: // sway 
 				bNegative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
 				break;
-			case 3: // static		
+			case 3: // static
 				bSwap ? cmd->viewangles.y += g_Vars.antiaim.break_lby : cmd->viewangles.y -= g_Vars.antiaim.break_lby;
 				break;
 			default:

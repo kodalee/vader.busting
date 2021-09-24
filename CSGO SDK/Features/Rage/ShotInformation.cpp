@@ -295,7 +295,7 @@ namespace Engine
 							msg << XorStr("hitgroup: ") << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" | ");
 							msg << XorStr("ent: ") << FixedStrLength(info.szName).data();
 
-							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), false, XorStr(""));
+							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), true, XorStr(""));
 #endif
 						}
 					};
