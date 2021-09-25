@@ -9,7 +9,6 @@
 #include "../SDK/Displacement.hpp"
 #include "../source.hpp"
 #include "sol.hpp"
-#pragma comment(lib, "Lua.lib")
 
 
 enum MENUITEMTYPE {

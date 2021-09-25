@@ -676,9 +676,6 @@
   <ItemGroup>
     <Text Include="ShittierMenu\IMGAY\LICENSE.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="lua\Lua.lib" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
