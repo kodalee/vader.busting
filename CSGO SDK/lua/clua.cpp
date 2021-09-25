@@ -1163,7 +1163,10 @@ void c_lua::refresh_scripts() {
 	this->pathes.clear();
 	this->scripts.clear();
 
-	for (auto& entry : std::filesystem::directory_iterator("C:\\vader.tech\\lua")) {
+	std::filesystem::path full_path(std::filesystem::current_path());
+	std::wstring str = full_path.wstring() + XorStr(L"\\vader.tech");
+
+	for (auto& entry : std::filesystem::directory_iterator(str)) {
 		if (entry.path().extension() == (".lua") || entry.path().extension() == (".luac")) {
 			auto path = entry.path();
 			auto filename = path.filename().string();
