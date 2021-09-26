@@ -78,6 +78,12 @@ enum WeaponGroup_t {
 	WEAPONGROUP_MAX
 };
 
+void biggestMeme2()
+{
+	ImGui::Text("    ");
+	ImGui::SameLine();
+}
+
 bool testbox = false, testbox1 = false;
 void Ragebot()
 {
@@ -157,23 +163,6 @@ void Ragebot()
 		InsertMultiCombo(std::string(XorStr("Hitboxes") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), hitboxes);
 
 		InsertCheckbox(IgnoreLimbs, XorStr("Ignore limbs when moving") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->ignorelimbs_ifwalking);
-		InsertCheckbox(OverrideHitscan, XorStr("Override hitscan") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->override_hitscan);
-		ImGui::Hotkey("##OverrideHitscanKey", &g_Vars.rage.override_key.key, &g_Vars.rage.override_key.cond, ImVec2{ 60,20 });
-		
-		if (rbot->override_hitscan) {
-			std::vector<MultiItem_t> override_hitboxes = {
-				{ XorStr("Head"), &rbot->bt_hitboxes_head },
-				{ XorStr("Neck"), &rbot->bt_hitboxes_neck },
-				{ XorStr("Chest"), &rbot->bt_hitboxes_chest },
-				{ XorStr("Stomach"), &rbot->bt_hitboxes_stomach },
-				{ XorStr("Pelvis"), &rbot->bt_hitboxes_pelvis },
-				{ XorStr("Arms"), &rbot->bt_hitboxes_arms },
-				{ XorStr("Legs"), &rbot->bt_hitboxes_legs },
-				{ XorStr("Feet"), &rbot->bt_hitboxes_feets },
-			};
-
-			InsertMultiCombo(std::string(XorStr("Override hitboxes") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), override_hitboxes);
-		}
 
 		std::vector<MultiItem_t> mp_safety_hitboxes = {
 			{ XorStr("Head"), &rbot->mp_hitboxes_head },
@@ -195,14 +184,6 @@ void Ragebot()
 		if (rbot->autowall) {
 			InsertSliderInt(std::string(XorStr("Minimum penetration dmg") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage, 1.f, 130.f, std::string(rbot->min_damage > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage - 100)))) : XorStr("%d hp")).c_str());
 		}
-
-		InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.rage.exploit);
-		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 60,20 });
-
-		InsertCheckbox(MinDmgOverride, XorStr("Minimum dmg override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
-		ImGui::Hotkey("##MinDmgOverride", &g_Vars.rage.key_dmg_override.key, &g_Vars.rage.key_dmg_override.cond, ImVec2{ 60,20 });
-		//ImGui::Keybind(std::string(XorStr("Minimum dmg override key#key") + std::string(XorStr("#") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.key_dmg_override.key);
-		InsertSliderInt(std::string(XorStr("Dmg override amount##slider") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
 
 		ImGui::NextColumn();
 		ImGui::NewLine();
@@ -251,14 +232,52 @@ void Ragebot()
 			GUI::Controls::Dropdown(XorStr("Knifebot type##Knife bot type"), { XorStr("Default"), XorStr("Backstab"), XorStr("Quick") }, &g_Vars.misc.knife_bot_type);
 
 		InsertCheckbox(zeus_bot, XorStr("Zeus bot"), &g_Vars.misc.zeus_bot);
-		if (g_Vars.misc.zeus_bot)
+		if (g_Vars.misc.zeus_bot) {
 			InsertSliderFloat(XorStr("Zeus bot hitchance"), &g_Vars.misc.zeus_bot_hitchance, 1.f, 80.f, XorStr("%.0f%%"));
+		}
 
-		ImGui::Text(std::string(XorStr("Force bodyaim") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str());
-		ImGui::Hotkey(std::string(XorStr("Force bodyaim key##key") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.prefer_body.key, &g_Vars.rage.prefer_body.cond, ImVec2{ 60,20 });
+		ImGui::NextColumn();
+		ImGui::NewLine();
 
-		ImGui::Text(std::string(XorStr("Override resolver") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str());
-		ImGui::Hotkey(std::string(XorStr("Override resolver key##key") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond, ImVec2{ 60,20 });
+		ImGui::Text("Force bodyaim");
+		biggestMeme2();
+		ImGui::Hotkey(std::string(XorStr("##Force bodyaim key") + std::to_string(rage_current_group)).c_str(), &g_Vars.rage.prefer_body.key, &g_Vars.rage.prefer_body.cond, ImVec2{ 60,20 });
+
+
+		ImGui::Text(std::string(XorStr("Override resolver")).c_str());
+		biggestMeme2();
+		ImGui::Hotkey(std::string(XorStr("##Override resolver key") + std::to_string(rage_current_group)).c_str(), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond, ImVec2{ 60,20 });
+
+		InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.rage.exploit);
+		biggestMeme2();
+		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 60,20 });
+
+		InsertCheckbox(MinDmgOverride, XorStr("Minimum damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
+		biggestMeme2();
+		ImGui::Hotkey("##MinDamageOverride", &g_Vars.rage.key_dmg_override.key, &g_Vars.rage.key_dmg_override.cond, ImVec2{ 60,20 });
+		//ImGui::Keybind(std::string(XorStr("Minimum dmg override key#key") + std::string(XorStr("#") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.key_dmg_override.key);
+		InsertSliderInt(std::string(XorStr("Damage override amount##slider") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
+
+		InsertCheckbox(OverrideHitscan, XorStr("Override hitscan") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->override_hitscan);
+		ImGui::SameLine();
+		biggestMeme2();
+		ImGui::Hotkey("##OverrideHitscanKey", &g_Vars.rage.override_key.key, &g_Vars.rage.override_key.cond, ImVec2{ 40,20 });
+
+		if (rbot->override_hitscan) {
+			std::vector<MultiItem_t> override_hitboxes = {
+				{ XorStr("Head"), &rbot->bt_hitboxes_head },
+				{ XorStr("Neck"), &rbot->bt_hitboxes_neck },
+				{ XorStr("Chest"), &rbot->bt_hitboxes_chest },
+				{ XorStr("Stomach"), &rbot->bt_hitboxes_stomach },
+				{ XorStr("Pelvis"), &rbot->bt_hitboxes_pelvis },
+				{ XorStr("Arms"), &rbot->bt_hitboxes_arms },
+				{ XorStr("Legs"), &rbot->bt_hitboxes_legs },
+				{ XorStr("Feet"), &rbot->bt_hitboxes_feets },
+			};
+
+			InsertMultiCombo(std::string(XorStr("Override hitboxes") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), override_hitboxes);
+		}
+
 	}
 	ImGui::EndColumns();
 }
@@ -525,7 +544,7 @@ void IMGUIMenu::Render()
 
 	ImGui::PushFont(gravityBold);
 
-	ImGui::SetNextWindowSize(ImVec2(600.f, 550.f));
+	ImGui::SetNextWindowSize(ImVec2(586.f, 550.f));
 	ImGui::Begin("##menu", &_visible, windowFlags);
 
 	style->WindowPadding = ImVec2(7.f, 7.f);

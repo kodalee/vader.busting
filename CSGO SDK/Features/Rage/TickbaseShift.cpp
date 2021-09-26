@@ -197,6 +197,9 @@ void TickbaseSystem::OnCLMove( bool bFinalTick, float accumulated_extra_samples 
 
 			Hooked::oCL_Move( bFinalTick, 0.f );
 
+			//if (s_nExtraProcessingTicks <= 1)
+			//	lastShiftedCmdNr = Interfaces::m_pClientState->m_nLastOutgoingCommand();
+			
 			if( inya )
 			{
 				inya = false;
@@ -206,8 +209,10 @@ void TickbaseSystem::OnCLMove( bool bFinalTick, float accumulated_extra_samples 
 				}
 			}
 
+
 			s_nExtraProcessingTicks--;
 		}
+		ignoreallcmds = false;
 
 		//keep track of time
 		s_iServerIdealTick++;

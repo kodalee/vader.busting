@@ -373,6 +373,8 @@ namespace Interfaces
 
 		__forceinline float GetDamage(C_CSPlayer* player, Vector vecPoint, Engine::C_LagRecord* record, int hitboxIdx, bool bCalculatePoint = false);
 
+		void StripAttack(Encrypted_t<CUserCmd> cmd);
+
 		__forceinline bool SetupTargets();
 
 		__forceinline void SelectBestTarget();
@@ -427,6 +429,27 @@ namespace Interfaces
 		return flDamage;
 	}
 
+	void C_Ragebot::StripAttack(Encrypted_t<CUserCmd> cmd) {
+
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		auto weapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
+		if (!weapon) {
+			return;
+		}
+
+		auto weaponInfo = weapon->GetCSWeaponData();
+		if (!weaponInfo.IsValid()) {
+			return;
+		}
+
+		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER)
+			cmd->buttons &= ~IN_ATTACK2;
+
+		else
+			cmd->buttons &= ~IN_ATTACK;
+	}
+
 	bool C_Ragebot::Run(Encrypted_t<CUserCmd> cmd, C_CSPlayer* local, bool* sendPacket) {
 		if (!g_Vars.rage.enabled || !g_Vars.rage.key.enabled)
 			return false;
@@ -443,6 +466,18 @@ namespace Interfaces
 		auto weaponInfo = weapon->GetCSWeaponData();
 		if (!weaponInfo.IsValid()) {
 			return false;
+		}
+
+		bool revolver = weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER;
+
+		if (Engine::g_ResolverData->m_weapon_fire)
+			StripAttack(cmd);
+
+		// we have a normal weapon or a non cocking revolver
+		// choke if its the processing tick.
+		if (Engine::g_ResolverData->m_weapon_fire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver) {
+			*sendPacket = false;
+			StripAttack(cmd);
 		}
 
 		// run aim on zeus

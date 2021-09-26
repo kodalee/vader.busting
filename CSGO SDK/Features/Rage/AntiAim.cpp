@@ -37,6 +37,10 @@ namespace Interfaces
 		};
 		virtual Directions HandleDirection(Encrypted_t<CUserCmd> cmd);
 
+		void SendFakeFlick();
+
+		void fake_flick(Encrypted_t<CUserCmd> cmd);
+
 		virtual bool IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings);
 
 		bool m_bNegate = false;
@@ -50,6 +54,46 @@ namespace Interfaces
 		float  m_auto_time;
 
 	};
+
+	void C_AntiAimbot::SendFakeFlick() {
+		if (g_TickbaseController.m_didFakeFlick) {
+			g_TickbaseController.s_nExtraProcessingTicks = 14;
+			g_TickbaseController.ignoreallcmds = true;
+			g_TickbaseController.m_didFakeFlick = false;
+		}
+	}
+
+	void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
+	{
+		if (!g_Vars.misc.mind_trick || !g_Vars.misc.mind_trick_bind.enabled || !C_CSPlayer::GetLocalPlayer)
+			return;
+
+		auto localPlayer = C_CSPlayer::GetLocalPlayer();
+
+		if (!localPlayer->m_iHealth() > 0)
+			return;
+
+		if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+			if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
+				if (localPlayer->m_flAnimationTime() < g_Vars.globals.m_flBodyPred) {
+					if (g_TickbaseController.lastShiftedCmdNr != Interfaces::m_pClientState->m_nLastOutgoingCommand()) {
+						//static bool switcher2 = false;
+						//g_cl.m_cmd->m_view_angles.x -= 180.f;
+						//g_cl.m_cmd->m_view_angles.y += switcher2 ? g_menu.main.antiaim.angleflick.get() : -(g_menu.main.antiaim.angleflick.get());
+						//switcher2 = !switcher2;
+						cmd->viewangles.y += 135.f;
+						//g_cl.ticksToShift = 0;
+						if (/*g_cl.m_cmd->m_side_move == 0 && g_cl.m_cmd->m_forward_move == 0 && */localPlayer->m_vecVelocity().Length2D() < 11.f) {
+							static bool switcher = false;
+							cmd->sidemove = switcher ? -13.37f : 13.37f;
+							switcher = !switcher;
+						}
+						g_TickbaseController.m_didFakeFlick = true;
+					}
+				}
+			}
+		}
+	}
 
 	bool C_AntiAimbot::IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings) {
 		C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
@@ -203,12 +247,16 @@ namespace Interfaces
 			cmd->viewangles.y = flYaw;
 
 			Distort(cmd);
+
+			//fake_flick(cmd);
 		}
 		else {
 
 			std::uniform_int_distribution random(-90, 90);
 
 			cmd->viewangles.y = Math::AngleNormalize(flYaw + 180 + random(generator));
+
+			//SendFakeFlick();
 		}
 
 		static bool bNegative = false;

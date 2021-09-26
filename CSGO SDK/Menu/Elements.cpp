@@ -288,6 +288,9 @@ namespace Menu {
 					GUI::Controls::Hotkey( XorStr( "Fake-walk key#Key" ), &g_Vars.misc.slow_walk_bind );
 					GUI::Controls::Slider( XorStr( "Fake-walk speed" ), &g_Vars.misc.slow_walk_speed, 4, 16 );
 
+					GUI::Controls::Checkbox(XorStr("Mind-Trick"), &g_Vars.misc.mind_trick);
+					GUI::Controls::Hotkey(XorStr("Mind-Trick key#Key"), &g_Vars.misc.mind_trick_bind);
+
 				}
 				GUI::Group::EndGroup( );
 

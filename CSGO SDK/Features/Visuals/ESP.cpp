@@ -1002,7 +1002,7 @@ void CEsp::DrawAntiAimIndicator( ) {
 
 	Color color = g_Vars.antiaim.manual_color.ToRegularColor( );
 
-	float alpha = floor( sin( Interfaces::m_pGlobalVars->realtime * 4 ) * ( color.RGBA[ 3 ] / 2 - 1 ) + color.RGBA[ 3 ] / 2 );
+	float alpha = 255/*floor( sin( Interfaces::m_pGlobalVars->realtime * 4 ) * ( color.RGBA[ 3 ] / 2 - 1 ) + color.RGBA[ 3 ] / 2 )*/;
 
 	color.RGBA[ 3 ] = alpha;
 

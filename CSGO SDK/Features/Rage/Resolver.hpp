@@ -34,6 +34,8 @@ namespace Engine {
 		bool m_bCollectedValidMoveData;
 		bool m_bWentDormant;
 		bool m_bPredictingUpdates;
+		bool m_player_fire;
+		bool m_weapon_fire;
 
 		Vector m_vecSavedOrigin;
 		LastMoveData_t m_sMoveData;

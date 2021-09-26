@@ -20,6 +20,7 @@
 #include "../../Features/Game/SetupBones.hpp"
 #include "../../Features/Visuals/Hitmarker.hpp"
 #include "../../Features/Rage/AntiAim.hpp"
+#include "../../Features/Rage/Resolver.hpp"
 
 extern float fl_Override;
 extern bool g_Override;
@@ -332,6 +333,10 @@ namespace Hooked
 
 		auto& prediction = Engine::Prediction::Instance( );
 
+		Engine::g_ResolverData->m_player_fire = Interfaces::m_pGlobalVars->curtime >= C_CSPlayer::GetLocalPlayer()->m_flNextAttack() && !g_Vars.globals.IsRoundFreeze;
+
+		Engine::g_ResolverData->m_weapon_fire = Engine::Prediction::Instance()->CanFireWeapon(TICKS_TO_TIME(C_CSPlayer::GetLocalPlayer()->m_nTickBase()));
+
 		movement->PrePrediction( cmd, pLocal, bSendPacket, bFinalTick, nullptr );
 		prediction.Begin( cmd, bSendPacket, cmd->command_number );
 		{
@@ -529,6 +534,15 @@ namespace Hooked
 		if( !g_Vars.globals.HackIsReady || !pLocal || !Interfaces::m_pEngine->IsInGame( ) ) {
 			Engine::Prediction::Instance( ).Invalidate( );
 			return oCreateMove( ft, _cmd );
+		}
+
+		if (g_TickbaseController.s_nExtraProcessingTicks > 0) {
+			if (g_TickbaseController.ignoreallcmds && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
+				_cmd->tick_count = INT_MAX;
+			}
+			else {
+				g_TickbaseController.s_nExtraProcessingTicks--;
+			}
 		}
 
 		return result;
