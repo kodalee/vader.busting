@@ -64,7 +64,7 @@ namespace ImGuiEx
 }
 
  
-int tab = 0, aimbotTab = 1, rageTab = 0, legitTab = 0;
+int tab = 0, aimbotTab = 1, rageTab = 0, legitTab = 0, miscSubtabs = 0;
 
 enum WeaponGroup_t {
 	WEAPONGROUP_PISTOL,
@@ -581,7 +581,39 @@ void Misc()
 	
 	ImGui::NewLine();
 	{
+		switch (miscSubtabs)
+		{
+			case 0:
+			{
+				break;
+			}
 
+			case 1:
+			{
+
+				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+
+				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Reload active scripts", ImVec2(100, 0))) g_lua.reload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+
+				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+
+				ImGui::Text("scripts");
+
+				for (auto s : g_lua.scripts)
+				{
+					ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
+					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
+						auto scriptId = g_lua.get_script_id(s);
+						if (g_lua.loaded.at(scriptId))
+							g_lua.unload_script(scriptId);
+						else
+							g_lua.load_script(scriptId);
+					}
+				}
+
+				break;
+			}
+		}
 	}
 	ImGui::EndColumns();
 }
@@ -667,6 +699,9 @@ void IMGUIMenu::OnDeviceReset()
 auto windowFlags = (ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding);
 ImFont* gravity, *gravityBold, *StarWars, *watermark;
 
+#define MENU_WIDTH 686.f
+#define MENU_HEIGHT 650.f
+
 void IMGUIMenu::Render()
 {
 	if (!Opened) return;
@@ -677,7 +712,7 @@ void IMGUIMenu::Render()
 
 	ImGui::PushFont(gravityBold);
 
-	ImGui::SetNextWindowSize(ImVec2(586.f, 550.f));
+	ImGui::SetNextWindowSize(ImVec2(MENU_WIDTH, MENU_HEIGHT));
 	ImGui::Begin("##menu", &_visible, windowFlags);
 
 	style->WindowPadding = ImVec2(7.f, 7.f);
@@ -687,7 +722,7 @@ void IMGUIMenu::Render()
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 	{
-		ImGui::BeginTitleBar("Title Bar", ImVec2(586.f, 55.f), false);
+		ImGui::BeginTitleBar("Title Bar", ImVec2(MENU_WIDTH, 55.f), false);
 
 		ImGui::PopFont();
 		ImGui::PushFont(StarWars);
@@ -705,7 +740,7 @@ void IMGUIMenu::Render()
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 	{
-		ImGui::BeginChild("##tabs", ImVec2(586.f, 35.f), false);
+		ImGui::BeginChild("##tabs", ImVec2(MENU_WIDTH, 35.f), false);
 
 		ImGui::SameLine(8.f);
 		ImGui::TrueTab("  AIMBOT  ", tab, 0, ImVec2(0.f, 35.f)); ImGui::SameLine();
@@ -713,7 +748,6 @@ void IMGUIMenu::Render()
 		ImGui::TrueTab("  VISUALS  ", tab, 2, ImVec2(0.f, 35.f)); ImGui::SameLine();
 		ImGui::TrueTab("  MISC  ", tab, 3, ImVec2(0.f, 35.f)); ImGui::SameLine();
 		ImGui::TrueTab("  SKINS  ", tab, 4, ImVec2(0.f, 35.f)); ImGui::SameLine();
-		ImGui::TrueTab("  SCRIPTS  ", tab, 5, ImVec2(0.f, 35.f)); ImGui::SameLine();
 
 		ImGui::EndChild();
 	}
@@ -723,7 +757,7 @@ void IMGUIMenu::Render()
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0)); /* all SubTabs are handled here */
 	{
-		ImGui::BeginChild("##subtabs", ImVec2(586.f, 25.f), false);
+		ImGui::BeginChild("##subtabs", ImVec2(MENU_WIDTH, 25.f), false);
 
 		ImGui::SameLine(8.f);
 
@@ -757,7 +791,8 @@ void IMGUIMenu::Render()
 			}
 			case 3:
 			{
-				ImGui::SelectedSubTab("  Misc  ", ImVec2(0.f, 25.f));
+				ImGui::TrueSubTab("  Misc  ", miscSubtabs, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Scripts  ", miscSubtabs, 1, ImVec2(0.f, 25.f));
 				break;
 			}
 		}
@@ -767,7 +802,7 @@ void IMGUIMenu::Render()
 	ImGui::PopStyleVar();
 
 	style->Colors[ImGuiCol_ChildBg] = ImColor(25, 20, 27);
-	ImGui::BeginChild("##main", ImVec2(586.f, 420.f), false);
+	ImGui::BeginChild("##main", ImVec2(MENU_WIDTH, MENU_HEIGHT - 130.f), false);
 	ImGui::SameLine(7.f);
 	style->Colors[ImGuiCol_ChildBg] = ImColor(21, 17, 29);
 	switch (tab)
@@ -783,8 +818,6 @@ void IMGUIMenu::Render()
 			break;
 		case 3:
 			Misc();
-		case 5:
-			Scripts();
 		default:
 			break;
 	}
