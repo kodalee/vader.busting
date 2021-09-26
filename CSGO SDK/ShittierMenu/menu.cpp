@@ -209,7 +209,7 @@ void Ragebot()
 		InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->autoscope);
 		InsertCheckbox(prefer_body, XorStr("Prefer body-aim") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->prefer_body);
 
-		if (rbot->prefer_body || GUI::ctx->setup) {
+		if (rbot->prefer_body) {
 			std::vector<MultiItem_t> prefer_body_cond = {
 				//	{ XorStr( "Target firing" ), &rbot->prefer_body_disable_shot },
 				{ XorStr("Target resolved"), &rbot->prefer_body_disable_resolved },
@@ -228,8 +228,9 @@ void Ragebot()
 		InsertCheckbox(delay_shot_on_unducking, XorStr("Delay shot on unduck") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->delay_shot_on_unducking);
 
 		InsertCheckbox(knife_bot, XorStr("Knife bot"), &g_Vars.misc.knife_bot);
-		if (g_Vars.misc.knife_bot || GUI::ctx->setup)
-			GUI::Controls::Dropdown(XorStr("Knifebot type##Knife bot type"), { XorStr("Default"), XorStr("Backstab"), XorStr("Quick") }, &g_Vars.misc.knife_bot_type);
+		const char* knife_bot_type[] = { XorStr("Default"), XorStr("Backstab"), XorStr("Quick") };
+		if (g_Vars.misc.knife_bot)
+			InsertCombo(XorStr("Knifebot type##Knife bot type"), &g_Vars.misc.knife_bot_type, knife_bot_type);
 
 		InsertCheckbox(zeus_bot, XorStr("Zeus bot"), &g_Vars.misc.zeus_bot);
 		if (g_Vars.misc.zeus_bot) {
@@ -395,7 +396,7 @@ void Visuals()
 
 	ImGui::NewLine();
 	{
-		InsertCheckbox(esp_enable, XorStr("Enabled"), &g_Vars.esp.esp_enable);
+		InsertCheckbox(esp_enable, XorStr("ESP"), &g_Vars.esp.esp_enable);
 		g_Vars.esp.team_check = true;
 
 		InsertCheckbox(fade_esp, XorStr("Dormant"), &g_Vars.esp.fade_esp);
@@ -432,6 +433,138 @@ void Visuals()
 
 		InsertCheckbox(weapon_icon, XorStr("Weapon icon"), &g_Vars.esp.weapon_icon);
 		ImGuiEx::ColorEdit4(XorStr("Weapon icon color"), &g_Vars.esp.weapon_icon_color);
+
+		ImGui::NextColumn();
+		ImGui::NewLine();
+
+		InsertCheckbox(enemy_chams, XorStr("Enemy chams"), &g_Vars.esp.chams_enemy);
+		if (g_Vars.esp.chams_enemy) {
+			InsertCheckbox(enemy_chams_vis, XorStr("Visible chams"), &g_Vars.esp.enemy_chams_vis);
+			ImGuiEx::ColorEdit4(XorStr("Visible chams color##Local color"), &g_Vars.esp.enemy_chams_color_vis);
+
+			InsertCheckbox(enemy_chams_xqz, XorStr("Behind wall chams"), &g_Vars.esp.enemy_chams_xqz);
+			ImGuiEx::ColorEdit4(XorStr("Behind wall chams color##Local color"), &g_Vars.esp.enemy_chams_color_xqz);
+
+			const char* enemy_chams_mat[] = {
+				XorStr("Off"), XorStr("Flat"), XorStr("Material"), XorStr("Ghost"), XorStr("Outline"), XorStr("Shiny")
+			};
+			InsertCombo(XorStr("Enemy chams material"), &g_Vars.esp.enemy_chams_mat, enemy_chams_mat);
+
+			if (g_Vars.esp.enemy_chams_mat == 5) {
+				GUI::Controls::Slider(XorStr("Enemy pearlescence"), &g_Vars.esp.chams_enemy_pearlescence, 0.f, 100.f, XorStr("%0.0f"));
+				ImGuiEx::ColorEdit4(XorStr("clacoenemycascans"), &g_Vars.esp.chams_enemy_pearlescence_color);
+				GUI::Controls::Slider(XorStr("Enemy shine"), &g_Vars.esp.chams_enemy_shine, 0.f, 100.f, XorStr("%0.0f"));
+			}
+
+			InsertCheckbox(glow_enemy, XorStr("Glow"), &g_Vars.esp.glow_enemy);
+			ImGuiEx::ColorEdit4(XorStr("Glow color#Enemy glow"), &g_Vars.esp.glow_enemy_color);
+
+			InsertCheckbox(chams_enemy_outline, XorStr("Add glow#Enemy"), &g_Vars.esp.chams_enemy_outline); ImGuiEx::ColorEdit4(XorStr("Add glow color#Enemy"), &g_Vars.esp.chams_enemy_outline_color);
+			if (g_Vars.esp.chams_enemy_outline) {
+				InsertCheckbox(chams_enemy_outline_wireframe, XorStr("Wireframe#Enemy"), &g_Vars.esp.chams_enemy_outline_wireframe);
+				InsertSliderFloat(XorStr("Glow strength#Enemy"), &g_Vars.esp.chams_enemy_outline_value, 1.f, 100.f, XorStr("%0.0f"));
+			}
+		}
+
+
+		const char* materials[] = {
+XorStr("Off"), XorStr("Flat"), XorStr("Material"), XorStr("Ghost"), XorStr("Outline")
+		};
+
+		InsertCheckbox(chams_history, XorStr("Backtrack chams"), &g_Vars.esp.chams_history);
+		if (g_Vars.esp.chams_history) {
+			ImGuiEx::ColorEdit4(XorStr("Backtrack chams color##Local color"), &g_Vars.esp.chams_history_color);
+
+			InsertCombo(XorStr("Backtrack chams material"), &g_Vars.esp.chams_history_mat, materials);
+		}
+
+		InsertCheckbox(hitmatrix, XorStr("Shot chams"), &g_Vars.esp.hitmatrix);
+		if (g_Vars.esp.hitmatrix) {
+			ImGuiEx::ColorEdit4(XorStr("Shot chams color##Local color"), &g_Vars.esp.hitmatrix_color);
+			InsertSliderFloat(XorStr("Expire time##chams"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
+		}
+
+		InsertCheckbox(glow_local, XorStr("Local glow"), &g_Vars.esp.glow_local);
+		if (g_Vars.esp.glow_local) {
+			ImGuiEx::ColorEdit4(XorStr("Local glow color##Local color"), &g_Vars.esp.glow_local_color);
+		}
+
+		InsertCheckbox(chams_local, XorStr("Local chams"), &g_Vars.esp.chams_local);
+		if (g_Vars.esp.chams_local) {
+			ImGuiEx::ColorEdit4(XorStr("Local chams color##Local color"), &g_Vars.esp.chams_local_color);
+
+
+			const char* chams_local_mat[] = {
+				XorStr("Off"), XorStr("Flat"), XorStr("Material"), XorStr("Ghost"), XorStr("Outline"), XorStr("Shiny")
+			};
+			InsertCombo(XorStr("Local chams material"), &g_Vars.esp.chams_local_mat, chams_local_mat);
+
+			if (g_Vars.esp.chams_local_mat == 5) {
+				GUI::Controls::Slider(XorStr("Local pearlescence"), &g_Vars.esp.chams_local_pearlescence, 0.f, 100.f, XorStr("%0.0f"));
+				ImGuiEx::ColorEdit4(XorStr("clacolacscascans"), &g_Vars.esp.chams_local_pearlescence_color);
+				GUI::Controls::Slider(XorStr("Local shine"), &g_Vars.esp.chams_local_shine, 0.f, 100.f, XorStr("%0.0f"));
+			}
+
+			InsertCheckbox(chams_local_outline, XorStr("Add glow local#Local"), &g_Vars.esp.chams_local_outline);
+			if (g_Vars.esp.chams_local_outline) {
+				ImGuiEx::ColorEdit4(XorStr("Add glow local color#Local"), &g_Vars.esp.chams_local_outline_color);
+				InsertCheckbox(chams_local_outline_wireframe, XorStr("Wireframe local#Local"), &g_Vars.esp.chams_local_outline_wireframe);
+
+				GUI::Controls::Slider(XorStr("Local glow strength#Local"), &g_Vars.esp.chams_local_outline_value, 1.f, 100.f, XorStr("%0.0f"));
+			}
+		}
+
+		InsertCheckbox(blur_in_scoped, XorStr("Transparency in scope"), &g_Vars.esp.blur_in_scoped);
+		InsertSliderFloat(XorStr("Transparency##Transparency In Scope"), &g_Vars.esp.blur_in_scoped_value, 0.0f, 100.f, XorStr("%0.f%%"));
+
+		InsertCheckbox(chams_attachments, XorStr("Attachment chams"), &g_Vars.esp.chams_attachments);
+		if (g_Vars.esp.chams_attachments) {
+			ImGuiEx::ColorEdit4(XorStr("Attachment chams color"), &g_Vars.esp.attachments_chams_color);
+			InsertCombo(XorStr("Attachment chams material"), &g_Vars.esp.attachments_chams_mat, materials);
+
+			InsertCheckbox(chams_attachments_outline, XorStr("Add glow attachment#Attachment"), &g_Vars.esp.chams_attachments_outline);
+			if (g_Vars.esp.chams_attachments_outline) {
+				ImGuiEx::ColorEdit4(XorStr("Add glow attachment color#Attachment"), &g_Vars.esp.chams_attachments_outline_color);
+				InsertCheckbox(chams_attachments_outline_wireframe, XorStr("Wireframe attachment#Attachment"), &g_Vars.esp.chams_attachments_outline_wireframe);
+
+				InsertSliderFloat(XorStr("Attachment glow strength#Attachment"), &g_Vars.esp.chams_attachments_outline_value, 1.f, 100.f, XorStr("%0.0f"));
+			}
+		}
+
+		InsertCheckbox(chams_weapon, XorStr("Weapon chams"), &g_Vars.esp.chams_weapon);
+		if (g_Vars.esp.chams_weapon) {
+			ImGuiEx::ColorEdit4(XorStr("Weapon chams color"), &g_Vars.esp.weapon_chams_color);
+			InsertCombo(XorStr("Weapon chams material"), &g_Vars.esp.weapon_chams_mat, materials);
+
+			InsertCheckbox(chams_weapon_outline, XorStr("Add glow weapon#Weapon"), &g_Vars.esp.chams_weapon_outline);
+			if (g_Vars.esp.chams_weapon_outline) {
+				ImGuiEx::ColorEdit4(XorStr("Add glow weapon color#Weapon"), &g_Vars.esp.chams_weapon_outline_color);
+				InsertCheckbox(chams_weapon_outline_wireframe, XorStr("Wireframe weapon#Weapon"), &g_Vars.esp.chams_weapon_outline_wireframe);
+
+				GUI::Controls::Slider(XorStr("Weapon glow strength#Weapon"), &g_Vars.esp.chams_weapon_outline_value, 1.f, 100.f, XorStr("%0.0f"));
+			}
+		}
+
+		InsertCheckbox(chams_hands, XorStr("Hand chams"), &g_Vars.esp.chams_hands);
+		if (g_Vars.esp.chams_hands) {
+			ImGuiEx::ColorEdit4(XorStr("Hand chams color"), &g_Vars.esp.hands_chams_color);
+			InsertCombo(XorStr("Hand chams material"), &g_Vars.esp.hands_chams_mat, materials);
+
+
+			InsertCheckbox(chams_hands_outline, XorStr("Add glow hand#Hand"), &g_Vars.esp.chams_hands_outline);
+			if (g_Vars.esp.chams_hands_outline) {
+				ImGuiEx::ColorEdit4(XorStr("Add glow hand color#Hand"), &g_Vars.esp.chams_hands_outline_color);
+				InsertCheckbox(chams_hands_outline_wireframe, XorStr("Wireframe hand#Hand"), &g_Vars.esp.chams_hands_outline_wireframe);
+
+				InsertSliderFloat(XorStr("Hand glow strength#Hand"), &g_Vars.esp.chams_hands_outline_value, 1.f, 100.f, XorStr("%0.0f"));
+			}
+		}
+
+		InsertCheckbox(draw_hitboxes, XorStr("Shot capsules"), &g_Vars.esp.draw_hitboxes);
+		if (g_Vars.esp.draw_hitboxes) {
+			ImGuiEx::ColorEdit4(XorStr("Shot capsules color"), &g_Vars.esp.hitboxes_color);
+		}
+
 	}
 	ImGui::EndColumns();
 }

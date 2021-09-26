@@ -990,7 +990,4 @@
   <ItemGroup>
     <Text Include="ShittierMenu\IMGAY\LICENSE.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="lua\Lua.lib" />
-  </ItemGroup>
 </Project>
