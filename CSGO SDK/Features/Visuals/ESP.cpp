@@ -25,6 +25,7 @@
 //#include "../Rage/AnimationSystem.hpp"
 
 #include "../Miscellaneous/Movement.hpp"
+#include "../../ShittierMenu/Menu.hpp"
 
 #include <iomanip>
 #include <psapi.h>
@@ -794,7 +795,7 @@ void CEsp::Keybinds( ) {
 	float gaySize = this->m_KeyBinds.size.y;
 
 	static float alpha = 0.f;
-	bool condition = ( ( vecNames.empty( ) && g_Vars.globals.menuOpen ) || !vecNames.empty( ) );
+	bool condition = ( ( vecNames.empty( ) && g_Vars.globals.menuOpen || g_IMGUIMenu.Opened) || !vecNames.empty( ) );
 	float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
 	if( condition ) {
 		alpha += multiplier * ( 1.0f - alpha );
