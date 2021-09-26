@@ -451,7 +451,7 @@ namespace Interfaces
 	}
 
 	bool C_Ragebot::Run(Encrypted_t<CUserCmd> cmd, C_CSPlayer* local, bool* sendPacket) {
-		if (!g_Vars.rage.enabled || !g_Vars.rage.key.enabled)
+		if (!g_Vars.rage.enabled)
 			return false;
 
 		if (!g_Vars.globals.RandomInit) {

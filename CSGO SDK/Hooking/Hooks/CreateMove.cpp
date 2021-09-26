@@ -536,14 +536,14 @@ namespace Hooked
 			return oCreateMove( ft, _cmd );
 		}
 
-		if (g_TickbaseController.s_nExtraProcessingTicks > 0) {
-			if (g_TickbaseController.ignoreallcmds && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
-				_cmd->tick_count = INT_MAX;
-			}
-			else {
-				g_TickbaseController.s_nExtraProcessingTicks--;
-			}
-		}
+		//if (g_TickbaseController.s_nExtraProcessingTicks > 0) {
+		//	if (g_TickbaseController.ignoreallcmds && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
+		//		_cmd->tick_count = INT_MAX;
+		//	}
+		//	else {
+		//		g_TickbaseController.s_nExtraProcessingTicks--;
+		//	}
+		//}
 
 		return result;
 	}
