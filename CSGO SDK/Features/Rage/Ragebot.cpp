@@ -475,7 +475,7 @@ namespace Interfaces
 
 		// we have a normal weapon or a non cocking revolver
 		// choke if its the processing tick.
-		if (Engine::g_ResolverData->m_weapon_fire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver) {
+		if (Engine::g_ResolverData->m_weapon_fire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.exploit && !g_Vars.rage.key_dt.key) {
 			*sendPacket = false;
 			StripAttack(cmd);
 		}
