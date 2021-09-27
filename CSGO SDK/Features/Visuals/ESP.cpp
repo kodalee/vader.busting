@@ -1821,29 +1821,14 @@ void CEsp::DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player ) {
 }
 
 void CEsp::DrawHealthBar( C_CSPlayer* player, BBox_t bbox ) {
-	int y = bbox.y + 1;
-	int h = bbox.h - 2;
-
-	// retarded servers that go above 100 hp..
-	int hp = std::min( 100, player->m_iHealth( ) );
-
-	// calculate hp bar color.
-	int r = std::min( ( 510 * ( 100 - hp ) ) / 100, 255 );
-	int g = std::min( ( 510 * hp ) / 100, 255 );
-
-	// get hp bar height.
-	int fill = ( int )std::round( hp * h / 100.f );
-
-	// render background.
-	Render::Engine::RectFilled( bbox.x - 6, y - 1, 4, h + 2, Color( 10, 10, 10, 180 * GetAlpha( player->EntIndex( ) ) ) );
-
-	// render actual bar.
-	Render::Engine::Rect( bbox.x - 5, y + h - fill, 2, fill, g_Vars.esp.health_override ? g_Vars.esp.health_color.ToRegularColor( ).OverrideAlpha( 210 * GetAlpha( player->EntIndex( ) ), true )
-		: Color( r, g, 0, 210 * GetAlpha( player->EntIndex( ) ) ) );
-
-	// if hp is below max, draw a string.
-	if( hp < 100 )
-		Render::Engine::pixel_reg.string( bbox.x - 5, y + ( h - fill ) - 5, Color( 255, 255, 255, 200 * GetAlpha( player->EntIndex( ) ) ), std::to_string( hp ), Render::Engine::ALIGN_CENTER );
+	int hp = std::min(100, player->m_iHealth()), r = std::min((510 * (100 - hp)) / 100, 255), g = std::min((510 * hp) / 100, 255);
+	auto Health = player->m_iHealth(); Health = std::clamp(Health, 0, 100);
+	const auto HealthBarHeight = (Health * bbox.h) / 100;
+	Render::Engine::Rect(bbox.x - 6, bbox.y, 2, bbox.h, Color(0, 0, 0, 200));
+	Render::Engine::Rect(bbox.x - 6, bbox.y + ((bbox.h) - HealthBarHeight), 2, HealthBarHeight, g_Vars.esp.health_override ? g_Vars.esp.health_color.ToRegularColor().OverrideAlpha(210 * GetAlpha(player->EntIndex()), true) : Color(r, g, 0, 210 * GetAlpha(player->EntIndex())));
+	Render::Engine::Rect(bbox.x - 6 - 1, bbox.y - 1, 2 + 2, bbox.h + 2, Color(0, 0, 0, 225));
+		
+	if (player->m_iHealth() < 100 || player->m_iHealth() > 100) Render::Engine::esp.string(bbox.x - (14 / 2), bbox.y + 2 + ((bbox.h) - HealthBarHeight) - 7, Color(255, 255, 255, 255), std::to_string(player->m_iHealth()).c_str(), Render::Engine::ALIGN_CENTER);
 }
 
 void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info ) {

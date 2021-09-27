@@ -34,7 +34,7 @@ public:
 
     bool IsVisible() const { return _visible; }
 
-    bool Opened = true, Initialized = false;
+    bool Opened = false, Initialized = false;
 private:
     void CreateStyle();
 
