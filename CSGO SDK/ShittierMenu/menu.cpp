@@ -878,8 +878,7 @@ void Scripts()
 
 bool IMGUIMenu::Initialize(IDirect3DDevice9* pDevice)
 {
-	static bool initialized = false;
-	if (!initialized)
+	if (!Initialized)
 	{
 		ImGui::CreateContext();
 		CreateStyle();
@@ -894,10 +893,10 @@ bool IMGUIMenu::Initialize(IDirect3DDevice9* pDevice)
 		ImGui_ImplWin32_Init(param.hFocusWindow);
 		ImGui_ImplDX9_Init(pDevice);
 		ImGui_ImplDX9_CreateDeviceObjects();
-		initialized = true;
+		Initialized = true;
 	}
 
-	return initialized;
+	return Initialized;
 }
 
 void IMGUIMenu::Shutdown()

@@ -21,6 +21,8 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 	g_Vars.globals.szLastHookCalled = XorStr( "27" );
 	g_Vars.globals.m_pD3D9Device = pDevice;
 
+	if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_DELETE)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
+
 	if( Render::DirectX::initialized ) {
 		// gay idc
 		InputHelper::Update( );
@@ -28,8 +30,6 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		if( InputSys::Get()->WasKeyPressed( g_Vars.menu.key.key ) ) {
 			g_Vars.globals.menuOpen = !g_Vars.globals.menuOpen;
 		}
-
-		if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_DELETE)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
 
 		Render::DirectX::begin( );
 		{
@@ -161,35 +161,36 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		InputSys::Get( )->SetScrollMouse( 0.f );
 	}
 
-	g_IMGUIMenu.Initialized = g_IMGUIMenu.Initialize(pDevice); if (!g_IMGUIMenu.Initialized) return oPresent(pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-
-	pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
-	pDevice->GetVertexDeclaration(&vertDec);
-	pDevice->GetVertexShader(&vertShader);
-	pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
-	pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
-	pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
-	pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-	pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP);
-	pDevice->SetSamplerState(NULL, D3DSAMP_SRGBTEXTURE, NULL);
-
-	ImGui_ImplDX9_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	/*render stuff*/
+	if (g_IMGUIMenu.Opened && g_IMGUIMenu.Initialize(pDevice))
 	{
-		g_IMGUIMenu.Render();
+		pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
+		pDevice->GetVertexDeclaration(&vertDec);
+		pDevice->GetVertexShader(&vertShader);
+		pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
+		pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
+		pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+		pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+		pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP);
+		pDevice->SetSamplerState(NULL, D3DSAMP_SRGBTEXTURE, NULL);
+
+		ImGui_ImplDX9_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+
+		/*render stuff*/
+		{
+			g_IMGUIMenu.Render();
+		}
+
+		ImGui::EndFrame();
+		ImGui::Render();
+		ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+
+		pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, dwOld_D3DRS_COLORWRITEENABLE);
+		pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, true);
+		pDevice->SetVertexDeclaration(vertDec);
+		pDevice->SetVertexShader(vertShader);
 	}
-
-	ImGui::EndFrame();
-	ImGui::Render();
-	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-
-	pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, dwOld_D3DRS_COLORWRITEENABLE);
-	pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, true);
-	pDevice->SetVertexDeclaration(vertDec);
-	pDevice->SetVertexShader(vertShader);
 
 	return oPresent( pDevice, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion );
 }

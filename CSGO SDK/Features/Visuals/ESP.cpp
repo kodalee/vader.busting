@@ -1815,12 +1815,9 @@ void CEsp::DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player ) {
 	auto color = clr;
 	color.a *= ( m_flAlpha[ player->EntIndex( ) ] );
 
-	FloatColor outline = FloatColor( 0.0f, 0.0f, 0.0f, color.a * 0.68f );
-	//if( g_Vars.esp.box_type == 0 ) {
 	Render::Engine::Rect( bbox.x - 1, bbox.y - 1, bbox.w + 2, bbox.h + 2, Color( 0, 0, 0, 180 * m_flAlpha[ player->EntIndex( ) ] ) );
-	Render::Engine::Rect( bbox.x + 1, bbox.y + 1, bbox.w - 2, bbox.h - 2, Color( 0, 0, 0, 180 * m_flAlpha[ player->EntIndex( ) ] ) );
 	Render::Engine::Rect( bbox.x, bbox.y, bbox.w, bbox.h, color.ToRegularColor( ) );
-	//}
+	Render::Engine::Rect(bbox.x + 1, bbox.y + 1, bbox.w - 2, bbox.h - 2, Color(0, 0, 0, 180 * m_flAlpha[player->EntIndex()]));
 }
 
 void CEsp::DrawHealthBar( C_CSPlayer* player, BBox_t bbox ) {
