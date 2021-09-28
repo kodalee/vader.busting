@@ -15,6 +15,7 @@
 #include "../Visuals/ESP.hpp"
 #include <random>
 #include "Resolver.hpp"
+#include "Ragebot.hpp"
 
 namespace Interfaces
 {
@@ -55,45 +56,45 @@ namespace Interfaces
 
 	};
 
-	void C_AntiAimbot::SendFakeFlick() {
-		if (g_TickbaseController.m_didFakeFlick) {
-			g_TickbaseController.s_nExtraProcessingTicks = 14;
-			g_TickbaseController.ignoreallcmds = true;
-			g_TickbaseController.m_didFakeFlick = false;
-		}
-	}
+	//void C_AntiAimbot::SendFakeFlick() {
+	//	if (g_TickbaseController.m_didFakeFlick) {
+	//		g_TickbaseController.s_nExtraProcessingTicks = 14;
+	//		g_TickbaseController.ignoreallcmds = true;
+	//		g_TickbaseController.m_didFakeFlick = false;
+	//	}
+	//}
 
-	void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
-	{
-		if (!g_Vars.misc.mind_trick || !g_Vars.misc.mind_trick_bind.enabled || !C_CSPlayer::GetLocalPlayer)
-			return;
+	//void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
+	//{
+	//	if (!g_Vars.misc.mind_trick || !g_Vars.misc.mind_trick_bind.enabled || !C_CSPlayer::GetLocalPlayer)
+	//		return;
 
-		auto localPlayer = C_CSPlayer::GetLocalPlayer();
+	//	auto localPlayer = C_CSPlayer::GetLocalPlayer();
 
-		if (!localPlayer->m_iHealth() > 0)
-			return;
+	//	if (!localPlayer->m_iHealth() > 0)
+	//		return;
 
-		if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
-			if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
-				if (localPlayer->m_flAnimationTime() < g_Vars.globals.m_flBodyPred) {
-					if (g_TickbaseController.lastShiftedCmdNr != Interfaces::m_pClientState->m_nLastOutgoingCommand()) {
-						//static bool switcher2 = false;
-						//g_cl.m_cmd->m_view_angles.x -= 180.f;
-						//g_cl.m_cmd->m_view_angles.y += switcher2 ? g_menu.main.antiaim.angleflick.get() : -(g_menu.main.antiaim.angleflick.get());
-						//switcher2 = !switcher2;
-						cmd->viewangles.y += 135.f;
-						//g_cl.ticksToShift = 0;
-						if (/*g_cl.m_cmd->m_side_move == 0 && g_cl.m_cmd->m_forward_move == 0 && */localPlayer->m_vecVelocity().Length2D() < 11.f) {
-							static bool switcher = false;
-							cmd->sidemove = switcher ? -13.37f : 13.37f;
-							switcher = !switcher;
-						}
-						g_TickbaseController.m_didFakeFlick = true;
-					}
-				}
-			}
-		}
-	}
+	//	if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+	//		if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
+	//			if (localPlayer->m_flAnimationTime() < g_Vars.globals.m_flBodyPred) {
+	//				if (g_TickbaseController.lastShiftedCmdNr != Interfaces::m_pClientState->m_nLastOutgoingCommand()) {
+	//					//static bool switcher2 = false;
+	//					//g_cl.m_cmd->m_view_angles.x -= 180.f;
+	//					//g_cl.m_cmd->m_view_angles.y += switcher2 ? g_menu.main.antiaim.angleflick.get() : -(g_menu.main.antiaim.angleflick.get());
+	//					//switcher2 = !switcher2;
+	//					cmd->viewangles.y += 135.f;
+	//					//g_cl.ticksToShift = 0;
+	//					if (/*g_cl.m_cmd->m_side_move == 0 && g_cl.m_cmd->m_forward_move == 0 && */localPlayer->m_vecVelocity().Length2D() < 11.f) {
+	//						static bool switcher = false;
+	//						cmd->sidemove = switcher ? -13.37f : 13.37f;
+	//						switcher = !switcher;
+	//					}
+	//					g_TickbaseController.m_didFakeFlick = true;
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
 	bool C_AntiAimbot::IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings) {
 		C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
@@ -173,6 +174,8 @@ namespace Interfaces
 
 		if (!IsEnabled(cmd, settings))
 			return;
+
+		m_auto_time = 4.f;
 
 		if (LocalPlayer->m_MoveType() == MOVETYPE_LADDER) {
 			auto eye_pos = LocalPlayer->GetEyePosition();
@@ -264,7 +267,7 @@ namespace Interfaces
 		auto bSwap = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) > 1.1 - (Interfaces::m_pGlobalVars->interval_per_tick * 5);
 		if (!Interfaces::m_pClientState->m_nChokedCommands()
 			&& Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
-			&& LocalPlayer->m_fFlags() & FL_ONGROUND && g_Vars.globals.m_bUpdate) {
+			&& LocalPlayer->m_fFlags() & FL_ONGROUND && g_Vars.globals.m_bUpdate && !g_Vars.globals.Fakewalking) {
 			//*bSendPacket = true;
 			// fake yaw.
 			switch (settings->yaw) {
@@ -322,6 +325,8 @@ namespace Interfaces
 		}
 	}
 
+
+
 	float C_AntiAimbot::GetAntiAimY(Encrypted_t<CVariables::ANTIAIM_STATE> settings, Encrypted_t<CUserCmd> cmd) {
 		auto local = C_CSPlayer::GetLocalPlayer();
 		if (!local || local->IsDead())
@@ -357,7 +362,7 @@ namespace Interfaces
 		case 2: // freestand.
 		{
 			if (!bUsingManualAA) {
-				const C_AntiAimbot::Directions Direction = HandleDirection(cmd);
+				C_AntiAimbot::Directions Direction = HandleDirection(cmd);
 				switch (Direction) {
 				case Directions::YAW_BACK:
 					// backwards yaw.
@@ -377,8 +382,7 @@ namespace Interfaces
 					flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
 					break;
 				}
-			}
-		}
+			}		}
 		break;
 		case 3: // 180z
 			if (!bUsingManualAA) {
@@ -494,34 +498,24 @@ namespace Interfaces
 		}
 	}
 
+
+	struct AutoTarget_t { float fov; C_CSPlayer* player; };
 	C_AntiAimbot::Directions C_AntiAimbot::HandleDirection(Encrypted_t<CUserCmd> cmd) {
 		const auto pLocal = C_CSPlayer::GetLocalPlayer();
-		if (!pLocal)
-			return Directions::YAW_NONE;
+		if (!pLocal) return Directions::YAW_NONE;
 
 		// best target.
-		struct AutoTarget_t { float fov; C_CSPlayer* player; };
 		AutoTarget_t target{ 180.f + 1.f, nullptr };
 
 		// iterate players, for closest distance.
-		for (int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i) {
+		for (int i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
 			auto player = C_CSPlayer::GetPlayerByIndex(i);
-			if (!player || player->IsDead())
-				continue;
-
-			if (player->IsDormant())
-				continue;
-
-			bool is_team = player->IsTeammate(pLocal);
-			if (is_team)
+			if (!player || player->IsDormant() || player == pLocal || player->IsDead() || player->m_iTeamNum() == pLocal->m_iTeamNum())
 				continue;
 
 			auto lag_data = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
 			if (!lag_data.IsValid())
 				continue;
-
-			// get best target based on fov.
-			Vector origin = player->m_vecOrigin();
 
 			auto AngleDistance = [&](QAngle& angles, const Vector& start, const Vector& end) -> float {
 				auto direction = end - start;
@@ -532,7 +526,7 @@ namespace Interfaces
 				return sqrtf(delta.x * delta.x + delta.y * delta.y);
 			};
 
-			float fov = AngleDistance(cmd->viewangles, g_Vars.globals.m_vecFixedEyePosition, origin);
+			float fov = AngleDistance(cmd->viewangles, g_Vars.globals.m_vecFixedEyePosition, player->m_vecOrigin());
 
 			if (fov < target.fov) {
 				target.fov = fov;
@@ -541,69 +535,70 @@ namespace Interfaces
 		}
 
 		// get best player.
-		const auto player = target.player;
-		if (!player)
-			return Directions::YAW_NONE;
+		if (const auto player = target.player)
+		{
+			Vector& bestOrigin = player->m_vecOrigin();
 
-		Vector& bestOrigin = player->m_vecOrigin();
+			// calculate direction from bestOrigin to our origin
+			const auto yaw = Math::CalcAngle(bestOrigin, pLocal->m_vecOrigin());
 
-		// calculate direction from bestOrigin to our origin
-		const auto yaw = Math::CalcAngle(bestOrigin, pLocal->m_vecOrigin());
+			Vector forward, right, up;
+			Math::AngleVectors(yaw, forward, right, up);
 
-		Vector forward, right, up;
-		Math::AngleVectors(yaw, forward, right, up);
+			Vector vecStart = pLocal->GetEyePosition();
+			Vector vecEnd = vecStart + forward * 100.0f;
 
-		Vector vecStart = pLocal->GetEyePosition();
-		Vector vecEnd = vecStart + forward * 100.0f;
+			Ray_t rightRay(vecStart + right * 35.0f, vecEnd + right * 35.0f), leftRay(vecStart - right * 35.0f, vecEnd - right * 35.0f);
 
-		Ray_t rightRay(vecStart + right * 35.0f, vecEnd + right * 35.0f), leftRay(vecStart - right * 35.0f, vecEnd - right * 35.0f);
+			// setup trace filter
+			CTraceFilter filter{ };
+			filter.pSkip = pLocal;
 
-		// setup trace filter
-		CTraceFilter filter{ };
-		filter.pSkip = pLocal;
+			CGameTrace tr{ };
 
-		CGameTrace tr{ };
+			m_pEngineTrace->TraceRay(rightRay, MASK_SOLID, &filter, &tr);
+			float rightLength = (tr.endpos - tr.startpos).Length();
 
-		m_pEngineTrace->TraceRay(rightRay, MASK_SOLID, &filter, &tr);
-		float rightLength = (tr.endpos - tr.startpos).Length();
+			m_pEngineTrace->TraceRay(leftRay, MASK_SOLID, &filter, &tr);
+			float leftLength = (tr.endpos - tr.startpos).Length();
 
-		m_pEngineTrace->TraceRay(leftRay, MASK_SOLID, &filter, &tr);
-		float leftLength = (tr.endpos - tr.startpos).Length();
+			static auto leftTicks = 0;
+			static auto rightTicks = 0;
+			static auto backTicks = 0;
 
-		static auto leftTicks = 0;
-		static auto rightTicks = 0;
-		static auto backTicks = 0;
+			if (rightLength - leftLength > 20.0f)
+				leftTicks++;
+			else
+				leftTicks = 0;
 
-		if (rightLength - leftLength > 20.0f)
-			leftTicks++;
-		else
-			leftTicks = 0;
+			if (leftLength - rightLength > 20.0f)
+				rightTicks++;
+			else
+				rightTicks = 0;
 
-		if (leftLength - rightLength > 20.0f)
-			rightTicks++;
-		else
-			rightTicks = 0;
+			if (fabs(rightLength - leftLength) <= 20.0f)
+				backTicks++;
+			else
+				backTicks = 0;
 
-		if (fabs(rightLength - leftLength) <= 20.0f)
-			backTicks++;
-		else
-			backTicks = 0;
+			Directions direction = Directions::YAW_NONE;
 
-		Directions direction = Directions::YAW_NONE;
-
-		if (rightTicks > 10) {
-			direction = Directions::YAW_RIGHT;
-		}
-		else {
-			if (leftTicks > 10) {
-				direction = Directions::YAW_LEFT;
+			if (rightTicks > 10) {
+				direction = Directions::YAW_RIGHT;
 			}
 			else {
-				if (backTicks > 10)
-					direction = Directions::YAW_BACK;
+				if (leftTicks > 10) {
+					direction = Directions::YAW_LEFT;
+				}
+				else {
+					if (backTicks > 10)
+						direction = Directions::YAW_BACK;
+				}
 			}
+
+			return direction;
 		}
 
-		return direction;
+		return Directions::YAW_NONE;
 	}
 }

@@ -27,9 +27,6 @@
 #include "../Miscellaneous/Movement.hpp"
 
 #include <iomanip>
-#include <psapi.h>
-#include <Windows.h>
-
 
 extern Vector AutoPeekPos;
 
@@ -140,8 +137,8 @@ private:
 			return false;
 	};
 
-	C_Window m_KeyBinds = { Vector2D( g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y ), Vector2D( 145, 10 ), 0 };
-	//C_Window m_SpecList = { Vector2D( g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y ), Vector2D( 145, 10 ), 1 };
+	C_Window m_KeyBinds = { Vector2D( g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y ), Vector2D( 180, 10 ), 0 };
+	//C_Window m_SpecList = { Vector2D( g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y ), Vector2D( 180, 10 ), 1 };
 
 	//void SpectatorList( bool window = false );
 	void Keybinds( );
@@ -205,8 +202,8 @@ void CEsp::BloomEffect( ) {
 	}
 }
 
-void DrawWatermark( ) {
-	if( !g_Vars.misc.watermark ) {
+void DrawWatermark() {
+	if (!g_Vars.misc.watermark) {
 		return;
 	}
 
@@ -251,12 +248,12 @@ void DrawWatermark( ) {
 
 		text = logo + XorStr(" | ") + user + XorStr(" | latency: ") + std::to_string(delay) + XorStr(" ms | ") + std::to_string(fps) + XorStr(" fps");
 
-	}
+}
 
 	Vector2D screen = Render::GetScreenSize();
 
 	// Calculating text size and position
-	auto text_size = Render::Engine::watermark.size(text);
+	auto text_size = Render::Engine::segoe.size(text);
 	auto text_pos = Vector2D(screen.x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
 		margin + padding); // Top align
 
@@ -268,93 +265,9 @@ void DrawWatermark( ) {
 
 	Render::Engine::RectFilled(bg_pos.x, bg_pos.y, bg_size.x, bg_size.y, col_background); // Background
 	Render::Engine::Rect(bg_pos.x, bg_pos.y, bg_size.x, 2, col_accent); // Accent line
-	Render::Engine::watermark.string(text_pos.x, text_pos.y, col_text, text); // Text
+	Render::Engine::segoe.string(text_pos.x, text_pos.y, col_text, text); // Text
 
 }
-
-void spotify() {
-
-	std::string song_title = "";
-
-	static HWND spotify_hwnd = nullptr;
-	static float last_hwnd_time = 0.f;
-	int text_width = 0;
-
-	if ((!spotify_hwnd || spotify_hwnd == INVALID_HANDLE_VALUE) && last_hwnd_time < Interfaces::m_pGlobalVars->realtime + 2.f) {
-		for (HWND hwnd = GetTopWindow(0); hwnd; hwnd = GetWindow(hwnd, GW_HWNDNEXT)) {
-
-			last_hwnd_time = Interfaces::m_pGlobalVars->realtime;
-
-			if (!(IsWindowVisible)(hwnd))
-				continue;
-
-			int length = (GetWindowTextLengthW)(hwnd);
-			if (length == 0)
-				continue;
-
-			WCHAR filename[300];
-			DWORD pid;
-			(GetWindowThreadProcessId)(hwnd, &pid);
-
-			const auto spotify_handle = (OpenProcess)(PROCESS_QUERY_INFORMATION, FALSE, pid);
-			(K32GetModuleFileNameExW)(spotify_handle, nullptr, filename, 300);
-
-			std::wstring sane_filename{ filename };
-
-			(CloseHandle)(spotify_handle);
-
-			if (sane_filename.find((L"Spotify.exe")) != std::string::npos)
-				spotify_hwnd = hwnd;
-		}
-	}
-	else if (spotify_hwnd && spotify_hwnd != INVALID_HANDLE_VALUE) {
-		WCHAR title[300];
-
-		if (!(GetWindowTextW)(spotify_hwnd, title, 300)) {
-			spotify_hwnd = nullptr;
-		}
-		else {
-			std::wstring sane_title{ title };
-			std::string Title = " ";
-			std::string Song(sane_title.begin(), sane_title.end());
-			Title += Song;
-			if (sane_title.find((L"-")) != std::string::npos) {
-
-				const auto margin = 10; // Padding between screen edges and watermark
-				const auto padding = 4; // Padding between watermark elements
-
-				auto text_size = Render::Engine::esp.size(Title);
-				auto text_pos = Vector2D(Render::GetScreenSize().x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
-					margin + padding); // Top align
-
-				Render::Engine::esp.string(text_pos.x, text_pos.y + 17, Color(255, 255, 255), Title.c_str());
-				song_title = Title;
-			}
-			else if (sane_title.find((L"Advertisment")) != std::string::npos) {
-				song_title = "advertisment";
-			}
-			else if (sane_title.find((L"Spotify")) != std::string::npos) {
-				song_title = "stopped / not playing";
-			}
-			else {
-				song_title = "advertisment";
-			}
-
-		}
-	}
-
-	const auto margin = 10; // Padding between screen edges and watermark
-	const auto padding = 4; // Padding between watermark elements
-
-	auto text_size = Render::Engine::esp.size(song_title);
-	auto text_pos = Vector2D(Render::GetScreenSize().x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
-		margin + padding); // Top align
-
-	Render::Engine::esp.string(text_pos.x, text_pos.y + 17, Color(255, 255, 255), song_title);
-
-
-}
-
 
 bool CEsp::Begin( C_CSPlayer* player ) {
 	m_Data.player = player;
@@ -421,7 +334,7 @@ int fps( ) {
 	return ( int )( 1.0f / m_Framerate );
 }
 
-void CEsp::Indicators( ) {
+void CEsp::Indicators() {
 	struct Indicator_t { Color color; std::string text; };
 	std::vector< Indicator_t > indicators{ };
 
@@ -468,153 +381,153 @@ void CEsp::Indicators( ) {
 	//	}
 	//}
 
-		if (auto pLocal = C_CSPlayer::GetLocalPlayer(); pLocal) {
-			if (pLocal->m_vecVelocity().Length2D() > 270.f || g_Vars.globals.bBrokeLC) {
-				Indicator_t ind{ };
-				ind.color = g_Vars.globals.bBrokeLC ? Color(100, 255, 25) : Color(255, 0, 0);
-				ind.text = XorStr("LC ");
+	if (auto pLocal = C_CSPlayer::GetLocalPlayer(); pLocal) {
+		if (pLocal->m_vecVelocity().Length2D() > 270.f || g_Vars.globals.bBrokeLC) {
+			Indicator_t ind{ };
+			ind.color = g_Vars.globals.bBrokeLC ? Color(100, 255, 25) : Color(255, 0, 0);
+			ind.text = XorStr("LC ");
 
-				indicators.push_back(ind);
-			}
-
-			if (g_Vars.antiaim.enabled && (pLocal->m_vecVelocity().Length2D() <= 0.1f || g_Vars.globals.Fakewalking)) {
-				Indicator_t ind{ };
-				// get the absolute change between current lby and animated angle.
-				float change = std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
-				ind.color = change > 35.f ? Color(100, 255, 25) : Color(255, 0, 0);
-				ind.text = XorStr("LBY ");
-
-				indicators.push_back(ind);
-			}
+			indicators.push_back(ind);
 		}
 
-		if (indicators.empty())
-			return;
+		if (g_Vars.antiaim.enabled && (pLocal->m_vecVelocity().Length2D() <= 0.1f || g_Vars.globals.Fakewalking)) {
+			Indicator_t ind{ };
+			// get the absolute change between current lby and animated angle.
+			float change = std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+			ind.color = change > 35.f ? Color(100, 255, 25) : Color(255, 0, 0);
+			ind.text = XorStr("LBY ");
 
-		// iterate and draw indicators.
-		for( size_t i{ }; i < indicators.size( ); ++i ) {
-			auto& indicator = indicators[ i ];
-			auto TextSize = Render::Engine::indi.size( indicator.text );
-
-
-			Render::Engine::indi.string( 20.f, Render::GetScreenSize( ).y - 80.f - ( 30 * i ), indicator.color, indicator.text );
-				
+			indicators.push_back(ind);
 		}
-		
-	
-		//auto pLocal = C_CSPlayer::GetLocalPlayer();
+	}
 
-		//static float next_lby_update[65];
+	if (indicators.empty())
+		return;
 
-		//const float curtime = Interfaces::m_pGlobalVars->curtime;
-
-		//if (pLocal->m_vecVelocity().Length2D() > 0.1f && !g_Vars.globals.Fakewalking)
-		//	return;
-
-		//CCSGOPlayerAnimState* state = pLocal->m_PlayerAnimState();
-		//if (!state)
-		//	return;
-
-		//static float last_lby[65];
-		//if (last_lby[pLocal->EntIndex()] != pLocal->m_flLowerBodyYawTarget())
-		//{
-		//	last_lby[pLocal->EntIndex()] = pLocal->m_flLowerBodyYawTarget();
-		//	next_lby_update[pLocal->EntIndex()] = curtime + 1.125f + Interfaces::m_pGlobalVars->interval_per_tick;
-		//}
-
-		//if (next_lby_update[pLocal->EntIndex()] < curtime)
-		//{
-		//	next_lby_update[pLocal->EntIndex()] = curtime + 1.125f;
-		//}
-
-		//float time_remain_to_update = next_lby_update[pLocal->EntIndex()] - pLocal->m_flSimulationTime();
-		//float time_update = next_lby_update[pLocal->EntIndex()];
-
-		//float fill = 0;
-		//fill = (((time_remain_to_update)));
-		//static float add = 0.000f;
-		//add = 1.125f - fill;
-
-		//float change1337 = std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
-
-		//Color color1337 = {  };
-
-		//if (change1337 > 35.f) {
-		//	color1337 = { 124,195,13,255 }; // green color
-		//}
-
-		//Render::Engine::RectFilled(13, Render::GetScreenSize().y - 74 + 26, 48, 4, { 10, 10, 10, 125 });
-		//Render::Engine::RectFilled(13, Render::GetScreenSize().y - 74 + 26, add * 40, 2, color1337);
+	// iterate and draw indicators.
+	for (size_t i{ }; i < indicators.size(); ++i) {
+		auto& indicator = indicators[i];
+		auto TextSize = Render::Engine::indi.size(indicator.text);
 
 
+		Render::Engine::indi.string(20.f, Render::GetScreenSize().y - 80.f - (30 * i), indicator.color, indicator.text);
+
+	}
 
 
+	//auto pLocal = C_CSPlayer::GetLocalPlayer();
 
+	//static float next_lby_update[65];
 
+	//const float curtime = Interfaces::m_pGlobalVars->curtime;
 
+	//if (pLocal->m_vecVelocity().Length2D() > 0.1f && !g_Vars.globals.Fakewalking)
+	//	return;
 
+	//CCSGOPlayerAnimState* state = pLocal->m_PlayerAnimState();
+	//if (!state)
+	//	return;
 
-	//struct adada_t {
-	//	std::string str;
-	//	float flProgress;
-	//	bool bRenderRects = true;
-	//	Color clrOverride = Color::Black( );
-	//};
-
-	//std::vector<adada_t> inds;
-
-	//inds.push_back( { "FPS: " + std::to_string( fps( ) ), 0.5f, false, Color( 150, 200, 60 ) } );
-
-	//inds.push_back( { "CHOKE ", float( std::clamp<int>( Interfaces::m_pClientState->m_nChokedCommands( ), 0, 14 ) ) / 14.f } );
-
-	//if( auto pLocal = C_CSPlayer::GetLocalPlayer( ); pLocal ) {
-	//	if( pLocal->m_vecVelocity( ).Length2D( ) > 270.f || g_Vars.globals.bBrokeLC ) {
-	//		inds.push_back( { "LC ", g_Vars.globals.delta / 4096.f } );
-	//	}
-
-	//	if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) ) {
-	//		// get the absolute change between current lby and animated angle.
-	//		float change = std::abs( Math::AngleNormalize( g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y ) );
-
-	//		inds.push_back( { "LBY ", 0.5f, false, change > 35.f ? Color( 100, 255, 25 ) : Color( 255, 0, 0 ) } );
-	//	}
-
-
-	//	const Vector2D pos = { 10, ( Render::GetScreenSize( ) / 2 ).y };
-	//	const int nMaxRectsOnOneLineLol = 10;
-	//	const int nRectWidth = 10;
-	//	const int nRectHeight = 16;
-	//	int iAdd = 1;
-
-	//	if( inds.size( ) ) {
-	//		int nHeigthXDDDDDDDDDDD = ( ( nRectHeight + 12 ) * inds.size( ) ) + 15;
-	//		if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) )
-	//			nHeigthXDDDDDDDDDDD -= 15;
-
-	//		Render::Engine::RectFilled( pos - Vector2D( 5, 15 ), Vector2D( ( ( nRectWidth + 4 ) * nMaxRectsOnOneLineLol ) + 10, nHeigthXDDDDDDDDDDD ), Color( 0, 0, 0, 200 ) );
-
-	//		for( int i = 0; i < inds.size( ); ++i ) {
-	//			auto dumbass = inds[ i ];
-
-	//			Render::Engine::indi.string( pos.x, pos.y - ( nRectHeight - 3 ) + ( ( nRectHeight * 1.5 ) * i * iAdd ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride, dumbass.str );
-
-	//			if( !dumbass.bRenderRects )
-	//				continue;
-
-	//			++iAdd;
-
-	//			// background rects
-	//			for( int n = 0; n < nMaxRectsOnOneLineLol; ++n ) {
-	//				Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), ( dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride ).OverrideAlpha( 45 ) );
-	//			}
-
-	//			// actual rects
-	//			for( int n = 0; n < int( nMaxRectsOnOneLineLol * dumbass.flProgress ); ++n ) {
-	//				Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride );
-	//			}
-	//		}
-	//	}
+	//static float last_lby[65];
+	//if (last_lby[pLocal->EntIndex()] != pLocal->m_flLowerBodyYawTarget())
+	//{
+	//	last_lby[pLocal->EntIndex()] = pLocal->m_flLowerBodyYawTarget();
+	//	next_lby_update[pLocal->EntIndex()] = curtime + 1.125f + Interfaces::m_pGlobalVars->interval_per_tick;
 	//}
+
+	//if (next_lby_update[pLocal->EntIndex()] < curtime)
+	//{
+	//	next_lby_update[pLocal->EntIndex()] = curtime + 1.125f;
+	//}
+
+	//float time_remain_to_update = next_lby_update[pLocal->EntIndex()] - pLocal->m_flSimulationTime();
+	//float time_update = next_lby_update[pLocal->EntIndex()];
+
+	//float fill = 0;
+	//fill = (((time_remain_to_update)));
+	//static float add = 0.000f;
+	//add = 1.125f - fill;
+
+	//float change1337 = std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+
+	//Color color1337 = {  };
+
+	//if (change1337 > 35.f) {
+	//	color1337 = { 124,195,13,255 }; // green color
+	//}
+
+	//Render::Engine::RectFilled(13, Render::GetScreenSize().y - 74 + 26, 48, 4, { 10, 10, 10, 125 });
+	//Render::Engine::RectFilled(13, Render::GetScreenSize().y - 74 + 26, add * 40, 2, color1337);
+
+
+
+
+
+
+
+
+
+//struct adada_t {
+//	std::string str;
+//	float flProgress;
+//	bool bRenderRects = true;
+//	Color clrOverride = Color::Black( );
+//};
+
+//std::vector<adada_t> inds;
+
+//inds.push_back( { "FPS: " + std::to_string( fps( ) ), 0.5f, false, Color( 150, 200, 60 ) } );
+
+//inds.push_back( { "CHOKE ", float( std::clamp<int>( Interfaces::m_pClientState->m_nChokedCommands( ), 0, 14 ) ) / 14.f } );
+
+//if( auto pLocal = C_CSPlayer::GetLocalPlayer( ); pLocal ) {
+//	if( pLocal->m_vecVelocity( ).Length2D( ) > 270.f || g_Vars.globals.bBrokeLC ) {
+//		inds.push_back( { "LC ", g_Vars.globals.delta / 4096.f } );
+//	}
+
+//	if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) ) {
+//		// get the absolute change between current lby and animated angle.
+//		float change = std::abs( Math::AngleNormalize( g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y ) );
+
+//		inds.push_back( { "LBY ", 0.5f, false, change > 35.f ? Color( 100, 255, 25 ) : Color( 255, 0, 0 ) } );
+//	}
+
+
+//	const Vector2D pos = { 10, ( Render::GetScreenSize( ) / 2 ).y };
+//	const int nMaxRectsOnOneLineLol = 10;
+//	const int nRectWidth = 10;
+//	const int nRectHeight = 16;
+//	int iAdd = 1;
+
+//	if( inds.size( ) ) {
+//		int nHeigthXDDDDDDDDDDD = ( ( nRectHeight + 12 ) * inds.size( ) ) + 15;
+//		if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) )
+//			nHeigthXDDDDDDDDDDD -= 15;
+
+//		Render::Engine::RectFilled( pos - Vector2D( 5, 15 ), Vector2D( ( ( nRectWidth + 4 ) * nMaxRectsOnOneLineLol ) + 10, nHeigthXDDDDDDDDDDD ), Color( 0, 0, 0, 200 ) );
+
+//		for( int i = 0; i < inds.size( ); ++i ) {
+//			auto dumbass = inds[ i ];
+
+//			Render::Engine::indi.string( pos.x, pos.y - ( nRectHeight - 3 ) + ( ( nRectHeight * 1.5 ) * i * iAdd ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride, dumbass.str );
+
+//			if( !dumbass.bRenderRects )
+//				continue;
+
+//			++iAdd;
+
+//			// background rects
+//			for( int n = 0; n < nMaxRectsOnOneLineLol; ++n ) {
+//				Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), ( dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride ).OverrideAlpha( 45 ) );
+//			}
+
+//			// actual rects
+//			for( int n = 0; n < int( nMaxRectsOnOneLineLol * dumbass.flProgress ); ++n ) {
+//				Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride );
+//			}
+//		}
+//	}
+//}
 }
 
 //void CEsp::SpectatorList( bool window ) {
@@ -739,35 +652,35 @@ void CEsp::Indicators( ) {
 //	}
 //}
 
-void CEsp::Keybinds( ) {
+void CEsp::Keybinds() {
 	std::vector<
 		std::pair<std::string, int>
 	> vecNames;
 
-	this->m_KeyBinds.Drag( );
+	this->m_KeyBinds.Drag();
 
 	Vector2D pos = { g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y };
 
 	this->m_KeyBinds.size.y = 20.0f;
 
-	auto AddBind = [ this, &vecNames ] ( const char* name, KeyBind_t& bind ) {
-		if( !bind.enabled )
+	auto AddBind = [this, &vecNames](const char* name, KeyBind_t& bind) {
+		if (!bind.enabled)
 			return;
 
-		if( !vecNames.empty( ) )
+		if (!vecNames.empty())
 			this->m_KeyBinds.size.y += 13.0f;
 
-		vecNames.push_back( std::pair<std::string, int>( std::string( name ), bind.cond ) );
+		vecNames.push_back(std::pair<std::string, int>(std::string(name), bind.cond));
 	};
 
-	if( g_Vars.rage.enabled ) {
-		if( g_Vars.rage.exploit ) {
-			AddBind( XorStr( "Double tap" ), g_Vars.rage.key_dt );
+	if (g_Vars.rage.enabled) {
+		if (g_Vars.rage.exploit) {
+			AddBind(XorStr("Double tap"), g_Vars.rage.key_dt);
 		}
 
 		//AddBind( XorStr( "Force safe point" ), g_Vars.rage.force_safe_point );
-		AddBind( XorStr( "Min dmg override" ), g_Vars.rage.key_dmg_override );
-		AddBind( XorStr( "Force body-aim" ), g_Vars.rage.prefer_body );
+		AddBind(XorStr("Min dmg override"), g_Vars.rage.key_dmg_override);
+		AddBind(XorStr("Force body-aim"), g_Vars.rage.prefer_body);
 	}
 
 	//if( g_Vars.misc.instant_stop ) {
@@ -777,48 +690,48 @@ void CEsp::Keybinds( ) {
 	//AddBind( XorStr( "Anti-aim invert" ), g_Vars.antiaim.desync_flip_bind );
 	//AddBind( XorStr( "Thirdperson" ), g_Vars.misc.third_person_bind );
 	//AddBind( XorStr( "Desync jitter" ), g_Vars.antiaim.desync_jitter_key );
-	AddBind( XorStr( "Hitscan override" ), g_Vars.rage.override_key );
+	AddBind(XorStr("Hitscan override"), g_Vars.rage.override_key);
 
-	if( g_Vars.misc.edgejump ) {
-		AddBind( XorStr( "Edge jump" ), g_Vars.misc.edgejump_bind );
+	if (g_Vars.misc.edgejump) {
+		AddBind(XorStr("Edge jump"), g_Vars.misc.edgejump_bind);
 	}
 
-	if( g_Vars.misc.autopeek ) {
-		AddBind( XorStr( "Auto peek" ), g_Vars.misc.autopeek_bind );
+	if (g_Vars.misc.autopeek) {
+		AddBind(XorStr("Auto peek"), g_Vars.misc.autopeek_bind);
 	}
 
-	if( g_Vars.misc.slow_walk ) {
-		AddBind( XorStr( "Fake-walk" ), g_Vars.misc.slow_walk_bind );
+	if (g_Vars.misc.slow_walk) {
+		AddBind(XorStr("Fake-walk"), g_Vars.misc.slow_walk_bind);
 	}
 
 	float gaySize = this->m_KeyBinds.size.y;
 
 	static float alpha = 0.f;
-	bool condition = ( ( vecNames.empty( ) && (g_Vars.globals.menuOpen || g_IMGUIMenu.Opened)) || !vecNames.empty( ) );
-	float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
-	if( condition ) {
-		alpha += multiplier * ( 1.0f - alpha );
+	bool condition = ((vecNames.empty() && (g_Vars.globals.menuOpen)) || !vecNames.empty());
+	float multiplier = static_cast<float>((1.0f / 0.05f) * Interfaces::m_pGlobalVars->frametime);
+	if (condition) {
+		alpha += multiplier * (1.0f - alpha);
 	}
 	else {
-		if( alpha > 0.01f )
-			alpha += multiplier * ( 0.0f - alpha );
+		if (alpha > 0.01f)
+			alpha += multiplier * (0.0f - alpha);
 		else
 			alpha = 0.0f;
 	}
 
-	alpha = std::clamp( alpha, 0.f, 1.0f );
+	alpha = std::clamp(alpha, 0.f, 1.0f);
 
-	if( alpha <= 0.f )
+	if (alpha <= 0.f)
 		return;
 
-	Color main = Color( 39, 41, 54, 150 * alpha );
-	Color accent = g_Vars.menu.ascent.ToRegularColor( );
-	accent.RGBA[ 3 ] *= alpha;
+	Color main = Color(39, 41, 54, 150 * alpha);
+	Color accent = g_Vars.menu.ascent.ToRegularColor();
+	accent.RGBA[3] *= alpha;
 
 	this->m_KeyBinds.size.y = 20.0f;
 
 	// header
-	Render::Engine::RectFilled( pos, this->m_KeyBinds.size, Color( 41, 32, 59, 230 * alpha ) );
+	Render::Engine::RectFilled(pos, this->m_KeyBinds.size, Color(41, 32, 59, 230 * alpha));
 
 	//line
 	Render::Engine::Rect(pos.x, pos.y, this->m_KeyBinds.size.x, 1.5f, Color(255, 215, 0, 240 * alpha));
@@ -832,19 +745,19 @@ void CEsp::Keybinds( ) {
 	// the actual window
 	//Render::Engine::RectFilled( pos + Vector2D( 0, 20 + 2 ), Vector2D( this->m_KeyBinds.size.x, this->m_KeyBinds.size.y - 1 ), main );
 
-	auto hold_size = Render::Engine::keybinds.size( XorStr( "[Hold]" ) );
-	auto toggle_size = Render::Engine::keybinds.size( XorStr( "[Toggle]" ) );
-	auto always_size = Render::Engine::keybinds.size( XorStr( "[Always]" ) );
+	auto hold_size = Render::Engine::segoe.size(XorStr("[Hold]"));
+	auto toggle_size = Render::Engine::segoe.size(XorStr("[Toggle]"));
+	auto always_size = Render::Engine::segoe.size(XorStr("[Always]"));
 
-	if( !vecNames.empty( ) ) {
+	if (!vecNames.empty()) {
 		float offset = 15.0f;
-		for( auto name : vecNames ) {
+		for (auto name : vecNames) {
 			// hotkey name
-			Render::Engine::keybinds.string( pos.x + 2, pos.y + 9 + offset, Color::White( ).OverrideAlpha( 255 * alpha ), name.first.c_str( ) );
+			Render::Engine::segoe.string(pos.x + 2, pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha), name.first.c_str());
 
 			// hotkey type
-			Render::Engine::keybinds.string( pos.x + ( this->m_KeyBinds.size.x - ( name.second == KeyBindType::HOLD ? hold_size.m_width : name.second == KeyBindType::TOGGLE ? toggle_size.m_width : always_size.m_width ) ), pos.y + 9 + offset, Color::White( ).OverrideAlpha( 255 * alpha ),
-				name.second == KeyBindType::HOLD ? XorStr( "[Hold]" ) : name.second == KeyBindType::TOGGLE ? XorStr( "[Toggle]" ) : XorStr( "[Always]" ) );
+			Render::Engine::segoe.string(pos.x + (this->m_KeyBinds.size.x - (name.second == KeyBindType::HOLD ? hold_size.m_width : name.second == KeyBindType::TOGGLE ? toggle_size.m_width : always_size.m_width)), pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha),
+				name.second == KeyBindType::HOLD ? XorStr("[Hold]") : name.second == KeyBindType::TOGGLE ? XorStr("[Toggle]") : XorStr("[Always]"));
 
 			// add offset
 			offset += 14.0f;
@@ -852,8 +765,8 @@ void CEsp::Keybinds( ) {
 	}
 
 	// title
-	auto size = Render::Engine::esp.size( XorStr( "keybinds" ) );
-	Render::Engine::esp.string( pos.x + ( this->m_KeyBinds.size.x * 0.5 ) - 2, pos.y + ( size.m_height * 0.5 ) - 4, Color::White( ).OverrideAlpha( 255 * alpha ), XorStr( "keybinds" ), Render::Engine::ALIGN_CENTER );
+	auto size = Render::Engine::esp.size(XorStr("keybinds"));
+	Render::Engine::esp.string(pos.x + (this->m_KeyBinds.size.x * 0.5) - 2, pos.y + (size.m_height * 0.5) - 4, Color::White().OverrideAlpha(255 * alpha), XorStr("keybinds"), Render::Engine::ALIGN_CENTER);
 }
 
 // lol
@@ -1002,7 +915,7 @@ void CEsp::DrawAntiAimIndicator( ) {
 
 	Color color = g_Vars.antiaim.manual_color.ToRegularColor( );
 
-	float alpha = 255/*floor( sin( Interfaces::m_pGlobalVars->realtime * 4 ) * ( color.RGBA[ 3 ] / 2 - 1 ) + color.RGBA[ 3 ] / 2 )*/;
+	float alpha = floor( sin( Interfaces::m_pGlobalVars->realtime * 4 ) * ( color.RGBA[ 3 ] / 2 - 1 ) + color.RGBA[ 3 ] / 2 );
 
 	color.RGBA[ 3 ] = alpha;
 
@@ -1131,7 +1044,6 @@ void CEsp::DrawZeusDistance( ) {
 
 void CEsp::Main( ) {
 	DrawWatermark( );
-	spotify();
 
 	if( g_Vars.esp.keybind_window_enabled )
 		Keybinds( );
@@ -1242,7 +1154,7 @@ void CEsp::Main( ) {
 
 					if( player->m_iTeamNum( ) == m_LocalPlayer->m_iTeamNum( ) && player->EntIndex( ) != m_LocalPlayer->EntIndex( ) ) {
 						if( g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt( ) == 0 ) {
-							color = FloatColor( 66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.f);
+							color = FloatColor( 0, 0, 0, 0 );
 						}
 					}
 
@@ -1301,7 +1213,7 @@ void CEsp::Main( ) {
 									if( !valid_molotovs.empty( ) )
 										for( int m = 0; m < valid_molotovs.size( ); ++m ) {
 											auto ba = valid_molotovs[ m ];
-											//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
+											Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
 											Render::Engine::Line( ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 220 ) );
 										}
 								}
@@ -1310,19 +1222,17 @@ void CEsp::Main( ) {
 								if( !valid_molotovs.empty( ) )
 									for( int m = 0; m < valid_molotovs.size( ); ++m ) {
 										auto ba = valid_molotovs[ m ];
-										//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
+										Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
 										Render::Engine::Line( ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 220 ) );
 									}
 							}
 
-							char buf[128] = { };
-							sprintf(buf, XorStr(" - %.2fs"), time);
-							//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
-							//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
+							char buf[ 128 ] = { };
+							sprintf( buf, XorStr( "Fire : %.2fs" ), time );
+							Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
+								Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-							Render::Engine::cs_huge.string( new_pos.x - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color( 255, 255, 255, 255 ), "n", Render::Engine::ALIGN_CENTER );
-							Render::Engine::grenades.string(new_pos.x + 2, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
-
+							Render::Engine::segoe.string( new_pos.x + ( Render::Engine::segoe.size( buf ).m_width * 0.5f ), new_pos.y - 15, Color( 255, 0, 0, 220 ), buf, Render::Engine::ALIGN_CENTER );
 						}
 						else {
 							if( !valid_molotovs.empty( ) )
@@ -1352,7 +1262,7 @@ void CEsp::Main( ) {
 					static const auto size = Vector2D( 70.f, 4.f );
 
 					auto new_pos = Vector2D( screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5 );
-					if( time > 0.f ) {
+					if( time > 0.05f ) {
 						auto radius = 120.f;
 
 						const int accuracy = 25;
@@ -1386,7 +1296,7 @@ void CEsp::Main( ) {
 								if( !valid_smokes.empty( ) )
 									for( int m = 0; m < valid_smokes.size( ); ++m ) {
 										auto ba = valid_smokes[ m ];
-										//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
+										Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
 										Render::Engine::Line( ba.a, ba.b, Color( 220, 220, 220, 220 ) );
 									}
 							}
@@ -1395,19 +1305,17 @@ void CEsp::Main( ) {
 							if( !valid_smokes.empty( ) )
 								for( int m = 0; m < valid_smokes.size( ); ++m ) {
 									auto ba = valid_smokes[ m ];
-									//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
+									Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
 									Render::Engine::Line( ba.a, ba.b, Color( 220, 220, 220, 220 ) );
 								}
 						}
 
 						char buf[ 128 ] = { };
-						sprintf( buf, XorStr( " - %.2fs" ), time );
-						//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
-						//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
+						sprintf( buf, XorStr( "Smoke : %.2fs" ), time );
+						Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
+							Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-						Render::Engine::cs_huge.string(new_pos.x - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "m", Render::Engine::ALIGN_CENTER);
-						Render::Engine::grenades.string(new_pos.x + 2, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
-
+						Render::Engine::segoe.string( new_pos.x + ( Render::Engine::segoe.size( buf ).m_width * 0.5f ), new_pos.y - 15, Color( 0, 230, 255, 180 ), buf, Render::Engine::ALIGN_CENTER );
 					}
 					else {
 						if( !valid_smokes.empty( ) )
@@ -1611,13 +1519,13 @@ void CEsp::Main( ) {
 				continue;
 
 			if( g_Vars.esp.dropped_weapons ) {
-				Render::Engine::esp.string( out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ), name );
+				Render::Engine::segoe.string( out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ), name );
 			}
 
 			if( g_Vars.esp.dropped_weapons_ammo ) {
 				auto clip = weapon->m_iClip1( );
 				if( clip > 0 ) {
-					const auto TextSize = Render::Engine::esp.size( name );
+					const auto TextSize = Render::Engine::segoe.size( name );
 
 					const auto MaxClip = weapondata->m_iMaxClip;
 					auto Width = TextSize.m_width;
@@ -1625,11 +1533,11 @@ void CEsp::Main( ) {
 					Width *= clip;
 					Width /= MaxClip;
 
-					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 1, 11 ), Vector2D( TextSize.m_width + 1, 4 ),
+					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 1, 9 ), Vector2D( TextSize.m_width + 1, 4 ),
 						FloatColor( 0.f, 0.f, 0.f, ( initial_alpha / 255.f ) * 0.58f ).ToRegularColor( ) );
 
 
-					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 2, 12 ), Vector2D( Width - 1, 2 ),
+					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 2, 10 ), Vector2D( Width - 1, 2 ),
 						g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ) );
 
 					if( clip <= static_cast< int >( MaxClip * 0.75 ) ) {
@@ -1749,16 +1657,16 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 	switch( nade->GetClientClass( )->m_ClassID ) {
 	case ClassId_t::CBaseCSGrenadeProjectile:
 		if( Name[ 16 ] == 's' ) {
-			Name = XorStr( "k" );
+			Name = XorStr( "FLASH" );
 			item_definition = WEAPON_FLASHBANG;
 		}
 		else {
-			Name = XorStr( "l" );
+			Name = XorStr( "FRAG" );
 			item_definition = WEAPON_HEGRENADE;
 		}
 		break;
 	case ClassId_t::CSmokeGrenadeProjectile:
-		Name = XorStr( "m" );
+		Name = XorStr( "SMOKE" );
 		item_definition = WEAPON_SMOKE;
 		pSmokeEffect = reinterpret_cast< C_SmokeGrenadeProjectile* >( nade );
 		if( pSmokeEffect ) {
@@ -1774,7 +1682,7 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 		}
 		break;
 	case ClassId_t::CMolotovProjectile:
-		Name = XorStr( "n" );
+		Name = XorStr( "FIRE" );
 		// bich
 		if( nade && ( nade->m_hOwnerEntity( ).Get( ) ) && ( ( C_CSPlayer* )( nade->m_hOwnerEntity( ).Get( ) ) ) ) {
 			item_definition = ( ( C_CSPlayer* )( nade->m_hOwnerEntity( ).Get( ) ) )->m_iTeamNum( ) == TEAM_CT ? WEAPON_FIREBOMB : WEAPON_MOLOTOV;
@@ -1792,7 +1700,7 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 		}
 		break;
 	case ClassId_t::CDecoyProjectile:
-		Name = XorStr( "o" );
+		Name = XorStr( "DECOY" );
 		item_definition = WEAPON_DECOY;
 		break;
 	default:
@@ -1805,7 +1713,7 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 	if( !GetBBox( nade, points_transformed, size ) || dont_render )
 		return;
 
-	Render::Engine::cs_huge.string( size.x, size.y - 2, Color( 255, 255, 255, 220 ), Name.c_str( ), Render::Engine::ALIGN_CENTER );
+	Render::Engine::segoe.string( size.x, size.y - 2, Color( 255, 255, 255, 220 ), Name.c_str( ), Render::Engine::ALIGN_CENTER );
 }
 
 void CEsp::DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player ) {
@@ -1815,20 +1723,38 @@ void CEsp::DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player ) {
 	auto color = clr;
 	color.a *= ( m_flAlpha[ player->EntIndex( ) ] );
 
+	FloatColor outline = FloatColor( 0.0f, 0.0f, 0.0f, color.a * 0.68f );
+	//if( g_Vars.esp.box_type == 0 ) {
 	Render::Engine::Rect( bbox.x - 1, bbox.y - 1, bbox.w + 2, bbox.h + 2, Color( 0, 0, 0, 180 * m_flAlpha[ player->EntIndex( ) ] ) );
+	Render::Engine::Rect( bbox.x + 1, bbox.y + 1, bbox.w - 2, bbox.h - 2, Color( 0, 0, 0, 180 * m_flAlpha[ player->EntIndex( ) ] ) );
 	Render::Engine::Rect( bbox.x, bbox.y, bbox.w, bbox.h, color.ToRegularColor( ) );
-	Render::Engine::Rect(bbox.x + 1, bbox.y + 1, bbox.w - 2, bbox.h - 2, Color(0, 0, 0, 180 * m_flAlpha[player->EntIndex()]));
+	//}
 }
 
 void CEsp::DrawHealthBar( C_CSPlayer* player, BBox_t bbox ) {
-	int hp = std::min(100, player->m_iHealth()), r = std::min((510 * (100 - hp)) / 100, 255), g = std::min((510 * hp) / 100, 255);
-	auto Health = player->m_iHealth(); Health = std::clamp(Health, 0, 100);
-	const auto HealthBarHeight = (Health * bbox.h) / 100;
-	Render::Engine::Rect(bbox.x - 6, bbox.y, 2, bbox.h, Color(0, 0, 0, 200));
-	Render::Engine::Rect(bbox.x - 6, bbox.y + ((bbox.h) - HealthBarHeight), 2, HealthBarHeight, g_Vars.esp.health_override ? g_Vars.esp.health_color.ToRegularColor().OverrideAlpha(210 * GetAlpha(player->EntIndex()), true) : Color(r, g, 0, 210 * GetAlpha(player->EntIndex())));
-	Render::Engine::Rect(bbox.x - 6 - 1, bbox.y - 1, 2 + 2, bbox.h + 2, Color(0, 0, 0, 225));
-		
-	if (player->m_iHealth() < 100 || player->m_iHealth() > 100) Render::Engine::esp.string(bbox.x - (14 / 2), bbox.y + 2 + ((bbox.h) - HealthBarHeight) - 7, Color(255, 255, 255, 255), std::to_string(player->m_iHealth()).c_str(), Render::Engine::ALIGN_CENTER);
+	int y = bbox.y + 1;
+	int h = bbox.h - 2;
+
+	// retarded servers that go above 100 hp..
+	int hp = std::min( 100, player->m_iHealth( ) );
+
+	// calculate hp bar color.
+	int r = std::min( ( 510 * ( 100 - hp ) ) / 100, 255 );
+	int g = std::min( ( 510 * hp ) / 100, 255 );
+
+	// get hp bar height.
+	int fill = ( int )std::round( hp * h / 100.f );
+
+	// render background.
+	Render::Engine::RectFilled( bbox.x - 6, y - 1, 4, h + 2, Color( 10, 10, 10, 180 * GetAlpha( player->EntIndex( ) ) ) );
+
+	// render actual bar.
+	Render::Engine::Rect( bbox.x - 5, y + h - fill, 2, fill, g_Vars.esp.health_override ? g_Vars.esp.health_color.ToRegularColor( ).OverrideAlpha( 210 * GetAlpha( player->EntIndex( ) ), true )
+		: Color( r, g, 0, 210 * GetAlpha( player->EntIndex( ) ) ) );
+
+	// if hp is below max, draw a string.
+	if( hp < 100 )
+		Render::Engine::pixel_reg.string( bbox.x - 5, y + ( h - fill ) - 5, Color( 255, 255, 255, 200 * GetAlpha( player->EntIndex( ) ) ), std::to_string( hp ), Render::Engine::ALIGN_CENTER );
 }
 
 void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info ) {
@@ -2063,10 +1989,10 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	//	name.append( XorStr( " (" ) ).append( std::to_string( player->m_entIndex ) ).append( XorStr( ")" ) );
 	//#endif
 
-	Color clr = g_Vars.esp.name_color.ToRegularColor( ).OverrideAlpha( 255, true );
+	Color clr = g_Vars.esp.name_color.ToRegularColor( ).OverrideAlpha( 180, true );
 	clr.RGBA[ 3 ] *= m_flAlpha[ player->EntIndex( ) ];
 
-	Render::Engine::esp.string( bbox.x + bbox.w / 2, bbox.y - Render::Engine::segoe.m_size.m_height - 1, clr, name, Render::Engine::ALIGN_CENTER );
+	Render::Engine::segoe.string( bbox.x + bbox.w / 2, bbox.y - Render::Engine::segoe.m_size.m_height - 1, clr, name, Render::Engine::ALIGN_CENTER );
 
 	/*if( g_Vars.globals.nOverrideEnemy == player->EntIndex( ) ) {
 		Color clr = Color( 255, 255, 255, 180 );

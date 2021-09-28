@@ -55,28 +55,28 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|Win32'" Label="Configuration">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug loader|Win32'" Label="Configuration">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Stable build|x64'">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="Configuration">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Beta|x64'" Label="Configuration">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug loader|x64'" Label="Configuration">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -92,8 +92,8 @@
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
-    <IncludePath>$(ProjectDir)Libraries;D:\Programs\DX9 SDK\Include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Programs\DX9 SDK\lib;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
     <TargetExt>.dll</TargetExt>
     <IntDir>$(SolutionDir)$(Configuration)\Intermediate\</IntDir>
   </PropertyGroup>
@@ -115,7 +115,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Stable build|Win32'">
     <ClCompile>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>USE_XOR;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
@@ -130,6 +130,7 @@
       <StringPooling>
       </StringPooling>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -212,43 +213,6 @@
     <ClCompile Include="Hooking\Hooks\RetrieveMessage.cpp" />
     <ClCompile Include="Loader\Exports.cpp" />
     <ClCompile Include="Loader\Security\Security.cpp" />
-    <ClCompile Include="lua\clua.cpp" />
-    <ClCompile Include="lua\lua_hooks.cpp" />
-    <ClCompile Include="lua\lua_wrapper\src\lapi.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lauxlib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lbaselib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lbitlib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lcode.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lcorolib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lctype.c" />
-    <ClCompile Include="lua\lua_wrapper\src\ldblib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\ldebug.c" />
-    <ClCompile Include="lua\lua_wrapper\src\ldo.c" />
-    <ClCompile Include="lua\lua_wrapper\src\ldump.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lfunc.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lgc.c" />
-    <ClCompile Include="lua\lua_wrapper\src\linit.c" />
-    <ClCompile Include="lua\lua_wrapper\src\liolib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\llex.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lmathlib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lmem.c" />
-    <ClCompile Include="lua\lua_wrapper\src\loadlib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lobject.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lopcodes.c" />
-    <ClCompile Include="lua\lua_wrapper\src\loslib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lparser.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lstate.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lstring.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lstrlib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\ltable.c" />
-    <ClCompile Include="lua\lua_wrapper\src\ltablib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\ltests.c" />
-    <ClCompile Include="lua\lua_wrapper\src\ltm.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lua.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lundump.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lutf8lib.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lvm.c" />
-    <ClCompile Include="lua\lua_wrapper\src\lzio.c" />
     <ClCompile Include="Renderer\Wrapper\sprite\sprite.cpp" />
     <ClCompile Include="SDK\Classes\CClientState.cpp" />
     <ClCompile Include="SDK\Classes\CCSGO_HudDeathNotice.cpp" />
@@ -261,7 +225,7 @@
     <ClCompile Include="ShittierMenu\IMGAY\imgui_widgets.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
-    <ClCompile Include="ShittierMenu\Menu.cpp" />
+    <ClCompile Include="ShittierMenu\menu.cpp" />
     <ClCompile Include="Utils\CrashHandler.cpp" />
     <ClCompile Include="Hooking\Hooks\DispatchUserMessage.cpp" />
     <ClCompile Include="Hooking\Hooks\IsBoxVisible.cpp" />
@@ -388,36 +352,6 @@
     <ClInclude Include="Features\Rage\ZeusBot.hpp" />
     <ClInclude Include="Loader\Exports.h" />
     <ClInclude Include="Loader\Security\Security.hpp" />
-    <ClInclude Include="lua\clua.h" />
-    <ClInclude Include="lua\clua_hooks.h" />
-    <ClInclude Include="lua\lua_wrapper\include\lauxlib.h" />
-    <ClInclude Include="lua\lua_wrapper\include\lua.h" />
-    <ClInclude Include="lua\lua_wrapper\include\lua.hpp" />
-    <ClInclude Include="lua\lua_wrapper\include\luaconf.h" />
-    <ClInclude Include="lua\lua_wrapper\include\lualib.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lapi.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lcode.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lctype.h" />
-    <ClInclude Include="lua\lua_wrapper\src\ldebug.h" />
-    <ClInclude Include="lua\lua_wrapper\src\ldo.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lfunc.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lgc.h" />
-    <ClInclude Include="lua\lua_wrapper\src\llex.h" />
-    <ClInclude Include="lua\lua_wrapper\src\llimits.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lmem.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lobject.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lopcodes.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lparser.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lprefix.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lstate.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lstring.h" />
-    <ClInclude Include="lua\lua_wrapper\src\ltable.h" />
-    <ClInclude Include="lua\lua_wrapper\src\ltests.h" />
-    <ClInclude Include="lua\lua_wrapper\src\ltm.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lundump.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lvm.h" />
-    <ClInclude Include="lua\lua_wrapper\src\lzio.h" />
-    <ClInclude Include="lua\sol.hpp" />
     <ClInclude Include="Renderer\Textures\weaponicons.h" />
     <ClInclude Include="Renderer\Wrapper\font\font.h" />
     <ClInclude Include="Renderer\Wrapper\sprite\sprite.h" />
@@ -444,7 +378,7 @@
     <ClInclude Include="ShittierMenu\IMGAY\imstb_rectpack.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_textedit.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_truetype.h" />
-    <ClInclude Include="ShittierMenu\Menu.hpp" />
+    <ClInclude Include="ShittierMenu\menu.hpp" />
     <ClInclude Include="Utils\Config.hpp" />
     <ClInclude Include="SDK\core.hpp" />
     <ClInclude Include="SDK\Classes\CPlayerResource.hpp" />

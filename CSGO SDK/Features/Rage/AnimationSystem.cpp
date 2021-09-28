@@ -325,6 +325,7 @@ namespace Engine
 		record->m_bIsShoting = false;
 		record->m_flShotTime = 0.0f;
 		record->m_bFakeWalking = false;
+		Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
 
 		if( previous_record.IsValid( ) ) {
 			record->m_flChokeTime = pThis->m_flSimulationTime - pThis->m_flOldSimulationTime;
@@ -408,7 +409,7 @@ namespace Engine
 			&& record->m_serverAnimOverlays[12].m_flWeight > 0.0f
 			&& (record->m_fFlags & FL_ONGROUND)) {
 			record->m_bFakeWalking = true;
-			Engine::g_ResolverData[player->EntIndex()].fakewalking;
+			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
 		}
 
 		// detect players abusing micromovements or other trickery

@@ -100,27 +100,27 @@ void Win32InputSys::Destroy( ) {
 extern LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT __stdcall Win32InputSys::WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
-	auto win32input = static_cast< Win32InputSys* >( Get( ).Xor( ) );
-	if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) ) {
-		win32input->ProcessMessage( msg, wParam, lParam );
+	auto win32input = static_cast<Win32InputSys*>(Get().Xor());
+	if (!Interfaces::m_pClient->IsChatRaised() && !Interfaces::m_pEngine->Con_IsVisible()) {
+		win32input->ProcessMessage(msg, wParam, lParam);
 	}
 
-	if( msg == WM_MOUSEMOVE ) {
-		win32input->m_MousePos.x = ( signed short )( lParam );
-		win32input->m_MousePos.y = ( signed short )( lParam >> 16 );
+	if (msg == WM_MOUSEMOVE) {
+		win32input->m_MousePos.x = (signed short)(lParam);
+		win32input->m_MousePos.y = (signed short)(lParam >> 16);
 	}
-	else if( msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL ) {
-		win32input->m_ScrollMouse += ( float )GET_WHEEL_DELTA_WPARAM( wParam ) / ( float )WHEEL_DELTA;
+	else if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL) {
+		win32input->m_ScrollMouse += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 	}
 
-	if( g_Vars.globals.menuOpen ) {
-		if( msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL )
+	if (g_Vars.globals.menuOpen) {
+		if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL)
 			return true;
 	}
 
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam) && g_IMGUIMenu.Opened && g_IMGUIMenu.Initialized) return true;
+	if (g_IMGUIMenu.Initialized && g_IMGUIMenu.Opened && ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) return true;
 
-	return CallWindowProc( ( WNDPROC )win32input->m_ulOldWndProc, hWnd, msg, wParam, lParam );
+	return CallWindowProc((WNDPROC)win32input->m_ulOldWndProc, hWnd, msg, wParam, lParam);
 }
 
 bool Win32InputSys::ProcessMessage( UINT uMsg, WPARAM wParam, LPARAM lParam ) {

@@ -53,9 +53,8 @@ namespace Interfaces
 			m_matRegular = Interfaces::m_pMatSystem->FindMaterial( ( "debug/debugambientcube" ), nullptr );
 			m_matFlat = Interfaces::m_pMatSystem->FindMaterial( ( "debug/debugdrawflat" ), nullptr );
 			m_matGlow = Interfaces::m_pMatSystem->FindMaterial( ( "dev/glow_armsrace" ), nullptr );
-			m_matMetalic = Interfaces::m_pMatSystem->FindMaterial(("cubemap"), nullptr);
 
-			std::ofstream( "csgo\\materials\\vader_shine.vmt" ) << R"#("VertexLitGeneric"
+			std::ofstream( "csgo\\materials\\pdr_shine.vmt" ) << R"#("VertexLitGeneric"
 			{
 					"$basetexture" "vgui/white_additive"
 					"$ignorez"      "0"
@@ -77,19 +76,7 @@ namespace Interfaces
 			}
 			)#";
 
-			std::ofstream("csgo/materials/glowOverlay.vmt") << R"#("VertexLitGeneric" {
-				"$additive" "1"
-				"$envmap" "models/effects/cube_white"
-				"$envmaptint" "[0 0.1 0.2]"
-				"$envmapfresnel" "1"
-				"$envmapfresnelminmaxexp" "[0 1 2]"
-				"$ignorez" "1"
-				"$alpha" "1"
-			})#";
-
-			m_matShiny = Interfaces::m_pMatSystem->FindMaterial( XorStr( "vader_shine" ), TEXTURE_GROUP_MODEL );
-
-			m_matGlowOverlay = Interfaces::m_pMatSystem->FindMaterial(XorStr("glowOverlay"), TEXTURE_GROUP_MODEL);
+			m_matShiny = Interfaces::m_pMatSystem->FindMaterial( XorStr( "pdr_shine" ), TEXTURE_GROUP_MODEL );
 
 			if( !m_matRegular || m_matRegular == nullptr || m_matRegular->IsErrorMaterial( ) )
 				return false;
@@ -100,13 +87,7 @@ namespace Interfaces
 			if( !m_matGlow || m_matGlow == nullptr || m_matGlow->IsErrorMaterial( ) )
 				return false;
 
-			if (!m_matMetalic || m_matMetalic == nullptr || m_matMetalic->IsErrorMaterial())
-				return false;
-
 			if( !m_matShiny || m_matShiny == nullptr || m_matShiny->IsErrorMaterial( ) )
-				return false;
-
-			if (!m_matGlowOverlay || m_matGlowOverlay == nullptr || m_matGlowOverlay->IsErrorMaterial())
 				return false;
 
 			m_bInit = true;
@@ -120,9 +101,7 @@ namespace Interfaces
 		IMaterial* m_matFlat = nullptr;
 		IMaterial* m_matRegular = nullptr;
 		IMaterial* m_matGlow = nullptr;
-		IMaterial* m_matMetalic = nullptr;
 		IMaterial* m_matShiny = nullptr;
-		IMaterial* m_matGlowOverlay = nullptr;
 
 		std::vector<C_HitMatrixEntry> m_Hitmatrix;
 	};

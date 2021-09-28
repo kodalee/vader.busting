@@ -17,7 +17,6 @@
 #include "../../Utils/Threading/threading.h"
 #include "../Rage/TickbaseShift.hpp"
 #include "../Visuals/EventLogger.hpp"
-#include "../Rage/Resolver.hpp"
 
 // todo: move this
 C_AnimationLayer FakeAnimLayers[ 13 ];
@@ -341,8 +340,8 @@ namespace Interfaces
 			}
 		}
 
-		if( g_TickbaseController.Using( ) && g_Vars.rage.double_tap_duck && ( g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) ) {
-			if( !( m_movement_data->m_pCmd->buttons & IN_BULLRUSH ) )
+		if (g_TickbaseController.Using() && g_Vars.rage.double_tap_duck && (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+			if (!(m_movement_data->m_pCmd->buttons & IN_BULLRUSH))
 				m_movement_data->m_pCmd->buttons |= IN_BULLRUSH;
 
 			m_movement_data->m_pCmd->buttons |= IN_DUCK;
@@ -816,10 +815,13 @@ namespace Interfaces
 		}
 
 		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands( ) > g_Vars.misc.slow_walk_speed;
-		if( Interfaces::m_pClientState->m_nChokedCommands( ) > 16 )
+		if (Interfaces::m_pClientState->m_nChokedCommands() > 16) {
 			*m_movement_data->m_pSendPacket = true;
-
-		g_Vars.globals.Fakewalking = true;
+			g_Vars.globals.Fakewalking = false;
+		}
+		if (Interfaces::m_pClientState->m_nChokedCommands() < 16) {
+			g_Vars.globals.Fakewalking = true;
+		}
 
 		m_movement_data->m_pCmd->buttons &= ~IN_SPEED;
 
@@ -831,14 +833,7 @@ namespace Interfaces
 		// stop when necessary
 		if( Interfaces::m_pClientState->m_nChokedCommands( ) > ( g_Vars.misc.slow_walk_speed - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) {
 			InstantStop( );
-			g_Vars.globals.breakHere = true;
 		}
-		else {
-			g_Vars.globals.breakHere = false;
-		}
-
-		//if (m_movement_data->m_pCmd->sidemove < 11.01f || m_movement_data->m_pCmd->forwardmove < 11.01f)
-		//	*m_movement_data->m_pSendPacket = true;
 
 		// fix event delay
 		g_Vars.globals.FakeWalkWillChoke = g_Vars.misc.slow_walk_speed - Interfaces::m_pClientState->m_nChokedCommands( );

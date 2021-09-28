@@ -22,11 +22,6 @@
 #include "Features/Game/Prediction.hpp"
 #include "Loader/Exports.h"
 
-//lua
-#include "../lua/clua.h"
-#include "../lua/clua_hooks.h"
-//
-
 #include <fstream>
 
 extern ClientClass* CCSPlayerClass;
@@ -870,7 +865,7 @@ namespace Interfaces
 		//oBeginFrame = Hooked::HooksManager.HookVirtual<decltype( oBeginFrame )>( m_pMatSystem.Xor( ), &Hooked::BeginFrame, Index::MatSystem::BeginFrame );
 		oOverrideConfig = Hooked::HooksManager.HookVirtual<decltype( oOverrideConfig )>( m_pMatSystem.Xor( ), &OverrideConfig, 21 );
 
-		oListLeavesInBox = Hooked::HooksManager.HookVirtual<decltype( oListLeavesInBox )>( Interfaces::m_pEngine->GetBSPTreeQuery( ), &Hooked::ListLeavesInBox, Index::BSPTreeQuery::ListLeavesInBox );
+		//oListLeavesInBox = Hooked::HooksManager.HookVirtual<decltype( oListLeavesInBox )>( Interfaces::m_pEngine->GetBSPTreeQuery( ), &Hooked::ListLeavesInBox, Index::BSPTreeQuery::ListLeavesInBox );
 
 		static auto calc_view_bob = Memory::Scan( XorStr( "client.dll" ), XorStr( "55 8B EC A1 ? ? ? ? 83 EC 10 56 8B F1 B9" ) );
 		oCalcViewBob = Hooked::HooksManager.CreateHook<decltype( oCalcViewBob ) >( &hkCalcViewBob, ( void* )calc_view_bob );
@@ -919,7 +914,7 @@ namespace Interfaces
 		oInterpolateServerEntities = Hooked::HooksManager.CreateHook<decltype( oInterpolateServerEntities ) >( &Hooked::InterpolateServerEntities, ( void* )interpolate );
 		oProcessInterpolatedList = Hooked::HooksManager.CreateHook<decltype( oProcessInterpolatedList ) >( &hkProcessInterpolatedList, ( void* )process_interpolated_list );
 		oReportHit = Hooked::HooksManager.CreateHook<decltype( oReportHit ) >( &ReportHit, ( void* )reporthit );
-		oCL_Move = Hooked::HooksManager.CreateHook<decltype( oCL_Move ) >( &CL_Move, ( void* )cl_move );
+		//	oCL_Move = Hooked::HooksManager.CreateHook<decltype( oCL_Move ) >( &CL_Move, ( void* )cl_move );
 
 		auto physics_simulate_adr = rel32_resolve( Memory::Scan( XorStr( "client.dll" ), XorStr( "E8 ? ? ? ? 80 BE ? ? ? ? ? 0F 84 ? ? ? ? 8B 06" ) ) );
 		oPhysicsSimulate = Hooked::HooksManager.CreateHook<decltype( oPhysicsSimulate ) >( &hkPhysicsSimulate, ( void* )physics_simulate_adr );
@@ -942,7 +937,6 @@ namespace Interfaces
 		oUpdateClientSideAnimation = Hooked::HooksManager.CreateHook<decltype( oUpdateClientSideAnimation ) >( &hkUpdateClientSideAnimation, ( void* )update_client_side_animation );
 
 		Hooked::HooksManager.Enable( );
-		g_lua.init();
 		return true;
 	}
 
@@ -964,7 +958,6 @@ namespace Interfaces
 	}
 
 	void* CreateInterface( const std::string& image_name, const std::string& name ) {
-#ifndef DEV
 		auto image = GetModuleHandleA(image_name.c_str());
 		if (!image)
 			return nullptr;
@@ -974,26 +967,5 @@ namespace Interfaces
 			return nullptr;
 
 		return fn(name.c_str(), nullptr);
-
-
-//		char buf[ 128 ] = { 0 };
-//		wsprintfA( buf, XorStr( "%s::%s" ), image_name.data( ), name.data( ) );
-//		auto iface = interfaces_get_interface( loader_hash( buf ) );
-//
-//		if( !iface )
-//			MessageBoxA( 0, buf, buf, 0 );
-//
-//		return reinterpret_cast< void* >( iface );
-#else
-		auto image = GetModuleHandleA( image_name.c_str( ) );
-		if( !image )
-			return nullptr;
-
-		auto fn = ( CreateInterfaceFn )( GetProcAddress( image, XorStr( "CreateInterface" ) ) );
-		if( !fn )
-			return nullptr;
-
-		return fn( name.c_str( ), nullptr );
-#endif
 	}
 }

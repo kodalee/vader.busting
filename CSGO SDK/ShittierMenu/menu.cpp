@@ -8,8 +8,7 @@
 #include "IMGAY/impl/imgui_impl_win32.h"
 
 //lua
-#include "../lua/clua.h"
-#include "../lua/clua_hooks.h"
+
 //
 
  
@@ -227,9 +226,9 @@ void Ragebot()
 		ImGui::Hotkey(std::string(XorStr("##Override resolver key") + std::to_string(rage_current_group)).c_str(), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond, ImVec2{ 40,20 });
 
 		InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.rage.exploit);
-		ImGui::SameLine();
-		biggestMeme2();
-		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
+		//ImGui::SameLine();
+		//biggestMeme2();
+		//ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
 
 		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
 		ImGui::SameLine();
@@ -365,7 +364,7 @@ void HvH()
 		const char* FakelagType[] = { XorStr("Maximum"), XorStr("Dynamic"), XorStr("Fluctuate") };
 		InsertCombo(XorStr("Type"), &g_Vars.fakelag.choke_type, FakelagType);
 		InsertSliderInt(XorStr("Limit"), &g_Vars.fakelag.choke, 0, 16, "%d");
-		InsertSliderInt(XorStr("Double-tap Limit"), &g_Vars.fakelag.dt_choke, 0, 16, "%d");
+		//InsertSliderInt(XorStr("Double-tap Limit"), &g_Vars.fakelag.dt_choke, 0, 16, "%d");
 
 		g_Vars.fakelag.trigger_duck = g_Vars.fakelag.trigger_weapon_activity = g_Vars.fakelag.trigger_shooting = false;
 		g_Vars.fakelag.trigger_land = true;
@@ -812,66 +811,29 @@ void Misc()
 			case 1:
 			{
 
-				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+				//ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
 
-				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Reload active", ImVec2(100, 0))) g_lua.reload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+				//ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Reload active", ImVec2(100, 0))) g_lua.reload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
 
-				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
+				//ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
 
-				ImGui::Text("scripts");
+				//ImGui::Text("scripts");
 
-				for (auto s : g_lua.scripts)
-				{
-					ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
-					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-						auto scriptId = g_lua.get_script_id(s);
-						if (g_lua.loaded.at(scriptId))
-							g_lua.unload_script(scriptId);
-						else
-							g_lua.load_script(scriptId);
-					}
-				}
+				//for (auto s : g_lua.scripts)
+				//{
+				//	ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
+				//	if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
+				//		auto scriptId = g_lua.get_script_id(s);
+				//		if (g_lua.loaded.at(scriptId))
+				//			g_lua.unload_script(scriptId);
+				//		else
+				//			g_lua.load_script(scriptId);
+				//	}
+				//}
 
 				break;
 			}
 		}
-	}
-	ImGui::EndColumns();
-}
-
-void Scripts()
-{
-	ImGuiStyle* style = &ImGui::GetStyle();
-	float group_w = ImGui::GetCurrentWindow()->Size.x - style->WindowPadding.x * 2;
-	ImGui::Columns(3, nullptr, false);
-	ImGui::SetColumnOffset(1, group_w / 3.0f);
-	ImGui::SetColumnOffset(2, 2 * group_w / 2.9f);
-	ImGui::SetColumnOffset(3, group_w);
-
-
-	ImGui::NewLine();
-	{
-
-		ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
-
-		ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Reload active scripts", ImVec2(100, 0))) g_lua.reload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
-
-		ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
-
-		ImGui::Text("scripts");
-
-		for (auto s : g_lua.scripts)
-		{
-			ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
-			if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-				auto scriptId = g_lua.get_script_id(s);
-				if (g_lua.loaded.at(scriptId))
-					g_lua.unload_script(scriptId);
-				else
-					g_lua.load_script(scriptId);
-			}
-		}
-
 	}
 	ImGui::EndColumns();
 }

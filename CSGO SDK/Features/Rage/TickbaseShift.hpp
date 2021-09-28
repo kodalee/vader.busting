@@ -39,10 +39,6 @@ public:
 	int s_iServerIdealTick = 0;
 	bool s_bBuilding = false;
 
-	bool ignoreallcmds;
-	bool m_didFakeFlick;
-	int lastShiftedCmdNr;
-
 	size_t s_nExtraProcessingTicks = 0;
 	std::vector<TickbaseShift_t> g_iTickbaseShifts;
 

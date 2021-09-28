@@ -7,6 +7,12 @@
 
 namespace Math
 {
+	// pi constants.
+	constexpr float pi = 3.1415926535897932384f; // pi
+	static constexpr long double M_RADPI = 57.295779513082f;
+	static constexpr long double M_PIRAD = 0.01745329251f;
+	constexpr float pi_2 = pi * 2.f;               // pi * 2
+
 	bool IntersectSegmentToSegment(Vector s1, Vector s2, Vector k1, Vector k2, float radius);
 	bool IntersectSegmentSphere(const Vector& vecRayOrigin, const Vector& vecRayDelta, const Vector& vecSphereCenter, float radius);
 	bool IntersectSegmentCapsule(const Vector& start, const Vector& end, const Vector& min, const Vector& max, float radius);
@@ -34,19 +40,7 @@ namespace Math
 
 	void VectorTransform(const Vector& in1, const matrix3x4_t& in2, Vector& out);
 
-	void matrix_set_column(const Vector& in, int column, matrix3x4_t& out);
-
-	void angle_matrix(const QAngle& angles, const Vector& position, matrix3x4_t& matrix);
-	void angle_matrix(const QAngle& angles, matrix3x4_t& matrix);
-	Vector vector_rotate(const Vector& in1, const matrix3x4_t& in2);
-	Vector vector_rotate(const Vector& in1, const QAngle& in2);
-	void  VectorITransform(const Vector& in, const matrix3x4_t& matrix, Vector& out);
-	void vector_i_rotate(const Vector& in1, const matrix3x4_t& in2, Vector& out);
-
-
 	void SmoothAngle(QAngle src, QAngle& dst, float factor);
-
-	float SegmentToSegment(const Vector s1, const Vector s2, const Vector k1, const Vector k2);
 
 	QAngle CalcAngle(Vector src, Vector dst, bool bruh = false);
 
@@ -56,6 +50,10 @@ namespace Math
 
 	__forceinline static float Interpolate(const float from, const float to, const float percent) {
 		return to * percent + from * (1.f - percent);
+	}
+
+	__forceinline constexpr float deg_to_rad(float val) {
+		return val * (pi / 180.f);
 	}
 
 	__forceinline static Vector Interpolate(const Vector from, const Vector to, const float percent) {

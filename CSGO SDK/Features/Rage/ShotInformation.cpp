@@ -310,9 +310,9 @@ namespace Engine
 							AddMissLog(XorStr("resolver"));
 						}
 					}
-					else if( aimpoint_distance > impact_distance ) { // occulusion issue
-						if( g_Vars.esp.event_resolver ) {
-							AddMissLog( XorStr( "occlusion" ) );
+					else if (aimpoint_distance > impact_distance) { // occulusion issue
+						if (g_Vars.esp.event_resolver) {
+							AddMissLog(XorStr("occlusion"));
 						}
 					}
 					else { // spread issue

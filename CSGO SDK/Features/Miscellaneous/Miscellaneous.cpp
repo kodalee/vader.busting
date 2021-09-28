@@ -158,65 +158,65 @@ namespace Interfaces
 		}
 	}
 
-	void C_Miscellaneous::ClantagChanger( ) {
+	void C_Miscellaneous::ClantagChanger() {
 		static bool run_once = false;
-		static auto fnClantagChanged = ( int( __fastcall* )( const char*, const char* ) ) Engine::Displacement.Function.m_uClanTagChange;
+		static auto fnClantagChanged = (int(__fastcall*)(const char*, const char*)) Engine::Displacement.Function.m_uClanTagChange;
 
-		if( !g_Vars.misc.clantag_changer ) {
-			if( run_once ) {
-				fnClantagChanged( XorStr( "" ), XorStr( "" ) );
+		if (!g_Vars.misc.clantag_changer) {
+			if (run_once) {
+				fnClantagChanged(XorStr(""), XorStr(""));
 				run_once = false;
 			}
 
 			return;
 		}
 
-		if( !Interfaces::m_pPrediction->GetUnpredictedGlobals( ) ) {
-			if( run_once ) {
-				fnClantagChanged( XorStr( "" ), XorStr( "" ) );
+		if (!Interfaces::m_pPrediction->GetUnpredictedGlobals()) {
+			if (run_once) {
+				fnClantagChanged(XorStr(""), XorStr(""));
 				run_once = false;
 			}
-			 
+
 			return;
 		}
 
 		run_once = true;
 
-		std::string szClanTag = XorStr( "vader.tech" );
-		std::string szSuffix = XorStr( "" );
+		std::string szClanTag = XorStr("vader.tech");
+		std::string szSuffix = XorStr("");
 		static int iPrevFrame = 0;
 		static bool bReset = false;
 		int iCurFrame = (int(Interfaces::m_pGlobalVars->curtime * 2.9) % 23);
 
 		if (iPrevFrame != int(Interfaces::m_pGlobalVars->curtime * 2.9) % 20) {
 			switch (iCurFrame) {
-			case 0: szClanTag = XorStr( "v " ); break;
-			case 1: szClanTag = XorStr( "va " ); break;
-			case 2: szClanTag = XorStr( "vad " ); break;
-			case 3: szClanTag = XorStr( "vade " ); break;
-			case 4: szClanTag = XorStr( "vader " ); break;
-			case 5: szClanTag = XorStr( "vader. " ); break;
-			case 6: szClanTag = XorStr( "vader.t " ); break;
-			case 7: szClanTag = XorStr( "vader.te " ); break;
-			case 8: szClanTag = XorStr( "vader.tec " ); break;
-			case 9: szClanTag = XorStr( "vader.tech " ); break;
-			case 10: szClanTag = XorStr( "vader.tech " ); break;
-			case 11: szClanTag = XorStr( "vader.tech " ); break;
-			case 12: szClanTag = XorStr( "vader.tec " ); break;
-			case 13: szClanTag = XorStr( "vader.te " ); break;
-			case 14: szClanTag = XorStr( "vader.t " ); break;
-			case 15: szClanTag = XorStr( "vader. " ); break;
-			case 16: szClanTag = XorStr( "vader " ); break;
-			case 17: szClanTag = XorStr( "vade " ); break;
-			case 18: szClanTag = XorStr( "vad " ); break;
-			case 19: szClanTag = XorStr( "va " ); break;
-			case 20: szClanTag = XorStr( "v " ); break;
-			case 21: szClanTag = XorStr( " " ); break;
-			case 22: szClanTag = XorStr( " " ); break;
+			case 0: szClanTag = XorStr("v "); break;
+			case 1: szClanTag = XorStr("va "); break;
+			case 2: szClanTag = XorStr("vad "); break;
+			case 3: szClanTag = XorStr("vade "); break;
+			case 4: szClanTag = XorStr("vader "); break;
+			case 5: szClanTag = XorStr("vader. "); break;
+			case 6: szClanTag = XorStr("vader.t "); break;
+			case 7: szClanTag = XorStr("vader.te "); break;
+			case 8: szClanTag = XorStr("vader.tec "); break;
+			case 9: szClanTag = XorStr("vader.tech "); break;
+			case 10: szClanTag = XorStr("vader.tech "); break;
+			case 11: szClanTag = XorStr("vader.tech "); break;
+			case 12: szClanTag = XorStr("vader.tec "); break;
+			case 13: szClanTag = XorStr("vader.te "); break;
+			case 14: szClanTag = XorStr("vader.t "); break;
+			case 15: szClanTag = XorStr("vader. "); break;
+			case 16: szClanTag = XorStr("vader "); break;
+			case 17: szClanTag = XorStr("vade "); break;
+			case 18: szClanTag = XorStr("vad "); break;
+			case 19: szClanTag = XorStr("va "); break;
+			case 20: szClanTag = XorStr("v "); break;
+			case 21: szClanTag = XorStr(" "); break;
+			case 22: szClanTag = XorStr(" "); break;
 			}
 
 			// set our clantag
-			fnClantagChanged( szClanTag.data( ), szClanTag.data( ) );
+			fnClantagChanged(szClanTag.data(), szClanTag.data());
 
 			// set current/last frame.
 			iPrevFrame = iCurFrame;

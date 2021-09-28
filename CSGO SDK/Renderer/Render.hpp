@@ -144,13 +144,9 @@ namespace Render {
 		extern Font segoe;
 		extern Font cs;
 		extern Font cs_large;
-		extern Font cs_huge;
 		extern Font damage;
 		extern Font icon;
 		extern Font indi;
-		extern Font watermark;
-		extern Font keybinds;
-		extern Font grenades;
 
 		extern int m_width;
 		extern int m_height;

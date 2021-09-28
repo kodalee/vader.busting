@@ -140,9 +140,6 @@ public:
 	SDK_pad( 0x64 );
 	int m_entIndex;
 
-	float m_body;
-	float m_old_body;
-
 	// Entity flags that are only for the client (ENTCLIENTFLAG_ defines).
 	unsigned short m_EntClientFlags;
 
@@ -330,7 +327,7 @@ public:
 	int m_nSmokeEffectTickBegin( );
 
 	static float GetExpiryTime( ) {
-		return 18.041f;
+		return 19.f;
 	}
 };
 

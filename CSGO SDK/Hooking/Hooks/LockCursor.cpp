@@ -1,20 +1,21 @@
 #include "../Hooked.hpp"
 #include "../../SDK/Classes/Player.hpp"
 #include "../../ShittierMenu/Menu.hpp"
-void __stdcall Hooked::LockCursor( ) {
-   g_Vars.globals.szLastHookCalled = XorStr( "16" );
 
-   oLockCursor( (void*)Interfaces::m_pSurface.Xor() );
+void __stdcall Hooked::LockCursor() {
+	g_Vars.globals.szLastHookCalled = XorStr("16");
 
-   auto pLocal = C_CSPlayer::GetLocalPlayer( );
+	oLockCursor((void*)Interfaces::m_pSurface.Xor());
 
-   bool state = true;
-   if( !Interfaces::m_pEngine->IsInGame( ) || ( pLocal && pLocal->IsDead( ) ) || GUI::ctx->typing ) {
-	   state = !(g_Vars.globals.menuOpen || g_IMGUIMenu.Opened);
-   }
+	auto pLocal = C_CSPlayer::GetLocalPlayer();
 
-   Interfaces::m_pInputSystem->EnableInput( state );
+	bool state = true;
+	if (!Interfaces::m_pEngine->IsInGame() || (pLocal && pLocal->IsDead()) || GUI::ctx->typing) {
+		state = !(g_Vars.globals.menuOpen || g_IMGUIMenu.Opened);
+	}
 
-   if ( g_Vars.globals.menuOpen || g_IMGUIMenu.Opened)
-	  Interfaces::m_pSurface->UnlockCursor( );
+	Interfaces::m_pInputSystem->EnableInput(state);
+
+	if (g_Vars.globals.menuOpen || g_IMGUIMenu.Opened)
+		Interfaces::m_pSurface->UnlockCursor();
 }

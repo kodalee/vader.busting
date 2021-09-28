@@ -6,7 +6,6 @@
 #include "../../Features/Visuals/ESP.hpp"
 #include "../../SDK/Classes/entity.hpp"
 #include "../../SDK/Classes/player.hpp"
-
 #include "../../ShittierMenu/Menu.hpp"
 #include "../../ShittierMenu/IMGAY/imgui.h"
 #include "../../ShittierMenu/IMGAY/imgui_internal.h"
@@ -20,7 +19,6 @@ IDirect3DVertexShader9* vertShader;
 HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourceRect, const RECT* pDestRect, HWND hDestWindowOverride, const RGNDATA* pDirtyRegion ) {
 	g_Vars.globals.szLastHookCalled = XorStr( "27" );
 	g_Vars.globals.m_pD3D9Device = pDevice;
-
 	if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_DELETE)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
 
 	if( Render::DirectX::initialized ) {
@@ -83,7 +81,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		}
 
 		// chat isn't open && console isn't open
-		if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) && !g_Vars.globals.menuOpen || !g_IMGUIMenu.Opened) {
+		if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) && !g_Vars.globals.menuOpen ) {
 			// we aren't tabbed out
 				// shit compiler, that's why no ternary operators
 			if( InputHelper::Pressed( g_Vars.antiaim.manual_left_bind.key ) ) {

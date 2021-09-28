@@ -24,8 +24,6 @@ public:
 
 int __fastcall Hooked::ListLeavesInBox( void* ECX, void* EDX, Vector& mins, Vector& maxs, unsigned short* pList, int listMax ) {
    g_Vars.globals.szLastHookCalled = XorStr( "15" );
-   //printf("hooked!\n");
-
    // occulusion getting updated on player movement/angle change,
    // in RecomputeRenderableLeaves ( https://github.com/pmrowla/hl2sdk-csgo/blob/master/game/client/clientleafsystem.cpp#L674 );
    // check for return in CClientLeafSystem::InsertIntoTree 
@@ -51,5 +49,9 @@ int __fastcall Hooked::ListLeavesInBox( void* ECX, void* EDX, Vector& mins, Vect
    info->m_Flags &= ~0x100;
    info->m_Flags2 |= 0xC0;
 
-   return oListLeavesInBox(ECX, Vector(-16384.0f, -16384.0f, -16384.0f), Vector(16384.0f, 16384.0f, 16384.0f), pList, listMax);
+   // extend world space bounds to maximum ( https://github.com/pmrowla/hl2sdk-csgo/blob/master/game/client/clientleafsystem.cpp#L707 )
+   static Vector map_min = Vector( MIN_COORD_FLOAT, MIN_COORD_FLOAT, MIN_COORD_FLOAT );
+   static Vector map_max = Vector( MAX_COORD_FLOAT, MAX_COORD_FLOAT, MAX_COORD_FLOAT );
+   auto count = oListLeavesInBox( ECX, map_min, map_max, pList, listMax );
+   return count;
 }

@@ -380,6 +380,39 @@ bool C_CSPlayer::IsTeammate( C_CSPlayer* player ) {
 	return this->m_iTeamNum( ) == player->m_iTeamNum( );
 }
 
+Vector C_CSPlayer::GetShootPosition() {
+	/*
+	float *__thiscall sub_103A4A60(_DWORD *this, float *a2)
+	{
+		int v2; // edi
+		_DWORD *v3; // ecx
+
+		v2 = this;
+		(*(*this + 652))(a2);
+		if ( *(v2 + 0x39E1) )
+		{
+			v3 = *(v2 + 0x3874);
+			if ( v3 )
+				sub_103B4130(v3, a2);
+			}
+			return a2;
+		}
+	*/
+
+	Vector pos;
+
+	pos = GetEyePosition();
+
+	if (*reinterpret_cast <int32_t*> (uintptr_t(this) + 0x39E1)) {
+		auto v3 = m_PlayerAnimState();
+		if (v3) {
+			CCSGOPlayerAnimState::ModifyEyePosition(v3, &pos);
+		}
+	}
+
+	return pos;
+}
+
 bool C_CSPlayer::CanShoot( bool bSkipRevolver ) {
 	bool local = EntIndex( ) == Interfaces::m_pEngine->GetLocalPlayer( );
 

@@ -52,13 +52,13 @@ namespace Engine {
 		float m_flLowerBodyYawTarget;
 
 	};
-	
+
 	class CResolver {
 	private:
-		void ResolveAngles( C_CSPlayer* player, C_AnimationRecord* record );
-		void ResolveWalk( C_CSPlayer* player, C_AnimationRecord* record );
-		void ResolveStand( C_CSPlayer* player, C_AnimationRecord* record );
-		void ResolveAir( C_CSPlayer* player, C_AnimationRecord* record );
+		void ResolveAngles(C_CSPlayer* player, C_AnimationRecord* record);
+		void ResolveWalk(C_CSPlayer* player, C_AnimationRecord* record);
+		void ResolveStand(C_CSPlayer* player, C_AnimationRecord* record);
+		void ResolveAir(C_CSPlayer* player, C_AnimationRecord* record);
 
 		Vector last_eye;
 
@@ -69,13 +69,13 @@ namespace Engine {
 		std::vector<Vector> last_eye_positions;
 
 	public:
-		void ResolveManual( C_CSPlayer* player, C_AnimationRecord* record, bool bDisallow = false );
-		void ResolveYaw( C_CSPlayer* player, C_AnimationRecord* record );
+		void ResolveManual(C_CSPlayer* player, C_AnimationRecord* record, bool bDisallow = false);
+		void ResolveYaw(C_CSPlayer* player, C_AnimationRecord* record);
 		void OnBodyUpdate(C_CSPlayer* player, float value);
 		void MatchShot(C_CSPlayer* data, C_AnimationRecord* record);
 
-		void PredictBodyUpdates( C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev );
-		 
+		void PredictBodyUpdates(C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev);
+
 		AntiFreestandingRecord anti_freestanding_record;
 
 		class PlayerResolveRecord
@@ -95,13 +95,13 @@ namespace Engine {
 
 	public:
 		// check if the players yaw is sideways.
-		bool IsLastMoveValid( C_AnimationRecord* record, float m_yaw ) {
-			auto local = C_CSPlayer::GetLocalPlayer( );
-			if( !local )
+		bool IsLastMoveValid(C_AnimationRecord* record, float m_yaw) {
+			auto local = C_CSPlayer::GetLocalPlayer();
+			if (!local)
 				return false;
 			Vector angAway;
-			Math::VectorAngles( local->m_vecOrigin( ) - record->m_vecOrigin, angAway );
-			const float delta = fabs( Math::AngleNormalize( angAway.y - m_yaw ) );
+			Math::VectorAngles(local->m_vecOrigin() - record->m_vecOrigin, angAway);
+			const float delta = fabs(Math::AngleNormalize(angAway.y - m_yaw));
 			return delta > 20.f && delta < 160.f;
 		}
 
@@ -113,14 +113,14 @@ namespace Engine {
 
 		public:
 			// ctor.
-			__forceinline AdaptiveAngle( ) :
+			__forceinline AdaptiveAngle() :
 				m_yaw{ },
 				m_dist{ }
 			{ };
 
-			__forceinline AdaptiveAngle( float yaw, float penalty = 0.f ) {
+			__forceinline AdaptiveAngle(float yaw, float penalty = 0.f) {
 				// set yaw.
-				m_yaw = Math::AngleNormalize( yaw );
+				m_yaw = Math::AngleNormalize(yaw);
 
 				// init distance.
 				m_dist = 0.f;
@@ -132,9 +132,9 @@ namespace Engine {
 		void on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw);
 		void collect_wall_detect(const ClientFrameStage_t stage);
 		bool AntiFreestanding(C_CSPlayer* entity, float& yaw);
-		void FindBestAngle( C_CSPlayer* player );
+		void FindBestAngle(C_CSPlayer* player);
 	};
 
 	extern CResolver g_Resolver;
-	extern CResolverData g_ResolverData[ 65 ];
+	extern CResolverData g_ResolverData[65];
 }

@@ -171,7 +171,7 @@ namespace Hooked
 		// current angle will be animated.
 		g_Vars.globals.RegularAngles = cmd->viewangles;
 
-		// fix landing anim. - 0 pitch on land
+		// fix landing anim.
 		//if( state->m_bHitground && g_Vars.globals.m_fFlags & FL_ONGROUND && local->m_fFlags( ) & FL_ONGROUND )
 		//	g_Vars.globals.RegularAngles.x = -12.f;
 
@@ -275,6 +275,7 @@ namespace Hooked
 			return bRet;
 		}
 
+		g_Vars.globals.CurrentLocalViewAngles = _cmd->viewangles;
 
 		g_Vars.globals.m_flCurtime = Interfaces::m_pGlobalVars->curtime;
 
@@ -535,15 +536,6 @@ namespace Hooked
 			Engine::Prediction::Instance( ).Invalidate( );
 			return oCreateMove( ft, _cmd );
 		}
-
-		//if (g_TickbaseController.s_nExtraProcessingTicks > 0) {
-		//	if (g_TickbaseController.ignoreallcmds && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
-		//		_cmd->tick_count = INT_MAX;
-		//	}
-		//	else {
-		//		g_TickbaseController.s_nExtraProcessingTicks--;
-		//	}
-		//}
 
 		return result;
 	}

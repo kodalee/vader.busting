@@ -385,6 +385,7 @@ public:
 		bool bInRagebot = false;
 		QAngle PreviousViewangles;
 		QAngle RegularAngles;
+		QAngle CurrentLocalViewAngles;
 		float YawDelta = 0.0f;
 		bool ResetWeapon = false;
 		float LastVelocityModifier = 0.0f;
@@ -396,8 +397,8 @@ public:
 		bool bReleaseGrenade = false;
 		bool m_bAimbotShot = false;
 		bool m_bOldShot = false;
-		bool m_bOldPacket;
 		int TickbaseAmount = 0;
+		bool m_bOldPacket;
 		int m_iNetworkedTick = 0;
 		int LastChokedCommands = 0;
 		int iWeaponIndex = 0;
@@ -501,7 +502,6 @@ public:
 		float m_flBody;
 		float m_flBodyPred;
 		bool  m_bUpdate;
-		bool breakHere;
 		float m_bGround;
 		int m_fFlags;
 
@@ -683,7 +683,7 @@ public:
 	config_option( int, min_damage, 0 );
 	config_option( int, min_damage_visible, 0 );
 	config_option( float, hitchance, 0.0f );
-	config_option( float, doubletap_hitchance, 55.f );
+	config_option( float, doubletap_hitchance, 0.0f );
 	config_option( int, doubletap_dmg, 50 );
 	config_option( int, max_misses, 5  );
 	config_option( float, hitchance_accuracy, 0.0f );
@@ -697,7 +697,6 @@ public:
 	//config_option( bool, remove_recoil, false );
 	config_option( bool, compensate_spread, false );
 	config_option( bool, friendly_fire, false );
-	config_option( bool, exploit_enable, false );
 	config_option( bool, autowall, false );
 	config_option( bool, autoscope, false );
 	config_option( bool, autoscope_hc, false );
@@ -866,7 +865,7 @@ public:
 
 	config_option( bool, enabled, false );
 	config_option( int, choke, 0 );
-	config_option( int, dt_choke, 0 );
+	config_option(int, dt_choke, 0);
 	config_option( int, choke_type, 0 );
 	config_option( float, variance, 0.f );
 	config_option( int, iLagLimit, 14 );
@@ -1267,11 +1266,9 @@ public:
 	config_option( float, third_person_dist, 100.f );
 
 	config_option( bool, slow_walk, false );
-	config_option( bool, mind_trick, false );
 	config_option( int, slow_walk_type, 0 );
 	config_option( int, slow_walk_speed, 16 );
 	config_keybind( slow_walk_bind );
-	config_keybind(mind_trick_bind );
 	config_option( bool, slow_walk_custom, false );
 
 	config_option( float, viewmodel_fov, 68.f );
