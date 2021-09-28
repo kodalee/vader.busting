@@ -207,17 +207,26 @@ namespace Hooked
 			const float CSGO_ANIM_LOWER_CATCHUP_IDLE = 100.0f;
 			const float CSGO_ANIM_LOWER_REALIGN_DELAY = 1.1f;
 
-			if( state->m_velocity > 0.1f ) {
+			if( state->m_velocity > 0.1f && !g_Vars.globals.Fakewalking ) {
 				g_Vars.globals.m_flBodyPred = g_Vars.globals.m_flAnimTime + ( CSGO_ANIM_LOWER_REALIGN_DELAY * 0.2f );
 
 				// we are moving n cant update.
 				g_Vars.globals.m_bUpdate = false;
 			}
+			else if (state->m_velocity > 0.1f && g_Vars.globals.Fakewalking) {
+				// we can no update our LBY.
+				g_Vars.globals.m_bUpdate = true;
+
+				if (g_Vars.globals.m_flAnimTime > g_Vars.globals.m_flBodyPred) {
+					g_Vars.globals.m_flBodyPred = g_Vars.globals.m_flAnimTime + CSGO_ANIM_LOWER_REALIGN_DELAY;
+					g_Vars.globals.m_flBody = g_Vars.globals.RegularAngles.y;
+				}
+			}
 			else {
 				// we can no update our LBY.
 				g_Vars.globals.m_bUpdate = true;
 
-				if( g_Vars.globals.m_flAnimTime > g_Vars.globals.m_flBodyPred && abs( AngleDiff( state->m_flAbsRotation, state->m_flEyeYaw ) ) > 35.0f ) {
+				if( g_Vars.globals.m_flAnimTime > g_Vars.globals.m_flBodyPred) {
 					g_Vars.globals.m_flBodyPred = g_Vars.globals.m_flAnimTime + CSGO_ANIM_LOWER_REALIGN_DELAY;
 					g_Vars.globals.m_flBody = g_Vars.globals.RegularAngles.y;
 				}

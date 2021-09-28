@@ -815,13 +815,13 @@ namespace Interfaces
 		}
 
 		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands( ) > g_Vars.misc.slow_walk_speed;
+
 		if (Interfaces::m_pClientState->m_nChokedCommands() > 16) {
 			*m_movement_data->m_pSendPacket = true;
-			g_Vars.globals.Fakewalking = false;
+			//printf("sent packet\n");
 		}
-		if (Interfaces::m_pClientState->m_nChokedCommands() < 16) {
-			g_Vars.globals.Fakewalking = true;
-		}
+
+		g_Vars.globals.Fakewalking = true;
 
 		m_movement_data->m_pCmd->buttons &= ~IN_SPEED;
 
@@ -831,9 +831,16 @@ namespace Interfaces
 			nTicksToStop = 2;
 
 		// stop when necessary
-		if( Interfaces::m_pClientState->m_nChokedCommands( ) > ( g_Vars.misc.slow_walk_speed - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) {
+		if( (Interfaces::m_pClientState->m_nChokedCommands( ) > ( g_Vars.misc.slow_walk_speed - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) ||
+			Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
+			&& LocalPlayer->m_fFlags() & FL_ONGROUND) {
+
+
 			InstantStop( );
+			//g_Vars.globals.Fakewalking = false;
 		}
+
+		//g_Vars.globals.Fakewalking = true;
 
 		// fix event delay
 		g_Vars.globals.FakeWalkWillChoke = g_Vars.misc.slow_walk_speed - Interfaces::m_pClientState->m_nChokedCommands( );

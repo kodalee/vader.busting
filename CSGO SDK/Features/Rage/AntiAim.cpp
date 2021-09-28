@@ -267,7 +267,7 @@ namespace Interfaces
 		auto bSwap = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) > 1.1 - (Interfaces::m_pGlobalVars->interval_per_tick * 5);
 		if (!Interfaces::m_pClientState->m_nChokedCommands()
 			&& Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
-			&& LocalPlayer->m_fFlags() & FL_ONGROUND && g_Vars.globals.m_bUpdate && !g_Vars.globals.Fakewalking) {
+			&& LocalPlayer->m_fFlags() & FL_ONGROUND) {
 			//*bSendPacket = true;
 			// fake yaw.
 			switch (settings->yaw) {
@@ -279,7 +279,7 @@ namespace Interfaces
 				bNegative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
 				break;
 			case 3: // static
-				bSwap ? cmd->viewangles.y += g_Vars.antiaim.break_lby : cmd->viewangles.y -= g_Vars.antiaim.break_lby;
+				cmd->viewangles.y += g_Vars.antiaim.break_lby;
 				break;
 			default:
 				break;
