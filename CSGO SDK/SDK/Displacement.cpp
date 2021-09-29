@@ -238,7 +238,7 @@ namespace Engine
 		Displacement.Data.m_uServerAnimState = Memory::Scan( image_server, XorStr( "8B 8F ?? ?? ?? ?? 85 C9 74 06 56" ) ) + 2;
 		Displacement.Data.m_uTicksAllowed = Memory::Scan( image_server, XorStr( "FF 86 ?? ?? ?? ?? 8B CE 89 86 ?? ?? ?? ??" ) ) + 2;
 		Displacement.Data.m_uHudElement = Memory::Scan( image_client, XorStr( "B9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 5D 08" ) ) + 1;
-		//Displacement.Data.m_uListLeavesInBoxReturn = Memory::Scan( image_client, XorStr( "56 52 FF 50 18" ) ) + 0x5;
+		Displacement.Data.m_uListLeavesInBoxReturn = Memory::Scan( image_client, XorStr( "56 57 FF 52 ? 8B 7D" ) ) + 0x5;
 		Displacement.Data.s_bAllowExtrapolation = Memory::Scan( image_client, XorStr( "A2 ? ? ? ? 8B 45 E8" ) ) + 1;
 		Displacement.Data.m_FireBulletsReturn = Memory::Scan( image_client, XorStr( "3B 3D ?? ?? ?? ?? 75 4C" ) );
 		Displacement.Data.m_D3DDevice = Memory::Scan( image_shaderapidx9, XorStr( "A1 ?? ?? ?? ?? 50 8B 08 FF 51 0C" ) ) + 1;
