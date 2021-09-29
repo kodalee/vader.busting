@@ -353,6 +353,7 @@
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui.cpp" />
+    <ClCompile Include="Hooking\Hooks\SceneEnd.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">

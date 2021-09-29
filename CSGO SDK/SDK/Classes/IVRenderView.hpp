@@ -142,4 +142,9 @@ public:
   virtual void                OLD_SetProjectionMatrixOrtho(float left, float top, float right, float bottom, float zNear, float zFar) = 0;
   virtual void                Push3DView(const CViewSetup &view, int nFlags, ITexture* pRenderTarget, Frustum frustumPlanes, ITexture* pDepthTexture) = 0;
   virtual void                GetMatricesForView(const CViewSetup &view, VMatrix *pWorldToView, VMatrix *pViewToProjection, VMatrix *pWorldToProjection, VMatrix *pWorldToPixels) = 0;
+public:
+	__forceinline void SetColorModulation(Color col) {
+		float color[] = { (float)col.r() / 255,  (float)col.g() / 255, (float)col.b() / 255,  1.f };
+		return SetColorModulation(color);
+	}
 };

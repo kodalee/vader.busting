@@ -3,6 +3,10 @@
 inline float alpha_mod = -1.f;
 class Color {
 public:
+	static Color imcolor_to_ccolor(float* col) {
+		return Color((int)(col[0] * 255.f), (int)(col[1] * 255.f), (int)(col[2] * 255.f), (int)(col[3] * 255.f));
+	}
+
 	unsigned char RGBA[ 4 ];
 
 	Color( ) {

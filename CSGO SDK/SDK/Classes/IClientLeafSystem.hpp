@@ -8,6 +8,11 @@ class SetupRenderInfo_t;
 class ClientLeafShadowHandle_t;
 class ClientShadowHandle_t;
 
+struct RenderableInstance_t {
+    uint8_t m_alpha;
+    __forceinline RenderableInstance_t() : m_alpha{ 255ui8 } {}
+};
+
 class IClientLeafSystem {
 public:
   

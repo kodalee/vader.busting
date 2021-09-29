@@ -154,6 +154,10 @@ namespace Hooked
 	inline FnIsBoxVisible oIsBoxVisible;
 	int __fastcall hkIsBoxVisible( void* ECX, uint32_t, const Vector& mins, const Vector& maxs );
 
+	using FnSceneEnd = void(__thiscall*)();
+	inline FnSceneEnd oSceneEnd;
+	void __fastcall  hkSceneEnd(void* thisptr, void* edx);
+
 	using FnIsPlayingDemo = bool( __thiscall* )( void* ECX );
 	inline FnIsPlayingDemo oIsPlayingDemo;
 	bool __fastcall hkIsPlayingDemo( void* ECX, void* EDX );

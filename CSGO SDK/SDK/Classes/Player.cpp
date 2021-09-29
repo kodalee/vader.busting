@@ -113,6 +113,14 @@ const Vector& C_BasePlayer::WorldSpaceCenter( ) {
 	return Memory::VCall< WorldSpaceCenterFn >( this, 78 )( this );
 }
 
+void* C_BasePlayer::Renderable() {
+	return (void*)((uintptr_t)this + 0x4);
+}
+
+void C_BasePlayer::DrawModel(int flags, const RenderableInstance_t& instance) {
+	return Memory::VCall< void(__thiscall*)(void*, int, const RenderableInstance_t&)>(Renderable(), 9)(Renderable(), flags, instance);
+}
+
 float C_BasePlayer::GetSequenceMoveDist( CStudioHdr* pStudioHdr, int iSequence ) {
 	Vector vecReturn;
 

@@ -53,6 +53,8 @@ void __fastcall hkResetGetWaterContentsForPointCache( void* ecx, void* edx ) {
 }
 
 matrix3x4_t HeadBone;
+unsigned int GetVirtual(void* class_, unsigned int index) { return (unsigned int)(*(int**)class_)[index]; }
+#define GetV(x, y) reinterpret_cast<void*>(GetVirtual(x, y))
 
 using FnModifyEyePosition = void( __thiscall* )( C_CSPlayer*, Vector* );
 FnModifyEyePosition oModifyEyePoisition;
@@ -716,7 +718,8 @@ namespace Interfaces
 		GameEvent::Get( )->Register( );
 
 		initialize_kits( );
-
+		
+		g_NewChams.init();
 		ISkinChanger::Get( )->Create( );
 
 		for( auto clientclass = Interfaces::m_pClient->GetAllClasses( );
@@ -845,6 +848,10 @@ namespace Interfaces
 		oOverrideView = Hooked::HooksManager.HookVirtual<decltype( oOverrideView )>( m_pClientMode.Xor( ), &Hooked::OverrideView, Index::CClientModeShared::OverrideView );
 		//oRenderView = Hooked::HooksManager.HookVirtual<decltype( oRenderView )>( m_pViewRender.Xor( ), &Hooked::hkRenderView, 6 );
 		//oEmitSound = Hooked::HooksManager.HookVirtual<decltype( oEmitSound )>( m_pEngineSound.Xor( ), &Hooked::hkEmitSound, 5 );
+
+		auto SceneEnd_p = GetV(m_pRenderView.Xor(), 9);
+		MH_CreateHook(SceneEnd_p, &hkSceneEnd, reinterpret_cast<void**>(&oSceneEnd));
+		MH_EnableHook(SceneEnd_p);
 
 		oFrameStageNotify = Hooked::HooksManager.HookVirtual<decltype( oFrameStageNotify )>( m_pClient.Xor( ), &Hooked::FrameStageNotify, Index::IBaseClientDLL::FrameStageNotify );
 		//oView_Render = Hooked::HooksManager.HookVirtual<decltype( oView_Render )>( m_pClient, &Hooked::View_Render, 27 );

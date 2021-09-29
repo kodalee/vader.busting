@@ -91,6 +91,7 @@ public:
 
 
 void __fastcall Hooked::DrawModelExecute( void* ECX, void* EDX, IMatRenderContext* MatRenderContext, DrawModelState_t& DrawModelState, ModelRenderInfo_t& RenderInfo, matrix3x4_t* pCustomBoneToWorld ) {
+
    g_Vars.globals.szLastHookCalled = XorStr( "6" );
    if ( !MatRenderContext || !pCustomBoneToWorld || !g_Vars.globals.RenderIsReady || ECX != Interfaces::m_pModelRender.Xor() )
 	  return oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, pCustomBoneToWorld );
@@ -136,5 +137,8 @@ void __fastcall Hooked::DrawModelExecute( void* ECX, void* EDX, IMatRenderContex
    if( strstr( RenderInfo.pModel->szName, XorStr( "shadow" ) ) != nullptr )
        return;
 
-   Interfaces::IChams::Get( )->DrawModel( ECX, MatRenderContext, DrawModelState, RenderInfo, pCustomBoneToWorld );
+  // Interfaces::IChams::Get( )->DrawModel( ECX, MatRenderContext, DrawModelState, RenderInfo, pCustomBoneToWorld );
+
+   if (g_NewChams.DrawModel(RenderInfo))
+	   oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pCustomBoneToWorld);
 }

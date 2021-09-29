@@ -57,8 +57,10 @@ public:
    float SequenceDuration( CStudioHdr* pStudioHdr, int iSequence );
    const Vector& WorldSpaceCenter( );
    float GetSequenceMoveDist( CStudioHdr* pStudioHdr, int iSequence );
-public:
 
+public:
+   void* Renderable();
+   void DrawModel(int flags = STUDIO_RENDER, const RenderableInstance_t& instance = {});
    bool IsDead( );
    void SetCurrentCommand( CUserCmd* cmd );
 

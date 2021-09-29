@@ -15,6 +15,657 @@ extern C_AnimationLayer FakeAnimLayers[ 13 ];
 
 #pragma optimize( "", off )
 
+
+
+model_type_t C_NewChams::GetModelType(const ModelRenderInfo_t& info) {
+	// model name.
+	const char* cmdl = info.pModel->szName;
+
+	std::string mdl{ info.pModel->szName };
+
+	static auto int_from_chars = [cmdl](size_t index) {
+		return *(int*)(cmdl + index);
+	};
+
+	// little endian.
+	if (int_from_chars(7) == 'paew') { // weap
+		if (int_from_chars(15) == 'om_v' && int_from_chars(19) == 'sled')
+			return model_type_t::arms;
+
+		if (cmdl[15] == 'v')
+			return model_type_t::view_weapon;
+	}
+
+	//else if( int_from_chars( 7 ) == 'yalp' ) // play
+	//	return model_type_t::player;
+
+	if (mdl.find("player") != std::string::npos && info.entity_index >= 1 && info.entity_index <= 64)
+		return model_type_t::player;
+
+	return model_type_t::invalid;
+}
+
+bool C_NewChams::IsInViewPlane(const Vector& world) {
+	float w;
+
+	const VMatrix& matrix = Interfaces::m_pEngine->WorldToScreenMatrix();
+
+	w = matrix[3][0] * world.x + matrix[3][1] * world.y + matrix[3][2] * world.z + matrix[3][3];
+
+	return w > 0.001f;
+}
+
+void C_NewChams::SetColor(FloatColor col, IMaterial* mat) {
+	if (mat)
+		mat->ColorModulate(col.r, col.g, col.b);
+
+	else
+		Interfaces::m_pRenderView->SetColorModulation(col);
+}
+
+void C_NewChams::SetAlpha(float alpha, IMaterial* mat) {
+	if (mat)
+		mat->AlphaModulate(alpha);
+
+	else
+		Interfaces::m_pRenderView->SetBlend(alpha);
+}
+
+void C_NewChams::SetupMaterial(IMaterial* mat, FloatColor col, bool z_flag) {
+	SetColor(col);
+
+	// mat->SetFlag( MATERIAL_VAR_HALFLAMBERT, flags );
+	mat->SetMaterialVarFlag(MATERIAL_VAR_ZNEARER, z_flag);
+	mat->SetMaterialVarFlag(MATERIAL_VAR_NOFOG, z_flag);
+	mat->SetMaterialVarFlag(MATERIAL_VAR_IGNOREZ, z_flag);
+
+	Interfaces::m_pStudioRender->ForcedMaterialOverride(mat);
+}
+
+void C_NewChams::init() {
+	std::ofstream("csgo\\materials\\simple_flat.vmt") << R"#("UnlitGeneric"
+{
+  "$basetexture" "vgui/white_additive"
+  "$ignorez"      "1"
+  "$envmap"       ""
+  "$nofog"        "1"
+  "$model"        "1"
+  "$nocull"       "0"
+  "$selfillum"    "1"
+  "$halflambert"  "1"
+  "$znearer"      "0"
+  "$flat"         "1"
+}
+)#";
+	std::ofstream("csgo\\materials\\simple_ignorez_reflective.vmt") << R"#("VertexLitGeneric"
+{
+
+  "$basetexture" "vgui/white_additive"
+  "$ignorez"      "1"
+  "$envmap"       "env_cubemap"
+  "$normalmapalphaenvmapmask"  "1"
+  "$envmapcontrast"             "1"
+  "$nofog"        "1"
+  "$model"        "1"
+  "$nocull"       "0"
+  "$selfillum"    "1"
+  "$halflambert"  "1"
+  "$znearer"      "0"
+  "$flat"         "1"
+}
+)#";
+
+	std::ofstream("csgo\\materials\\simple_regular_reflective.vmt") << R"#("VertexLitGeneric"
+{
+
+  "$basetexture" "vgui/white_additive"
+  "$ignorez"      "0"
+  "$envmap"       "env_cubemap"
+  "$normalmapalphaenvmapmask"  "1"
+  "$envmapcontrast"             "1"
+  "$nofog"        "1"
+  "$model"        "1"
+  "$nocull"       "0"
+  "$selfillum"    "1"
+  "$halflambert"  "1"
+  "$znearer"      "0"
+  "$flat"         "1"
+}
+)#";
+
+
+	std::ofstream("csgo/materials/chams.vmt") << R"#("VertexLitGeneric"
+{
+	  "$basetexture" "vgui/white_additive"
+	  "$ignorez" "0"
+	  "$additive" "0"
+	  "$envmap"  "models/effects/cube_white"
+	  "$normalmapalphaenvmapmask" "1"
+	  "$envmaptint" "[0.37 0.68 0.89]"
+	  "$envmapfresnel" "1"
+	  "$envmapfresnelminmaxexp" "[0 1 2]"
+
+	  "$envmapcontrast" "1"
+	  "$nofog" "1"
+	  "$model" "1"
+	  "$nocull" "0"
+	  "$selfillum" "1"
+	  "$halflambert" "1"
+	  "$znearer" "0"
+	  "$flat" "1"
+}
+)#";
+
+	std::ofstream("csgo/materials/Overlay.vmt") << R"#(" VertexLitGeneric "{
+
+			"$additive" "1"
+	        "$envmap"  "models/effects/cube_white"
+			"$envmaptint" "[0 0 0]"
+			"$envmapfresnel" "1"
+			"$envmapfresnelminmaxexp" "[0 16 12]"
+			"$alpha" "0.8"
+})#";
+
+	std::ofstream("csgo/materials/glowOverlay.vmt") << R"#("VertexLitGeneric" {
+				"$additive" "1"
+				"$envmap" "models/effects/cube_white"
+				"$envmaptint" "[0 0.1 0.2]"
+				"$envmapfresnel" "1"
+				"$envmapfresnelminmaxexp" "[0 1 2]"
+				"$ignorez" "1"
+				"$alpha" "1"
+			})#";
+
+	std::ofstream("csgo/materials/cubemap.vmt") << R"#("VertexLitGeneric" { 
+
+  "$basetexture" "vgui/white_additive"
+  "$ignorez"      "1"
+  "$envmap"       "env_cubemap"
+  "$envmaptint"   "[0.6 0.6 0.6]"
+  "$nofog"        "1"
+  "$model"        "1"
+  "$nocull"       "0"
+  "$selfillum"    "1"
+  "$halflambert"  "1"
+  "$znearer"      "0"
+  "$flat"         "1"
+	})#";
+
+	std::ofstream("csgo/materials/outline2.vmt") << R"#("VertexLitGeneric" {
+ 
+		"$additive" "1"
+		"$envmap" "models/effects/cube_white"
+		"$envmaptint" "[1 1 1]"
+		"$envmapfresnel" "1"
+		"$envmapfresnelminmaxexp" "[0 1 2]"
+		"$alpha" "0.8"
+	})#";
+
+	materialMetall = Interfaces::m_pMatSystem->FindMaterial("simple_ignorez_reflective", "Model textures");
+	materialMetall->IncrementReferenceCount();
+
+	materialMetallnZ = Interfaces::m_pMatSystem->FindMaterial("simple_regular_reflective", "Model textures");
+	materialMetallnZ->IncrementReferenceCount();
+
+	// find stupid materials.
+	debugambientcube = Interfaces::m_pMatSystem->FindMaterial("debug/debugambientcube", "Model textures");
+	debugambientcube->IncrementReferenceCount();
+
+	debugdrawflat = Interfaces::m_pMatSystem->FindMaterial("debug/debugdrawflat", "Model textures");
+	debugdrawflat->IncrementReferenceCount();
+
+	materialMetall3 = Interfaces::m_pMatSystem->FindMaterial("cubemap", "Model textures");
+	materialMetall3->IncrementReferenceCount();
+
+	skeet = Interfaces::m_pMatSystem->FindMaterial("chams", "Model textures");
+	skeet->IncrementReferenceCount();
+
+	onetap = Interfaces::m_pMatSystem->FindMaterial("Overlay", "Model textures");
+	onetap->IncrementReferenceCount();
+
+	aimware = Interfaces::m_pMatSystem->FindMaterial("GlowOverlay", "Model textures");
+	aimware->IncrementReferenceCount();
+
+	blinking = Interfaces::m_pMatSystem->FindMaterial("models/inventory_items/dogtags/dogtags_outline", "Model textures");
+	blinking->IncrementReferenceCount();
+
+	// Armsrace
+	debugglow = Interfaces::m_pMatSystem->FindMaterial("dev/glow_armsrace", nullptr);
+	debugglow->IncrementReferenceCount();
+
+	// bubbly?
+	debugbubbly = Interfaces::m_pMatSystem->FindMaterial("outline2", nullptr);
+	debugbubbly->IncrementReferenceCount();
+
+	crystalblue = Interfaces::m_pMatSystem->FindMaterial("models/inventory_items/trophy_majors/crystal_blue", nullptr);
+	crystalblue->IncrementReferenceCount();
+
+	italy = Interfaces::m_pMatSystem->FindMaterial("decals/italy_flag", nullptr);
+	italy->IncrementReferenceCount();
+
+}
+
+bool C_NewChams::OverridePlayer(int index) {
+	C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(index);
+	if (!player)
+		return false;
+
+
+	if (C_CSPlayer::GetLocalPlayer()) return false;
+	auto private_localPlayer = C_CSPlayer::GetLocalPlayer();
+
+	// always skip the local player in DrawModelExecute.
+	// this is because if we want to make the local player have less alpha
+	// the static props are drawn after the players and it looks like aids.
+	// therefore always process the local player in scene end.
+	if (player == private_localPlayer)
+		return true;
+
+	// see if this player is an enemy to us.
+	bool enemy = !player->IsTeammate(private_localPlayer);
+
+
+	// we have chams on enemies.
+	if (enemy && (g_Vars.esp.new_chams_enemy || g_Vars.esp.new_chams_enemy_overlay))
+		return true;
+
+	return false;
+}
+
+bool C_NewChams::DrawModel(const ModelRenderInfo_t& info) {
+	// store and validate model type.
+	model_type_t type = GetModelType(info);
+	if (type == model_type_t::invalid)
+		return true;
+
+	// is a valid player.
+	if (type == model_type_t::player) {
+		// do not cancel out our own calls from SceneEnd
+		// also do not cancel out calls from the glow.
+		if (!m_running && !Interfaces::m_pStudioRender->m_pForcedMaterial && OverridePlayer(info.entity_index))
+			return false;
+	}
+
+	//if (type == model_type_t::view_weapon && !strstr(info.m_model->m_name, "arms") && g_cl.m_local->alive()) {
+	//	RenderWeapon(ecx, ctx, state, info, bone);
+	//	if (!m_weapon_running && !g_csgo.m_studio_render->m_pForcedMaterial)
+	//		return false;
+	//}
+
+	return true;
+}
+
+void C_NewChams::SceneEnd() {
+	if (C_CSPlayer::GetLocalPlayer()) return;
+	localPlayer = C_CSPlayer::GetLocalPlayer();
+
+	// store and sort ents by distance.
+	if (SortPlayers()) {
+		// iterate each player and render them.
+		for (const auto& p : m_players)
+			RenderPlayer(p);
+	}
+
+	// restore.
+	Interfaces::m_pStudioRender->ForcedMaterialOverride(nullptr);
+	Interfaces::m_pRenderView->SetColorModulation(Color(255, 255, 255, 255));
+	Interfaces::m_pRenderView->SetBlend(1.f);
+}
+
+IMaterial* EnemyXQZMat = nullptr, * EnemyOverlayXQZMat = nullptr, * EnemyMat = nullptr, * LocalMat = nullptr, * LocalOverlayMat = nullptr;
+void C_NewChams::RenderPlayer(C_CSPlayer* player) {
+	if (!localPlayer && localPlayer->IsDormant()) return;
+	// prevent recruisive model cancelation.
+	m_running = true;
+
+	// restore.
+	Interfaces::m_pStudioRender->ForcedMaterialOverride(nullptr);
+	Interfaces::m_pRenderView->SetColorModulation(Color::White());
+	Interfaces::m_pRenderView->SetBlend(1.f);
+
+	// this is the local player.
+	// we always draw the local player manually in drawmodel.
+	if (player == localPlayer) {
+
+		if (g_Vars.esp.new_chams_local_original_model || g_Vars.esp.new_chams_local == 0 && g_Vars.esp.new_chams_local_overlay == 0) { // profit
+			player->DrawModel();
+		}
+
+		/*draw normal chams*/
+		if (player->m_bIsScoped() && g_Vars.esp.new_chams_local_scoped_enabled) {
+			SetAlpha(g_Vars.esp.new_chams_local_scoped_alpha);
+		}
+
+		else {
+			SetAlpha(g_Vars.esp.new_chams_local_color.a);
+		}
+
+		// set material and color.
+		switch (g_Vars.esp.new_chams_local)
+		{
+		case 0:
+		{
+			LocalMat = nullptr;
+			break;
+		}
+		case 1:
+		{
+			LocalMat = debugambientcube;
+			break;
+		}
+		case 2:
+		{
+			LocalMat = debugdrawflat;
+			break;
+		}
+		case 3:
+		{
+			LocalMat = materialMetall3;
+			break;
+		}
+		}
+		if (LocalMat)
+		{
+			bool bFound = false;
+			auto pVar = LocalMat->FindVar("$envmaptint", &bFound);
+			pVar->SetVecValue(g_Vars.esp.new_chams_local_color.r, g_Vars.esp.new_chams_local_color.g, g_Vars.esp.new_chams_local_color.b);
+
+			SetupMaterial(LocalMat, g_Vars.esp.new_chams_local_color, false);
+			player->DrawModel();
+		}
+
+		/*draw chams over normal chams :)*/
+		SetAlpha(g_Vars.esp.new_chams_local_overlay_color.a);
+		switch (g_Vars.esp.new_chams_local_overlay)
+		{
+		case 0:
+		{
+			LocalOverlayMat = nullptr;
+			break;
+		}
+		case 1:
+		{
+			LocalOverlayMat = aimware;
+			break;
+		}
+		case 2:
+		{
+			LocalOverlayMat = blinking;
+			break;
+		}
+		case 3:
+		{
+			LocalOverlayMat = onetap;
+			break;
+		}
+		case 4:
+		{
+			LocalOverlayMat = debugglow;
+			break;
+		}
+		}
+		if (LocalOverlayMat)
+		{
+			bool bFound = false;
+			auto pVar = LocalOverlayMat->FindVar("$envmaptint", &bFound);
+			pVar->SetVecValue(g_Vars.esp.new_chams_local_overlay_color.r, g_Vars.esp.new_chams_local_overlay_color.g, g_Vars.esp.new_chams_local_overlay_color.b);
+
+			SetupMaterial(LocalOverlayMat, g_Vars.esp.new_chams_local_overlay_color, false);
+			player->m_iHealth();
+		}
+
+	}
+
+	// check if is an enemy.
+	bool enemy = !player->IsTeammate(localPlayer);
+
+	//if (enemy && g_cfg::c_bool["chams_enemy_backtrack"]) {
+	//	RenderHistoryChams(player->EntIndex());
+	//}
+
+	if (enemy && !player->m_bGunGameImmunity()) {
+		if ((g_Vars.esp.new_chams_enemy_overlay || g_Vars.esp.new_chams_enemy_xqz) && g_Vars.esp.new_chams_enemy == 0) player->DrawModel(); // draw original model if overlay only is on, otherwise unneeded because of the normal chams
+
+		/*draw normal xqz chams*/
+		SetAlpha(g_Vars.esp.new_chams_enemy_xqz_color.a);
+		switch (g_Vars.esp.new_chams_enemy)
+		{
+		case 0:
+		{
+			EnemyXQZMat = nullptr;
+			break;
+		}
+		case 1:
+		{
+			EnemyXQZMat = debugambientcube;
+			break;
+		}
+		case 2:
+		{
+			EnemyXQZMat = debugdrawflat;
+			break;
+		}
+		case 3:
+		{
+			EnemyXQZMat = materialMetall3;
+			break;
+		}
+		}
+		if (EnemyXQZMat)
+		{
+			bool bFound = false;
+			auto pVar = EnemyXQZMat->FindVar("$envmaptint", &bFound);
+			pVar->SetVecValue(g_Vars.esp.new_chams_enemy_xqz_color.r, g_Vars.esp.new_chams_enemy_xqz_color.g, g_Vars.esp.new_chams_enemy_xqz_color.b);
+
+			SetupMaterial(EnemyXQZMat, g_Vars.esp.new_chams_enemy_xqz_color, true);
+			player->DrawModel();
+		}
+
+		/*draw normal xqz chams*/
+		SetAlpha(g_Vars.esp.new_chams_enemy_xqz_overlay_color.a);
+		switch (g_Vars.esp.new_chams_enemy_xqz_overlay)
+		{
+		case 0:
+		{
+			EnemyOverlayXQZMat = nullptr;
+			break;
+		}
+		case 1:
+		{
+			EnemyOverlayXQZMat = aimware;
+			break;
+		}
+		case 2:
+		{
+			EnemyOverlayXQZMat = blinking;
+			break;
+		}
+		case 3:
+		{
+			EnemyOverlayXQZMat = onetap;
+			break;
+		}
+		case 4:
+		{
+			EnemyOverlayXQZMat = debugglow;
+			break;
+		}
+		}
+		if (EnemyOverlayXQZMat)
+		{
+			auto chams_color = g_Vars.esp.new_chams_enemy_xqz_overlay_color;
+			bool bFound = false;
+			auto pVar = EnemyOverlayXQZMat->FindVar("$envmaptint", &bFound);
+			pVar->SetVecValue(chams_color.r, chams_color.g, chams_color.b);
+
+			SetupMaterial(EnemyOverlayXQZMat, chams_color, true);
+			player->DrawModel();
+		}
+
+		/*draw normal chams*/
+		SetAlpha(g_Vars.esp.new_chams_enemy_color.a);
+		switch (g_Vars.esp.new_chams_enemy)
+		{
+		case 0:
+		{
+			EnemyMat = nullptr;
+			break;
+		}
+		case 1:
+		{
+			EnemyMat = debugambientcube;
+			break;
+		}
+		case 2:
+		{
+			EnemyMat = debugdrawflat;
+			break;
+		}
+		case 3:
+		{
+			EnemyMat = materialMetall3;
+			break;
+		}
+		}
+		if (EnemyMat)
+		{
+			auto chams_color = g_Vars.esp.new_chams_enemy_color;
+			bool bFound = false;
+			auto pVar = EnemyMat->FindVar("$envmaptint", &bFound);
+			pVar->SetVecValue(chams_color.r, chams_color.g, chams_color.b);
+
+			SetupMaterial(EnemyMat, chams_color, false);
+			player->DrawModel();
+		}
+
+		/*draw chams over normal chams :)*/
+		SetAlpha(g_Vars.esp.new_chams_enemy_overlay_color.a);
+		IMaterial* EnemyOverlayMat = nullptr;
+		switch (g_Vars.esp.new_chams_enemy_overlay)
+		{
+		case 0:
+		{
+			EnemyOverlayMat = nullptr;
+			break;
+		}
+		case 1:
+		{
+			EnemyOverlayMat = aimware;
+			break;
+		}
+		case 2:
+		{
+			EnemyOverlayMat = blinking;
+			break;
+		}
+		case 3:
+		{
+			EnemyOverlayMat = onetap;
+			break;
+		}
+		case 4:
+		{
+			EnemyOverlayMat = debugglow;
+			break;
+		}
+		}
+		if (EnemyOverlayMat)
+		{
+			bool bFound = false;
+			auto pVar = EnemyOverlayMat->FindVar("$envmaptint", &bFound);
+			pVar->SetVecValue(g_Vars.esp.new_chams_enemy_overlay_color.r, g_Vars.esp.new_chams_enemy_overlay_color.g, g_Vars.esp.new_chams_enemy_overlay_color.b);
+
+			SetupMaterial(EnemyOverlayMat, g_Vars.esp.new_chams_enemy_overlay_color, false);
+			player->DrawModel();
+		}
+	}
+
+	if (player == localPlayer) {
+		SetAlpha(g_Vars.esp.new_chams_local_fake_color.a);
+		IMaterial* LocalFakeMat = nullptr;
+		switch (g_Vars.esp.new_chams_local_fake)
+		{
+		case 0:
+		{
+			LocalFakeMat = nullptr;
+			break;
+		}
+		case 1:
+		{
+			LocalFakeMat = debugambientcube;
+			break;
+		}
+		case 2:
+		{
+			LocalFakeMat = debugdrawflat;
+			break;
+		}
+		case 3:
+		{
+			LocalFakeMat = materialMetall3;
+			break;
+		}
+		}
+		if (LocalFakeMat)
+		{
+			SetupMaterial(LocalFakeMat, g_Vars.esp.new_chams_local_fake_color, false);
+			//g_cl.SetAngles2(ang_t(0.f, g_cl.m_radar.y, 0.f));
+			player->DrawModel();
+		}
+	}
+
+	m_running = false;
+}
+
+bool C_NewChams::SortPlayers() {
+	if (!localPlayer && localPlayer->IsDormant()) return false;
+	// lambda-callback for std::sort.
+	// to sort the players based on distance to the local-player.
+	static auto distance_predicate = [](C_CSPlayer* a, C_CSPlayer* b) {
+		Vector local = g_NewChams.localPlayer->GetAbsOrigin();
+
+		// note - dex; using squared length to save out on sqrt calls, we don't care about it anyway.
+		float len1 = (a->GetAbsOrigin() - local).LengthSquared();
+		float len2 = (b->GetAbsOrigin() - local).LengthSquared();
+
+		return len1 < len2;
+	};
+
+	// reset player container.
+	m_players.clear();
+
+	// find all players that should be rendered.
+	for (int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i) {
+		// get player ptr by idx.
+		C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
+
+		// validate.
+		if (!player || !player->IsPlayer() || player->IsDead())
+			continue;
+
+		// do not draw players occluded by view plane.
+		if (!IsInViewPlane(player->WorldSpaceCenter()))
+			continue;
+
+		// this player was not skipped to draw later.
+		// so do not add it to our render list.
+		if (!OverridePlayer(i))
+			continue;
+
+		m_players.push_back(player);
+	}
+
+	// any players?
+	if (m_players.empty())
+		return false;
+
+	// sorting fixes the weird weapon on back flickers.
+	// and all the other problems regarding Z-layering in this shit game.
+	std::sort(m_players.begin(), m_players.end(), distance_predicate);
+
+	return true;
+}
+
 namespace Interfaces
 {
 	enum ChamsMaterials {

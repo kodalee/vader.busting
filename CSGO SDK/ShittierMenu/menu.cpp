@@ -471,7 +471,7 @@ void Visuals()
 
 				ImGui::NextColumn();
 				ImGui::NewLine();
-
+				/*
 				InsertCheckbox(enemy_chams, XorStr("Enemy chams"), &g_Vars.esp.chams_enemy);
 				if (g_Vars.esp.chams_enemy) {
 					InsertCheckbox(enemy_chams_vis, XorStr("Visible chams"), &g_Vars.esp.enemy_chams_vis);
@@ -606,7 +606,21 @@ void Visuals()
 						InsertSliderFloat(XorStr("Hand glow strength"), &g_Vars.esp.chams_hands_outline_value, 1.f, 100.f, XorStr("%0.0f"));
 					}
 				}
-
+				*/
+				const char* chams_mats[] = { "disabled",  "texture", "flat", "metallic" };
+				const char* chams_mats_local[] = { "disabled",  "texture", "flat", "metallic" };
+				const char* chams_mats_overlay[] = { "disabled", "glow", "blinking", "wireframe", "outline" };
+				const char* chams_filter_menu[] = { ("enemy"), ("local"), ("fake"), ("viewmodel") };
+				static int chams_filter = 0;
+				InsertCombo("##filter", &chams_filter, chams_filter_menu);
+				if (chams_filter == 0)
+				{
+					InsertCombo("enemy", &g_Vars.esp.new_chams_enemy, chams_mats); ColorPicker("##enemychams", g_Vars.esp.new_chams_enemy_color, true);
+					InsertCombo("enemy xqz", &g_Vars.esp.new_chams_enemy_xqz, chams_mats); ColorPicker("##enemyxqzchams", g_Vars.esp.new_chams_enemy_color, true);
+					InsertCombo("enemy overlay", &g_Vars.esp.new_chams_enemy_overlay, chams_mats); ColorPicker("##enemyoverlaychams", g_Vars.esp.new_chams_enemy_color, true);
+					InsertCombo("enemy xqz overlay", &g_Vars.esp.new_chams_enemy_xqz_overlay, chams_mats); ColorPicker("##enemyxqzoverlaychams", g_Vars.esp.new_chams_enemy_color, true);
+				}
+				
 				InsertCheckbox(draw_hitboxes, XorStr("Shot capsules"), &g_Vars.esp.draw_hitboxes);
 				if (g_Vars.esp.draw_hitboxes) {
 					ColorPicker(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true);

@@ -1055,6 +1055,25 @@ public:
 	config_option( FloatColor, chams_lag_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, chams_history_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
+	config_option(int, new_chams_local, 0);
+	config_option(int, new_chams_local_overlay, 0);
+	config_option(int, new_chams_local_fake, 0);
+	config_option(int, new_chams_enemy, 0);
+	config_option(int, new_chams_enemy_overlay, 0);
+	config_option(int, new_chams_enemy_xqz, 0);
+	config_option(int, new_chams_enemy_xqz_overlay, 0);
+	config_option(bool, new_chams_local_original_model, false);
+	config_option(bool, new_chams_local_scoped_enabled, false);
+	config_option(float, new_chams_local_scoped_alpha, 0.55f);
+	config_option(FloatColor, new_chams_local_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, new_chams_local_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, new_chams_local_fake_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, new_chams_enemy_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, new_chams_enemy_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, new_chams_enemy_xqz_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, new_chams_enemy_xqz_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+
+
 	config_option( bool, hitmatrix, false );
 	config_option( FloatColor, hitmatrix_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( float, hitmatrix_time, 4.0f );
