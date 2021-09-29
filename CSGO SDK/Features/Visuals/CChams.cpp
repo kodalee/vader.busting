@@ -251,7 +251,7 @@ bool C_NewChams::OverridePlayer(int index) {
 		return false;
 
 
-	if (C_CSPlayer::GetLocalPlayer()) return false;
+	if (!C_CSPlayer::GetLocalPlayer()) return false;
 	auto private_localPlayer = C_CSPlayer::GetLocalPlayer();
 
 	// always skip the local player in DrawModelExecute.
@@ -296,7 +296,7 @@ bool C_NewChams::DrawModel(const ModelRenderInfo_t& info) {
 }
 
 void C_NewChams::SceneEnd() {
-	if (C_CSPlayer::GetLocalPlayer()) return;
+	if (!C_CSPlayer::GetLocalPlayer()) return;
 	localPlayer = C_CSPlayer::GetLocalPlayer();
 
 	// store and sort ents by distance.
@@ -426,30 +426,30 @@ void C_NewChams::RenderPlayer(C_CSPlayer* player) {
 	if (enemy && !player->m_bGunGameImmunity()) {
 		if ((g_Vars.esp.new_chams_enemy_overlay || g_Vars.esp.new_chams_enemy_xqz) && g_Vars.esp.new_chams_enemy == 0) player->DrawModel(); // draw original model if overlay only is on, otherwise unneeded because of the normal chams
 
-		/*draw normal xqz chams*/
+		/*draw overlay xqz chams*/
 		SetAlpha(g_Vars.esp.new_chams_enemy_xqz_color.a);
-		switch (g_Vars.esp.new_chams_enemy)
+		switch (g_Vars.esp.new_chams_enemy_xqz)
 		{
-		case 0:
-		{
-			EnemyXQZMat = nullptr;
-			break;
-		}
-		case 1:
-		{
-			EnemyXQZMat = debugambientcube;
-			break;
-		}
-		case 2:
-		{
-			EnemyXQZMat = debugdrawflat;
-			break;
-		}
-		case 3:
-		{
-			EnemyXQZMat = materialMetall3;
-			break;
-		}
+			case 0:
+			{
+				EnemyXQZMat = nullptr;
+				break;
+			}
+			case 1:
+			{
+				EnemyXQZMat = debugambientcube;
+				break;
+			}
+			case 2:
+			{
+				EnemyXQZMat = debugdrawflat;
+				break;
+			}
+			case 3:
+			{
+				EnemyXQZMat = materialMetall3;
+				break;
+			}
 		}
 		if (EnemyXQZMat)
 		{
@@ -465,31 +465,31 @@ void C_NewChams::RenderPlayer(C_CSPlayer* player) {
 		SetAlpha(g_Vars.esp.new_chams_enemy_xqz_overlay_color.a);
 		switch (g_Vars.esp.new_chams_enemy_xqz_overlay)
 		{
-		case 0:
-		{
-			EnemyOverlayXQZMat = nullptr;
-			break;
-		}
-		case 1:
-		{
-			EnemyOverlayXQZMat = aimware;
-			break;
-		}
-		case 2:
-		{
-			EnemyOverlayXQZMat = blinking;
-			break;
-		}
-		case 3:
-		{
-			EnemyOverlayXQZMat = onetap;
-			break;
-		}
-		case 4:
-		{
-			EnemyOverlayXQZMat = debugglow;
-			break;
-		}
+			case 0:
+			{
+				EnemyOverlayXQZMat = nullptr;
+				break;
+			}
+			case 1:
+			{
+				EnemyOverlayXQZMat = aimware;
+				break;
+			}
+			case 2:
+			{
+				EnemyOverlayXQZMat = blinking;
+				break;
+			}
+			case 3:
+			{
+				EnemyOverlayXQZMat = onetap;
+				break;
+			}
+			case 4:
+			{
+				EnemyOverlayXQZMat = debugglow;
+				break;
+			}
 		}
 		if (EnemyOverlayXQZMat)
 		{

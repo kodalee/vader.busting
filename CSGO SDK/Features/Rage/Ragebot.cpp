@@ -1778,8 +1778,8 @@ namespace Interfaces
 						Engine::C_ShotInformation::Get()->CreateSnapshot(bestPoint->target->player, m_rage_data->m_vecEyePos, bestPoint->position, bestPoint->target->record, bestPoint->target->record->m_iResolverMode, bestPoint->hitgroup, bestPoint->hitboxIndex, int(bestPoint->damage));
 
 						if (g_Vars.esp.esp_enable) {
-							if (g_Vars.esp.hitmatrix)
-								IChams::Get()->AddHitmatrix(bestPoint->target->player, bestPoint->target->record->GetBoneMatrix());
+							//if (g_Vars.esp.hitmatrix)
+							//	IChams::Get()->AddHitmatrix(bestPoint->target->player, bestPoint->target->record->GetBoneMatrix());
 
 							//if( g_Vars.esp.hitskeleton )
 							//	IEsp::Get( )->AddSkeletonMatrix( bestPoint->target->player, bestPoint->target->record->GetBoneMatrix( ) );
