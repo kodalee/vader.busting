@@ -2,6 +2,7 @@
 #include "../../SDK/CVariables.hpp"
 #include "../../SDK/Classes/entity.hpp"
 #include "../../SDK/Displacement.hpp"
+#include "../Hooker.hpp"
 #include <intrin.h>
 
 class RenderableInfo_t {
@@ -24,6 +25,7 @@ public:
 
 int __fastcall Hooked::ListLeavesInBox( void* ECX, void* EDX, Vector& mins, Vector& maxs, unsigned short* pList, int listMax ) {
    g_Vars.globals.szLastHookCalled = XorStr( "15" );
+
    // occulusion getting updated on player movement/angle change,
    // in RecomputeRenderableLeaves ( https://github.com/pmrowla/hl2sdk-csgo/blob/master/game/client/clientleafsystem.cpp#L674 );
    // check for return in CClientLeafSystem::InsertIntoTree 
