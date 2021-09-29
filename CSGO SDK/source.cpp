@@ -872,7 +872,7 @@ namespace Interfaces
 		//oBeginFrame = Hooked::HooksManager.HookVirtual<decltype( oBeginFrame )>( m_pMatSystem.Xor( ), &Hooked::BeginFrame, Index::MatSystem::BeginFrame );
 		oOverrideConfig = Hooked::HooksManager.HookVirtual<decltype( oOverrideConfig )>( m_pMatSystem.Xor( ), &OverrideConfig, 21 );
 
-		oListLeavesInBox = Hooked::HooksManager.HookVirtual<decltype( oListLeavesInBox )>( Interfaces::m_pEngine->GetBSPTreeQuery( ), &Hooked::ListLeavesInBox, Index::BSPTreeQuery::ListLeavesInBox );
+		//oListLeavesInBox = Hooked::HooksManager.HookVirtual<decltype( oListLeavesInBox )>( Interfaces::m_pEngine->GetBSPTreeQuery( ), &Hooked::ListLeavesInBox, Index::BSPTreeQuery::ListLeavesInBox );
 
 		static auto calc_view_bob = Memory::Scan( XorStr( "client.dll" ), XorStr( "55 8B EC A1 ? ? ? ? 83 EC 10 56 8B F1 B9" ) );
 		oCalcViewBob = Hooked::HooksManager.CreateHook<decltype( oCalcViewBob ) >( &hkCalcViewBob, ( void* )calc_view_bob );
