@@ -704,11 +704,11 @@ void C_NewChams::OnPostScreenEffects() {
 
 		DrawModelRebuild(*it);
 
-		if (g_Vars.esp.chams_hitmatrix_outline) {
-			SetupMaterial(aimware, color, true);
+		//if (g_Vars.esp.chams_hitmatrix_outline) {
+		//	SetupMaterial(aimware, color, true);
 
-			DrawModelRebuild(*it);
-		}
+		//	DrawModelRebuild(*it);
+		//}
 
 		++it;
 	}
