@@ -700,6 +700,11 @@ void C_NewChams::OnPostScreenEffects() {
 		FloatColor color = g_Vars.esp.hitmatrix_color;
 		color.a *= alpha;
 
+		bool bFound = false;
+		auto pVar = aimware->FindVar("$envmaptint", &bFound);
+		pVar->SetVecValue(color.r, color.g, color.b);
+
+
 		SetupMaterial(aimware, color, true);
 
 		DrawModelRebuild(*it);
