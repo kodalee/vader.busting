@@ -698,14 +698,11 @@ void C_NewChams::OnPostScreenEffects() {
 		}
 
 		FloatColor color = g_Vars.esp.hitmatrix_color;
+		color.a *= alpha;
 
 		bool bFound = false;
 		auto pVar = aimware->FindVar("$envmaptint", &bFound);
 		pVar->SetVecValue(color.r, color.g, color.b);
-
-		bool bFound2 = false;
-		auto pVar2 = aimware->FindVar("$alpha", &bFound2);
-		pVar2->SetFloatValue(color.a *= alpha);
 
 
 		SetupMaterial(aimware, color, true);
