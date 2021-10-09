@@ -629,6 +629,12 @@ void Visuals()
 						ColorPicker("enemy xqz color", g_Vars.esp.new_chams_enemy_xqz_color, true);
 						ColorPicker("enemy overlay color", g_Vars.esp.new_chams_enemy_overlay_color, true);
 						ColorPicker("enemy xqz overlay color", g_Vars.esp.new_chams_enemy_xqz_overlay_color, true);
+
+						InsertCheckbox(hitmatrix, XorStr("Shot chams"), &g_Vars.esp.hitmatrix);
+						if (g_Vars.esp.hitmatrix) {
+							ColorPicker(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true);
+							InsertSliderFloat(XorStr("Expire time"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
+						}
 						break;
 					}
 					case 1: //local
