@@ -145,7 +145,7 @@ namespace Interfaces {
 				if( flDamage >= 105.f && bIsAccurate ) {
 					Engine::C_ShotInformation::Get( )->CreateSnapshot( pPlayer, zeusBotData->m_vecEyePos, vecHitboxPos, record, g_Vars.globals.m_iResolverSide[ pPlayer->m_entIndex ], Hitgroup_Stomach, HITBOX_STOMACH, int( flDamage ) );
 					if( g_Vars.esp.esp_enable && g_Vars.esp.hitmatrix )
-						IChams::Get( )->AddHitmatrix( pPlayer, record->GetBoneMatrix( ) );
+						g_NewChams.AddHitmatrix( pPlayer, record->GetBoneMatrix( ) );
 					
 					zeusBotData->m_pCmd->viewangles = vecDirection.ToEulerAngles( );
 					zeusBotData->m_pCmd->buttons |= IN_ATTACK;

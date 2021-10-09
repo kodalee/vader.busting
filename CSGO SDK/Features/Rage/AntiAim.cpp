@@ -267,8 +267,8 @@ namespace Interfaces
 		auto bSwap = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) > 1.1 - (Interfaces::m_pGlobalVars->interval_per_tick * 5);
 		if (!Interfaces::m_pClientState->m_nChokedCommands()
 			&& Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
-			&& LocalPlayer->m_fFlags() & FL_ONGROUND) {
-			//*bSendPacket = true;
+			&& LocalPlayer->m_fFlags() & FL_ONGROUND && !move) {
+			*bSendPacket = true;
 			// fake yaw.
 			switch (settings->yaw) {
 			case 1: // dynamic

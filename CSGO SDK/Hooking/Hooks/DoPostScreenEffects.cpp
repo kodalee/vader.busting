@@ -10,7 +10,7 @@ namespace Hooked
 		if (g_Vars.globals.HackIsReady && g_Vars.globals.RenderIsReady)
 			GlowOutline::Get()->Render();
 
-		//Interfaces::IChams::Get()->OnPostScreenEffects();
+		g_NewChams.OnPostScreenEffects();
 
 		g_Vars.globals.m_bInPostScreenEffects = true;
 		auto result = oDoPostScreenEffects(Interfaces::m_pClientMode.Xor(), a1);

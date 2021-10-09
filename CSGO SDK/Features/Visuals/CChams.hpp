@@ -59,10 +59,22 @@ public:
 	void SceneEnd();
 
 	void RenderPlayer(C_CSPlayer* player);
+	void OnPostScreenEffects();
 	void RenderWeapon(void* ecx, uintptr_t ctx, const DrawModelState_t& state, const ModelRenderInfo_t& info, matrix3x4_t* bone);
+	void AddHitmatrix(C_CSPlayer* player, matrix3x4_t* bones);
 	bool SortPlayers();
 
 public:
+
+	struct C_HitMatrixEntry {
+		int ent_index;
+		ModelRenderInfo_t info;
+		DrawModelState_t state;
+		matrix3x4_t pBoneToWorld[128] = { };
+		float time;
+		matrix3x4_t model_to_world;
+	};
+
 	std::vector< C_CSPlayer* > m_players;
 	int m_weapon_index;
 	bool m_running, m_weapon_running, m_viewmodel_running;
@@ -81,6 +93,7 @@ public:
 	IMaterial* debugbubbly;
 	IMaterial* crystalblue;
 	IMaterial* italy;
+	std::vector<C_HitMatrixEntry> m_Hitmatrix;
 };
 namespace Interfaces
 {
@@ -91,8 +104,6 @@ namespace Interfaces
 	  virtual void OnDrawModel( void* ECX, IMatRenderContext* MatRenderContext, DrawModelState_t& DrawModelState, ModelRenderInfo_t& RenderInfo, matrix3x4_t* pCustomBoneToWorld ) = 0;
 	  virtual void DrawModel( void* ECX, IMatRenderContext* MatRenderContext, DrawModelState_t& DrawModelState, ModelRenderInfo_t& RenderInfo, matrix3x4_t* pCustomBoneToWorld ) = 0;
 	  virtual bool CreateMaterials( ) = 0;
-	  virtual void OnPostScreenEffects( ) = 0;
-	  virtual void AddHitmatrix( C_CSPlayer* player, matrix3x4_t* bones ) = 0;
    protected:
 	  IChams( ) { };
 	  virtual ~IChams( ) { };

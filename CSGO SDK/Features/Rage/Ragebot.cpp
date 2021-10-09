@@ -478,6 +478,7 @@ namespace Interfaces
 		if (Engine::g_ResolverData->m_weapon_fire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.exploit && !g_Vars.rage.key_dt.key) {
 			*sendPacket = false;
 			StripAttack(cmd);
+			return false;
 		}
 
 		// run aim on zeus
@@ -1779,7 +1780,7 @@ namespace Interfaces
 
 						if (g_Vars.esp.esp_enable) {
 							//if (g_Vars.esp.hitmatrix)
-							//	IChams::Get()->AddHitmatrix(bestPoint->target->player, bestPoint->target->record->GetBoneMatrix());
+							g_NewChams.AddHitmatrix(bestPoint->target->player, bestPoint->target->record->GetBoneMatrix());
 
 							//if( g_Vars.esp.hitskeleton )
 							//	IEsp::Get( )->AddSkeletonMatrix( bestPoint->target->player, bestPoint->target->record->GetBoneMatrix( ) );

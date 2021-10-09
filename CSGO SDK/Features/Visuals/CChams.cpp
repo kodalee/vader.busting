@@ -411,7 +411,7 @@ void C_NewChams::RenderPlayer(C_CSPlayer* player) {
 			pVar->SetVecValue(g_Vars.esp.new_chams_local_overlay_color.r, g_Vars.esp.new_chams_local_overlay_color.g, g_Vars.esp.new_chams_local_overlay_color.b);
 
 			SetupMaterial(LocalOverlayMat, g_Vars.esp.new_chams_local_overlay_color, false);
-			player->m_iHealth();
+			player->DrawModel();
 		}
 
 	}
@@ -617,6 +617,155 @@ void C_NewChams::RenderPlayer(C_CSPlayer* player) {
 	m_running = false;
 }
 
+void C_NewChams::OnPostScreenEffects() {
+	auto pLocal = C_CSPlayer::GetLocalPlayer();
+
+	if (!g_Vars.globals.HackIsReady || !Interfaces::m_pEngine->IsConnected() || !Interfaces::m_pEngine->IsInGame() || !pLocal) {
+		m_Hitmatrix.clear();
+		return;
+	}
+
+	if (m_Hitmatrix.empty())
+		return;
+
+	if (!Interfaces::m_pStudioRender.IsValid())
+		return;
+
+	auto ctx = Interfaces::m_pMatSystem->GetRenderContext();
+
+	if (!ctx)
+		return;
+
+	auto DrawModelRebuild = [&](C_HitMatrixEntry it) -> void {
+		if (!g_Vars.r_drawmodelstatsoverlay)
+			return;
+
+		DrawModelResults_t results;
+		DrawModelInfo_t info;
+		ColorMeshInfo_t* pColorMeshes = NULL;
+		info.m_bStaticLighting = false;
+		info.m_pStudioHdr = it.state.m_pStudioHdr;
+		info.m_pHardwareData = it.state.m_pStudioHWData;
+		info.m_Skin = it.info.skin;
+		info.m_Body = it.info.body;
+		info.m_HitboxSet = it.info.hitboxset;
+		info.m_pClientEntity = (IClientRenderable*)it.state.m_pRenderable;
+		info.m_Lod = it.state.m_lod;
+		info.m_pColorMeshes = pColorMeshes;
+
+		bool bShadowDepth = (it.info.flags & STUDIO_SHADOWDEPTHTEXTURE) != 0;
+
+		// Don't do decals if shadow depth mapping...
+		info.m_Decals = bShadowDepth ? STUDIORENDER_DECAL_INVALID : it.state.m_decals;
+
+		// Sets up flexes
+		float* pFlexWeights = NULL;
+		float* pFlexDelayedWeights = NULL;
+
+		int overlayVal = g_Vars.r_drawmodelstatsoverlay->GetInt();
+		int drawFlags = it.state.m_drawFlags;
+
+		if (bShadowDepth) {
+			drawFlags |= STUDIORENDER_DRAW_OPAQUE_ONLY;
+			drawFlags |= STUDIORENDER_SHADOWDEPTHTEXTURE;
+		}
+
+		if (overlayVal && !bShadowDepth) {
+			drawFlags |= STUDIORENDER_DRAW_GET_PERF_STATS;
+		}
+
+		Interfaces::m_pStudioRender->DrawModel(&results, &info, it.pBoneToWorld, pFlexWeights, pFlexDelayedWeights, it.info.origin, drawFlags);
+		Interfaces::m_pStudioRender->m_pForcedMaterial = nullptr;
+		Interfaces::m_pStudioRender->m_nForcedMaterialType = 0;
+	};
+
+	auto it = m_Hitmatrix.begin();
+	while (it != m_Hitmatrix.end()) {
+		if (!(&it->state) || !it->state.m_pModelToWorld || !it->state.m_pRenderable || !it->state.m_pStudioHdr || !it->state.m_pStudioHWData ||
+			!it->info.pRenderable || !it->info.pModelToWorld || !it->info.pModel) {
+			++it;
+			continue;
+		}
+
+		auto alpha = 1.0f;
+		auto delta = Interfaces::m_pGlobalVars->realtime - it->time;
+		if (delta > 0.0f) {
+			alpha -= delta;
+			if (delta > 1.0f) {
+				it = m_Hitmatrix.erase(it);
+				continue;
+			}
+		}
+
+		FloatColor color = g_Vars.esp.hitmatrix_color;
+		color.a *= alpha;
+
+		SetupMaterial(aimware, color, true);
+
+		DrawModelRebuild(*it);
+
+		if (g_Vars.esp.chams_hitmatrix_outline) {
+			SetupMaterial(aimware, color, true);
+
+			DrawModelRebuild(*it);
+		}
+
+		++it;
+	}
+}
+
+void C_NewChams::AddHitmatrix(C_CSPlayer* player, matrix3x4_t* bones) {
+	if (!player || !bones)
+		return;
+
+	auto& hit = m_Hitmatrix.emplace_back();
+
+	std::memcpy(hit.pBoneToWorld, bones, player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+	hit.time = Interfaces::m_pGlobalVars->realtime + g_Vars.esp.hitmatrix_time;
+
+	static int m_nSkin = SDK::Memory::FindInDataMap(player->GetPredDescMap(), XorStr("m_nSkin"));
+	static int m_nBody = SDK::Memory::FindInDataMap(player->GetPredDescMap(), XorStr("m_nBody"));
+
+	hit.info.origin = player->GetAbsOrigin();
+	hit.info.angles = player->GetAbsAngles();
+
+	auto renderable = player->GetClientRenderable();
+
+	if (!renderable)
+		return;
+
+	auto model = player->GetModel();
+
+	if (!model)
+		return;
+
+	auto hdr = *(studiohdr_t**)(player->m_pStudioHdr());
+
+	if (!hdr)
+		return;
+
+	hit.state.m_pStudioHdr = hdr;
+	hit.state.m_pStudioHWData = Interfaces::m_pMDLCache->GetHardwareData(model->studio);
+	hit.state.m_pRenderable = renderable;
+	hit.state.m_drawFlags = 0;
+
+	hit.info.pRenderable = renderable;
+	hit.info.pModel = model;
+	hit.info.pLightingOffset = nullptr;
+	hit.info.pLightingOrigin = nullptr;
+	hit.info.hitboxset = player->m_nHitboxSet();
+	hit.info.skin = *(int*)(uintptr_t(player) + m_nSkin);
+	hit.info.body = *(int*)(uintptr_t(player) + m_nBody);
+	hit.info.entity_index = player->m_entIndex;
+	hit.info.instance = Memory::VCall<ModelInstanceHandle_t(__thiscall*)(void*) >(renderable, 30u)(renderable);
+	hit.info.flags = 0x1;
+
+	hit.info.pModelToWorld = &hit.model_to_world;
+	hit.state.m_pModelToWorld = &hit.model_to_world;
+
+	hit.model_to_world.AngleMatrix(hit.info.angles, hit.info.origin);
+}
+
 bool C_NewChams::SortPlayers() {
 	if (!localPlayer && localPlayer->IsDormant()) return false;
 	// lambda-callback for std::sort.
@@ -691,8 +840,6 @@ namespace Interfaces
 		void OnDrawModel( void* ECX, IMatRenderContext* MatRenderContext, DrawModelState_t& DrawModelState, ModelRenderInfo_t& RenderInfo, matrix3x4_t* pBoneToWorld ) override;
 		void DrawModel( void* ECX, IMatRenderContext* MatRenderContext, DrawModelState_t& DrawModelState, ModelRenderInfo_t& RenderInfo, matrix3x4_t* pBoneToWorld ) override;
 		bool GetBacktrackMatrix( C_CSPlayer* player, matrix3x4_t* out );
-		void OnPostScreenEffects( ) override;
-		bool IsVisibleScan( C_CSPlayer* player );	  virtual void AddHitmatrix( C_CSPlayer* player, matrix3x4_t* bones );
 
 		CChams( );
 		~CChams( );
@@ -757,165 +904,12 @@ namespace Interfaces
 		std::vector<C_HitMatrixEntry> m_Hitmatrix;
 	};
 
-	Encrypted_t<IChams> IChams::Get( ) {
-		static CChams instance;
-		return &instance;
-	}
-
 	CChams::CChams( ) {
 
 	}
 
 	CChams::~CChams( ) {
 
-	}
-
-	void CChams::OnPostScreenEffects( ) {
-		auto pLocal = C_CSPlayer::GetLocalPlayer( );
-
-		if( !g_Vars.globals.HackIsReady || !Interfaces::m_pEngine->IsConnected( ) || !Interfaces::m_pEngine->IsInGame( ) || !pLocal ) {
-			m_Hitmatrix.clear( );
-			return;
-		}
-
-		if( m_Hitmatrix.empty( ) )
-			return;
-
-		if( !Interfaces::m_pStudioRender.IsValid( ) )
-			return;
-
-		auto ctx = Interfaces::m_pMatSystem->GetRenderContext( );
-
-		if( !ctx )
-			return;
-
-		auto DrawModelRebuild = [ & ] ( C_HitMatrixEntry it ) -> void {
-			if( !g_Vars.r_drawmodelstatsoverlay )
-				return;
-
-			DrawModelResults_t results;
-			DrawModelInfo_t info;
-			ColorMeshInfo_t* pColorMeshes = NULL;
-			info.m_bStaticLighting = false;
-			info.m_pStudioHdr = it.state.m_pStudioHdr;
-			info.m_pHardwareData = it.state.m_pStudioHWData;
-			info.m_Skin = it.info.skin;
-			info.m_Body = it.info.body;
-			info.m_HitboxSet = it.info.hitboxset;
-			info.m_pClientEntity = ( IClientRenderable* )it.state.m_pRenderable;
-			info.m_Lod = it.state.m_lod;
-			info.m_pColorMeshes = pColorMeshes;
-
-			bool bShadowDepth = ( it.info.flags & STUDIO_SHADOWDEPTHTEXTURE ) != 0;
-
-			// Don't do decals if shadow depth mapping...
-			info.m_Decals = bShadowDepth ? STUDIORENDER_DECAL_INVALID : it.state.m_decals;
-
-			// Sets up flexes
-			float* pFlexWeights = NULL;
-			float* pFlexDelayedWeights = NULL;
-
-			int overlayVal = g_Vars.r_drawmodelstatsoverlay->GetInt( );
-			int drawFlags = it.state.m_drawFlags;
-
-			if( bShadowDepth ) {
-				drawFlags |= STUDIORENDER_DRAW_OPAQUE_ONLY;
-				drawFlags |= STUDIORENDER_SHADOWDEPTHTEXTURE;
-			}
-
-			if( overlayVal && !bShadowDepth ) {
-				drawFlags |= STUDIORENDER_DRAW_GET_PERF_STATS;
-			}
-
-			Interfaces::m_pStudioRender->DrawModel( &results, &info, it.pBoneToWorld, pFlexWeights, pFlexDelayedWeights, it.info.origin, drawFlags );
-			Interfaces::m_pStudioRender->m_pForcedMaterial = nullptr;
-			Interfaces::m_pStudioRender->m_nForcedMaterialType = 0;
-		};
-
-		auto it = m_Hitmatrix.begin( );
-		while( it != m_Hitmatrix.end( ) ) {
-			if( !( &it->state ) || !it->state.m_pModelToWorld || !it->state.m_pRenderable || !it->state.m_pStudioHdr || !it->state.m_pStudioHWData ||
-				!it->info.pRenderable || !it->info.pModelToWorld || !it->info.pModel ) {
-				++it;
-				continue;
-			}
-
-			auto alpha = 1.0f;
-			auto delta = Interfaces::m_pGlobalVars->realtime - it->time;
-			if( delta > 0.0f ) {
-				alpha -= delta;
-				if( delta > 1.0f ) {
-					it = m_Hitmatrix.erase( it );
-					continue;
-				}
-			}
-
-			auto color = g_Vars.esp.hitmatrix_color;
-			color.a *= alpha;
-
-			OverrideMaterial( true, 4, color );
-
-			DrawModelRebuild( *it );
-
-			if( g_Vars.esp.chams_hitmatrix_outline ) {
-				OverrideMaterial( true, MATERIAL_GLOW, g_Vars.esp.chams_hitmatrix_outline_color, g_Vars.esp.chams_hitmatrix_outline_value );
-				DrawModelRebuild( *it );
-			}
-
-			++it;
-		}
-	}
-
-	void CChams::AddHitmatrix( C_CSPlayer* player, matrix3x4_t* bones ) {
-		if( !player || !bones )
-			return;
-
-		auto& hit = m_Hitmatrix.emplace_back( );
-
-		std::memcpy( hit.pBoneToWorld, bones, player->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
-		hit.time = Interfaces::m_pGlobalVars->realtime + g_Vars.esp.hitmatrix_time;
-
-		static int m_nSkin = SDK::Memory::FindInDataMap( player->GetPredDescMap( ), XorStr( "m_nSkin" ) );
-		static int m_nBody = SDK::Memory::FindInDataMap( player->GetPredDescMap( ), XorStr( "m_nBody" ) );
-
-		hit.info.origin = player->GetAbsOrigin( );
-		hit.info.angles = player->GetAbsAngles( );
-
-		auto renderable = player->GetClientRenderable( );
-
-		if( !renderable )
-			return;
-
-		auto model = player->GetModel( );
-
-		if( !model )
-			return;
-
-		auto hdr = *( studiohdr_t** )( player->m_pStudioHdr( ) );
-
-		if( !hdr )
-			return;
-
-		hit.state.m_pStudioHdr = hdr;
-		hit.state.m_pStudioHWData = Interfaces::m_pMDLCache->GetHardwareData( model->studio );
-		hit.state.m_pRenderable = renderable;
-		hit.state.m_drawFlags = 0;
-
-		hit.info.pRenderable = renderable;
-		hit.info.pModel = model;
-		hit.info.pLightingOffset = nullptr;
-		hit.info.pLightingOrigin = nullptr;
-		hit.info.hitboxset = player->m_nHitboxSet( );
-		hit.info.skin = *( int* )( uintptr_t( player ) + m_nSkin );
-		hit.info.body = *( int* )( uintptr_t( player ) + m_nBody );
-		hit.info.entity_index = player->m_entIndex;
-		hit.info.instance = Memory::VCall<ModelInstanceHandle_t( __thiscall* )( void* ) >( renderable, 30u )( renderable );
-		hit.info.flags = 0x1;
-
-		hit.info.pModelToWorld = &hit.model_to_world;
-		hit.state.m_pModelToWorld = &hit.model_to_world;
-
-		hit.model_to_world.AngleMatrix( hit.info.angles, hit.info.origin );
 	}
 
 	void CChams::OverrideMaterial( bool ignoreZ, int type, const FloatColor& rgba, float glow_mod, bool wf, const FloatColor& pearlescence_clr, float pearlescence, float shine ) {
