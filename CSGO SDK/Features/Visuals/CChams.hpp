@@ -88,6 +88,7 @@ public:
 	IMaterial* onetap;
 	IMaterial* shaded;
 	IMaterial* aimware;
+	IMaterial* shotchams;
 	IMaterial* blinking;
 	IMaterial* debugglow;
 	IMaterial* debugbubbly;

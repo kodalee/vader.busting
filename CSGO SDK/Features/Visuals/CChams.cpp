@@ -176,6 +176,16 @@ void C_NewChams::init() {
 				"$alpha" "1"
 			})#";
 
+	std::ofstream("csgo/materials/ShotChams.vmt") << R"#("VertexLitGeneric" {
+				"$additive" "1"
+				"$envmap" "models/effects/cube_white"
+				"$envmaptint" "[0 0.1 0.2]"
+				"$envmapfresnel" "1"
+				"$envmapfresnelminmaxexp" "[0 1 2]"
+				"$ignorez" "1"
+				"$alpha" "1"
+			})#";
+
 	std::ofstream("csgo/materials/cubemap.vmt") << R"#("VertexLitGeneric" { 
 
   "$basetexture" "vgui/white_additive"
@@ -225,6 +235,9 @@ void C_NewChams::init() {
 
 	aimware = Interfaces::m_pMatSystem->FindMaterial("GlowOverlay", "Model textures");
 	aimware->IncrementReferenceCount();
+
+	shotchams = Interfaces::m_pMatSystem->FindMaterial("ShotChams", "Model textures");
+	shotchams->IncrementReferenceCount();
 
 	blinking = Interfaces::m_pMatSystem->FindMaterial("models/inventory_items/dogtags/dogtags_outline", "Model textures");
 	blinking->IncrementReferenceCount();
@@ -701,11 +714,11 @@ void C_NewChams::OnPostScreenEffects() {
 		color.a *= alpha;
 
 		bool bFound = false;
-		auto pVar = aimware->FindVar("$envmaptint", &bFound);
+		auto pVar = shotchams->FindVar("$envmaptint", &bFound);
 		pVar->SetVecValue(color.r, color.g, color.b);
 
 
-		SetupMaterial(aimware, color, true);
+		SetupMaterial(shotchams, color, true);
 
 		DrawModelRebuild(*it);
 
