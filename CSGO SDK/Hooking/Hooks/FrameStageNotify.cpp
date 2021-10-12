@@ -319,7 +319,7 @@ namespace Hooked
 				//if( g_Vars.esp.remove_smoke )
 				//	*( int* )Engine::Displacement.Data.m_uSmokeCount = 0;
 
-				if( g_Vars.misc.third_person && g_Vars.misc.third_person_bind.enabled ) {
+				if( Interfaces::m_pInput->CAM_IsThirdPerson() ) {
 					Interfaces::m_pPrediction->SetLocalViewAngles( g_Vars.globals.RegularAngles );
 				}
 			}

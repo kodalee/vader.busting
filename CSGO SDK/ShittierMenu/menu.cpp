@@ -780,6 +780,19 @@ void Visuals()
 				InsertCheckbox(SkipOcclusion, XorStr("Skip Occlusion"), &g_Vars.esp.skip_occulusion);
 				InsertCheckbox(RemoveSleeves, XorStr("Remove Sleeves"), &g_Vars.esp.remove_sleeves);
 
+				InsertCheckbox(TeslaImpact, XorStr("Tesla on Impact"), &g_Vars.esp.tesla_impact);
+
+				InsertCheckbox(TeslaKill, XorStr("Tesla on Kill"), &g_Vars.esp.tesla_kill);
+				if (g_Vars.esp.tesla_kill) {
+					ImGui::SameLine();
+					ColorPicker(XorStr(""), g_Vars.esp.tesla_kill_color, false);
+					InsertSliderFloat(XorStr("tesla width"), &g_Vars.esp.tesla_kill_width, 0.f, 10.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("tesla beams"), &g_Vars.esp.tesla_kill_beams, 0.f, 20.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("tesla radius"), &g_Vars.esp.tesla_kill_radius, 0.f, 200.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("tesla time"), &g_Vars.esp.tesla_kill_time, 0.1f, 3.f, XorStr("%.1f"));
+
+				}
+
 				break;
 			}
 		}

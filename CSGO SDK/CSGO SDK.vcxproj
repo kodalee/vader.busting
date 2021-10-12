@@ -351,6 +351,7 @@
     <ClInclude Include="Features\Rage\AntiAim.hpp" />
     <ClInclude Include="Features\Rage\Resolver.hpp" />
     <ClInclude Include="Features\Rage\ZeusBot.hpp" />
+    <ClInclude Include="Features\Visuals\IVEffects.h" />
     <ClInclude Include="Loader\Exports.h" />
     <ClInclude Include="Loader\Security\Security.hpp" />
     <ClInclude Include="Renderer\Textures\weaponicons.h" />

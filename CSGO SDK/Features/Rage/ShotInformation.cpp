@@ -3,6 +3,7 @@
 #include <sstream>
 #include "Autowall.h"
 #include "Resolver.hpp"
+#include "../Visuals/IVEffects.h"
 
 namespace Engine
 {
@@ -438,7 +439,38 @@ namespace Engine
 		case hash_32_fnv1a_const("player_death"):
 		{
 			int id = Interfaces::m_pEngine->GetPlayerForUserID(gameEvent->GetInt(XorStr("userid")));
+			int attacker = Interfaces::m_pEngine->GetPlayerForUserID(gameEvent->GetInt(XorStr("attacker")));
 			auto player = C_CSPlayer::GetPlayerByIndex(id);
+
+			if (attacker == local->EntIndex() && id != local->EntIndex()) {
+
+				using FX_TeslaFn = void(__thiscall*)(CTeslaInfo&);
+				using FX_GunshipImpactFn = void(__cdecl*)(const Vector& origin, const QAngle& angles, float scale, int numParticles, unsigned char* pColor, int iAlpha);
+				using FX_ElectricSparkFn = void(__thiscall*) (const Vector& pos, int nMagnitude, int nTrailLength, const Vector* vecDir);
+
+				static FX_TeslaFn meme = (FX_TeslaFn)Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 81 EC ? ? ? ? 56 57 8B F9 8B 47 18"));
+				static FX_GunshipImpactFn meme_2 = (FX_GunshipImpactFn)Memory::Scan(XorStr("client.dll"), XorStr("55 8B 6B 04 89 6C 24 04 8B EC 83 EC 58 89 4D C0"));
+				static FX_ElectricSparkFn spark = (FX_ElectricSparkFn)Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 EC 3C 53 8B D9 89 55 FC"));
+
+				if (g_Vars.esp.tesla_kill) {
+					CTeslaInfo teslaInfo;
+					teslaInfo.m_flBeamWidth = g_Vars.esp.tesla_kill_width;
+					teslaInfo.m_flRadius = g_Vars.esp.tesla_kill_radius;
+					teslaInfo.m_vPos = player->GetHitboxPosition(HITBOX_HEAD); //wherever you want it to spawn from, like enemy's head;
+					teslaInfo.m_flTimeVisible = g_Vars.esp.tesla_kill_time;
+					teslaInfo.m_nBeams = g_Vars.esp.tesla_kill_beams;
+					teslaInfo.m_pszSpriteName = XorStr("sprites/physbeam.vmt"); //physbeam
+
+					Color RGBColor = Color::imcolor_to_ccolor(g_Vars.esp.tesla_kill_color);
+					teslaInfo.m_vColor.Init(RGBColor.r() / 255.f, RGBColor.g() / 255.f, RGBColor.b() / 255.f);
+					teslaInfo.m_nEntIndex = id;
+					meme(teslaInfo);
+				}
+
+
+			}
+				
+
 
 			if (!player || player == local)
 				return;

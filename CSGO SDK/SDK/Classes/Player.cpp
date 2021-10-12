@@ -234,6 +234,36 @@ C_CSPlayer* C_CSPlayer::GetPlayerByIndex( int index ) {
 	return ToCSPlayer( client->GetBaseEntity( ) );
 }
 
+Vector& C_CSPlayer::GetHitboxPosition(int hitbox) {
+	const model_t* model = this->GetModel();
+	if (!model)
+		return Vector();
+
+	studiohdr_t* hdr = Interfaces::m_pModelInfo->GetStudiomodel(model);
+	if (!hdr)
+		return Vector();
+
+	matrix3x4_t matrix[128];
+	if (!this->SetupBones(matrix, 128, 0x100, 0))
+		return Vector();
+
+	mstudiohitboxset_t* set = hdr->pHitboxSet(this->m_nHitboxSet());
+	if (!set)
+		return Vector();
+
+	mstudiobbox_t* bbox = set->pHitbox(hitbox);
+	if (!bbox)
+		return Vector();
+
+	Vector pos = (bbox->bbmin + bbox->bbmax) * 0.5f;
+	Vector out = Vector();
+
+	Math::VectorTransform(pos, matrix[bbox->bone], out);
+
+	return Vector(out.x, out.y, out.z);
+}
+
+
 std::array<int, 5>& C_CSPlayer::m_vecPlayerPatchEconIndices( )
 {
 	return *( std::array<int, 5>* )( ( uintptr_t )this + Engine::Displacement.DT_CSPlayer.m_vecPlayerPatchEconIndices );

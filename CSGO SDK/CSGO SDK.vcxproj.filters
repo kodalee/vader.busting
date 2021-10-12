@@ -858,6 +858,7 @@
     <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imconfig.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui.h" />
+    <ClInclude Include="Features\Visuals\IVEffects.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

@@ -14,6 +14,7 @@
 #include "../Rage/ShotInformation.hpp"
 #pragma comment(lib,"Winmm.lib")
 #include "../Rage/TickbaseShift.hpp"
+#include "../Visuals/IVEffects.h"
 
 #include <fstream>
 
@@ -138,6 +139,29 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				if( g_Vars.misc.server_impacts_spoof ) // draw server impact
 					Interfaces::m_pDebugOverlay->AddBoxOverlay( Vector( x, y, z ), Vector( -2, -2, -2 ), Vector( 2, 2, 2 ), QAngle( 0, 0, 0 ), color[ 0 ], color[ 1 ], color[ 2 ], color[ 3 ],
 						sv_showimpacts_time->GetFloat( ) );
+
+				using FX_TeslaFn = void(__thiscall*)(CTeslaInfo&);
+				using FX_GunshipImpactFn = void(__cdecl*)(const Vector& origin, const QAngle& angles, float scale, int numParticles, unsigned char* pColor, int iAlpha);
+				using FX_ElectricSparkFn = void(__thiscall*) (const Vector& pos, int nMagnitude, int nTrailLength, const Vector* vecDir);
+
+				static FX_TeslaFn meme = (FX_TeslaFn)Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 81 EC ? ? ? ? 56 57 8B F9 8B 47 18"));
+				static FX_GunshipImpactFn meme_2 = (FX_GunshipImpactFn)Memory::Scan(XorStr("client.dll"), XorStr("55 8B 6B 04 89 6C 24 04 8B EC 83 EC 58 89 4D C0"));
+				static FX_ElectricSparkFn spark = (FX_ElectricSparkFn)Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 EC 3C 53 8B D9 89 55 FC"));
+
+				if (g_Vars.esp.tesla_impact) {
+					CTeslaInfo teslaInfo;
+					teslaInfo.m_flBeamWidth = 1;
+					teslaInfo.m_flRadius = 5;
+					teslaInfo.m_vPos = Vector(x, y, z); //wherever you want it to spawn from, like enemy's head;
+					teslaInfo.m_flTimeVisible = 0.75;
+					teslaInfo.m_nBeams = 3;
+					teslaInfo.m_pszSpriteName = XorStr("sprites/physbeam.vmt"); //physbeam
+
+					teslaInfo.m_vColor.Init(1.f, 1.f, 1.f);
+					teslaInfo.m_nEntIndex = ent->EntIndex();
+					meme(teslaInfo);
+				}
+
 			}
 		}
 

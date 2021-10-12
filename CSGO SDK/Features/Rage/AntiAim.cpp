@@ -254,6 +254,7 @@ namespace Interfaces
 			//fake_flick(cmd);
 		}
 		else {
+			//*bSendPacket = true;
 
 			std::uniform_int_distribution random(-90, 90);
 

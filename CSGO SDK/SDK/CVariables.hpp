@@ -1251,6 +1251,16 @@ public:
 	config_option( bool, ambient_ligtning, false );
 	config_option( FloatColor, ambient_ligtning_color, FloatColor( 0.06666666666, 0.06666666666, 0.090196, 1.0f ) );
 
+	config_option(bool, tesla_impact, false);
+
+	config_option(bool, tesla_kill, false);
+	config_option(float, tesla_kill_width, 2.f);
+	config_option(float, tesla_kill_radius, 90.f);
+	config_option(float, tesla_kill_time, 2.0f);
+	config_option(float, tesla_kill_beams, 5.f);
+	config_option(FloatColor, tesla_kill_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+
+
 	group_end( );
 #pragma endregion
 
