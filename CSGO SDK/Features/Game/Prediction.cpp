@@ -229,63 +229,6 @@ namespace Engine
 		predictionData->m_RestoreData.is_filled = false;
 	}
 
-	bool Prediction::CanFireWeapon(float curtime) {
-		if (C_CSPlayer::GetLocalPlayer())
-			return false;
-
-		auto localPlayer = C_CSPlayer::GetLocalPlayer();
-
-		// the player cant fire.
-		if (!Engine::g_ResolverData->m_player_fire)
-			return false;
-
-		auto weapon = (C_WeaponCSBaseGun*)localPlayer->m_hActiveWeapon().Get();
-
-		if (!weapon)
-			return false;
-
-		auto weaponInfo = weapon->GetCSWeaponData();
-		if (!weaponInfo.IsValid())
-			return false;
-
-
-		if (weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE)
-			return false;
-
-		// if we have no bullets, we cant shoot.
-		if (weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE && weapon->m_iClip1() < 1)
-			return false;
-
-		// do we have any burst shots to handle?
-		if ((weapon->m_iItemDefinitionIndex() == WEAPON_GLOCK || weapon->m_iItemDefinitionIndex() == WEAPON_FAMAS) && weapon->m_iBurstShotsRemaining() > 0) {
-			// new burst shot is coming out.
-			if (Interfaces::m_pGlobalVars->curtime >= weapon->m_fNextBurstShot())
-				return true;
-		}
-
-		// r8 revolver.
-		//if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
-		//	int act = weapon->m_Activity();
-
-		//	// mouse1.
-		//	if (!m_revolver_fire) {
-		//		if ((act == 185 || act == 193) && m_revolver_cock == 0)
-		//			return g_csgo.m_globals->m_curtime >= m_weapon->m_flNextPrimaryAttack();
-
-		//		return false;
-		//	}
-		//}
-
-		if (curtime >= weapon->m_flNextPrimaryAttack())
-			return true;
-
-		// yeez we have a normal gun.
-		if (Interfaces::m_pGlobalVars->curtime >= weapon->m_flNextPrimaryAttack())
-			return true;
-
-		return false;
-	}
-
 	void Prediction::RunGamePrediction( ) {
 		// force game to repredict data
 		//if( g_Vars.globals.LastVelocityModifier < 1.0f ) {

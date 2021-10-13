@@ -345,8 +345,6 @@ namespace Hooked
 
 		Engine::g_ResolverData->m_player_fire = Interfaces::m_pGlobalVars->curtime >= C_CSPlayer::GetLocalPlayer()->m_flNextAttack() && !g_Vars.globals.IsRoundFreeze;
 
-		Engine::g_ResolverData->m_weapon_fire = Engine::Prediction::Instance()->CanFireWeapon(TICKS_TO_TIME(C_CSPlayer::GetLocalPlayer()->m_nTickBase()));
-
 		movement->PrePrediction( cmd, pLocal, bSendPacket, bFinalTick, nullptr );
 		prediction.Begin( cmd, bSendPacket, cmd->command_number );
 		{

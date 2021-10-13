@@ -144,7 +144,6 @@ namespace Engine {
 		void Repredict( );
 		void End( );
 		void Invalidate( );
-		bool CanFireWeapon(float curtime);
 		void RunGamePrediction( );
 
 		int GetFlags( );
