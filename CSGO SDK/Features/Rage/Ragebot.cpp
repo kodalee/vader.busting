@@ -470,12 +470,12 @@ namespace Interfaces
 
 		bool revolver = weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER;
 
-		if (Engine::g_ResolverData->m_weapon_fire)
-			StripAttack(cmd);
+		//if (Engine::g_ResolverData->m_weapon_fire) // m_weapon_fire does not work xD + it needs to be !m_weapon_fire :)
+		//	StripAttack(cmd);
 
 		// we have a normal weapon or a non cocking revolver
 		// choke if its the processing tick.
-		if (Engine::g_ResolverData->m_weapon_fire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.exploit && !g_Vars.rage.key_dt.key) {
+		if (g_Vars.globals.bCanWeaponFire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.exploit && !g_Vars.rage.key_dt.key) {
 			*sendPacket = false;
 			StripAttack(cmd);
 			return false;
