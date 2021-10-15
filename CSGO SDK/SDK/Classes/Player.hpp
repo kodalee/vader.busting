@@ -74,7 +74,8 @@ public:
 
 class C_CSPlayer : public C_BasePlayer {
 public:
-   static C_CSPlayer* GetLocalPlayer( );
+	bool valid(bool check_team, bool check_dormant);
+	static C_CSPlayer* GetLocalPlayer( );
    static C_CSPlayer* GetPlayerByIndex( int index );
 
    Vector& GetHitboxPosition(int hitbox);

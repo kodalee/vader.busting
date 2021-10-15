@@ -1260,6 +1260,11 @@ public:
 	config_option(float, tesla_kill_beams, 5.f);
 	config_option(FloatColor, tesla_kill_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 
+	config_option(bool, footsteps, false);
+	config_option(FloatColor, footsteps_color, FloatColor(255.f / 255.f, 105.f / 255.f, 180.f / 255.f, 1.0f));
+	config_option(float, footsteps_thickness, 1.0f);
+	config_option(float, footsteps_radius, 200.f);
+
 
 	group_end( );
 #pragma endregion

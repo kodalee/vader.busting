@@ -6,11 +6,13 @@
 #include "IMGAY/imgui_internal.h"
 #include "IMGAY/impl/imgui_impl_dx9.h"
 #include "IMGAY/impl/imgui_impl_win32.h"
+#include "../Utils/logo.h"
 
 //lua
 
 //
 
+IDirect3DTexture9* logo_nuts;
  
 int tab = 0, aimbotTab = 1, rageTab = 0, legitTab = 0, visualsSubTab = 0, miscSubtabs = 0;
 
@@ -471,6 +473,14 @@ void Visuals()
 					const char* hitsounds[] = { XorStr("Default") };
 					InsertCombo(XorStr("Type"), &g_Vars.misc.hitsound_type, hitsounds);
 				}
+				InsertCheckbox(FootSteps, XorStr("Footsteps"), &g_Vars.esp.footsteps);
+				if (g_Vars.esp.footsteps) {
+					ImGui::SameLine();
+					ColorPicker(XorStr(""), g_Vars.esp.footsteps_color, true);
+					InsertSliderFloat(XorStr("Footsteps thickness"), &g_Vars.esp.footsteps_thickness, 1.f, 10.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("Footsteps radius"), &g_Vars.esp.footsteps_radius, 50.f, 500.f, XorStr("%.f"));
+
+				}
 
 				ImGui::NextColumn();
 				ImGui::NewLine();
@@ -786,10 +796,10 @@ void Visuals()
 				if (g_Vars.esp.tesla_kill) {
 					ImGui::SameLine();
 					ColorPicker(XorStr(""), g_Vars.esp.tesla_kill_color, false);
-					InsertSliderFloat(XorStr("tesla width"), &g_Vars.esp.tesla_kill_width, 0.f, 10.f, XorStr("%.f"));
-					InsertSliderFloat(XorStr("tesla beams"), &g_Vars.esp.tesla_kill_beams, 0.f, 20.f, XorStr("%.f"));
-					InsertSliderFloat(XorStr("tesla radius"), &g_Vars.esp.tesla_kill_radius, 0.f, 200.f, XorStr("%.f"));
-					InsertSliderFloat(XorStr("tesla time"), &g_Vars.esp.tesla_kill_time, 0.1f, 3.f, XorStr("%.1f"));
+					InsertSliderFloat(XorStr("Tesla width"), &g_Vars.esp.tesla_kill_width, 0.f, 10.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("Tesla beams"), &g_Vars.esp.tesla_kill_beams, 0.f, 20.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("Tesla radius"), &g_Vars.esp.tesla_kill_radius, 0.f, 200.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("Tesla time"), &g_Vars.esp.tesla_kill_time, 0.1f, 3.f, XorStr("%.1f"));
 
 				}
 
@@ -916,6 +926,13 @@ bool IMGUIMenu::Initialize(IDirect3DDevice9* pDevice)
 		ImGui_ImplWin32_Init(param.hFocusWindow);
 		ImGui_ImplDX9_Init(pDevice);
 		ImGui_ImplDX9_CreateDeviceObjects();
+
+
+		if(!logo_nuts)
+				D3DXCreateTextureFromFileInMemoryEx(pDevice, logo_png, sizeof(logo_png), 1000, 1000, D3DUSAGE_DYNAMIC, 0, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &logo_nuts);
+
+
+
 		Initialized = true;
 	}
 

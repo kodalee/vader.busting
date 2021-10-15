@@ -859,6 +859,7 @@
     <ClInclude Include="ShittierMenu\IMGAY\imconfig.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui.h" />
     <ClInclude Include="Features\Visuals\IVEffects.h" />
+    <ClInclude Include="Utils\logo.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

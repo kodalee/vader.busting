@@ -8777,4 +8777,36 @@ void ImGui::Columns(int columns_count, const char* id, bool border)
 		BeginColumns(id, columns_count, flags);
 }
 
+void ImGui::AddCircleImageFilled(ImTextureID user_texture_id, const ImVec2& centre, float radius, ImU32 col, int num_segments)
+{
+	auto window = GetCurrentWindow();
+	if (window->SkipItems)
+		return;
+
+	ImGuiContext& g = *GImGui;
+	window->DrawList->PathClear();
+
+	if ((col & IM_COL32_A_MASK) == 0 || num_segments <= 2)
+		return;
+
+
+	const bool push_texture_id = window->DrawList->_TextureIdStack.empty() || user_texture_id != window->DrawList->_TextureIdStack.back();
+	if (push_texture_id)
+		window->DrawList->PushTextureID(user_texture_id);
+
+	int vert_start_idx = window->DrawList->VtxBuffer.Size;
+	const float a_max = IM_PI * 2.0f * ((float)num_segments - 1.0f) / (float)num_segments;
+	window->DrawList->PathArcTo(centre, radius, 0.0f, a_max, num_segments - 1);
+	window->DrawList->PathFillConvex(col);
+	int vert_end_idx = window->DrawList->VtxBuffer.Size;
+
+	ImGui::ShadeVertsLinearUV(window->DrawList, vert_start_idx, vert_end_idx, ImVec2(centre.x - radius, centre.y - radius), ImVec2(centre.x + radius, centre.y + radius), ImVec2(0, 0), ImVec2(1, 1), true);
+
+	if (push_texture_id)
+		window->DrawList->PopTextureID();
+
+
+}
+
+
 //-------------------------------------------------------------------------

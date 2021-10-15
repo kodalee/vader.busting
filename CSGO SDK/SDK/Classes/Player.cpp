@@ -208,6 +208,31 @@ void C_BasePlayer::TryInitiateAnimation( C_AnimationLayer* pLayer, int nSequence
 	pLayer->m_flCycle = pLayer->m_flWeight = 0.f;
 };
 
+bool C_CSPlayer::valid(bool check_team, bool check_dormant)
+{
+
+	if (!this) //-V704
+		return false;
+
+	if (!C_CSPlayer::GetLocalPlayer())
+		return false;
+
+	if (!IsPlayer())
+		return false;
+
+	if (IsDead())
+		return false;
+
+	if (IsDormant() && check_dormant)
+		return false;
+
+	if (check_team && C_CSPlayer::GetLocalPlayer()->m_iTeamNum() == m_iTeamNum())
+		return false;
+
+	return true;
+
+}
+
 C_CSPlayer* C_CSPlayer::GetLocalPlayer( ) {
 	auto index = Interfaces::m_pEngine->GetLocalPlayer( );
 

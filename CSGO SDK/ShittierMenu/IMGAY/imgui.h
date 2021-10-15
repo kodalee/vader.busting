@@ -606,6 +606,7 @@ namespace ImGui
 	// - The columns API is work-in-progress and rather lacking (columns are arguably the worst part of dear imgui at the moment!)
 	// - By end of the 2019 we will expose a new 'Table' api which will replace columns.
 	IMGUI_API void          Columns(int count = 1, const char* id = NULL, bool border = true);
+	void AddCircleImageFilled(ImTextureID user_texture_id, const ImVec2& centre, float radius, ImU32 col, int num_segments);
 	IMGUI_API void          NextColumn();                                                       // next column, defaults to current row or next row if the current row is finished
 	IMGUI_API int           GetColumnIndex();                                                   // get current column index
 	IMGUI_API float         GetColumnWidth(int column_index = -1);                              // get column width (in pixels). pass -1 to use current column

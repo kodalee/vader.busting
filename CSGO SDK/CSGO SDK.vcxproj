@@ -537,6 +537,7 @@
     <ClInclude Include="Features\Rage\KnifeBot.hpp" />
     <ClInclude Include="Features\Rage\LagCompensation.hpp" />
     <ClInclude Include="Utils\lazy_importer.hpp" />
+    <ClInclude Include="Utils\logo.h" />
     <ClInclude Include="Utils\LogSystem.hpp" />
     <ClInclude Include="Utils\Math.h" />
     <ClInclude Include="SDK\Valve\Matrix.hpp" />

@@ -41,6 +41,7 @@ Encrypted_t<GameEvent> GameEvent::Get( ) {
 void C_GameEvent::Register( ) {
 	ADD_GAMEEVENT( player_hurt );
 	ADD_GAMEEVENT( bullet_impact );
+	ADD_GAMEEVENT( player_footstep );
 	ADD_GAMEEVENT( weapon_fire );
 	ADD_GAMEEVENT( bomb_planted );
 	ADD_GAMEEVENT( player_death );
@@ -163,6 +164,55 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				}
 
 			}
+		}
+
+		break;
+	}
+	case hash_32_fnv1a_const("player_footstep"):
+	{
+
+		auto userid = Interfaces::m_pEngine->GetPlayerForUserID(pEvent->GetInt(XorStr("userid")));
+		auto e = static_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(userid));
+
+		if (e->valid(true, true))
+		{
+			if (g_Vars.esp.footsteps) 
+			{
+
+				static auto model_index = Interfaces::m_pModelInfo->GetModelIndex(XorStr("sprites/physbeam.vmt"));
+				Color RGBColor = Color::imcolor_to_ccolor(g_Vars.esp.footsteps_color);
+
+				BeamInfo_t info;
+
+				info.m_nType = TE_BEAMRINGPOINT;
+				info.m_pszModelName = XorStr("sprites/physbeam.vmt");
+				info.m_nModelIndex = model_index;
+				info.m_nHaloIndex = -1;
+				info.m_flHaloScale = 3.0f;
+				info.m_flLife = 2.0f;
+				info.m_flWidth = g_Vars.esp.footsteps_thickness;
+				info.m_flFadeLength = 1.0f;
+				info.m_flAmplitude = 0.0f;
+				info.m_flRed = RGBColor.r();
+				info.m_flGreen = RGBColor.g();
+				info.m_flBlue = RGBColor.b();
+				info.m_flBrightness = RGBColor.a();
+				info.m_flSpeed = 0.0f;
+				info.m_nStartFrame = 0.0f;
+				info.m_flFrameRate = 60.0f;
+				info.m_nSegments = -1;
+				info.m_nFlags = FBEAM_FADEOUT;
+				info.m_vecCenter = e->GetAbsOrigin() + Vector(0.0f, 0.0f, 5.0f);
+				info.m_flStartRadius = 5.0f;
+				info.m_flEndRadius = g_Vars.esp.footsteps_radius;
+				info.m_bRenderable = true;
+
+				auto beam_draw = Interfaces::m_pRenderBeams->CreateBeamRingPoint(info);
+
+				if (beam_draw)
+					Interfaces::m_pRenderBeams->DrawBeam(beam_draw);
+			}
+
 		}
 
 		break;
