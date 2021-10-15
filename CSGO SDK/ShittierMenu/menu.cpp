@@ -703,6 +703,11 @@ void Visuals()
 					InsertSliderFloat(XorStr("Prop transparency"), &g_Vars.esp.transparent_props, 0.f, 100.0f, XorStr("%.0f%%"));
 				}
 
+				InsertCheckbox(EnableRain, XorStr("Rain"), &g_Vars.esp.weather);
+				if (g_Vars.esp.weather) {
+					InsertSliderFloat(XorStr("Rain alpha"), &g_Vars.esp.weather_alpha, 0.f, 100.0f, XorStr("%.f"));
+				}
+
 				InsertCombo(XorStr("Skybox Changer"), &g_Vars.esp.sky_changer, skyboxes);
 
 				InsertCheckbox(Bomb, XorStr("Bomb Timer"), &g_Vars.esp.draw_bombc4);

@@ -1228,7 +1228,7 @@ public:
 	config_option( float, world_adjustement_value, 50.f );
 	config_option( float, prop_adjustement_value, 50.f );
 	config_option( float, transparent_props, 67.f );
-	config_option( int, weather, 0 );
+	config_option( bool, weather, false );
 	config_option( float, weather_alpha, 40.f );
 
 	config_option( bool, indicator_side, false );
