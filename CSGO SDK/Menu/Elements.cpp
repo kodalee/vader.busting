@@ -9,7 +9,7 @@
 namespace Menu {
 
 	void DrawMenu() {
-		if (GUI::Form::BeginWindow(XorStr("amnesia")) || GUI::ctx->setup) {
+		if (GUI::Form::BeginWindow(XorStr("vader")) || GUI::ctx->setup) {
 			static int current_weapon = 0;
 			static int rage_current_group = 0;
 			static int current_group = 0;

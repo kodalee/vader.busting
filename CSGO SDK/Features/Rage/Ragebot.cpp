@@ -1178,6 +1178,9 @@ namespace Interfaces
 		if (!hitboxSet)
 			return;
 
+		//printf(std::to_string(Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f)).c_str());
+		//printf("\n");
+
 		Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
 		Vector centerTrans = center.Transform(boneMatrix[hitbox->bone]);
 
@@ -1641,7 +1644,8 @@ namespace Interfaces
 				if (AimAtPoint(bestPoint)) {
 					if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
 						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
-						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
+						auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
+						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + lerp);
 
 						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
 						//	targedt -= 3;
@@ -1950,7 +1954,7 @@ namespace Interfaces
 
 	int C_Ragebot::GeneratePoints(C_CSPlayer* player, std::vector<C_AimTarget>& aim_targets, std::vector<C_AimPoint>& aim_points) {
 		auto lagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
-		if (!lagData.IsValid() || lagData->m_History.empty() || !lagData->m_History.front().m_bIsValid)
+		if (!lagData.IsValid() || lagData->m_History.empty() /*|| !lagData->m_History.front().m_bIsValid*/)
 			return 0;
 
 		player_info_t info;

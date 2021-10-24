@@ -497,7 +497,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 			return;
 
 		std::stringstream msg;
-		msg << XorStr( "act: " ) << XorStr( "picked up the bomb" ) << XorStr( " | " );
+		msg << XorStr( " act: " ) << XorStr( "picked up the bomb" ) << XorStr( " | " );
 		msg << XorStr( "ent: " ) << info.szName;
 
 		ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "bomb" ) );

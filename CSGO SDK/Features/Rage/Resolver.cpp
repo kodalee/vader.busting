@@ -6,6 +6,9 @@
 #include "../Rage/Autowall.h"
 #include "../Visuals/EventLogger.hpp"
 
+static float NextLBYUpdate[65];
+static float Add[65];
+
 namespace Engine {
 	// well alpha took supremacy resolver, but supremacy resolver is actual dogshit
 	// so this is going to be a hard test for viopastins.
@@ -19,22 +22,32 @@ namespace Engine {
 		float nextPredictedSimtime; // xmm3_4
 		float nextBodyUpdate = 0.f; // xmm3_4
 
+		auto anim_data = AnimationSystem::Get()->GetAnimationData(entity->m_entIndex);
+		if (!anim_data)
+			return;
 
-		oldBodyYaw = Engine::g_ResolverData[entity->EntIndex()].m_flLowerBodyYawTarget;
+		if (anim_data->m_AnimationRecord.empty())
+			return;
+
+		auto anim_record = &anim_data->m_AnimationRecord.back();
+		if (!anim_record)
+			return;
+
+		oldBodyYaw = anim_record->m_flLowerBodyYawTarget;
 		if (oldBodyYaw != *LowerBodyYaw)
 		{
-			//if (entity != C_CSPlayer::GetLocalPlayer() && entity->m_fFlags() & FL_ONGROUND)
-			//{
-			//	nextPredictedSimtime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
-			//	float vel = entity->m_vecVelocity().Length2D();
-			//	if (vel > 0.1f)
-			//		nextBodyUpdate = nextPredictedSimtime + 0.22f;
-			//	else /*if ( PlayerRecord->nextBodyUpdate <= nextPredictedSimtime )*/
-			//		nextBodyUpdate = nextPredictedSimtime + 1.1f;
+			if (entity != C_CSPlayer::GetLocalPlayer() && entity->m_fFlags() & FL_ONGROUND)
+			{
+				nextPredictedSimtime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+				float vel = entity->m_vecVelocity().Length2D();
+				if (vel > 0.1f && !Engine::g_ResolverData[entity->EntIndex()].fakewalking)
+					nextBodyUpdate = nextPredictedSimtime + 0.22f;
+				else /*if ( PlayerRecord->nextBodyUpdate <= nextPredictedSimtime )*/
+					nextBodyUpdate = nextPredictedSimtime + 1.1f;
 
-			//	if (nextBodyUpdate != 0.f)
-			//		Engine::g_ResolverData[entity->EntIndex()].m_flNextBodyUpdate = nextBodyUpdate;
-			//}
+				if (nextBodyUpdate != 0.f)
+					Engine::g_ResolverData[entity->EntIndex()].m_flNextBodyUpdate = nextBodyUpdate;
+			}
 
 			Engine::g_ResolverData[entity->EntIndex()].m_flLastLowerBodyYawTargetUpdateTime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
 			Engine::g_ResolverData[entity->EntIndex()].m_flOldLowerBodyYawTarget = oldBodyYaw;
@@ -425,7 +438,7 @@ namespace Engine {
 		if (record->m_iResolverMode == EResolverModes::RESOLVE_WALK)
 			ResolveWalk(player, record);
 
-		else if (record->m_iResolverMode == EResolverModes::RESOLVE_STAND)
+		else if (record->m_iResolverMode == EResolverModes::RESOLVE_STAND || record->m_iResolverMode == EResolverModes::RESOLVE_PRED)
 			ResolveStand(player, record);
 
 		else if (record->m_iResolverMode == EResolverModes::RESOLVE_AIR)
@@ -437,10 +450,21 @@ namespace Engine {
 
 		MatchShot(player, record);
 
-		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !(record->m_bFakeWalking || record->m_bUnsafeVelocityTransition))
+		//auto lag_data = Engine::LagCompensation::Get()->GetLagData(player->EntIndex()).Xor();
+
+		//if (!lag_data)
+		//	return;
+
+		//std::stringstream msg;
+
+
+		//printf(std::to_string(lag_data->m_History.size()).c_str());
+		//printf("\n");
+
+		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !(record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
 			record->m_iResolverMode = EResolverModes::RESOLVE_WALK;
 
-		if ((record->m_fFlags & FL_ONGROUND) && (speed <= 0.1f || record->m_bFakeWalking || record->m_bUnsafeVelocityTransition))
+		if ((record->m_fFlags & FL_ONGROUND) && (speed <= 0.1f || record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
 			record->m_iResolverMode = EResolverModes::RESOLVE_STAND;
 
 		else if (!(record->m_fFlags & FL_ONGROUND))
@@ -522,16 +546,110 @@ namespace Engine {
 		//	g_ResolverData[ player->EntIndex( ) ].m_flFinalResolverYaw = pLagData->m_flDirection;
 		//}
 
-		// we have valid move data but we can't freestand them.
-		if (data.m_bCollectedValidMoveData && !data.m_bCollectedFreestandData) {
-			// https://www.unknowncheats.me/forum/counterstrike-global-offensive/292854-animation-syncing.html
-			// we haven't missed a shot and last move is valid.
-			if (nMisses < 1 && IsLastMoveValid(record, g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget))
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
+		if (is_flicking) {
+			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+		}
+		else {
+			// we have valid move data but we can't freestand them.
+			if (data.m_bCollectedValidMoveData && !data.m_bCollectedFreestandData) {
+				// https://www.unknowncheats.me/forum/counterstrike-global-offensive/292854-animation-syncing.html
+				// we haven't missed a shot and last move is valid.
+				if (nMisses < 1 && (IsLastMoveValid(record, g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget) || data.m_bCollectedValidMoveData))
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
 
-			// we missed more than 2 shots
-			// lets bruteforce since we have no idea where he at.
-			else if (nMisses > 2) {
+				// we missed more than 2 shots
+				// lets bruteforce since we have no idea where he at.
+				else if (nMisses > 0) {
+					switch (nMisses % 5) {
+					case 1:
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
+						break;
+
+					case 2:
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+						break;
+
+					case 3:
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+						break;
+
+					case 4:
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+						break;
+
+					case 5:
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+						break;
+
+					default:
+						break;
+					}
+				}
+			}
+
+			else if (data.m_bCollectedFreestandData && data.m_bCollectedValidMoveData) {
+				switch (nMisses % 6) {
+				case 0:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
+					break;
+				case 1:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
+					break;
+
+				case 2:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+					break;
+
+				case 3:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+					break;
+
+				case 4:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					break;
+
+				case 5:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+					break;
+
+				default:
+					break;
+				}
+			}
+
+
+			// if there isn't any valid move data
+			// lets bruteforce.
+			else if (!data.m_bCollectedFreestandData && !data.m_bCollectedValidMoveData) {
+				switch (nMisses % 5) {
+
+				case 0:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y;
+					break;
+
+				case 1:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
+					break;
+
+				case 2:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+					break;
+
+				case 3:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+					break;
+
+				case 4:
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+					break;
+
+				default:
+					break;
+				}
+			}
+
+			//shouldn't happen but just in case.
+			else {
 				switch (nMisses % 5) {
 				case 0:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
@@ -558,96 +676,6 @@ namespace Engine {
 				}
 			}
 		}
-
-		else if (data.m_bCollectedFreestandData && data.m_bCollectedValidMoveData) {
-			switch (nMisses % 6) {
-			case 0:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
-				break;
-			case 1:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
-				break;
-
-			case 2:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
-				break;
-
-			case 3:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
-				break;
-
-			case 4:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
-				break;
-
-			case 5:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
-				break;
-
-			default:
-				break;
-			}
-		}
-
-
-		// if there isn't any valid move data
-		// lets bruteforce.
-		else if (!data.m_bCollectedFreestandData && !data.m_bCollectedValidMoveData) {
-			switch (nMisses % 5) {
-
-			case 0:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
-				break;
-
-			case 1:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
-				break;
-
-			case 2:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
-				break;
-
-			case 3:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
-				break;
-
-			case 4:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
-				break;
-
-			default:
-				break;
-			}
-		}
-
-		//shouldn't happen but just in case.
-		else {
-			switch (nMisses % 5) {
-			case 0:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
-				break;
-
-			case 1:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
-				break;
-
-			case 2:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
-				break;
-
-			case 3:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
-				break;
-
-			case 4:
-				g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
-				break;
-
-			default:
-				break;
-			}
-		}
-
 	}
 
 	void CResolver::ResolveAir(C_CSPlayer* player, C_AnimationRecord* record) {
@@ -821,11 +849,11 @@ namespace Engine {
 			return;
 		}
 
-		// fake flick shit.
-		if (!record->m_bUnsafeVelocityTransition) {
-			Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
-			return;
-		}
+		//// fake flick shit.
+		//if (!record->m_bUnsafeVelocityTransition) {
+		//	Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
+		//	return;
+		//}
 
 		// get lag data about this player
 		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
@@ -844,31 +872,76 @@ namespace Engine {
 
 		//check if the player is walking
 		// no need for the extra fakewalk check since we null velocity when they're fakewalking anyway
-		if ( /*record->m_vecAnimationVelocity.Length( ) > 0.1f*/record->m_vecVelocity.Length2D() > 0.1f && !record->m_bFakeWalking) {
-			// predict the first flick they have to do after they stop moving
-			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + 0.22f;
+		
+		if (!player->IsDormant()) {
+			// since we null velocity when they fakewalk, no need to check for it.
+			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
+				Add[player->EntIndex()] = 0.22f;
+				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+				g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
+			}
+			// lby wont update on this tick but after.
+			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2)
+			{
+				record->m_iResolverMode = EResolverModes::RESOLVE_PRED;
+				is_flicking = true;
+				record->m_bResolved = true;
+				Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = true;
+				Add[player->EntIndex()] = 1.1f;
+				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+				g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
+				record->m_angEyeAngles.y = player->m_angEyeAngles().y = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+			}
+			else
+				is_flicking = false;
 
-			// since we are still not in the prediction process, inform the cheat that we arent predicting yet
-			// this is only really used to determine if we should draw the lby timer bar on esp, no other real purpose
-			Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
+			//// LBY updated via PROXY.
+			//if (g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget != g_ResolverData[player->EntIndex()].m_flOldLowerBodyYawTarget) {
+			//	is_flicking = true;
+			//	record->m_bResolved = true;
+			//	Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = true;
+			//	Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+			//	g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
+			//}
+			//else
+			//	is_flicking = false;
+
+			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
+				Add[player->EntIndex()] = 0.22f;
+				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+				g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
+
+				Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
+			}
 		}
 
-		// lby updated on this tick via timing or proxy
-		else if (player->m_flAnimationTime() >= Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate || Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget != Engine::g_ResolverData[player->EntIndex()].m_flOldLowerBodyYawTarget) {
-			// inform the cheat of the resolver method
-			record->m_iResolverMode = EResolverModes::RESOLVE_PRED;
+		 
+		//if ( /*record->m_vecAnimationVelocity.Length( ) > 0.1f*/record->m_vecVelocity.Length2D() > 0.1f && !record->m_bFakeWalking) {
+		//	// predict the first flick they have to do after they stop moving
+		//	Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + 0.22f;
 
-			// predict the next body update
-			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + 1.1f;
+		//	// since we are still not in the prediction process, inform the cheat that we arent predicting yet
+		//	// this is only really used to determine if we should draw the lby timer bar on esp, no other real purpose
+		//	Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = false;
+		//}
 
-			// set eyeangles to lby
-			record->m_angEyeAngles.y = player->m_angEyeAngles().y = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+		//// lby updated on this tick via timing or proxy
+		//else if (player->m_flAnimationTime() >= Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate /*|| Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget != Engine::g_ResolverData[player->EntIndex()].m_flOldLowerBodyYawTarget*/) {
+		//	// inform the cheat of the resolver method
+		//	record->m_iResolverMode = EResolverModes::RESOLVE_PRED;
 
-			// this is also only really used for esp flag
-			record->m_bResolved = true;
+		//	// predict the next body update
+		//	Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + 1.1f;
 
-			// we're now in the prediction stage.
-			Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = true;
-		}
+		//	// set eyeangles to lby
+		//	record->m_angEyeAngles.y = player->m_angEyeAngles().y = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+
+		//	// this is also only really used for esp flag
+		//	record->m_bResolved = true;
+
+		//	// we're now in the prediction stage.
+		//	Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = true;
+		//}
 	}
 }

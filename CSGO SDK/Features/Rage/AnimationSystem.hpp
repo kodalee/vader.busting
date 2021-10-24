@@ -58,6 +58,7 @@ namespace Engine
 
 		float m_flChokeTime;
 		float m_flSimulationTime;
+		float m_anim_time;
 		float m_flShotTime;
 		float m_flDuckAmount;
 		float m_flDelta;
