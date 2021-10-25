@@ -292,6 +292,7 @@ namespace Engine
 		record->m_vecOrigin = pThis->player->m_vecOrigin( );
 		record->m_angEyeAngles = pThis->player->m_angEyeAngles( );
 		record->m_flSimulationTime = pThis->m_flSimulationTime;
+		record->m_anim_time = pThis->m_flOldSimulationTime + Interfaces::m_pGlobalVars->interval_per_tick;
 		record->m_flLowerBodyYawTarget = pThis->player->m_flLowerBodyYawTarget( );
 
 		auto weapon = ( C_WeaponCSBaseGun* )( player->m_hActiveWeapon( ).Get( ) );
@@ -413,12 +414,12 @@ namespace Engine
 		}
 
 		// detect players abusing micromovements or other trickery
-		if ( record->m_vecVelocity.Length( ) < 18.f 
-			&& record->m_serverAnimOverlays[ 6 ].m_flWeight != 1.0f 
-			&& record->m_serverAnimOverlays[ 6 ].m_flWeight != 0.0f
-			&& record->m_serverAnimOverlays[ 6 ].m_flWeight != previous_record->m_serverAnimOverlays[ 6 ].m_flWeight
-			&& ( record->m_fFlags & FL_ONGROUND ) )
-			record->m_bUnsafeVelocityTransition = true;
+		//if ( record->m_vecVelocity.Length( ) < 18.f 
+		//	&& record->m_serverAnimOverlays[ 6 ].m_flWeight != 1.0f 
+		//	&& record->m_serverAnimOverlays[ 6 ].m_flWeight != 0.0f
+		//	&& record->m_serverAnimOverlays[ 6 ].m_flWeight != previous_record->m_serverAnimOverlays[ 6 ].m_flWeight
+		//	&& ( record->m_fFlags & FL_ONGROUND ) )
+		//	record->m_bUnsafeVelocityTransition = true;
 
 		record->m_vecAnimationVelocity = record->m_vecVelocity;
 

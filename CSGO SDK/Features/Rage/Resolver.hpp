@@ -65,6 +65,8 @@ namespace Engine {
 		float right_damage[64];
 		float back_damage[64];
 
+		bool is_flicking;
+
 		std::vector<Vector> last_eye_positions;
 
 	public:

@@ -39,6 +39,7 @@ public:
 	void PenetrateCrosshair( Vector2D center );
 	void DrawAntiAimIndicator( ) override;
 	void DrawZeusDistance( );
+	void SetupAgents() override;
 	void Main( ) override;
 	void SetAlpha( int idx ) override;
 	float GetAlpha( int idx ) override;
@@ -915,7 +916,7 @@ void CEsp::DrawAntiAimIndicator( ) {
 
 	Color color = g_Vars.antiaim.manual_color.ToRegularColor( );
 
-	float alpha = floor( sin( Interfaces::m_pGlobalVars->realtime * 4 ) * ( color.RGBA[ 3 ] / 2 - 1 ) + color.RGBA[ 3 ] / 2 );
+	float alpha = 255/*floor( sin( Interfaces::m_pGlobalVars->realtime * 4 ) * ( color.RGBA[ 3 ] / 2 - 1 ) + color.RGBA[ 3 ] / 2 )*/;
 
 	color.RGBA[ 3 ] = alpha;
 
@@ -2181,6 +2182,88 @@ void CEsp::Offscreen( ) {
 			Interfaces::m_pSurface.Xor( )->DrawTexturedPolyLine( vertices.data( ), 3 );
 		}
 	}
+}
+
+// Bind only once
+bool ForceOnce = false;
+bool LoadModel = false;
+
+bool LockNLoad(const char* MdlName)
+{
+	// hooking INetworkStringTable
+	INetworkStringTable* m_2k20_model = Interfaces::g_pClientStringTableContainer->FindTable("modelprecache");
+
+	if (m_2k20_model)
+	{
+		Interfaces::m_pModelInfo->FindOrLoadModel(MdlName);
+		int modelindex = m_2k20_model->AddString(false, MdlName);
+		if (modelindex == NULL)	// if not exists, skip
+			return false;
+	}
+	return true;
+}
+
+static bool ran = false;
+
+void CEsp::SetupAgents()
+{
+	//if (!ran) {
+	//	ran = true;
+		// call this once
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	if (!g_Vars.misc.models)
+	{
+		// Strip?
+		// TODO backup and save default model
+
+		if (g_Vars.misc.model_change == 0)	// first
+			Interfaces::m_pModelInfo->GetModelIndex("models/player/custom_player/owston/amongus/white.mdl");
+		else if (g_Vars.misc.model_change == 1)
+			Interfaces::m_pModelInfo->GetModelIndex("models/player/custom_player/kuristaja/stormtrooper/stormtrooper.mdl");
+		else if (g_Vars.misc.model_change == 2)
+			Interfaces::m_pModelInfo->GetModelIndex("models/player/custom_player/kuristaja/vader/vader.mdl");
+		else if (g_Vars.misc.model_change == 3)
+			Interfaces::m_pModelInfo->GetModelIndex("models/player/custom_player/kuristaja/shrek/shrek.mdl");
+		ForceOnce = true;
+		LoadModel = false;
+		return;
+	}
+	// lock
+	else
+		ForceOnce = false;
+
+	if (ForceOnce == false)
+	{
+		// For example let's precache Counter-Strike Online 2 player operators
+		// Download them first OFC
+		if (LoadModel == false)
+		{
+			// Don't change the models path, it's defined in .mdl source code
+			LockNLoad("models/player/custom_player/owston/amongus/white.mdl");
+			LockNLoad("models/player/custom_player/kuristaja/stormtrooper/stormtrooper.mdl");
+			LockNLoad("models/player/custom_player/kuristaja/vader/vader.mdl");
+			LockNLoad("models/player/custom_player/kuristaja/shrek/shrek.mdl");
+
+			LoadModel = true;	// we done here, no need to spam this
+		}
+
+		static int iModel = g_Vars.misc.model_change;
+
+		// setup your models here
+		if (g_Vars.misc.model_change == 0)	// first
+			iModel = Interfaces::m_pModelInfo->GetModelIndex("models/player/custom_player/owston/amongus/white.mdl");
+		else if (g_Vars.misc.model_change == 1)
+			iModel = Interfaces::m_pModelInfo->GetModelIndex("models/player/custom_player/kuristaja/stormtrooper/stormtrooper.mdl");
+		else if (g_Vars.misc.model_change == 2)
+			iModel = Interfaces::m_pModelInfo->GetModelIndex("models/player/custom_player/kuristaja/vader/vader.mdl");
+		else if (g_Vars.misc.model_change == 3)
+			iModel = Interfaces::m_pModelInfo->GetModelIndex("models/player/custom_player/kuristaja/shrek/shrek.mdl");
+
+		local->SetModelIndex(iModel);
+	}
+	//}
+
 }
 
 void CEsp::OverlayInfo( ) {

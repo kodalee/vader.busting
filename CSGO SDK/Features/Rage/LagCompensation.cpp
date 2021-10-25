@@ -123,21 +123,36 @@ namespace Engine
 		if( !pLocal )
 			return true;
 
-		// use prediction curtime for this.
-		float curtime = TICKS_TO_TIME( pLocal->m_nTickBase( ) - g_TickbaseController.s_nExtraProcessingTicks );
+		auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
+		
+		const auto flCorrect = std::clamp(pNetChannel->GetLatency(FLOW_INCOMING)
+			+ pNetChannel->GetLatency(FLOW_OUTGOING)
+			+ lerp, 0.f, g_Vars.sv_maxunlag->GetFloat());
 
-		// correct is the amount of time we have to correct game time,
-		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor( )->m_flServerLatency;
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
 
-		// stupid fake latency goes into the incoming latency.
-		correct += lagData.Xor( )->m_flServerLatency;
+		//if (fabsf(flCorrect - (curtime - record.m_flSimulationTime)) <= flTargetTime) 
+		//	printf("LESS THAN TARGET TIME\n");
+		//else
+		//	printf("MORE THAN\n");
 
-		// check bounds [ 0, sv_maxunlag ]
-		Math::Clamp( correct, 0.f, 1.0f );
+		return fabsf(flCorrect - (curtime - record.m_flSimulationTime)) <= flTargetTime;
 
-		// calculate difference between tick sent by player and our latency based tick.
-		// ensure this record isn't too old.
-		return std::fabsf( correct - ( curtime - record.m_flSimulationTime ) ) <= flTargetTime;
+		//// use prediction curtime for this.
+		//float curtime = TICKS_TO_TIME( pLocal->m_nTickBase( ) - g_TickbaseController.s_nExtraProcessingTicks );
+
+		//// correct is the amount of time we have to correct game time,
+		//float correct = lagData.Xor()->m_flLerpTime + lagData.Xor( )->m_flServerLatency;
+
+		//// stupid fake latency goes into the incoming latency.
+		////correct += lagData.Xor( )->m_flServerLatency;
+
+		//// check bounds [ 0, sv_maxunlag ]
+		//Math::Clamp( correct, 0.f, 1.0f );
+
+		//// calculate difference between tick sent by player and our latency based tick.
+		//// ensure this record isn't too old.
+		//return std::fabsf( correct - ( curtime - record.m_flSimulationTime ) ) <= flTargetTime;
 	}
 
 	void C_LagCompensation::SetupLerpTime( ) {
@@ -219,11 +234,13 @@ namespace Engine
 
 		bool isTeam = local->IsTeammate( player );
 
-		// invalidate all records, if player abusing teleport distance
-		/*if( !anim_record->m_bIsInvalid && anim_record->m_bTeleportDistance && pThis->m_History.size( ) > 0 ) {
-			for( auto& record : pThis->m_History )
-				record.m_bSkipDueToResolver = true;
-		}*/
+
+		//LOOK AT THIS LATER GEICO FROM FUTURE (exploiting players?)
+		//// invalidate all records, if player abusing teleport distance
+		//if( !anim_record->m_bIsInvalid && anim_record->m_bTeleportDistance && pThis->m_History.size( ) > 0 ) {
+		//	for( auto& record : pThis->m_History )
+		//		record.m_bSkipDueToResolver = true;
+		//}
 
 		// add new record and get reference to newly added record.
 		auto record = Encrypted_t<C_LagRecord>( &pThis->m_History.emplace_front( ) );
