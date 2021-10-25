@@ -123,7 +123,7 @@ namespace Hooked
 
 		// hack.
 		if( !g_Vars.globals.HackIsReady ) {
-			g_NewChams.OnPostScreenEffects( );
+			Interfaces::IChams::Get()->OnPostScreenEffects();
 			//g_TickbaseController.bExploiting = false;
 
 			Engine::WeatherController::Get( )->ResetWeather( );

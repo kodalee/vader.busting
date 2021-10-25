@@ -137,8 +137,8 @@ void __fastcall Hooked::DrawModelExecute( void* ECX, void* EDX, IMatRenderContex
    if( strstr( RenderInfo.pModel->szName, XorStr( "shadow" ) ) != nullptr )
        return;
 
-  // Interfaces::IChams::Get( )->DrawModel( ECX, MatRenderContext, DrawModelState, RenderInfo, pCustomBoneToWorld );
+   Interfaces::IChams::Get( )->DrawModel( ECX, MatRenderContext, DrawModelState, RenderInfo, pCustomBoneToWorld );
 
-   if (g_NewChams.DrawModel(RenderInfo))
-	   oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pCustomBoneToWorld);
+  // if (g_NewChams.DrawModel(RenderInfo))
+	   //oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pCustomBoneToWorld);
 }
