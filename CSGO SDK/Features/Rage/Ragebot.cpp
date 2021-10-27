@@ -1647,8 +1647,8 @@ namespace Interfaces
 						auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
 						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + lerp);
 
-						if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
-							targedt -= 3;
+						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
+						//	targedt -= 3;
 
 						m_rage_data->m_pCmd->tick_count = targedt;
 
