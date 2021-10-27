@@ -22,6 +22,7 @@
 #include "ExtendedEsp.hpp"
 #include <sstream>
 #include <ctime>
+#include <Psapi.h>
 //#include "../Rage/AnimationSystem.hpp"
 
 #include "../Miscellaneous/Movement.hpp"
@@ -334,6 +335,87 @@ int fps( ) {
 
 	return ( int )( 1.0f / m_Framerate );
 }
+
+	void spotify() {
+
+		std::string song_title = "";
+
+		static HWND spotify_hwnd = nullptr;
+		static float last_hwnd_time = 0.f;
+		int text_width = 0;
+
+		if ((!spotify_hwnd || spotify_hwnd == INVALID_HANDLE_VALUE) && last_hwnd_time < Interfaces::m_pGlobalVars->realtime + 2.f) {
+			for (HWND hwnd = GetTopWindow(0); hwnd; hwnd = GetWindow(hwnd, GW_HWNDNEXT)) {
+
+				last_hwnd_time = Interfaces::m_pGlobalVars->realtime;
+
+				if (!(IsWindowVisible)(hwnd))
+					continue;
+
+				int length = (GetWindowTextLengthW)(hwnd);
+				if (length == 0)
+					continue;
+
+				WCHAR filename[300];
+				DWORD pid;
+				(GetWindowThreadProcessId)(hwnd, &pid);
+
+				const auto spotify_handle = (OpenProcess)(PROCESS_QUERY_INFORMATION, FALSE, pid);
+				(K32GetModuleFileNameExW)(spotify_handle, nullptr, filename, 300);
+
+				std::wstring sane_filename{ filename };
+
+				(CloseHandle)(spotify_handle);
+
+				if (sane_filename.find((L"Spotify.exe")) != std::string::npos)
+					spotify_hwnd = hwnd;
+			}
+		}
+		else if (spotify_hwnd && spotify_hwnd != INVALID_HANDLE_VALUE) {
+			WCHAR title[300];
+
+			if (!(GetWindowTextW)(spotify_hwnd, title, 300)) {
+				spotify_hwnd = nullptr;
+			}
+			else {
+				std::wstring sane_title{ title };
+				std::string Title = " ";
+				std::string Song(sane_title.begin(), sane_title.end());
+				Title += Song;
+				if (sane_title.find((L"-")) != std::string::npos) {
+
+					const auto margin = 10; // Padding between screen edges and watermark
+					const auto padding = 4; // Padding between watermark elements
+
+					auto text_size = Render::Engine::esp.size(Title);
+					auto text_pos = Vector2D(Render::GetScreenSize().x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
+						margin + padding); // Top align
+
+					Render::Engine::esp.string(text_pos.x, text_pos.y + 17, Color(255, 255, 255), Title.c_str());
+					song_title = Title;
+				}
+				else if (sane_title.find((L"Advertisment")) != std::string::npos) {
+					song_title = "advertisment";
+				}
+				else if (sane_title.find((L"Spotify")) != std::string::npos) {
+					song_title = "stopped / not playing";
+				}
+				else {
+					song_title = "advertisment";
+				}
+
+			}
+		}
+
+		const auto margin = 10; // Padding between screen edges and watermark
+		const auto padding = 4; // Padding between watermark elements
+
+		auto text_size = Render::Engine::esp.size(song_title);
+		auto text_pos = Vector2D(Render::GetScreenSize().x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
+			margin + padding); // Top align
+
+		Render::Engine::esp.string(text_pos.x, text_pos.y + 17, Color(255, 255, 255), song_title);
+	}
 
 void CEsp::Indicators() {
 	struct Indicator_t { Color color; std::string text; };
@@ -1045,6 +1127,7 @@ void CEsp::DrawZeusDistance( ) {
 
 void CEsp::Main( ) {
 	DrawWatermark( );
+	spotify( );
 
 	if( g_Vars.esp.keybind_window_enabled )
 		Keybinds( );
@@ -1145,56 +1228,60 @@ void CEsp::Main( ) {
 		if( !entity->GetClientClass( ) /*|| !entity->GetClientClass( )->m_ClassID*/ )
 			continue;
 
-		if( g_Vars.esp.nades ) {
-			if( entity->GetClientClass( )->m_ClassID == CInferno ) {
-				C_Inferno* pInferno = reinterpret_cast< C_Inferno* >( entity );
-				C_CSPlayer* player = ( C_CSPlayer* )entity->m_hOwnerEntity( ).Get( );
+		if (g_Vars.esp.nades) {
+			if (entity->GetClientClass()->m_ClassID == CInferno) {
+				C_Inferno* pInferno = reinterpret_cast<C_Inferno*>(entity);
+				C_CSPlayer* player = (C_CSPlayer*)entity->m_hOwnerEntity().Get();
 
-				if( player ) {
-					FloatColor color = FloatColor( 1.f, 0.f, 0.f, 0.8f );
+				if (player) {
+					FloatColor color = FloatColor(1.f, 0.f, 0.f, 0.8f);
 
-					if( player->m_iTeamNum( ) == m_LocalPlayer->m_iTeamNum( ) && player->EntIndex( ) != m_LocalPlayer->EntIndex( ) ) {
-						if( g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt( ) == 0 ) {
-							color = FloatColor( 0, 0, 0, 0 );
+					if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex()) {
+						if (g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0) {
+							color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.f);
 						}
 					}
 
-					const Vector origin = pInferno->GetAbsOrigin( );
-					Vector2D screen_origin = Vector2D( );
+					const Vector origin = pInferno->GetAbsOrigin();
+					Vector2D screen_origin = Vector2D();
 
-					if( WorldToScreen( origin, screen_origin ) ) {
+					int dist = m_LocalPlayer->GetAbsOrigin().Distance(origin); // no point drawing if you are nowhere near the entity.
+					if (dist > 999)
+						return;
+
+					if (WorldToScreen(origin, screen_origin)) {
 						struct s {
 							Vector2D a, b, c;
 						};
 						std::vector<int> excluded_ents;
 						std::vector<s> valid_molotovs;
 
-						const auto spawn_time = pInferno->m_flSpawnTime( );
-						const auto time = ( ( spawn_time + C_Inferno::GetExpiryTime( ) ) - Interfaces::m_pGlobalVars->curtime );
+						const auto spawn_time = pInferno->m_flSpawnTime();
+						const auto time = ((spawn_time + C_Inferno::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime);
 
-						if( time > 0.05f ) {
-							static const auto size = Vector2D( 70.f, 4.f );
+						if (time > 0.05f) {
+							static const auto size = Vector2D(70.f, 4.f);
 
-							auto new_pos = Vector2D( screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5 );
+							auto new_pos = Vector2D(screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5);
 
 							Vector min, max;
-							entity->GetClientRenderable( )->GetRenderBounds( min, max );
+							entity->GetClientRenderable()->GetRenderBounds(min, max);
 
-							auto radius = ( max - min ).Length2D( ) * 0.5f;
-							Vector boundOrigin = Vector( ( min.x + max.x ) * 0.5f, ( min.y + max.y ) * 0.5f, min.z + 5 ) + origin;
+							auto radius = (max - min).Length2D() * 0.5f;
+							Vector boundOrigin = Vector((min.x + max.x) * 0.5f, (min.y + max.y) * 0.5f, min.z + 5) + origin;
 							const int accuracy = 25;
 							const float step = DirectX::XM_2PI / accuracy;
-							for( float a = 0.0f; a < DirectX::XM_2PI; a += step ) {
+							for (float a = 0.0f; a < DirectX::XM_2PI; a += step) {
 								float a_c, a_s, as_c, as_s;
-								DirectX::XMScalarSinCos( &a_s, &a_c, a );
-								DirectX::XMScalarSinCos( &as_s, &as_c, a + step );
+								DirectX::XMScalarSinCos(&a_s, &a_c, a);
+								DirectX::XMScalarSinCos(&as_s, &as_c, a + step);
 
-								Vector startPos = Vector( a_c * radius + boundOrigin.x, a_s * radius + boundOrigin.y, boundOrigin.z );
-								Vector endPos = Vector( as_c * radius + boundOrigin.x, as_s * radius + boundOrigin.y, boundOrigin.z );
+								Vector startPos = Vector(a_c * radius + boundOrigin.x, a_s * radius + boundOrigin.y, boundOrigin.z);
+								Vector endPos = Vector(as_c * radius + boundOrigin.x, as_s * radius + boundOrigin.y, boundOrigin.z);
 
 								Vector2D start2d, end2d, boundorigin2d;
-								if( !WorldToScreen( startPos, start2d ) || !WorldToScreen( endPos, end2d ) || !WorldToScreen( boundOrigin, boundorigin2d ) ) {
-									excluded_ents.push_back( i );
+								if (!WorldToScreen(startPos, start2d) || !WorldToScreen(endPos, end2d) || !WorldToScreen(boundOrigin, boundorigin2d)) {
+									excluded_ents.push_back(i);
 									continue;
 								}
 
@@ -1202,128 +1289,137 @@ void CEsp::Main( ) {
 								n.a = start2d;
 								n.b = end2d;
 								n.c = boundorigin2d;
-								valid_molotovs.push_back( n );
+								valid_molotovs.push_back(n);
 							}
 
-							if( !excluded_ents.empty( ) ) {
-								for( int v = 0; v < excluded_ents.size( ); ++v ) {
-									auto bbrr = excluded_ents[ v ];
-									if( bbrr == i )
+							if (!excluded_ents.empty()) {
+								for (int v = 0; v < excluded_ents.size(); ++v) {
+									auto bbrr = excluded_ents[v];
+									if (bbrr == i)
 										continue;
 
-									if( !valid_molotovs.empty( ) )
-										for( int m = 0; m < valid_molotovs.size( ); ++m ) {
-											auto ba = valid_molotovs[ m ];
-											Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
-											Render::Engine::Line( ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 220 ) );
+									if (!valid_molotovs.empty())
+										for (int m = 0; m < valid_molotovs.size(); ++m) {
+											auto ba = valid_molotovs[m];
+											//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
+											Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
 										}
 								}
 							}
 							else {
-								if( !valid_molotovs.empty( ) )
-									for( int m = 0; m < valid_molotovs.size( ); ++m ) {
-										auto ba = valid_molotovs[ m ];
-										Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
-										Render::Engine::Line( ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 220 ) );
+								if (!valid_molotovs.empty())
+									for (int m = 0; m < valid_molotovs.size(); ++m) {
+										auto ba = valid_molotovs[m];
+										//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
+										Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
 									}
 							}
 
-							char buf[ 128 ] = { };
-							sprintf( buf, XorStr( "Fire : %.2fs" ), time );
-							Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
-								Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
+							char buf[128] = { };
+							sprintf(buf, XorStr(" - %.2fs"), time);
+							//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
+							//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-							Render::Engine::segoe.string( new_pos.x + ( Render::Engine::segoe.size( buf ).m_width * 0.5f ), new_pos.y - 15, Color( 255, 0, 0, 220 ), buf, Render::Engine::ALIGN_CENTER );
+							Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "n", Render::Engine::ALIGN_CENTER);
+							Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+
 						}
 						else {
-							if( !valid_molotovs.empty( ) )
-								valid_molotovs.erase( valid_molotovs.begin( ) + i );
+							if (!valid_molotovs.empty())
+								valid_molotovs.erase(valid_molotovs.begin() + i);
 
-							if( !excluded_ents.empty( ) )
-								excluded_ents.erase( excluded_ents.begin( ) + i );
+							if (!excluded_ents.empty())
+								excluded_ents.erase(excluded_ents.begin() + i);
 						}
 					}
 				}
 			}
 
-			C_SmokeGrenadeProjectile* pSmokeEffect = reinterpret_cast< C_SmokeGrenadeProjectile* >( entity );
-			if( pSmokeEffect->GetClientClass( )->m_ClassID == CSmokeGrenadeProjectile ) {
-				const Vector origin = pSmokeEffect->GetAbsOrigin( );
-				Vector2D screen_origin = Vector2D( );
+			C_SmokeGrenadeProjectile* pSmokeEffect = reinterpret_cast<C_SmokeGrenadeProjectile*>(entity);
+			if (pSmokeEffect->GetClientClass()->m_ClassID == CSmokeGrenadeProjectile) {
+				const Vector origin = pSmokeEffect->GetAbsOrigin();
+				Vector2D screen_origin = Vector2D();
 
-				if( WorldToScreen( origin, screen_origin ) ) {
+				int dist = m_LocalPlayer->GetAbsOrigin().Distance(origin); // no point drawing if you are nowhere near the entity.
+				if (dist > 999)
+					return;
+
+
+				if (WorldToScreen(origin, screen_origin)) {
 					struct s {
 						Vector2D a, b;
 					};
 					std::vector<int> excluded_ents;
 					std::vector<s> valid_smokes;
-					const auto spawn_time = TICKS_TO_TIME( pSmokeEffect->m_nSmokeEffectTickBegin( ) );
-					const auto time = ( spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime( ) ) - Interfaces::m_pGlobalVars->curtime;
+					const auto spawn_time = TICKS_TO_TIME(pSmokeEffect->m_nSmokeEffectTickBegin());
+					const auto time = (spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime;
 
-					static const auto size = Vector2D( 70.f, 4.f );
+					static const auto size = Vector2D(70.f, 4.f);
 
-					auto new_pos = Vector2D( screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5 );
-					if( time > 0.05f ) {
+					auto new_pos = Vector2D(screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5);
+					if (time > 0.f) {
 						auto radius = 120.f;
 
 						const int accuracy = 25;
 						const float step = DirectX::XM_2PI / accuracy;
-						for( float a = 0.0f; a < DirectX::XM_2PI; a += step ) {
+						for (float a = 0.0f; a < DirectX::XM_2PI; a += step) {
 							float a_c, a_s, as_c, as_s;
-							DirectX::XMScalarSinCos( &a_s, &a_c, a );
-							DirectX::XMScalarSinCos( &as_s, &as_c, a + step );
+							DirectX::XMScalarSinCos(&a_s, &a_c, a);
+							DirectX::XMScalarSinCos(&as_s, &as_c, a + step);
 
-							Vector startPos = Vector( a_c * radius + origin.x, a_s * radius + origin.y, origin.z + 5 );
-							Vector endPos = Vector( as_c * radius + origin.x, as_s * radius + origin.y, origin.z + 5 );
+							Vector startPos = Vector(a_c * radius + origin.x, a_s * radius + origin.y, origin.z + 5);
+							Vector endPos = Vector(as_c * radius + origin.x, as_s * radius + origin.y, origin.z + 5);
 
 							Vector2D start2d, end2d;
-							if( !WorldToScreen( startPos, start2d ) || !WorldToScreen( endPos, end2d ) ) {
-								excluded_ents.push_back( i );
+							if (!WorldToScreen(startPos, start2d) || !WorldToScreen(endPos, end2d)) {
+								excluded_ents.push_back(i);
 								continue;
 							}
 
 							s n;
 							n.a = start2d;
 							n.b = end2d;
-							valid_smokes.push_back( n );
+							valid_smokes.push_back(n);
 						}
 
-						if( !excluded_ents.empty( ) ) {
-							for( int v = 0; v < excluded_ents.size( ); ++v ) {
-								auto bbrr = excluded_ents[ v ];
-								if( bbrr == i )
+						if (!excluded_ents.empty()) {
+							for (int v = 0; v < excluded_ents.size(); ++v) {
+								auto bbrr = excluded_ents[v];
+								if (bbrr == i)
 									continue;
 
-								if( !valid_smokes.empty( ) )
-									for( int m = 0; m < valid_smokes.size( ); ++m ) {
-										auto ba = valid_smokes[ m ];
-										Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
-										Render::Engine::Line( ba.a, ba.b, Color( 220, 220, 220, 220 ) );
+								if (!valid_smokes.empty())
+									for (int m = 0; m < valid_smokes.size(); ++m) {
+										auto ba = valid_smokes[m];
+										//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
+										Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
 									}
 							}
 						}
 						else {
-							if( !valid_smokes.empty( ) )
-								for( int m = 0; m < valid_smokes.size( ); ++m ) {
-									auto ba = valid_smokes[ m ];
-									Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
-									Render::Engine::Line( ba.a, ba.b, Color( 220, 220, 220, 220 ) );
+							if (!valid_smokes.empty())
+								for (int m = 0; m < valid_smokes.size(); ++m) {
+									auto ba = valid_smokes[m];
+									//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
+									Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
 								}
 						}
 
-						char buf[ 128 ] = { };
-						sprintf( buf, XorStr( "Smoke : %.2fs" ), time );
-						Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
-							Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
+						char buf[128] = { };
+						sprintf(buf, XorStr(" - %.2fs"), time);
+						//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
+						//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-						Render::Engine::segoe.string( new_pos.x + ( Render::Engine::segoe.size( buf ).m_width * 0.5f ), new_pos.y - 15, Color( 0, 230, 255, 180 ), buf, Render::Engine::ALIGN_CENTER );
+						Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "m", Render::Engine::ALIGN_CENTER);
+						Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+
 					}
 					else {
-						if( !valid_smokes.empty( ) )
-							valid_smokes.erase( valid_smokes.begin( ) + i );
+						if (!valid_smokes.empty())
+							valid_smokes.erase(valid_smokes.begin() + i);
 
-						if( !excluded_ents.empty( ) )
-							excluded_ents.erase( excluded_ents.begin( ) + i );
+						if (!excluded_ents.empty())
+							excluded_ents.erase(excluded_ents.begin() + i);
 					}
 				}
 			}
@@ -1637,16 +1733,16 @@ void CEsp::AmmoBar( C_CSPlayer* player, BBox_t bbox ) {
 	}
 }
 
-void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
-	if( !g_Vars.esp.nades )
+void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {
+	if (!g_Vars.esp.nades)
 		return;
 
-	const model_t* model = nade->GetModel( );
-	if( !model )
+	const model_t* model = nade->GetModel();
+	if (!model)
 		return;
 
-	studiohdr_t* hdr = Interfaces::m_pModelInfo->GetStudiomodel( model );
-	if( !hdr )
+	studiohdr_t* hdr = Interfaces::m_pModelInfo->GetStudiomodel(model);
+	if (!hdr)
 		return;
 
 	int item_definition = 0;
@@ -1655,27 +1751,27 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 	C_Inferno* pMolotov = nullptr;
 	Color Nadecolor;
 	std::string Name = hdr->szName;
-	switch( nade->GetClientClass( )->m_ClassID ) {
+	switch (nade->GetClientClass()->m_ClassID) {
 	case ClassId_t::CBaseCSGrenadeProjectile:
-		if( Name[ 16 ] == 's' ) {
-			Name = XorStr( "FLASH" );
+		if (Name[16] == 's') {
+			Name = XorStr("k");
 			item_definition = WEAPON_FLASHBANG;
 		}
 		else {
-			Name = XorStr( "FRAG" );
+			Name = XorStr("l");
 			item_definition = WEAPON_HEGRENADE;
 		}
 		break;
 	case ClassId_t::CSmokeGrenadeProjectile:
-		Name = XorStr( "SMOKE" );
+		Name = XorStr("m");
 		item_definition = WEAPON_SMOKE;
-		pSmokeEffect = reinterpret_cast< C_SmokeGrenadeProjectile* >( nade );
-		if( pSmokeEffect ) {
-			const auto spawn_time = TICKS_TO_TIME( pSmokeEffect->m_nSmokeEffectTickBegin( ) );
-			const auto time = ( spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime( ) ) - Interfaces::m_pGlobalVars->curtime;
-			const auto factor = ( ( spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime( ) ) - Interfaces::m_pGlobalVars->curtime ) / C_SmokeGrenadeProjectile::GetExpiryTime( );
+		pSmokeEffect = reinterpret_cast<C_SmokeGrenadeProjectile*>(nade);
+		if (pSmokeEffect) {
+			const auto spawn_time = TICKS_TO_TIME(pSmokeEffect->m_nSmokeEffectTickBegin());
+			const auto time = (spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime;
+			const auto factor = ((spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime) / C_SmokeGrenadeProjectile::GetExpiryTime();
 
-			if( factor > 0.0f )
+			if (factor > 0.0f)
 				dont_render = true;
 		}
 		else {
@@ -1683,17 +1779,17 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 		}
 		break;
 	case ClassId_t::CMolotovProjectile:
-		Name = XorStr( "FIRE" );
+		Name = XorStr("n");
 		// bich
-		if( nade && ( nade->m_hOwnerEntity( ).Get( ) ) && ( ( C_CSPlayer* )( nade->m_hOwnerEntity( ).Get( ) ) ) ) {
-			item_definition = ( ( C_CSPlayer* )( nade->m_hOwnerEntity( ).Get( ) ) )->m_iTeamNum( ) == TEAM_CT ? WEAPON_FIREBOMB : WEAPON_MOLOTOV;
+		if (nade && (nade->m_hOwnerEntity().Get()) && ((C_CSPlayer*)(nade->m_hOwnerEntity().Get()))) {
+			item_definition = ((C_CSPlayer*)(nade->m_hOwnerEntity().Get()))->m_iTeamNum() == TEAM_CT ? WEAPON_FIREBOMB : WEAPON_MOLOTOV;
 		}
-		pMolotov = reinterpret_cast< C_Inferno* >( nade );
-		if( pMolotov ) {
-			const auto spawn_time = pMolotov->m_flSpawnTime( );
-			const auto time = ( ( spawn_time + C_Inferno::GetExpiryTime( ) ) - Interfaces::m_pGlobalVars->curtime );
+		pMolotov = reinterpret_cast<C_Inferno*>(nade);
+		if (pMolotov) {
+			const auto spawn_time = pMolotov->m_flSpawnTime();
+			const auto time = ((spawn_time + C_Inferno::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime);
 
-			if( time <= 0.05f )
+			if (time <= 0.05f)
 				dont_render = true;
 		}
 		else {
@@ -1701,20 +1797,20 @@ void CEsp::RenderNades( C_WeaponCSBaseGun* nade ) {
 		}
 		break;
 	case ClassId_t::CDecoyProjectile:
-		Name = XorStr( "DECOY" );
+		Name = XorStr("o");
 		item_definition = WEAPON_DECOY;
 		break;
 	default:
 		return;
 	}
 
-	Vector2D points_transformed[ 8 ];
+	Vector2D points_transformed[8];
 	BBox_t size;
 
-	if( !GetBBox( nade, points_transformed, size ) || dont_render )
+	if (!GetBBox(nade, points_transformed, size) || dont_render)
 		return;
 
-	Render::Engine::segoe.string( size.x, size.y - 2, Color( 255, 255, 255, 220 ), Name.c_str( ), Render::Engine::ALIGN_CENTER );
+	Render::Engine::cs_huge.string(size.x + 10, size.y - 15, Color(255, 255, 255, 220), Name.c_str(), Render::Engine::ALIGN_CENTER);
 }
 
 void CEsp::DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player ) {

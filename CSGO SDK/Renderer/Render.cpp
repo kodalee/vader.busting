@@ -493,6 +493,8 @@ namespace Render::Engine {
 	Font damage;
 	Font icon;
 	Font indi;
+	Font grenades;
+	Font cs_huge;
 
 	int m_width;
 	int m_height;
@@ -510,7 +512,10 @@ void Render::Engine::Initialise( ) {
 	cs = Font( XorStr( "WeaponIcons" ), 14, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
 	cs_large = Font( XorStr( "WeaponIcons" ), 22, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
 	damage = Font( XorStr( "Segoe UI" ), 26, FW_THIN, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
-	indi = Font( XorStr( "Tahoma" ), 15, FW_BOLD, FONTFLAG_ANTIALIAS );
+	indi = Font( XorStr( "Verdana" ), 26, FW_BOLD, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
+	grenades = Font(XorStr("Verdana"), 12, FW_NORMAL, FONTFLAG_DROPSHADOW);
+	cs_huge = Font(XorStr("WeaponIcons"), 25, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
+
 
 	Interfaces::m_pEngine->GetScreenSize( m_width, m_height );
 }

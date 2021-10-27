@@ -187,7 +187,7 @@ namespace Engine
 		Displacement.DT_BaseViewModel.m_hWeapon = pPropManager->GetOffset( XorStr( "DT_BaseViewModel" ), XorStr( "m_hWeapon" ) );
 		Displacement.DT_BaseViewModel.m_nSequence = pPropManager->GetOffset( XorStr( "DT_BaseViewModel" ), XorStr( "m_nSequence" ) );
 
-		Displacement.DT_SmokeGrenadeProjectile.m_nSmokeEffectTickBegin = pPropManager->GetOffset( XorStr( "DT_SmokeGrenadeProjectile" ), XorStr( "m_bDidSmokeEffect" ) );
+		Displacement.DT_SmokeGrenadeProjectile.m_nSmokeEffectTickBegin = pPropManager->GetOffset( XorStr( "DT_SmokeGrenadeProjectile" ), XorStr( "m_nSmokeEffectTickBegin" ) );
 		Displacement.DT_SmokeGrenadeProjectile.m_nSmokeCount = Memory::Scan( image_client, XorStr( "A3 ? ? ? ? 57 8B CB" ) ) + 0x1;
 		//Displacement.DT_SmokeGrenadeProjectile.m_SmokeParticlesSpawned = *( int* )( Memory::Scan( image_client, XorStr( "80 BF ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? F3 0F 7E 87 ?? ?? ?? ??" ) ) + 2 );
 

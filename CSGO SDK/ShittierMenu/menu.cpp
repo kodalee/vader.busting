@@ -620,9 +620,10 @@ void Visuals()
 					}
 				}
 				*/
-				const char* chams_mats[] = { "disabled",  "texture", "flat", "metallic" };
-				const char* chams_mats_local[] = { "disabled",  "texture", "flat", "metallic" };
-				const char* chams_mats_overlay[] = { "disabled", "glow", "blinking", "wireframe", "outline" };
+				const char* chams_mats[] = { "disabled",  "texture", "flat", "custom" };
+				const char* chams_mats_local[] = { "disabled",  "texture", "flat", "custom" };
+				const char* chams_mats_overlay[] = { "disabled", "glow", "blinking" };
+				const char* chams_shot_mats[] = { "flat", "glow" };
 				const char* chams_filter_menu[] = { ("enemy"), ("local"), ("fake"), ("viewmodel") };
 				static int chams_filter = 0;
 				InsertCombo("chams", &chams_filter, chams_filter_menu);
@@ -642,20 +643,51 @@ void Visuals()
 
 						InsertCheckbox(hitmatrix, XorStr("Shot chams"), &g_Vars.esp.hitmatrix);
 						if (g_Vars.esp.hitmatrix) {
+							InsertCombo("Shot", &g_Vars.esp.new_chams_onshot_mat, chams_shot_mats);
+							if (g_Vars.esp.new_chams_onshot_mat == 1) {
+
+								InsertSliderFloat("glow Strength", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
+
+							}
 							ColorPicker(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true);
 							InsertSliderFloat(XorStr("Expire time"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
 						}
+
 						break;
 					}
 					case 1: //local
 					{
-						InsertCombo("local", &g_Vars.esp.new_chams_local, chams_mats_local);  
-						InsertCombo("local overlay", &g_Vars.esp.new_chams_local_overlay, chams_mats_overlay); 
-						ColorPicker("local color", g_Vars.esp.new_chams_local_color, true);
-						ColorPicker("local overlay color", g_Vars.esp.new_chams_local_overlay_color, true);
-						InsertCheckbox(chams_local_original_model, "draw original model", &g_Vars.esp.new_chams_local_original_model);
+						InsertCheckbox(enable_local_chams, "local chams", &g_Vars.esp.chams_local);
+						if (g_Vars.esp.chams_local) {
+							InsertCombo("local", &g_Vars.esp.new_chams_local, chams_mats_local);
+							if (g_Vars.esp.new_chams_local == 3) {
+
+								InsertSliderFloat("local pearlescence", &g_Vars.esp.chams_local_pearlescence, 0.f, 100.f, "%.f");
+								ImGui::SameLine();
+								ColorPicker("", g_Vars.esp.chams_local_pearlescence_color, true);
+								InsertSliderFloat("local shine", &g_Vars.esp.chams_local_shine, 0.f, 100.f, "%.f");
+
+							}
+
+							InsertCombo("local overlay", &g_Vars.esp.new_chams_local_overlay, chams_mats_overlay);
+							if (g_Vars.esp.new_chams_local_overlay == 1) {
+
+								InsertSliderFloat("glow Strength", &g_Vars.esp.chams_local_outline_value, 0.f, 100.f, "%.f");
+
+
+							}
+							InsertCheckbox(local_overlay_wireframe, "local overlay wireframe", &g_Vars.esp.chams_local_outline_wireframe);
+							ColorPicker("local color", g_Vars.esp.chams_local_color, true);
+							ColorPicker("local overlay color", g_Vars.esp.new_chams_local_overlay_color, true);
+							InsertCheckbox(chams_local_original_model, "draw original model", &g_Vars.esp.new_chams_local_original_model);
+						}
+
 						InsertCheckbox(chams_local_scoped_enabled, "transparency when scoped", &g_Vars.esp.new_chams_local_scoped_enabled);
-						InsertSliderFloat("scoped transparency", &g_Vars.esp.new_chams_local_scoped_alpha, 0.0f, 1.f, "%.2f");
+
+						if (g_Vars.esp.new_chams_local_scoped_enabled) {
+							InsertSliderFloat("scoped transparency", &g_Vars.esp.new_chams_local_scoped_alpha, 0.0f, 1.f, "%.2f");
+						}
+
 						break;
 					}
 					case 2: //fake 
@@ -663,21 +695,37 @@ void Visuals()
 						InsertCombo("local fake", &g_Vars.esp.new_chams_local_fake, chams_mats);  ColorPicker("##localfakechamscolor", g_Vars.esp.new_chams_local_fake_color, true);
 						break;
 					}
-				}
-				
-				InsertCheckbox(draw_hitboxes, XorStr("Shot capsules"), &g_Vars.esp.draw_hitboxes);
-				if (g_Vars.esp.draw_hitboxes) {
-					ColorPicker(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true);
+					case 3: //hands
+					{
+
+						InsertCheckbox(enable_hand_chams, "hand chams", &g_Vars.esp.chams_hands);
+						if (g_Vars.esp.chams_hands) {
+							InsertCombo("hands", &g_Vars.esp.hands_chams_mat, chams_mats_local);
+							if (g_Vars.esp.hands_chams_mat == 3) {
+
+								InsertSliderFloat("hand pearlescence", &g_Vars.esp.chams_hands_pearlescence, 0.f, 100.f, "%.f");
+								ImGui::SameLine();
+								ColorPicker("", g_Vars.esp.chams_hands_pearlescence_color, true);
+								InsertSliderFloat("hand shine", &g_Vars.esp.chams_hands_shine, 0.f, 100.f, "%.f");
+
+							}
+
+							InsertCombo("hand overlay", &g_Vars.esp.new_chams_hands_overlay, chams_mats_overlay);
+							if (g_Vars.esp.new_chams_hands_overlay == 1) {
+
+								InsertSliderFloat("glow Strength", &g_Vars.esp.chams_hands_outline_value, 0.f, 100.f, "%.f");
+
+
+							}
+							ColorPicker("hand color", g_Vars.esp.hands_chams_color, true);
+							ColorPicker("hand overlay color", g_Vars.esp.new_chams_hands_overlay_color, true);
+							InsertCheckbox(chams_local_original_model, "draw original model", &g_Vars.esp.new_chams_hands_original_model);
+						}
+
+						break;
+					}
 				}
 
-				InsertCheckbox(thirdperson, XorStr("Thirdperson"), &g_Vars.misc.third_person);
-				ImGui::SameLine();
-				biggestMeme2();
-				ImGui::Hotkey(XorStr("##Thirdperson Key"), &g_Vars.misc.third_person_bind.key, &g_Vars.misc.third_person_bind.cond, ImVec2{ 40,20 });
-				if (g_Vars.misc.third_person) {
-					InsertCheckbox(DisableOnGrenade, XorStr("Disable On Grenade"), &g_Vars.misc.third_person_on_grenade);
-					InsertSliderFloat(XorStr("Thirdperson Distance"), &g_Vars.misc.third_person_dist, 0.f, 250.f, XorStr("%.0f%%"));
-				}
 				break;
 			}
 			case 1:
@@ -748,6 +796,19 @@ void Visuals()
 				InsertCheckbox(TaserRange, XorStr("Taser Range"), &g_Vars.esp.zeus_distance);
 				InsertCheckbox(KeybindList, XorStr("Keybind List"), &g_Vars.esp.keybind_window_enabled);
 				InsertCheckbox(Radar, XorStr("Radar"), &g_Vars.misc.ingame_radar);
+				InsertCheckbox(thirdperson, XorStr("Thirdperson"), &g_Vars.misc.third_person);
+				ImGui::SameLine();
+				biggestMeme2();
+				ImGui::Hotkey(XorStr("##Thirdperson Key"), &g_Vars.misc.third_person_bind.key, &g_Vars.misc.third_person_bind.cond, ImVec2{ 40,20 });
+				if (g_Vars.misc.third_person) {
+					InsertCheckbox(DisableOnGrenade, XorStr("Disable On Grenade"), &g_Vars.misc.third_person_on_grenade);
+					InsertSliderFloat(XorStr("Thirdperson Distance"), &g_Vars.misc.third_person_dist, 0.f, 250.f, XorStr("%.0f%%"));
+				}
+
+				InsertCheckbox(draw_hitboxes, XorStr("Shot capsules"), &g_Vars.esp.draw_hitboxes);
+				if (g_Vars.esp.draw_hitboxes) {
+					ColorPicker(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true);
+				}
 
 				std::vector<MultiItem_t> removals = {
 					{ XorStr("Smoke"), &g_Vars.esp.remove_smoke },
