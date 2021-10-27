@@ -643,12 +643,7 @@ void Visuals()
 
 						InsertCheckbox(hitmatrix, XorStr("Shot chams"), &g_Vars.esp.hitmatrix);
 						if (g_Vars.esp.hitmatrix) {
-							InsertCombo("Shot", &g_Vars.esp.new_chams_onshot_mat, chams_shot_mats);
-							if (g_Vars.esp.new_chams_onshot_mat == 1) {
-
-								InsertSliderFloat("glow Strength", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
-
-							}
+							InsertSliderFloat("glow Strength", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
 							ColorPicker(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true);
 							InsertSliderFloat(XorStr("Expire time"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
 						}
