@@ -500,7 +500,7 @@ namespace Interfaces
 	RecvPropHook::Shared m_pFlAbsYawSwap = nullptr;
 	RecvPropHook::Shared m_pPlaybackRateSwap = nullptr;
 	RecvPropHook::Shared m_bClientSideAnimationSwap = nullptr;
-	RecvPropHook::Shared m_Body_original = nullptr;
+	//RecvPropHook::Shared m_Body_original = nullptr;
 
 	void m_bDidSmokeEffect( CRecvProxyData* pData, void* pStruct, void* pOut ) {
 		Interfaces::m_pDidSmokeEffectSwap->GetOriginalFunction( )( pData, pStruct, pOut );
@@ -796,8 +796,8 @@ namespace Interfaces
 		pPropManager->GetProp( XorStr( "DT_BaseAnimating" ), XorStr( "bClientSideAnimation" ), &prop );
 		m_bClientSideAnimationSwap = std::make_shared<RecvPropHook>( prop, &Hooked::m_bClientSideAnimation );
 
-		pPropManager->GetProp(XorStr("DT_CSPlayer"), XorStr("m_flLowerBodyYawTarget"), &prop);
-		m_Body_original = std::make_shared<RecvPropHook>(prop, &Hooked::RecvProxy_m_flLowerBodyYawTarget);
+		//pPropManager->GetProp(XorStr("DT_CSPlayer"), XorStr("m_flLowerBodyYawTarget"), &prop);
+		//m_Body_original = std::make_shared<RecvPropHook>(prop, &Hooked::RecvProxy_m_flLowerBodyYawTarget);
 
 		//auto& database = pPropManager->database;
 		//auto BaseOverlay = std::find( database.begin( ), database.end( ), XorStr( "DT_BaseAnimatingOverlay" ) );
@@ -921,7 +921,7 @@ namespace Interfaces
 		oInterpolateServerEntities = Hooked::HooksManager.CreateHook<decltype( oInterpolateServerEntities ) >( &Hooked::InterpolateServerEntities, ( void* )interpolate );
 		oProcessInterpolatedList = Hooked::HooksManager.CreateHook<decltype( oProcessInterpolatedList ) >( &hkProcessInterpolatedList, ( void* )process_interpolated_list );
 		oReportHit = Hooked::HooksManager.CreateHook<decltype( oReportHit ) >( &ReportHit, ( void* )reporthit );
-		//	oCL_Move = Hooked::HooksManager.CreateHook<decltype( oCL_Move ) >( &CL_Move, ( void* )cl_move );
+		oCL_Move = Hooked::HooksManager.CreateHook<decltype( oCL_Move ) >( &CL_Move, ( void* )cl_move );
 
 		auto physics_simulate_adr = rel32_resolve( Memory::Scan( XorStr( "client.dll" ), XorStr( "E8 ? ? ? ? 80 BE ? ? ? ? ? 0F 84 ? ? ? ? 8B 06" ) ) );
 		oPhysicsSimulate = Hooked::HooksManager.CreateHook<decltype( oPhysicsSimulate ) >( &hkPhysicsSimulate, ( void* )physics_simulate_adr );

@@ -488,6 +488,7 @@ namespace Engine
 		{
 			for (int i = 1; i < Interfaces::m_pGlobalVars->maxClients; ++i) {
 				auto lagData = Engine::LagCompensation::Get()->GetLagData(i);
+				g_ResolverData[i].m_bCollectedValidMoveData = false;
 				if (lagData.IsValid()) {
 					lagData->m_iMissedShots = 0;
 					lagData->m_iMissedShotsLBY = 0;

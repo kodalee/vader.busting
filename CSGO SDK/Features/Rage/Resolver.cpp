@@ -489,13 +489,13 @@ namespace Engine {
 		}
 
 		// haven't checked this yet, do it in CResolver::ResolveStand( ... )
-		g_ResolverData[player->EntIndex()].m_bCollectedValidMoveData = false;
+		g_ResolverData[player->EntIndex()].m_bCollectedValidMoveData = true;
 
 		// store the data about the moving player, we need to because it contains crucial info
 		// that we will have to later on use in our resolver.
 		g_ResolverData[player->EntIndex()].m_sMoveData.m_flAnimTime = player->m_flAnimationTime();
 		g_ResolverData[player->EntIndex()].m_sMoveData.m_vecOrigin = record->m_vecOrigin;
-		//g_ResolverData[ player->EntIndex( ) ].m_sMoveData.m_flLowerBodyYawTarget = record->m_flLowerBodyYawTarget;
+		g_ResolverData[ player->EntIndex( ) ].m_sMoveData.m_flLowerBodyYawTarget = record->m_flLowerBodyYawTarget;
 		g_ResolverData[player->EntIndex()].m_sMoveData.m_flSimulationTime = record->m_flSimulationTime;
 	}
 
@@ -525,13 +525,13 @@ namespace Engine {
 			data.m_bCollectedValidMoveData = false;
 			vDormantOrigin = record->m_vecOrigin;
 		}
-		else {
-			Vector delta = vDormantOrigin - record->m_vecOrigin;
-			if (delta.Length() > 16.f) {
-				data.m_bCollectedValidMoveData = true;
-				vDormantOrigin = Vector();
-			}
-		}
+		//else {
+		//	Vector delta = vDormantOrigin - record->m_vecOrigin;
+		//	if (delta.Length() > 16.f) {
+		//		data.m_bCollectedValidMoveData = true;
+		//		vDormantOrigin = Vector();
+		//	}
+		//}
 
 		//if(data.m_bCollectedValidMoveData && IsLastMoveValid(record, g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget) && nMisses < 1)
 		//	g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
@@ -547,7 +547,7 @@ namespace Engine {
 		//}
 
 		if (is_flicking) {
-			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
 		}
 		else {
 			// we have valid move data but we can't freestand them.
@@ -578,7 +578,7 @@ namespace Engine {
 						break;
 
 					case 5:
-						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
 						break;
 
 					default:
@@ -609,7 +609,7 @@ namespace Engine {
 					break;
 
 				case 5:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
 					break;
 
 				default:
@@ -640,7 +640,7 @@ namespace Engine {
 					break;
 
 				case 4:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
 					break;
 
 				default:
@@ -668,7 +668,7 @@ namespace Engine {
 					break;
 
 				case 4:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
 					break;
 
 				default:
@@ -890,7 +890,6 @@ namespace Engine {
 				Add[player->EntIndex()] = 1.1f;
 				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
 				g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
-				record->m_angEyeAngles.y = player->m_angEyeAngles().y = Engine::g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget;
 			}
 			else
 				is_flicking = false;

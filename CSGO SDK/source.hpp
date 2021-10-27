@@ -91,7 +91,7 @@ namespace Interfaces
    extern RecvPropHook::Shared m_pFlAbsYawSwap;
    extern RecvPropHook::Shared m_pPlaybackRateSwap;
    extern RecvPropHook::Shared m_bClientSideAnimationSwap;
-   extern RecvPropHook::Shared m_Body_original;
+   //extern RecvPropHook::Shared m_Body_original;
 
    bool Create( void* reserved );
    void Destroy( );

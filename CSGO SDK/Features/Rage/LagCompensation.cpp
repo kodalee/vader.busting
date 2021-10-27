@@ -136,7 +136,7 @@ namespace Engine
 		//else
 		//	printf("MORE THAN\n");
 
-		return fabsf(flCorrect - (curtime - record.m_flSimulationTime)) <= flTargetTime;
+		return fabsf(flCorrect - (curtime - record.m_flSimulationTime)) > flTargetTime;
 
 		//// use prediction curtime for this.
 		//float curtime = TICKS_TO_TIME( pLocal->m_nTickBase( ) - g_TickbaseController.s_nExtraProcessingTicks );
