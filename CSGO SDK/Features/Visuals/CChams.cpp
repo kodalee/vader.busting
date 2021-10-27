@@ -1472,7 +1472,8 @@ namespace Interfaces
 					}
 				}
 				else {
-					OverrideMaterial(false, 0, vis);
+					OverrideMaterial(false, 0, FloatColor(1, 1, 1, 1));
+					Interfaces::m_pRenderView->SetColorModulation(FloatColor(255, 255, 255, 255));
 					Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
 				}
 
