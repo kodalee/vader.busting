@@ -136,6 +136,8 @@ namespace Engine
 		//else
 		//	printf("MORE THAN\n");
 
+		Math::Clamp(flCorrect, 0.f, 1.0f);
+
 		return fabsf(flCorrect - (curtime - record.m_flSimulationTime)) > flTargetTime;
 
 		//// use prediction curtime for this.
@@ -237,10 +239,10 @@ namespace Engine
 
 		//LOOK AT THIS LATER GEICO FROM FUTURE (exploiting players?)
 		//// invalidate all records, if player abusing teleport distance
-		//if( !anim_record->m_bIsInvalid && anim_record->m_bTeleportDistance && pThis->m_History.size( ) > 0 ) {
-		//	for( auto& record : pThis->m_History )
-		//		record.m_bSkipDueToResolver = true;
-		//}
+		if( !anim_record->m_bIsInvalid && anim_record->m_bTeleportDistance && pThis->m_History.size( ) > 0 ) {
+			for( auto& record : pThis->m_History )
+				record.m_bSkipDueToResolver = true;
+		}
 
 		// add new record and get reference to newly added record.
 		auto record = Encrypted_t<C_LagRecord>( &pThis->m_History.emplace_front( ) );
