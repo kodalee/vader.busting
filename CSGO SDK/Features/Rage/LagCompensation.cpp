@@ -292,7 +292,7 @@ namespace Engine
 
 		bool result = false;
 
-		CTraceFilter filter;
+		CTraceFilterWorldOnly filter;
 
 		float edges[ 4 ] = { 0.0f };
 
