@@ -32,7 +32,7 @@ namespace Autowall
 		bool m_bShouldIgnoreDistance = false;
 
 		CTraceFilter* m_bTraceFilter = nullptr;
-		ITraceFilter* m_Filter = nullptr; // TODO: implement
+		CTraceFilter* m_Filter = nullptr; // TODO: implement
 		C_CSPlayer* m_Player = nullptr; // attacker
 		C_CSPlayer* m_TargetPlayer = nullptr;  // autowall target ( could be nullptr if just trace attack )
 		C_WeaponCSBaseGun* m_Weapon = nullptr; // attacker weapon
@@ -49,7 +49,7 @@ namespace Autowall
 	void ClipTraceToPlayer( const Vector vecAbsStart, const Vector& vecAbsEnd, uint32_t mask, ITraceFilter* filter, CGameTrace* tr, Encrypted_t<Autowall::C_FireBulletData> data );
 	bool TraceToExit( CGameTrace* enter_trace, Vector start, Vector direction, CGameTrace* exit_trace );
 	bool CanHitFloatingPoint(const Vector& point, const Vector& source);
-	bool HandleBulletPenetration(CCSWeaponInfo* info, Encrypted_t<Autowall::C_FireBulletData>& data, bool extracheck, Vector point);
+	bool HandleBulletPenetration(Encrypted_t<C_FireBulletData> data);
 	//bool HandleBulletPenetration( Encrypted_t<C_FireBulletData> data );
 	float FireBullets( Encrypted_t<C_FireBulletData> data );
 }
