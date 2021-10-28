@@ -62,7 +62,7 @@ namespace Engine
 	//	return false;
 	//}
 
-	bool CanHitPlayer(C_LagRecord* pRecord, const Vector& vecEyePos, const Vector& vecEnd, int iHitboxIndex) {
+	bool CanHitPlayer(C_LagRecord* pRecord, int iSide, const Vector& vecEyePos, const Vector& vecEnd, int iHitboxIndex) {
 		auto hdr = *(studiohdr_t**)pRecord->player->m_pStudioHdr();
 		if (!hdr)
 			return false;
@@ -101,7 +101,7 @@ namespace Engine
 
 		pRecord->Apply(Player);
 
-		TraceData.is_resolver_issue = CanHitPlayer(pRecord, vecStart, vecEnd, iHitboxIndex);//CanHitPlayer(pRecord, vecStart, vecEnd, iHitboxIndex);
+		TraceData.is_resolver_issue = CanHitPlayer(pRecord, iSide, vecStart, vecEnd, iHitboxIndex);//CanHitPlayer(pRecord, vecStart, vecEnd, iHitboxIndex);
 		TraceData.is_correct = TraceData.is_resolver_issue == bDidHit;
 	}
 

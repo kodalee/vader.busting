@@ -48,8 +48,6 @@ namespace Autowall
 	void ClipTraceToPlayers( const Vector& vecAbsStart, const Vector& vecAbsEnd, uint32_t mask, ITraceFilter* filter, CGameTrace* tr, float flMaxRange = 60.0f, float flMinRange = 0.0f );
 	void ClipTraceToPlayer( const Vector vecAbsStart, const Vector& vecAbsEnd, uint32_t mask, ITraceFilter* filter, CGameTrace* tr, Encrypted_t<Autowall::C_FireBulletData> data );
 	bool TraceToExit( CGameTrace* enter_trace, Vector start, Vector direction, CGameTrace* exit_trace );
-	bool CanHitFloatingPoint(const Vector& point, const Vector& source);
-	bool HandleBulletPenetration(CCSWeaponInfo* info, Encrypted_t<Autowall::C_FireBulletData>& data, bool extracheck, Vector point);
-	//bool HandleBulletPenetration( Encrypted_t<C_FireBulletData> data );
+	bool HandleBulletPenetration( Encrypted_t<C_FireBulletData> data );
 	float FireBullets( Encrypted_t<C_FireBulletData> data );
 }

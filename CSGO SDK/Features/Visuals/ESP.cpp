@@ -931,7 +931,7 @@ float GetPenetrationDamage( C_CSPlayer* local, C_WeaponCSBaseGun* pWeapon ) {
 	if( data.m_flTraceLength > 3000.0f && weaponInfo->m_flPenetration > 0.f || 0.1f > data.m_EnterSurfaceData->game.flPenetrationModifier )
 		return -1.0f;
 
-	if( Autowall::HandleBulletPenetration( weaponInfo, &data, true, point? ) )
+	if( Autowall::HandleBulletPenetration( &data ) )
 		return -1.0f;
 
 	return data.m_flCurrentDamage;
