@@ -374,7 +374,7 @@ bool Autowall::CanHitFloatingPoint(const Vector& point, const Vector& source) {
 
 	data.m_vecStart = source;
 	data.m_Filter = new CTraceFilter();
-	data.m_Filter->pSkip = local;
+	data.m_Filter->skip_entity = local;
 	QAngle angles = Math::CalcAngle(data.m_vecStart, point);
 	Math::AngleVectors(angles, &data.m_vecDirection);
 	data.m_vecDirection.Normalize();
@@ -395,165 +395,106 @@ bool Autowall::CanHitFloatingPoint(const Vector& point, const Vector& source) {
 	Vector end = data.m_vecStart + (data.m_vecDirection * weaponInfo->m_flWeaponRange);
 	UTIL_TraceLine(data.m_vecStart, end, MASK_SHOT | CONTENTS_HITBOX, local, 0, &data.m_EnterTrace);
 
-	if (VectortoVectorVisible(data.m_vecStart, point) || HandleBulletPenetration(&data))
+	if (VectortoVectorVisible(data.m_vecStart, point) || HandleBulletPenetration(weaponInfo.Xor(), data, true, point))
 		return true;
 
 	return false;
 }
 
-bool Autowall::HandleBulletPenetration(Encrypted_t<C_FireBulletData> data)
+bool Autowall::HandleBulletPenetration(CCSWeaponInfo* info, Encrypted_t<Autowall::C_FireBulletData>& data, bool extracheck, Vector point)
 {
-	int iEnterMaterial = data->m_EnterSurfaceData->game.material;
-	const int nPenetrationSystem = g_Vars.sv_penetration_type->GetInt();
+	auto local = C_CSPlayer::GetLocalPlayer();
 
-	bool bSolidSurf = ((data->m_EnterTrace.contents >> 3) & CONTENTS_SOLID);
-	bool bLightSurf = ((data->m_EnterTrace.surface.flags >> 7) & SURF_LIGHT);
-	bool bContentsGrate = data->m_EnterTrace.contents & CONTENTS_GRATE;
-	bool bNoDrawSurf = !!(data->m_EnterTrace.surface.flags & (SURF_NODRAW)); // this is valve code :D!
+	if (!local)
+		return;
 
-	// check if bullet can penetrarte another entity
-	if (data->m_iPenetrationCount == 0 &&
-		!bContentsGrate &&
-		!bNoDrawSurf &&
-		iEnterMaterial != CHAR_TEX_GRATE &&
-		iEnterMaterial != CHAR_TEX_GLASS)
-		return true; // no, stop
+	CGameTrace trace_exit;
+	surfacedata_t* enter_surface_data = Interfaces::m_pPhysSurface->GetSurfaceData(data->m_EnterTrace.surface.surfaceProps);
+	int enter_material = enter_surface_data->game.material;
 
-	 // if we hit a grate with iPenetration == 0, stop on the next thing we hit
-	if (data->m_WeaponData->m_flPenetration <= 0.f || data->m_iPenetrationCount == 0)
-		return true;
+	static auto dbp = g_Vars.ff_damage_bullet_penetration;
+	float enter_surf_penetration_modifier = enter_surface_data->game.flPenetrationModifier;
+	float final_damage_modifier = 0.18f;
+	float compined_penetration_modifier = 0.f;
+	bool solid_surf = ((data->m_EnterTrace.contents >> 3) & CONTENTS_SOLID);
+	bool light_surf = ((data->m_EnterTrace.surface.flags >> 7) & SURF_LIGHT);
 
-	// find exact penetration exit
-	CGameTrace ExitTrace = { };
-	if (!TraceToExit(&data->m_EnterTrace, data->m_EnterTrace.endpos, data->m_vecDirection, &ExitTrace)) {
-		// ended in solid
-		if ((Interfaces::m_pEngineTrace->GetPointContents(data->m_EnterTrace.endpos, MASK_SHOT_HULL) & MASK_SHOT_HULL) == 0)
-			return true;
+	if (data->m_iPenetrationCount <= 0
+		|| (!data->m_iPenetrationCount && !light_surf && !solid_surf && enter_material != CHAR_TEX_GLASS && enter_material != CHAR_TEX_GRATE)
+		|| info->m_flPenetration <= 0.f
+		|| !TraceToExit(&data->m_EnterTrace, data->m_EnterTrace.startpos, data->m_vecDirection, &trace_exit)
+		&& !(Interfaces::m_pEngineTrace->GetPointContents(data->m_EnterTrace.endpos, MASK_SHOT_HULL | CONTENTS_HITBOX, NULL) & (MASK_SHOT_HULL | CONTENTS_HITBOX)))
+		return false;
+
+	surfacedata_t* exit_surface_data = Interfaces::m_pPhysSurface->GetSurfaceData(trace_exit.surface.surfaceProps);
+	int exit_material = exit_surface_data->game.material;
+	float exit_surf_penetration_modifier = exit_surface_data->game.flPenetrationModifier;
+
+	if (enter_material == CHAR_TEX_GRATE || exit_material == CHAR_TEX_GLASS)
+	{
+		compined_penetration_modifier = 3.f;
+		final_damage_modifier = 0.05f;
+	}
+	else if (light_surf || solid_surf)
+	{
+		compined_penetration_modifier = 1.f;
+		final_damage_modifier = 0.16f;
+	}
+	else if (enter_material == CHAR_TEX_FLESH)
+	{
+		compined_penetration_modifier = dbp->GetFloat();
+		final_damage_modifier = 0.16f;
+	}
+	else
+	{
+		compined_penetration_modifier = (enter_surf_penetration_modifier + exit_surf_penetration_modifier) * 0.5f;
+		final_damage_modifier = 0.16f;
+	}
+	if (enter_material == exit_material)
+	{
+		if (exit_material == CHAR_TEX_CARDBOARD || exit_material == CHAR_TEX_WOOD)
+			compined_penetration_modifier = 3.f;
+		else if (exit_material == CHAR_TEX_PLASTIC)
+			compined_penetration_modifier = 2.f;
 	}
 
-	const surfacedata_t* pExitSurfaceData = Interfaces::m_pPhysSurface->GetSurfaceData(ExitTrace.surface.surfaceProps);
+	float thickness = (trace_exit.endpos - data->m_EnterTrace.endpos).LengthSquared();
+	float modifier = std::max(0.f, 1.f / compined_penetration_modifier);
 
-	if (!pExitSurfaceData)
-		return true;
+	if (extracheck) {
+		static auto VectortoVectorVisible = [&](Vector src, Vector point) -> bool {
+			CGameTrace TraceInit;
+			UTIL_TraceLine(src, point, MASK_SOLID, local, 0, &TraceInit);
+			CGameTrace Trace;
+			UTIL_TraceLine(src, point, MASK_SOLID, (C_CSPlayer*) TraceInit.hit_entity, 0, &Trace);
 
-	const float flEnterPenetrationModifier = data->m_EnterSurfaceData->game.flPenetrationModifier;
-	const float flExitPenetrationModifier = pExitSurfaceData->game.flPenetrationModifier;
-	const float flExitDamageModifier = pExitSurfaceData->game.flDamageModifier;
-
-	const int iExitMaterial = pExitSurfaceData->game.material;
-
-	float flDamageModifier = 0.f;
-	float flPenetrationModifier = 0.f;
-
-	// percent of total damage lost automatically on impacting a surface
-	flDamageModifier = 0.16f;
-	flPenetrationModifier = (flEnterPenetrationModifier + flExitPenetrationModifier) * 0.5f;
-
-	// new penetration method
-	if (nPenetrationSystem == 1) {
-		// percent of total damage lost automatically on impacting a surface
-		flDamageModifier = 0.16f;
-		flPenetrationModifier = (flEnterPenetrationModifier + flExitPenetrationModifier) * 0.5f;
-
-		if (bContentsGrate || bNoDrawSurf || iEnterMaterial == CHAR_TEX_GLASS || iEnterMaterial == CHAR_TEX_GRATE) {
-
-			if (iEnterMaterial == CHAR_TEX_GLASS || iEnterMaterial == CHAR_TEX_GRATE) {
-				flPenetrationModifier = 3.f;
-				flDamageModifier = 0.05f;
-			}
-			else {
-				flPenetrationModifier = 1.f;
-			}
-		}
-		// for some weird reason some community servers have ff_damage_reduction_bullets > 0 but ff_damage_bullet_penetration == 0
-		// so yeah, no shooting through teammates :)
-		else if (iEnterMaterial == CHAR_TEX_FLESH && (data->m_Player->IsTeammate((C_CSPlayer*)(data->m_EnterTrace.hit_entity))) &&
-			g_Vars.ff_damage_reduction_bullets->GetFloat() >= 0.f) {
-			//Look's like you aren't shooting through your teammate today
-			if (g_Vars.ff_damage_bullet_penetration->GetFloat() == 0.f)
+			if (Trace.fraction == 1.0f || TraceInit.fraction == 1.0f)
 				return true;
 
-			//Let's shoot through teammates and get kicked for teamdmg! Whatever, atleast we did damage to the enemy. I call that a win.
-			flPenetrationModifier = g_Vars.ff_damage_bullet_penetration->GetFloat();
-			flDamageModifier = 0.16f;
-		}
-
-		// if enter & exit point is wood we assume this is 
-		// a hollow crate and give a penetration bonus
-		if (iEnterMaterial == iExitMaterial) {
-			if (iExitMaterial == CHAR_TEX_WOOD || iExitMaterial == CHAR_TEX_CARDBOARD)
-				flPenetrationModifier = 3.f;
-			else if (iExitMaterial == CHAR_TEX_PLASTIC)
-				flPenetrationModifier = 2.f;
-		}
-
-		// calculate damage  
-		const float flTraceDistance = (ExitTrace.endpos - data->m_EnterTrace.endpos).Length();
-		const float flPenetrationMod = fmaxf(1.0 / flPenetrationModifier, 0.0f);
-		const float flTotalLostDamage = (fmaxf(3.f / data->m_WeaponData->m_flPenetration, 0.f) *
-			(flPenetrationMod * 3.f) + (data->m_flCurrentDamage * flDamageModifier)) +
-			(((flTraceDistance * flTraceDistance) * flPenetrationMod) / 24);
-
-		const float flClampedLostDamage = fmaxf(flTotalLostDamage, 0.f);
-
-		if (flClampedLostDamage > data->m_flCurrentDamage)
-			return true;
-
-		// reduce damage power each time we hit something other than a grate
-		if (flClampedLostDamage > 0.0f)
-			data->m_flCurrentDamage -= flClampedLostDamage;
-
-		// do we still have enough damage to deal?
-		if (data->m_flCurrentDamage < 3.0f)
-			return true;
-
-		// penetration was successful
-		// setup new start end parameters for successive trace
-		data->m_vecStart = ExitTrace.endpos;
-		--data->m_iPenetrationCount;
-		return false;
+			return false;
+		};
+		if (!VectortoVectorVisible(trace_exit.endpos, point))
+			return false;
 	}
-	else {
-		// since some railings in de_inferno are CONTENTS_GRATE but CHAR_TEX_CONCRETE, we'll trust the
-		// CONTENTS_GRATE and use a high damage modifier.
-		if (bContentsGrate || bNoDrawSurf) {
-			// If we're a concrete grate (TOOLS/TOOLSINVISIBLE texture) allow more penetrating power.
-			flPenetrationModifier = 1.0f;
-			flDamageModifier = 0.99f;
-		}
-		else {
-			if (flExitPenetrationModifier < flPenetrationModifier) {
-				flPenetrationModifier = flExitPenetrationModifier;
-			}
-			if (flExitDamageModifier < flDamageModifier) {
-				flDamageModifier = flExitDamageModifier;
-			}
-		}
+	auto lost_damage = fmaxf(
+		((modifier * thickness) / 24.f)
+		+ ((data->m_flCurrentDamage * final_damage_modifier)
+			+ (fmaxf(3.75 / info->m_flPenetration, 0.f) * 3.f * modifier)), 0.f);
 
-		// if enter & exit point is wood or metal we assume this is 
-		// a hollow crate or barrel and give a penetration bonus
-		if (iEnterMaterial == iExitMaterial) {
-			if (iExitMaterial == CHAR_TEX_WOOD ||
-				iExitMaterial == CHAR_TEX_METAL) {
-				flPenetrationModifier *= 2;
-			}
-		}
 
-		float flTraceDistance = (ExitTrace.endpos - data->m_EnterTrace.endpos).Length();
-
-		// check if bullet has enough power to penetrate this distance for this material
-		if (flTraceDistance > (data->m_WeaponData->m_flPenetration * flPenetrationModifier))
-			return true; // bullet hasn't enough power to penetrate this distance
-
-		 // reduce damage power each time we hit something other than a grate
-		data->m_flCurrentDamage *= flDamageModifier;
-
-		// penetration was successful
-		// setup new start end parameters for successive trace
-		data->m_vecStart = ExitTrace.endpos;
-		--data->m_iPenetrationCount;
+	if (lost_damage > data->m_flCurrentDamage)
 		return false;
-	}
+
+	if (lost_damage > 0.f)
+		data->m_flCurrentDamage -= lost_damage;
+
+	if (data->m_flCurrentDamage < 1.f)
+		return false;
+
+	//data.m_current_position = trace_exit.m_endpos;
+	data->m_iPenetrationCount--;
+
+	return true;
 }
 
 //bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
@@ -813,7 +754,7 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 			break;
 		}
 		//probably wrong ngl
-		bool bIsBulletStopped = HandleBulletPenetration(data);
+		bool bIsBulletStopped = HandleBulletPenetration(data->m_WeaponData, data, true, point? );
 
 		if( bIsBulletStopped )
 			break;
