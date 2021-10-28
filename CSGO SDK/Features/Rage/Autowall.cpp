@@ -357,7 +357,7 @@ bool Autowall::CanHitFloatingPoint(const Vector& point, const Vector& source) {
 	auto local = C_CSPlayer::GetLocalPlayer();
 
 	if (!local)
-		return;
+		return false;
 
 	static auto VectortoVectorVisible = [&](Vector src, Vector point) -> bool {
 		CGameTrace TraceInit;
