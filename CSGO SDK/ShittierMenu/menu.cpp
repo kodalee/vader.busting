@@ -274,9 +274,9 @@ void HvH()
 
 	const char* pitches[] = { XorStr("Off"), XorStr("Down"), XorStr("Up"), XorStr("Zero") };
 
-	const char* real_yaw[] = { XorStr("Off"), XorStr("180"), XorStr("Freestand"), XorStr("180z") };
+	const char* real_yaw[] = { XorStr("Off"), XorStr("180"), XorStr("Jitter"), XorStr("180z") };
 
-	const char* fake_yaw[] = { XorStr("Off"), XorStr("Dynamic"), XorStr("Sway"), XorStr("Static") };
+	const char* fake_yaw[] = { XorStr("Off"), XorStr("Static"), XorStr("Twist") };
 
 	float group_w = ImGui::GetCurrentWindow()->Size.x - style->WindowPadding.x * 2;
 	ImGui::Columns(3, nullptr, false);
@@ -295,16 +295,20 @@ void HvH()
 
 			InsertCombo(XorStr("Real yaw"), &settings->base_yaw, real_yaw);
 
+			if (settings->base_yaw == 2) {
+				InsertSliderInt(XorStr("Jitter range"), &g_Vars.antiaim.Jitter_range, -115, 115, "%d");
+			}
+
 			InsertCombo(XorStr("Fake yaw"), &settings->yaw, fake_yaw);
 
 			// static lets choose our own vaule.
-			if (settings->yaw == 3) {
+			if (settings->yaw == 1) {
 				InsertSliderInt(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -145, 145, "%d");
 			}
 
-			if (settings->base_yaw == 0) {}
+			//if (settings->base_yaw == 0) {} why??
 
-			//InsertCheckbox( XorStr( "Freestand yaw" ), &g_Vars.antiaim.freestand );
+			InsertCheckbox( AntiAimFreestand, XorStr( "Freestand yaw" ), &g_Vars.antiaim.freestand );
 			InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
 			InsertCheckbox(AntiAimManual, XorStr("Manual"), &g_Vars.antiaim.manual);
 			if (g_Vars.antiaim.manual) {

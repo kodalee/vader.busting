@@ -850,6 +850,7 @@ public:
 	config_option( bool, distort_disable_run, false );
 	config_option( bool, distort_disable_air, false );
 
+	config_option(int, Jitter_range, 0);
 	config_option( int, break_lby, 0 );
 	config_option( bool, imposta, false );
 	config_option( bool, preserve, false );

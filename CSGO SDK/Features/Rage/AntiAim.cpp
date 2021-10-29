@@ -263,7 +263,7 @@ namespace Interfaces
 			//SendFakeFlick();
 		}
 
-		static bool bNegative = false;
+		static int negative = false;
 		auto bSwitch = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) < Interfaces::m_pGlobalVars->interval_per_tick;
 		auto bSwap = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) > 1.1 - (Interfaces::m_pGlobalVars->interval_per_tick * 5);
 		if (!Interfaces::m_pClientState->m_nChokedCommands()
@@ -272,21 +272,26 @@ namespace Interfaces
 			//*bSendPacket = true;
 			// fake yaw.
 			switch (settings->yaw) {
-			case 1: // dynamic
-				bSwitch ? cmd->viewangles.y += 90.f : cmd->viewangles.y -= 90.f;
-				bSwitch = !bSwitch;
-				break;
-			case 2: // sway 
-				bNegative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
-				break;
-			case 3: // static
+			case 1: // static
 				cmd->viewangles.y += g_Vars.antiaim.break_lby;
+				break;
+			case 2: // twist
+				negative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
+				negative = !negative;
 				break;
 			default:
 				break;
 			}
 
 			m_flLowerBodyUpdateYaw = LocalPlayer->m_flLowerBodyYawTarget();
+		}
+
+		if (settings->base_yaw == 2 && !Interfaces::m_pClientState->m_nChokedCommands()) {
+			static auto j = false;
+
+			cmd->viewangles.y += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
+			j = !j;
+
 		}
 
 		/*if ( g_Vars.antiaim.imposta ) {
@@ -355,13 +360,43 @@ namespace Interfaces
 
 		// lets do our real yaw.'
 		switch (settings->base_yaw) {
-		case 1: // backwards.
+		case 1: { // backwards.
 			if (!bUsingManualAA) {
 				flRetValue = flViewAnlge + 180.f;
 			}
 			break;
-		case 2: // freestand.
-		{
+		}
+		case 2: { // jitter
+
+			//static auto last_yaw = 0.f;
+			//static auto st = NULL;
+			//static auto j = false;
+
+
+			//flRetValue += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
+			//j = !j;
+	
+
+			break;
+		}
+		case 3: { // 180z
+
+			if (!bUsingManualAA) {
+				flRetValue = (flViewAnlge - 180.f / 2.f);
+				flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
+			}
+
+			break;
+
+		default:
+			break;
+		}
+
+		}
+
+
+		if (g_Vars.antiaim.freestand) {
+
 			if (!bUsingManualAA) {
 				C_AntiAimbot::Directions Direction = HandleDirection(cmd);
 				switch (Direction) {
@@ -378,21 +413,12 @@ namespace Interfaces
 					flRetValue = flViewAnlge - 90.f;
 					break;
 				case Directions::YAW_NONE:
-					// 180z, cuz wat else to do.
-					flRetValue = (flViewAnlge + 180.f / 2.f);
-					flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
+					// 180.
+					flRetValue = flViewAnlge + 180.f;
 					break;
 				}
-			}		}
-		break;
-		case 3: // 180z
-			if (!bUsingManualAA) {
-				flRetValue = (flViewAnlge - 180.f / 2.f);
-				flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
 			}
-			break;
-		default:
-			break;
+
 		}
 
 		if (!bUsingManualAA && g_Vars.antiaim.preserve) {
@@ -602,4 +628,5 @@ namespace Interfaces
 
 		return Directions::YAW_NONE;
 	}
+
 }
