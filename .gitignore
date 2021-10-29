@@ -37,3 +37,4 @@
 *.log
 *.exp
 Developer/Intermediate/CSGO SDK.vcxproj.FileListAbsolute.txt
+.vs/slnx.sqlite

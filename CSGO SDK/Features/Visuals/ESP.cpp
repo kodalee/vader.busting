@@ -1127,7 +1127,7 @@ void CEsp::DrawZeusDistance( ) {
 
 void CEsp::Main( ) {
 	DrawWatermark( );
-	spotify( );
+	//spotify( ); - there might be fps drops / fps issues caused by this.
 
 	if( g_Vars.esp.keybind_window_enabled )
 		Keybinds( );
