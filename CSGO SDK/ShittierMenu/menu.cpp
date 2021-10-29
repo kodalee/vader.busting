@@ -296,7 +296,7 @@ void HvH()
 			InsertCombo(XorStr("Real yaw"), &settings->base_yaw, real_yaw);
 
 			if (settings->base_yaw == 2) {
-				InsertSliderInt(XorStr("Jitter range"), &g_Vars.antiaim.Jitter_range, -115, 115, "%d");
+				InsertSliderInt(XorStr("Jitter range"), &g_Vars.antiaim.Jitter_range, -100, 100, "%d");
 			}
 
 			InsertCombo(XorStr("Fake yaw"), &settings->yaw, fake_yaw);
