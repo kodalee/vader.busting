@@ -369,7 +369,7 @@ void __fastcall hkAddRenderable( void* ecx, void* edx, IClientRenderable* pRende
 using PhysicsSimulateFn = void( __thiscall* ) ( void* ecx );
 PhysicsSimulateFn oPhysicsSimulate;
 void __fastcall hkPhysicsSimulate( void* ecx, void* edx ) {
-	/*auto local = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( Interfaces::m_pEngine->GetLocalPlayer( ) );
+	auto local = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( Interfaces::m_pEngine->GetLocalPlayer( ) );
 	if( !ecx || !local || local->IsDead( ) || local != ecx )
 		return oPhysicsSimulate( ecx );
 
@@ -389,7 +389,7 @@ void __fastcall hkPhysicsSimulate( void* ecx, void* edx ) {
 		Engine::Prediction::Instance( )->RestoreNetvarCompression( &pCommandContext->cmd );
 		oPhysicsSimulate( ecx );
 		Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
-	}*/
+	}
 }
 
 typedef void( __thiscall* fnCalcViewBob ) ( C_BasePlayer*, Vector& );
