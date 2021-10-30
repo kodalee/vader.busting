@@ -672,8 +672,7 @@ void Visuals()
 							if (g_Vars.esp.new_chams_local == 3) {
 
 								InsertSliderFloat("local pearlescence", &g_Vars.esp.chams_local_pearlescence, 0.f, 100.f, "%.f");
-								ImGui::SameLine();
-								ColorPicker("", g_Vars.esp.chams_local_pearlescence_color, true);
+								ColorPicker("pearlescence color", g_Vars.esp.chams_local_pearlescence_color, true);
 								InsertSliderFloat("local shine", &g_Vars.esp.chams_local_shine, 0.f, 100.f, "%.f");
 
 							}
@@ -703,8 +702,7 @@ void Visuals()
 							if (g_Vars.esp.attachments_chams_mat == 3) {
 
 								InsertSliderFloat("attachment pearlescence", &g_Vars.esp.chams_attachments_pearlescence, 0.f, 100.f, "%.f");
-								ImGui::SameLine();
-								ColorPicker("", g_Vars.esp.chams_attachments_pearlescence_color, true);
+								ColorPicker("pearlescence color", g_Vars.esp.chams_attachments_pearlescence_color, true);
 								InsertSliderFloat("attachment shine", &g_Vars.esp.chams_attachments_shine, 0.f, 100.f, "%.f");
 
 							}
@@ -737,8 +735,7 @@ void Visuals()
 							if (g_Vars.esp.hands_chams_mat == 3) {
 
 								InsertSliderFloat("hand pearlescence", &g_Vars.esp.chams_hands_pearlescence, 0.f, 100.f, "%.f");
-								ImGui::SameLine();
-								ColorPicker("", g_Vars.esp.chams_hands_pearlescence_color, true);
+								ColorPicker("pearlescence color", g_Vars.esp.chams_hands_pearlescence_color, true);
 								InsertSliderFloat("hand shine", &g_Vars.esp.chams_hands_shine, 0.f, 100.f, "%.f");
 
 							}
@@ -761,8 +758,7 @@ void Visuals()
 							if (g_Vars.esp.weapon_chams_mat == 3) {
 
 								InsertSliderFloat("weapon pearlescence", &g_Vars.esp.chams_weapon_pearlescence, 0.f, 100.f, "%.f");
-								ImGui::SameLine();
-								ColorPicker("", g_Vars.esp.chams_weapon_pearlescence_color, true);
+								ColorPicker("pearlescence color", g_Vars.esp.chams_weapon_pearlescence_color, true);
 								InsertSliderFloat("weapon shine", &g_Vars.esp.chams_weapon_shine, 0.f, 100.f, "%.f");
 
 							}
