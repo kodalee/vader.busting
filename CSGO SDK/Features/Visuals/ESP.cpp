@@ -1299,20 +1299,19 @@ void CEsp::Main( ) {
 				C_CSPlayer* player = (C_CSPlayer*)entity->m_hOwnerEntity().Get();
 
 				if (player) {
-					FloatColor color = FloatColor(1.f, 0.f, 0.f, 0.8f);
+					FloatColor color;
 
 					if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex()) {
 						if (g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0) {
-							color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.f);
+							color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.8f);
 						}
+					}
+					else {
+						color = FloatColor(1.f, 0.f, 0.f, 0.8f);
 					}
 
 					const Vector origin = pInferno->GetAbsOrigin();
 					Vector2D screen_origin = Vector2D();
-
-					int dist = m_LocalPlayer->GetAbsOrigin().Distance(origin); // no point drawing if you are nowhere near the entity.
-					if (dist > 999)
-						return;
 
 					if (WorldToScreen(origin, screen_origin)) {
 						struct s {
@@ -1404,10 +1403,6 @@ void CEsp::Main( ) {
 			if (pSmokeEffect->GetClientClass()->m_ClassID == CSmokeGrenadeProjectile) {
 				const Vector origin = pSmokeEffect->GetAbsOrigin();
 				Vector2D screen_origin = Vector2D();
-
-				int dist = m_LocalPlayer->GetAbsOrigin().Distance(origin); // no point drawing if you are nowhere near the entity.
-				if (dist > 999)
-					return;
 
 
 				if (WorldToScreen(origin, screen_origin)) {
