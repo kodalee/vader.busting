@@ -691,7 +691,7 @@ void Visuals()
 							InsertCheckbox(chams_local_original_model, "draw original model", &g_Vars.esp.new_chams_local_original_model);
 						}
 
-						InsertCheckbox(chams_local_scoped_enabled, "transparency when scoped", &g_Vars.esp.new_chams_local_scoped_enabled);
+						InsertCheckbox(chams_local_scoped_enabled, "transparency when scoped", &g_Vars.esp.blur_in_scoped);
 
 						if (g_Vars.esp.blur_in_scoped) {
 							InsertSliderFloat("scoped transparency", &g_Vars.esp.blur_in_scoped_value, 0.0f, 1.f, "%.2f");
