@@ -456,7 +456,7 @@ namespace Engine
 					CTeslaInfo teslaInfo;
 					teslaInfo.m_flBeamWidth = g_Vars.esp.tesla_kill_width;
 					teslaInfo.m_flRadius = g_Vars.esp.tesla_kill_radius;
-					teslaInfo.m_vPos = player->GetHitboxPosition(HITBOX_HEAD); //wherever you want it to spawn from, like enemy's head;
+					teslaInfo.m_vPos = player->GetEyePosition(); //wherever you want it to spawn from, like enemy's head;
 					teslaInfo.m_flTimeVisible = g_Vars.esp.tesla_kill_time;
 					teslaInfo.m_nBeams = g_Vars.esp.tesla_kill_beams;
 					teslaInfo.m_pszSpriteName = XorStr("sprites/physbeam.vmt"); //physbeam
