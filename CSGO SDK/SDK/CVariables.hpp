@@ -1138,6 +1138,11 @@ public:
 	config_option( bool, remove_hands, false );
 	config_option( bool, remove_bob, false );
 
+	config_option(bool, draw_antiaim_angles, false);
+	config_option(FloatColor, draw_antiaim_angles_lby, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, draw_antiaim_angles_real, FloatColor(255.f / 255.f, 215.f / 255.f, 0.f));
+
+
 	config_option( bool, preserve_killfeed, false );
 	config_option( float, preserve_killfeed_time, 1.0f );
 

@@ -855,16 +855,22 @@ void Visuals()
 				InsertCheckbox(SkipOcclusion, XorStr("Skip Occlusion"), &g_Vars.esp.skip_occulusion);
 				InsertCheckbox(RemoveSleeves, XorStr("Remove Sleeves"), &g_Vars.esp.remove_sleeves);
 
+				InsertCheckbox(DrawAAAngles, XorStr("Draw Antiaim Angles"), &g_Vars.esp.draw_antiaim_angles);
+				if (g_Vars.esp.draw_antiaim_angles) {
+					ColorPicker(XorStr("Real Color"), g_Vars.esp.draw_antiaim_angles_real, false);
+					ColorPicker(XorStr("Lby Color"), g_Vars.esp.draw_antiaim_angles_lby, false);
+				}
+
 				InsertCheckbox(TeslaImpact, XorStr("Tesla on Impact"), &g_Vars.esp.tesla_impact);
 
 				InsertCheckbox(TeslaKill, XorStr("Tesla on Kill"), &g_Vars.esp.tesla_kill);
 				if (g_Vars.esp.tesla_kill) {
 					ImGui::SameLine();
 					ColorPicker(XorStr(""), g_Vars.esp.tesla_kill_color, false);
-					InsertSliderFloat(XorStr("Tesla width"), &g_Vars.esp.tesla_kill_width, 0.f, 10.f, XorStr("%.f"));
-					InsertSliderFloat(XorStr("Tesla beams"), &g_Vars.esp.tesla_kill_beams, 0.f, 20.f, XorStr("%.f"));
-					InsertSliderFloat(XorStr("Tesla radius"), &g_Vars.esp.tesla_kill_radius, 0.f, 200.f, XorStr("%.f"));
-					InsertSliderFloat(XorStr("Tesla time"), &g_Vars.esp.tesla_kill_time, 0.1f, 3.f, XorStr("%.1f"));
+					InsertSliderFloat(XorStr("Tesla Width"), &g_Vars.esp.tesla_kill_width, 0.f, 10.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("Tesla Beams"), &g_Vars.esp.tesla_kill_beams, 0.f, 20.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("Tesla Radius"), &g_Vars.esp.tesla_kill_radius, 0.f, 200.f, XorStr("%.f"));
+					InsertSliderFloat(XorStr("Tesla Time"), &g_Vars.esp.tesla_kill_time, 0.1f, 3.f, XorStr("%.1f"));
 
 				}
 

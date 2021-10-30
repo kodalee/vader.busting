@@ -40,6 +40,7 @@ public:
 	void PenetrateCrosshair( Vector2D center );
 	void DrawAntiAimIndicator( ) override;
 	void DrawZeusDistance( );
+	void IndicateAngles();
 	void SetupAgents() override;
 	void Main( ) override;
 	void SetAlpha( int idx ) override;
@@ -1125,6 +1126,68 @@ void CEsp::DrawZeusDistance( ) {
 	}
 }
 
+void CEsp::IndicateAngles() // moneybot :))))))
+{
+
+	if (!g_Vars.esp.draw_antiaim_angles)
+		return;
+
+	C_CSPlayer* pLocalPlayer = C_CSPlayer::GetLocalPlayer();
+
+	if (!pLocalPlayer || pLocalPlayer->IsDead())
+		return;
+
+	int screen_w, screen_h;
+
+	screen_w = Render::GetScreenSize().x;
+	screen_h = Render::GetScreenSize().y;
+
+	if (Interfaces::m_pEngine->IsInGame() && Interfaces::m_pEngine->IsConnected()) {
+
+		auto get_rotated_point = [](Vector2D point, float rotation, float distance) {
+			float rad = Math::deg_to_rad(rotation);
+
+			point.x += sin(rad) * distance;
+			point.y += cos(rad) * distance;
+
+			return point;
+		};
+
+		auto draw_rotated_triangle = [&get_rotated_point, this](Vector2D point, float rotation, Color col) {
+			Vector2D rotated_pos_1 = get_rotated_point(point, rotation + 205.f, 30.f);
+			Vector2D rotated_pos_2 = get_rotated_point(point, rotation + 155.f, 30.f);
+
+			Vertex_t v[] = {
+				{ point },
+			{ rotated_pos_1 },
+			{ rotated_pos_2 }
+			};
+
+
+			Render::Engine::Line(point, rotated_pos_1, col);
+			Render::Engine::Line(point, rotated_pos_2, col);
+			Render::Engine::Line(rotated_pos_1, rotated_pos_2, col);
+
+		};
+
+		Vector2D rotated_lby{ screen_w * 0.5f, screen_h * 0.5f };
+		Vector2D rotated_real{ screen_w * 0.5f, screen_h * 0.5f };
+
+		QAngle angles{ };
+		Interfaces::m_pEngine->GetViewAngles(angles);
+
+		float rotation_lby = std::remainderf(pLocalPlayer->m_flLowerBodyYawTarget() - angles.y, 360.f) - 180.f;
+		float rotation_real = std::remainderf(g_Vars.globals.flRealYaw -angles.y, 360.f) - 180.f;
+
+		rotated_lby = get_rotated_point(rotated_lby, rotation_lby, 120.f);
+		rotated_real = get_rotated_point(rotated_real, rotation_real, 120.f);
+
+		draw_rotated_triangle(rotated_lby, rotation_lby, g_Vars.esp.draw_antiaim_angles_lby.ToRegularColor());
+		draw_rotated_triangle(rotated_real, rotation_real, g_Vars.esp.draw_antiaim_angles_real.ToRegularColor());
+
+	}
+}
+
 void CEsp::Main( ) {
 	DrawWatermark( );
 	//spotify( ); - there might be fps drops / fps issues caused by this.
@@ -1146,6 +1209,8 @@ void CEsp::Main( ) {
 		Interfaces::m_pSurface->DrawLine( 0, center.y / 2, center.x, center.y / 2 );
 
 	}
+
+	IndicateAngles( );
 
 	if( !m_LocalPlayer->IsDead( ) )
 		Indicators( );
