@@ -56,6 +56,10 @@ namespace Math
 		return val * (pi / 180.f);
 	}
 
+	__forceinline constexpr float rad_to_deg(float val) {
+		return val * (180.f / pi);
+	}
+
 	__forceinline static Vector Interpolate(const Vector from, const Vector to, const float percent) {
 		return to * percent + from * (1.f - percent);
 	}

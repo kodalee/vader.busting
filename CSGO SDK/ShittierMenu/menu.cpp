@@ -278,6 +278,8 @@ void HvH()
 
 	const char* fake_yaw[] = { XorStr("Off"), XorStr("Static"), XorStr("Twist") };
 
+	const char* freestand_mode[] = { XorStr("Crosshair"), XorStr("Edge") };
+
 	float group_w = ImGui::GetCurrentWindow()->Size.x - style->WindowPadding.x * 2;
 	ImGui::Columns(3, nullptr, false);
 	ImGui::SetColumnOffset(1, group_w / 3.0f);
@@ -309,6 +311,13 @@ void HvH()
 			//if (settings->base_yaw == 0) {} why??
 
 			InsertCheckbox( AntiAimFreestand, XorStr( "Freestand yaw" ), &g_Vars.antiaim.freestand );
+			if (g_Vars.antiaim.freestand) {
+
+				InsertCombo(XorStr("Freestand mode"), &g_Vars.antiaim.freestand_mode, freestand_mode);
+
+			}
+
+
 			InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
 			InsertCheckbox(AntiAimManual, XorStr("Manual"), &g_Vars.antiaim.manual);
 			if (g_Vars.antiaim.manual) {

@@ -38,6 +38,8 @@ namespace Interfaces
 		};
 		virtual Directions HandleDirection(Encrypted_t<CUserCmd> cmd);
 
+		bool DoEdgeAntiAim(C_CSPlayer* player, QAngle& out);
+
 		void SendFakeFlick();
 
 		void fake_flick(Encrypted_t<CUserCmd> cmd);
@@ -286,12 +288,18 @@ namespace Interfaces
 			m_flLowerBodyUpdateYaw = LocalPlayer->m_flLowerBodyYawTarget();
 		}
 
-		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) {
+		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // jitter
 			static auto j = false;
 
 			cmd->viewangles.y += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
 			j = !j;
 
+		}
+
+		QAngle ang;
+
+		if (DoEdgeAntiAim(LocalPlayer, ang) && g_Vars.antiaim.freestand_mode == 1 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) {
+			cmd->viewangles.y += Math::AngleNormalize(ang.y);
 		}
 
 		/*if ( g_Vars.antiaim.imposta ) {
@@ -397,27 +405,29 @@ namespace Interfaces
 
 		if (g_Vars.antiaim.freestand) {
 
-			if (!bUsingManualAA) {
+
+			if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
 				C_AntiAimbot::Directions Direction = HandleDirection(cmd);
 				switch (Direction) {
-				case Directions::YAW_BACK:
-					// backwards yaw.
-					flRetValue = flViewAnlge + 180.f;
-					break;
-				case Directions::YAW_LEFT:
-					// left yaw.
-					flRetValue = flViewAnlge + 90.f;
-					break;
-				case Directions::YAW_RIGHT:
-					// right yaw.
-					flRetValue = flViewAnlge - 90.f;
-					break;
-				case Directions::YAW_NONE:
-					// 180.
-					flRetValue = flViewAnlge + 180.f;
-					break;
+			case Directions::YAW_BACK:
+				// backwards yaw.
+				flRetValue = flViewAnlge + 180.f;
+				break;
+			case Directions::YAW_LEFT:
+				// left yaw.
+				flRetValue = flViewAnlge + 90.f;
+				break;
+			case Directions::YAW_RIGHT:
+				// right yaw.
+				flRetValue = flViewAnlge - 90.f;
+				break;
+			case Directions::YAW_NONE:
+				// 180.
+				flRetValue = flViewAnlge + 180.f;
+				break;
 				}
 			}
+
 
 		}
 
@@ -627,6 +637,152 @@ namespace Interfaces
 		}
 
 		return Directions::YAW_NONE;
+	}
+
+	bool C_AntiAimbot::DoEdgeAntiAim(C_CSPlayer* player, QAngle& out) {
+		CGameTrace trace;
+		static CTraceFilter filter{ };
+		Ray_t ray;
+
+		if (player->m_MoveType() == MOVETYPE_LADDER)
+			return false;
+
+		// skip this player in our traces.
+		filter.pSkip = player;
+
+		// get player bounds.
+		Vector mins = player->OBBMins();
+		Vector maxs = player->OBBMaxs();
+
+		// make player bounds bigger.
+		mins.x -= 20.f;
+		mins.y -= 20.f;
+		maxs.x += 20.f;
+		maxs.y += 20.f;
+
+		// get player origin.
+		Vector start = player->GetAbsOrigin();
+
+		// offset the view.
+		start.z += 56.f;
+
+		ray.Init(start, start, mins, maxs);
+
+		Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+
+
+		if (!trace.startsolid)
+			return false;
+
+		float  smallest = 1.f;
+		Vector plane;
+
+		// trace around us in a circle, in 20 steps (anti-degree conversion).
+		// find the closest object.
+		for (float step{ }; step <= Math::pi_2; step += (Math::pi / 10.f)) {
+			// extend endpoint x units.
+			Vector end = start;
+
+			// set end point based on range and step.
+			end.x += std::cos(step) * 32.f;
+			end.y += std::sin(step) * 32.f;
+
+			ray.Init(start, end, { -1.f, -1.f, -8.f }, { 1.f, 1.f, 8.f });
+
+			Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+
+			// we found an object closer, then the previouly found object.
+			if (trace.fraction < smallest) {
+				// save the normal of the object.
+				plane = trace.plane.normal;
+				smallest = trace.fraction;
+			}
+		}
+
+		// no valid object was found.
+		if (smallest == 1.f || plane.z >= 0.1f)
+			return false;
+
+		// invert the normal of this object
+		// this will give us the direction/angle to this object.
+		Vector inv = Vector(-plane.x, -plane.y, -plane.z);
+		Vector dir = inv;
+		dir.Normalize();
+
+		// extend point into object by 24 units.
+		Vector point = start;
+		point.x += (dir.x * 24.f);
+		point.y += (dir.y * 24.f);
+
+		// check if we can stick our head into the wall.
+		if (Interfaces::m_pEngineTrace->GetPointContents(point, CONTENTS_SOLID) & CONTENTS_SOLID) {
+			// trace from 72 units till 56 units to see if we are standing behind something.
+
+			ray.Init(point + Vector{ 0.f, 0.f, 16.f }, point);
+
+			Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+
+			// we didnt start in a solid, so we started in air.
+			// and we are not in the ground.
+			if (trace.fraction < 1.f && !trace.startsolid && trace.plane.normal.z > 0.7f) {
+				// mean we are standing behind a solid object.
+				// set our angle to the inversed normal of this object.
+				out.y = Math::rad_to_deg(std::atan2(inv.y, inv.x));
+				return true;
+			}
+		}
+
+		// if we arrived here that mean we could not stick our head into the wall.
+		// we can still see if we can stick our head behind/asides the wall.
+
+		// adjust bounds for traces.
+		mins = { (dir.x * -3.f) - 1.f, (dir.y * -3.f) - 1.f, -1.f };
+		maxs = { (dir.x * 3.f) + 1.f, (dir.y * 3.f) + 1.f, 1.f };
+
+		// move this point 48 units to the left 
+		// relative to our wall/base point.
+		Vector left = start;
+		left.x = point.x - (inv.y * 48.f);
+		left.y = point.y - (inv.x * -48.f);
+
+		ray.Init(left, point, mins, maxs);
+
+		Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+		float l = trace.startsolid ? 0.f : trace.fraction;
+
+		// move this point 48 units to the right 
+		// relative to our wall/base point.
+		Vector right = start;
+		right.x = point.x + (inv.y * 48.f);
+		right.y = point.y + (inv.x * -48.f);
+
+		ray.Init(right, point, mins, maxs);
+
+		Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+		float r = trace.startsolid ? 0.f : trace.fraction;
+
+		// both are solid, no edge.
+		if (l == 0.f && r == 0.f)
+			return false;
+
+		// set out to inversed normal.
+		out.y = Math::rad_to_deg(std::atan2(inv.y, inv.x));
+
+		// left started solid.
+		// set angle to the left.
+		if (l == 0.f) {
+			out.y += 90.f;
+			return true;
+		}
+
+		// right started solid.
+		// set angle to the right.
+		if (r == 0.f) {
+			out.y -= 90.f;
+			return true;
+		}
+
+		return false;
 	}
 
 }
