@@ -288,6 +288,8 @@ namespace Interfaces
 			m_flLowerBodyUpdateYaw = LocalPlayer->m_flLowerBodyYawTarget();
 		}
 
+		bool bUsingManualAA = g_Vars.globals.manual_aa != -1;
+
 		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // jitter
 			static auto j = false;
 
@@ -298,7 +300,7 @@ namespace Interfaces
 
 		QAngle ang;
 
-		if (DoEdgeAntiAim(LocalPlayer, ang) && g_Vars.antiaim.freestand_mode == 1 && g_Vars.antiaim.freestand && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // run edge aa
+		if (DoEdgeAntiAim(LocalPlayer, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1 && g_Vars.antiaim.freestand && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // run edge aa
 			cmd->viewangles.y += Math::AngleNormalize(ang.y);
 		}
 

@@ -693,7 +693,7 @@ void Visuals()
 						InsertCheckbox(chams_local_scoped_enabled, "transparency when scoped", &g_Vars.esp.blur_in_scoped);
 
 						if (g_Vars.esp.blur_in_scoped) {
-							InsertSliderFloat("scoped transparency", &g_Vars.esp.blur_in_scoped_value, 0.0f, 1.f, "%.2f");
+							InsertSliderFloat("scoped transparency", &g_Vars.esp.blur_in_scoped_value, 0.0f, 100.f, "%.f");
 						}
 
 						InsertCheckbox(enable_attachments_chams, "attachment chams", &g_Vars.esp.chams_attachments);
