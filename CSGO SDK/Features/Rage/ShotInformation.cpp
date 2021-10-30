@@ -441,7 +441,6 @@ namespace Engine
 			int id = Interfaces::m_pEngine->GetPlayerForUserID(gameEvent->GetInt(XorStr("userid")));
 			auto player = C_CSPlayer::GetPlayerByIndex(id);
 
-
 			if (!player || player == local)
 				return;
 
