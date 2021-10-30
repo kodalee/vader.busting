@@ -883,7 +883,7 @@ namespace Interfaces
 		oAddBoxOverlay = Hooked::HooksManager.HookVirtual<decltype( oAddBoxOverlay )>( m_pDebugOverlay.Xor( ), &hkAddBoxOverlay, 1 );
 		
 		//sv_cheats_get_bool
-		oSvCheatsGetBool = Hooked::HooksManager.HookVirtual<decltype( oSvCheatsGetBool )>( Interfaces::m_pCvar->FindVar("sv_cheats"), &sv_cheats_get_bool, 13 );
+		//oSvCheatsGetBool = Hooked::HooksManager.HookVirtual<decltype( oSvCheatsGetBool )>( Interfaces::m_pCvar->FindVar("sv_cheats"), &sv_cheats_get_bool, 13 );
 
 		o_net_show_fragments = Hooked::HooksManager.HookVirtual<decltype( o_net_show_fragments )>( Interfaces::m_pCvar->FindVar("net_showfragments"), &net_show_fragments, 13 );
 
