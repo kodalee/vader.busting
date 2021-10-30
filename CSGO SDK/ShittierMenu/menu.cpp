@@ -636,6 +636,7 @@ void Visuals()
 				const char* chams_mats[] = { "disabled",  "texture", "flat", "custom" };
 				const char* chams_mats_local[] = { "disabled",  "texture", "flat", "custom" };
 				const char* chams_mats_overlay[] = { "disabled", "glow", "blinking" };
+				const char* chams_mats_overlay_misc[] = { "disabled", "glow" };
 				const char* chams_shot_mats[] = { "flat", "glow" };
 				const char* chams_filter_menu[] = { ("enemy"), ("local"), ("fake"), ("viewmodel") };
 				static int chams_filter = 0;
@@ -696,6 +697,30 @@ void Visuals()
 							InsertSliderFloat("scoped transparency", &g_Vars.esp.blur_in_scoped_value, 0.0f, 1.f, "%.2f");
 						}
 
+						InsertCheckbox(enable_attachments_chams, "attachment chams", &g_Vars.esp.chams_attachments);
+						if (g_Vars.esp.chams_attachments) {
+							InsertCombo("attachment", &g_Vars.esp.attachments_chams_mat, chams_mats_local);
+							if (g_Vars.esp.attachments_chams_mat == 3) {
+
+								InsertSliderFloat("attachment pearlescence", &g_Vars.esp.chams_attachments_pearlescence, 0.f, 100.f, "%.f");
+								ImGui::SameLine();
+								ColorPicker("", g_Vars.esp.chams_attachments_pearlescence_color, true);
+								InsertSliderFloat("attachment shine", &g_Vars.esp.chams_attachments_shine, 0.f, 100.f, "%.f");
+
+							}
+
+							InsertCombo("attachment overlay", &g_Vars.esp.new_chams_attachments_overlay, chams_mats_overlay_misc);
+							if (g_Vars.esp.new_chams_attachments_overlay == 1) {
+
+								InsertSliderFloat("glow Strength", &g_Vars.esp.chams_attachments_outline_value, 0.f, 100.f, "%.f");
+
+
+							}
+							InsertCheckbox(attachments_overlay_wireframe, "attachment overlay wireframe", &g_Vars.esp.chams_attachments_outline_wireframe);
+							ColorPicker("attachment color", g_Vars.esp.attachments_chams_color, true);
+							ColorPicker("attachment overlay color", g_Vars.esp.new_chams_attachments_overlay_color, true);
+						}
+
 						break;
 					}
 					case 2: //fake 
@@ -703,7 +728,7 @@ void Visuals()
 						InsertCombo("local fake", &g_Vars.esp.new_chams_local_fake, chams_mats);  ColorPicker("##localfakechamscolor", g_Vars.esp.new_chams_local_fake_color, true);
 						break;
 					}
-					case 3: //hands
+					case 3: //hands & weapon
 					{
 
 						InsertCheckbox(enable_hand_chams, "hand chams", &g_Vars.esp.chams_hands);
@@ -718,16 +743,40 @@ void Visuals()
 
 							}
 
-							InsertCombo("hand overlay", &g_Vars.esp.new_chams_hands_overlay, chams_mats_overlay);
+							InsertCombo("hand overlay", &g_Vars.esp.new_chams_hands_overlay, chams_mats_overlay_misc);
 							if (g_Vars.esp.new_chams_hands_overlay == 1) {
 
 								InsertSliderFloat("glow Strength", &g_Vars.esp.chams_hands_outline_value, 0.f, 100.f, "%.f");
 
 
 							}
+							InsertCheckbox(hand_overlay_wireframe, "hand overlay wireframe", &g_Vars.esp.chams_hands_outline_wireframe);
 							ColorPicker("hand color", g_Vars.esp.hands_chams_color, true);
 							ColorPicker("hand overlay color", g_Vars.esp.new_chams_hands_overlay_color, true);
-							InsertCheckbox(chams_local_original_model, "draw original model", &g_Vars.esp.new_chams_hands_original_model);
+						}
+
+						InsertCheckbox(enable_weapon_chams, "weapon chams", &g_Vars.esp.chams_weapon);
+						if (g_Vars.esp.chams_weapon) {
+							InsertCombo("hands", &g_Vars.esp.weapon_chams_mat, chams_mats_local);
+							if (g_Vars.esp.weapon_chams_mat == 3) {
+
+								InsertSliderFloat("weapon pearlescence", &g_Vars.esp.chams_weapon_pearlescence, 0.f, 100.f, "%.f");
+								ImGui::SameLine();
+								ColorPicker("", g_Vars.esp.chams_weapon_pearlescence_color, true);
+								InsertSliderFloat("weapon shine", &g_Vars.esp.chams_weapon_shine, 0.f, 100.f, "%.f");
+
+							}
+
+							InsertCombo("weapon overlay", &g_Vars.esp.new_chams_weapon_overlay, chams_mats_overlay_misc);
+							if (g_Vars.esp.new_chams_weapon_overlay == 1) {
+
+								InsertSliderFloat("glow Strength", &g_Vars.esp.chams_weapon_outline_value, 0.f, 100.f, "%.f");
+
+
+							}
+							InsertCheckbox(weapon_overlay_wireframe, "weapon overlay wireframe", &g_Vars.esp.chams_weapon_outline_wireframe);
+							ColorPicker("weapon color", g_Vars.esp.weapon_chams_color, true);
+							ColorPicker("weapon overlay color", g_Vars.esp.new_chams_weapon_overlay_color, true);
 						}
 
 						break;

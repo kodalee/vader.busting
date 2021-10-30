@@ -1040,6 +1040,14 @@ public:
 	config_option(FloatColor, chams_hands_pearlescence_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 	config_option(float, chams_hands_pearlescence, 0.f);
 	config_option(float, chams_hands_shine, 0.f);
+
+	config_option(FloatColor, chams_weapon_pearlescence_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(float, chams_weapon_pearlescence, 0.f);
+	config_option(float, chams_weapon_shine, 0.f);
+
+	config_option(FloatColor, chams_attachments_pearlescence_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(float, chams_attachments_pearlescence, 0.f);
+	config_option(float, chams_attachments_shine, 0.f);
 	
 	config_option( FloatColor, chams_enemy_pearlescence_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( float, chams_enemy_pearlescence, 0.f );
@@ -1064,6 +1072,12 @@ public:
 	config_option(int, new_chams_hands_overlay, 0);
 	config_option(FloatColor, new_chams_hands_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 	config_option(bool, new_chams_hands_original_model, false);
+
+	config_option(int, new_chams_weapon_overlay, 0);
+	config_option(FloatColor, new_chams_weapon_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+
+	config_option(int, new_chams_attachments_overlay, 0);
+	config_option(FloatColor, new_chams_attachments_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 
 	config_option(int, new_chams_onshot_mat, 0);
 	config_option(float, new_chams_onshot_mat_glow_value, 0.f);

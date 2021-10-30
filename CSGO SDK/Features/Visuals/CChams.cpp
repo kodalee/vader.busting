@@ -844,6 +844,7 @@ namespace Interfaces
 		MATERIAL_BLINKING,
 		MATERIAL_WIREFRAME,
 		MATERIAL_OUTLINE,
+		MATERIAL_ANIMATEDLINE,
 	};
 
 	struct C_HitMatrixEntry {
@@ -919,13 +920,37 @@ namespace Interfaces
 			}
 			)#";
 
+
+			std::ofstream("csgo/materials/LineOverlay.vmt") << R"#("VertexLitGeneric" {
+                "$basetexture"                "particle\confetti\confetti"
+                "$additive"                    "1"
+                "$envmap"                    "editor/cube_vertigo"
+                "$envmaptint"                "[0 0.5 0.55]"
+                "$envmapfresnel"            "1"
+                "$envmapfresnelminmaxexp"   "[0.00005 0.6 6]"
+                "$alpha"                    "1"
+ 
+                      Proxies
+                {
+                    TextureScroll
+                    {
+                        "texturescrollvar"            "$baseTextureTransform"
+                        "texturescrollrate"            "0.30"
+                        "texturescrollangle"        "270"
+                    }
+                }
+			}
+			)#";
+
 			m_matWireframe = Interfaces::m_pMatSystem->FindMaterial( XorStr( "wireframe_vader" ), TEXTURE_GROUP_MODEL );
 
-			m_matBlinking = Interfaces::m_pMatSystem->FindMaterial( XorStr( "models/inventory_items/dogtags/dogtags_outline" ), TEXTURE_GROUP_MODEL );
+			m_matBlinking = Interfaces::m_pMatSystem->FindMaterial( XorStr( "models/inventory_items/dogtags/dogtags_outline" ), TEXTURE_GROUP_OTHER );
 
 			m_matAimware = Interfaces::m_pMatSystem->FindMaterial( XorStr( "glowOverlay" ), TEXTURE_GROUP_MODEL );
 
 			m_matShiny = Interfaces::m_pMatSystem->FindMaterial( XorStr( "vader_custom" ), TEXTURE_GROUP_MODEL );
+
+			m_matAnimatedLine = Interfaces::m_pMatSystem->FindMaterial(XorStr("LineOverlay"), TEXTURE_GROUP_MODEL);
 
 			if( !m_matRegular || m_matRegular == nullptr || m_matRegular->IsErrorMaterial( ) )
 				return false;
@@ -948,6 +973,9 @@ namespace Interfaces
 			if ( !m_matAimware || m_matAimware == nullptr || m_matAimware->IsErrorMaterial( ) )
 				return false;
 
+			if (!m_matAnimatedLine || m_matAnimatedLine == nullptr || m_matAnimatedLine->IsErrorMaterial())
+				return false;
+
 			m_bInit = true;
 			return true;
 		}
@@ -963,6 +991,7 @@ namespace Interfaces
 		IMaterial* m_matWireframe = nullptr;
 		IMaterial* m_matBlinking = nullptr;
 		IMaterial* m_matAimware = nullptr;
+		IMaterial* m_matAnimatedLine = nullptr;
 
 		std::vector<C_HitMatrixEntry> m_Hitmatrix;
 	};
@@ -1144,6 +1173,8 @@ namespace Interfaces
 			material = m_matWireframe; break;
 		case MATERIAL_OUTLINE:
 			material = m_matGlow; break;
+		case MATERIAL_ANIMATEDLINE:
+			material = m_matAnimatedLine; break;
 		}
 
 		if( !material ) {
@@ -1309,14 +1340,40 @@ namespace Interfaces
 					}
 				}
 
-				int material = g_Vars.esp.attachments_chams_mat;
+				//set attachments chams
+				OverrideMaterial(false, g_Vars.esp.attachments_chams_mat, g_Vars.esp.attachments_chams_color, 0.f, false,
+					g_Vars.esp.chams_attachments_pearlescence_color, g_Vars.esp.chams_attachments_pearlescence, g_Vars.esp.chams_attachments_shine);
 
-				OverrideMaterial( false, material, g_Vars.esp.attachments_chams_color, 0.f );
-				Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld );
+				Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
 
-				if( g_Vars.esp.chams_attachments_outline ) {
-					OverrideMaterial( false, MATERIAL_GLOW, g_Vars.esp.chams_attachments_outline_color, std::clamp<float>( ( 100.0f - g_Vars.esp.chams_attachments_outline_value ) * 0.2f, 1.f, 20.f ), g_Vars.esp.chams_attachments_outline_wireframe );
-					Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld );
+
+				if (g_Vars.esp.new_chams_attachments_overlay > 0) {
+
+					int material; // la premium
+
+					switch (g_Vars.esp.new_chams_attachments_overlay) {
+					case 0:
+					{
+						material = 0;
+						break;
+					}
+					case 1:
+					{
+						material = 4;
+						break;
+					}
+					//case 2:
+					//{
+					//	material = 8;
+					//	break;
+					//}
+
+					}
+
+					OverrideMaterial(false, material, g_Vars.esp.new_chams_attachments_overlay_color,
+						std::clamp<float>((100.0f - g_Vars.esp.chams_attachments_outline_value) * 0.2f, 1.f, 20.f), g_Vars.esp.chams_attachments_outline_wireframe);
+
+					Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
 				}
 
 				InvalidateMaterial( );
@@ -1328,15 +1385,43 @@ namespace Interfaces
 			if( !g_Vars.esp.chams_weapon )
 				goto end;
 
-			int material = g_Vars.esp.weapon_chams_mat;
+			//set weapon chams
+			OverrideMaterial(false, g_Vars.esp.weapon_chams_mat, g_Vars.esp.weapon_chams_color, 0.f, false,
+				g_Vars.esp.chams_weapon_pearlescence_color, g_Vars.esp.chams_weapon_pearlescence, g_Vars.esp.chams_weapon_shine);
 
-			OverrideMaterial( false, material, g_Vars.esp.weapon_chams_color, 0.f );
-			Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld );
+			Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
 
-			if( g_Vars.esp.chams_weapon_outline ) {
-				OverrideMaterial( false, MATERIAL_GLOW, g_Vars.esp.chams_weapon_outline_color, std::clamp<float>( ( 100.0f - g_Vars.esp.chams_weapon_outline_value ) * 0.2f, 1.f, 20.f ), g_Vars.esp.chams_weapon_outline_wireframe );
-				Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld );
+
+			if (g_Vars.esp.new_chams_weapon_overlay > 0) {
+
+				int material; // la premium
+
+				switch (g_Vars.esp.new_chams_weapon_overlay) {
+				case 0:
+				{
+					material = 0;
+					break;
+				}
+				case 1:
+				{
+					material = 4;
+					break;
+				}
+				//case 2:
+				//{
+				//	material = 8;
+				//	break;
+				//}
+
+				}
+
+				OverrideMaterial(false, material, g_Vars.esp.new_chams_weapon_overlay_color,
+					std::clamp<float>((100.0f - g_Vars.esp.chams_weapon_outline_value) * 0.2f, 1.f, 20.f), g_Vars.esp.chams_weapon_outline_wireframe);
+
+				Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
 			}
+
+
 
 			InvalidateMaterial( );
 			return;
@@ -1367,16 +1452,16 @@ namespace Interfaces
 					material = 4;
 					break;
 				}
-				case 2:
-				{
-					material = 5;
-					break;
-				}
+				//case 2:
+				//{
+				//	material = 8;
+				//	break;
+				//}
 
 				}
 
 				OverrideMaterial(false, material, g_Vars.esp.new_chams_hands_overlay_color,
-					std::clamp<float>((100.0f - g_Vars.esp.chams_hands_outline_value) * 0.2f, 1.f, 20.f));
+					std::clamp<float>((100.0f - g_Vars.esp.chams_hands_outline_value) * 0.2f, 1.f, 20.f), g_Vars.esp.chams_hands_outline_wireframe);
 
 				Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
 			}
