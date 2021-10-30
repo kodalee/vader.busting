@@ -286,7 +286,7 @@ namespace Interfaces
 			m_flLowerBodyUpdateYaw = LocalPlayer->m_flLowerBodyYawTarget();
 		}
 
-		if (settings->base_yaw == 2 && !Interfaces::m_pClientState->m_nChokedCommands()) {
+		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) {
 			static auto j = false;
 
 			cmd->viewangles.y += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
