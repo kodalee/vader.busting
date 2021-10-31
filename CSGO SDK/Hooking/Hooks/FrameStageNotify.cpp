@@ -465,11 +465,7 @@ namespace Hooked
 			}
 		}
 
-		for (auto hk : g_luahookmanager.get_hooks("pre_framestagenotify")) hk.func(stage);
-
 		oFrameStageNotify( ecx, stage );
-
-		for (auto hk : g_luahookmanager.get_hooks("framestagenotify")) hk.func(stage);
 
 		if( stage == FRAME_NET_UPDATE_END ) {
 			Hooked::CL_FireEvents( );

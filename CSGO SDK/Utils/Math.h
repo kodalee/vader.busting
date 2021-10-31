@@ -34,8 +34,6 @@ namespace Math
 
 	float GetFov( const QAngle& viewAngle, const Vector& start, const Vector& end );
 
-	float VecGetFov(const Vector& src, const Vector& dst);
-
 	float AngleNormalize(float angle);
 
 	float ApproachAngle(float target, float value, float speed);
@@ -45,22 +43,6 @@ namespace Math
 	void SmoothAngle(QAngle src, QAngle& dst, float factor);
 
 	QAngle CalcAngle(Vector src, Vector dst, bool bruh = false);
-	Vector VecCalcAngle(const Vector& src, const Vector& dest);
-
-	inline void Vecanglevectors(const Vector& angles, Vector* forward)
-	{
-		float sp, sy, cp, cy;
-
-		SinCos(DEG2RAD(angles.x), &sp, &cp);
-		SinCos(DEG2RAD(angles.y), &sy, &cy);
-
-		if (forward)
-		{
-			forward->x = cp * cy;
-			forward->y = cp * sy;
-			forward->z = -sp;
-		}
-	}
 
 	Vector GetSmoothedVelocity(float min_delta, Vector a, Vector b);
 

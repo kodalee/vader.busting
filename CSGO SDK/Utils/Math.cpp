@@ -496,22 +496,6 @@ float Math::GetFov( const QAngle& viewAngle, const Vector& start, const Vector& 
 	return std::max( RAD2DEG( std::acos( fw.Dot( dir ) ) ), 0.f );
 }
 
-float Math::VecGetFov(const Vector& src, const Vector& dst)
-{
-	Vector v_src = Vector();
-	Vecanglevectors(src, &v_src);
-
-	Vector v_dst = Vector();
-	Vecanglevectors(dst, &v_dst);
-
-	float result = RAD2DEG(acos(v_dst.Dot(v_src) / v_dst.LengthSquared()));
-
-	if (!isfinite(result) || isinf(result) || isnan(result))
-		result = 0.0f;
-
-	return result;
-}
-
 float Math::AngleNormalize( float angle ) {
 	if( angle > 180.f || angle < -180.f ) {
 		auto revolutions = round( abs( angle / 360.f ) );
@@ -585,21 +569,6 @@ QAngle Math::CalcAngle( Vector src, Vector dst, bool bruh ) {
 
 		return angles;
 	}
-}
-
-Vector Math::VecCalcAngle(const Vector& src, const Vector& dest) {
-	Vector angles = Vector(0.0f, 0.0f, 0.0f);
-	Vector delta = (src - dest);
-	float fHyp = FastRSqrt((delta.x * delta.x) + (delta.y * delta.y));
-
-	angles.x = (atanf(delta.z / fHyp) * RadPi);
-	angles.y = (atanf(delta.y / delta.x) * RadPi);
-	angles.z = 0.0f;
-
-	if (delta.x >= 0.0f)
-		angles.y += 180.0f;
-
-	return angles;
 }
 
 Vector Math::GetSmoothedVelocity( float min_delta, Vector a, Vector b ) {

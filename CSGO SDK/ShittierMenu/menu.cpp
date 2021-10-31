@@ -1032,18 +1032,6 @@ void Misc()
 				//	}
 				//}
 
-				ImGui::Text("scripts");
-
-				for (auto s : g_lua.scripts)
-				{
-					ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
-					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-						auto scriptId = g_lua.get_script_id(s);
-						if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
-					}
-				}
-				ImGui::NewLine();
-
 				break;
 			}
 		}

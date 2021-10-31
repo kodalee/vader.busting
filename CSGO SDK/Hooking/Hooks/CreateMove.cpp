@@ -544,8 +544,6 @@ namespace Hooked
 			return oCreateMove( ft, _cmd );
 		}
 
-		for (auto hk : g_luahookmanager.get_hooks("createmove")) hk.func(_cmd);
-
 		return result;
 	}
 

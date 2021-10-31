@@ -1757,9 +1757,6 @@ public:
 
 #include "../Renderer/Render.hpp"
 
-#include "../Libraries/lua-api/lua_api.h"
-#include "../Libraries/lua-api/lua_hooks.h"
-
 #include "../Menu/Helpers/Easing.h"
 #include "../Menu/Framework/GUI.h"
 #include "../Menu/Elements.h"
