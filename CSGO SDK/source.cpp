@@ -944,6 +944,10 @@ namespace Interfaces
 		oUpdateClientSideAnimation = Hooked::HooksManager.CreateHook<decltype( oUpdateClientSideAnimation ) >( &hkUpdateClientSideAnimation, ( void* )update_client_side_animation );
 
 		Hooked::HooksManager.Enable( );
+<<<<<<< HEAD
+=======
+		//g_lua.initialize();
+>>>>>>> parent of a931cd8 (fuck you calli reverted BITCH)
 
 		return true;
 	}

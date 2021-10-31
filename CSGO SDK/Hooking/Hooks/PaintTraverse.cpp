@@ -69,6 +69,8 @@ namespace Hooked
 			IEsp::Get( )->Main( );
 			IExtendedEsp::Get( )->Finish( );
 
+			for (auto hk : g_luahookmanager.get_hooks("paint")) hk.func();
+
 			if( g_Vars.esp.beam_enabled && g_Vars.globals.HackIsReady && g_Vars.globals.RenderIsReady && g_Vars.esp.beam_type == 0 )
 				IBulletBeamTracer::Get( )->Main( );
 
