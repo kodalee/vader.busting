@@ -383,12 +383,12 @@ void __fastcall hkPhysicsSimulate( void* ecx, void* edx ) {
 		nSimulationTick = Interfaces::m_pGlobalVars->tickcount;
 		pCommandContext->needsprocessing = false;
 
-		Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
+		//Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
 	}
 	else {
-		Engine::Prediction::Instance( )->RestoreNetvarCompression( &pCommandContext->cmd );
+		//Engine::Prediction::Instance( )->RestoreNetvarCompression( &pCommandContext->cmd );
 		oPhysicsSimulate( ecx );
-		Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
+		//Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
 	}
 }
 
@@ -944,6 +944,10 @@ namespace Interfaces
 		oUpdateClientSideAnimation = Hooked::HooksManager.CreateHook<decltype( oUpdateClientSideAnimation ) >( &hkUpdateClientSideAnimation, ( void* )update_client_side_animation );
 
 		Hooked::HooksManager.Enable( );
+<<<<<<< HEAD
+
+=======
+>>>>>>> parent of 5835a72 (shitty lua go fucking die pls)
 		return true;
 	}
 
