@@ -383,12 +383,12 @@ void __fastcall hkPhysicsSimulate( void* ecx, void* edx ) {
 		nSimulationTick = Interfaces::m_pGlobalVars->tickcount;
 		pCommandContext->needsprocessing = false;
 
-		Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
+		//Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
 	}
 	else {
-		Engine::Prediction::Instance( )->RestoreNetvarCompression( &pCommandContext->cmd );
+		//Engine::Prediction::Instance( )->RestoreNetvarCompression( &pCommandContext->cmd );
 		oPhysicsSimulate( ecx );
-		Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
+		//Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
 	}
 }
 
