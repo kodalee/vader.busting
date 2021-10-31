@@ -3,5 +3,5 @@
 void __fastcall Hooked::hkSceneEnd(void* thisptr, void* edx)
 {
 	oSceneEnd();
-	g_NewChams.SceneEnd();
+	//g_NewChams.SceneEnd();
 }
