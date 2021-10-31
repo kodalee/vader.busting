@@ -2163,8 +2163,8 @@ namespace Interfaces
 		m_rage_data->m_bFailedHitchance = false;
 
 		if (g_Vars.rage.auto_fire) {
-			if (!g_Vars.globals.Fakewalking)
-				*m_rage_data->m_pSendPacket = false;
+			//if (!g_Vars.globals.Fakewalking)
+				//*m_rage_data->m_pSendPacket = false; // this is not needed.
 
 			m_rage_data->m_pCmd->buttons |= IN_ATTACK;
 

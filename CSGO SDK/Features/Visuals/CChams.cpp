@@ -1566,32 +1566,97 @@ namespace Interfaces
 				//set enemy chams
 				if( g_Vars.esp.chams_enemy ) {
 					if( !ragdoll ) {
-						int material = g_Vars.esp.enemy_chams_mat;
 
 						if( should_xqz ) {
-							OverrideMaterial( true, material, xqz, 0.f, false,
-								g_Vars.esp.chams_enemy_pearlescence_color, g_Vars.esp.chams_enemy_pearlescence, g_Vars.esp.chams_enemy_shine );
-							Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld );
+
+							//set enemy player chams
+							if (g_Vars.esp.new_chams_enemy_xqz > 0) {
+
+								OverrideMaterial(true, g_Vars.esp.new_chams_enemy_xqz, g_Vars.esp.new_chams_enemy_xqz_color, 0.f, false,
+									g_Vars.esp.chams_enemy_xqz_pearlescence_color, g_Vars.esp.chams_enemy_xqz_pearlescence, g_Vars.esp.chams_enemy_xqz_shine);
+
+								Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
+
+							}
+
+							if (g_Vars.esp.new_chams_enemy_xqz_overlay > 0) {
+
+								int material; // la premium
+
+								switch (g_Vars.esp.new_chams_enemy_xqz_overlay) {
+								case 0:
+								{
+									material = 0;
+									break;
+								}
+								case 1:
+								{
+									material = 4;
+									break;
+								}
+								case 2:
+								{
+									material = 5;
+									break;
+								}
+
+								}
+
+								OverrideMaterial(true, material, g_Vars.esp.new_chams_enemy_xqz_overlay_color,
+									std::clamp<float>((100.0f - g_Vars.esp.chams_enemy_xqz_outline_value) * 0.2f, 1.f, 20.f), g_Vars.esp.chams_enemy_outline_xqz_wireframe);
+
+								Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
+
+							}
 
 							InvalidateMaterial( );
 						}
 
 						if( should_vis ) {
-							OverrideMaterial( false, material, vis, 0.f, false,
-								g_Vars.esp.chams_enemy_pearlescence_color, g_Vars.esp.chams_enemy_pearlescence, g_Vars.esp.chams_enemy_shine );
-							Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld );
+
+							//set enemy player chams
+							if (g_Vars.esp.new_chams_enemy > 0) {
+
+								OverrideMaterial(false, g_Vars.esp.new_chams_enemy, g_Vars.esp.new_chams_enemy_color, 0.f, false,
+									g_Vars.esp.chams_enemy_pearlescence_color, g_Vars.esp.chams_enemy_pearlescence, g_Vars.esp.chams_enemy_shine);
+
+								Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
+
+							}
+
+							if (g_Vars.esp.new_chams_enemy_overlay > 0) {
+
+								int material; // la premium
+
+								switch (g_Vars.esp.new_chams_enemy_overlay) {
+								case 0:
+								{
+									material = 0;
+									break;
+								}
+								case 1:
+								{
+									material = 4;
+									break;
+								}
+								case 2:
+								{
+									material = 5;
+									break;
+								}
+
+								}
+
+								OverrideMaterial(false, material, g_Vars.esp.new_chams_enemy_overlay_color,
+									std::clamp<float>((100.0f - g_Vars.esp.chams_enemy_outline_value) * 0.2f, 1.f, 20.f), g_Vars.esp.chams_enemy_outline_wireframe);
+
+								Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
+
+							}
 
 							InvalidateMaterial( );
 						}
 
-						if( g_Vars.esp.chams_enemy_outline ) {
-							OverrideMaterial( true, MATERIAL_GLOW, g_Vars.esp.chams_enemy_outline_color,
-								std::clamp<float>( ( 100.0f - g_Vars.esp.chams_enemy_outline_value ) * 0.2f, 1.f, 20.f ), g_Vars.esp.chams_enemy_outline_wireframe );
-
-							Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld );
-
-							InvalidateMaterial( );
-						}
 					}
 				}
 				else {

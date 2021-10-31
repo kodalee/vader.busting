@@ -981,6 +981,7 @@ public:
 
 	config_option( bool, chams_enemy_outline, false );
 	config_option( bool, chams_enemy_outline_wireframe, false );
+	config_option(bool, chams_enemy_outline_xqz_wireframe, false);
 
 	config_option( bool, chams_hands_outline, false );
 	config_option( bool, chams_hands_outline_wireframe, false )
@@ -1001,6 +1002,7 @@ public:
 	config_option( float, chams_weapon_outline_value, 0.f );
 	config_option( float, chams_attachments_outline_value, 0.f );
 	config_option( float, chams_enemy_outline_value, 0.f );
+	config_option(float, chams_enemy_xqz_outline_value, 0.f);
 	config_option( float, chams_teammate_outline_value, 0.f );
 	/*config_option( float, chams_enemy_death_outline_value, 0.f );
 	config_option( float, chams_teammate_death_outline_value, 0.f );*/
@@ -1053,6 +1055,10 @@ public:
 	config_option( float, chams_enemy_pearlescence, 0.f );
 	config_option( float, chams_enemy_shine, 0.f );
 
+	config_option(FloatColor, chams_enemy_xqz_pearlescence_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(float, chams_enemy_xqz_pearlescence, 0.f);
+	config_option(float, chams_enemy_xqz_shine, 0.f);
+
 	config_option( FloatColor, chams_local_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, chams_desync_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, hands_chams_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
@@ -1089,6 +1095,7 @@ public:
 	config_option(int, new_chams_enemy_overlay, 0);
 	config_option(int, new_chams_enemy_xqz, 0);
 	config_option(int, new_chams_enemy_xqz_overlay, 0);
+	config_option(bool, new_chams_enemy_original_model, false);
 	config_option(bool, new_chams_local_original_model, false);
 	config_option(bool, new_chams_local_scoped_enabled, false);
 	config_option(float, new_chams_local_scoped_alpha, 0.55f);
