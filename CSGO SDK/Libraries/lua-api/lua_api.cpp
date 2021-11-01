@@ -327,14 +327,23 @@ namespace lua_render {
 
 	void draw_rect(float x, float y, float w, float h, Color col)
 	{
-		Render::Engine::RectOutlined((int)x, (int)y, (int)w, (int)h, col, Color(0, 0, 0, col.a()));
+		Render::Engine::Rect((int)x, (int)y, (int)w, (int)h, col);
 	}
 
 	void draw_rect_filled(float x, float y, float w, float h, Color col)
 	{
-		Render::Engine::Rect((int)x, (int)y, (int)w, (int)h, col);
+		Render::Engine::RectFilled((int)x, (int)y, (int)w, (int)h, col);
 	}
 
+	void draw_rect_outlined(int x, int y, int w, int h, Color color, Color color2)
+	{
+		Render::Engine::RectOutlined((int)x, (int)y, (int)w, (int)h, color, color2);
+	}
+
+	void draw_circle(int x, int y, int radius, int segments, Color color)
+	{
+		Render::Engine::CircleFilled((int)x, (int)y, (int)radius, (int)segments, color);
+	}
 
 	Vector world_to_screen(Vector pos) {
 		Vector2D scr;
@@ -521,6 +530,10 @@ bool c_lua::initialize() {
 	render["draw_line"] = lua_render::draw_line;
 	render["draw_rect"] = lua_render::draw_rect;
 	render["draw_rect_filled"] = lua_render::draw_rect_filled;
+	render["draw_circle"] = lua_render::draw_circle;
+	render["draw_rect_outlined"] = lua_render::draw_rect_outlined;
+
+
 	render["world_to_screen"] = lua_render::world_to_screen;
 
 	this->lua["cheat"] = cheat;
@@ -534,7 +547,7 @@ bool c_lua::initialize() {
 	this->lua["render"] = render;
 
 	this->refresh_scripts();
-	this->load_script(this->get_script_id("autorun.lua"));
+	//this->load_script(this->get_script_id("autorun.lua"));
 
 	return true;
 }
@@ -610,10 +623,13 @@ void c_lua::refresh_scripts() {
 	this->pathes.clear();
 	this->scripts.clear();
 
-	CreateDirectoryA("C:/project nacl", 0);
-	CreateDirectoryA("C:/project nacl/scripts", 0);
-	for (auto& entry : std::filesystem::directory_iterator("C:\\project nacl\\scripts")) {
-		if (entry.path().extension() == (".lua")) {
+	std::filesystem::path full_path(std::filesystem::current_path());
+	std::wstring str = full_path.wstring() + XorStr(L"\\vader.tech\\scripts");
+
+	CreateDirectoryW(str.c_str(), nullptr);
+
+	for (auto& entry : std::filesystem::directory_iterator(str)) {
+		if (entry.path().extension() == (".lua") || entry.path().extension() == (".luac")) {
 			auto path = entry.path();
 			auto filename = path.filename().string();
 
