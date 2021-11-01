@@ -719,7 +719,7 @@ namespace Interfaces
 
 		initialize_kits( );
 		
-		g_NewChams.init();
+		//g_NewChams.init();
 		ISkinChanger::Get( )->Create( );
 
 		for( auto clientclass = Interfaces::m_pClient->GetAllClasses( );
