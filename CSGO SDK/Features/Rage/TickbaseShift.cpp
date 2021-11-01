@@ -50,12 +50,11 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		return;
 	}
 
-
 	const bool bStart = s_bBuilding;
 	s_bBuilding = g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !GetAsyncKeyState(VK_LBUTTON)
 #ifndef STANDALONE_CSGO
 		//	&& s_nTicksSinceUse >= s_nTicksRequired
-		&& !m_bSupressRecharge
+		/*&& !m_bSupressRecharge*/
 #endif
 		;
 
@@ -170,7 +169,6 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 			{
 				//now account for the shift on all our new commands
 				g_iTickbaseShifts.emplace_back(cmdnumber, estimated);
-
 				cmdnumber++;
 				estimated++;
 			}
@@ -233,7 +231,6 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 #ifndef STANDALONE_CSGO
 		int start = *(int*)((size_t)g_pLocal + OFFSET_TICKBASE);
 		bool bPred = s_bBuilding && s_nExtraProcessingTicks > 0;
-
 		if (bPred)
 		{
 			s_bInMove = true;

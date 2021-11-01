@@ -183,7 +183,7 @@ namespace Engine
 	void Engine::C_EntityLagData::UpdateRecordData( Encrypted_t< C_EntityLagData > pThis, C_CSPlayer* player, const player_info_t& info, int updateType ) {
 		auto local = C_CSPlayer::GetLocalPlayer( );
 		auto team_check = g_Vars.rage.enabled && !g_Vars.rage.team_check && player->IsTeammate( C_CSPlayer::GetLocalPlayer( ) );
-		if( player->IsDead( ) || team_check ) {
+		if( player->IsDead( ) || team_check || !local ) {
 			pThis->m_History.clear( );
 			pThis->m_flLastUpdateTime = 0.0f;
 			pThis->m_flLastScanTime = 0.0f;

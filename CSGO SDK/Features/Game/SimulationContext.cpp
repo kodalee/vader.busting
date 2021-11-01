@@ -330,7 +330,7 @@ void SimulationContext::RebuildGameMovement( CUserCmd* ucmd ) {
 			static auto sv_friction = Interfaces::m_pCvar->FindVar( XorStr( "sv_friction" ) );
 
 			auto speed = this->m_vecVelocity.Length2D( );
-			if( speed <= 0.1f ) {
+			if( speed < 0.1f ) {
 				this->m_vecVelocity.x = 0.0f;
 				this->m_vecVelocity.y = 0.0f;
 				this->m_vecVelocity.z = 0.0f;

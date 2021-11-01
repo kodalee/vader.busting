@@ -464,7 +464,7 @@ namespace Engine {
 		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !(record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
 			record->m_iResolverMode = EResolverModes::RESOLVE_WALK;
 
-		if ((record->m_fFlags & FL_ONGROUND) && (speed <= 0.1f || record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
+		if ((record->m_fFlags & FL_ONGROUND) && (speed < 0.1f || record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
 			record->m_iResolverMode = EResolverModes::RESOLVE_STAND;
 
 		else if (!(record->m_fFlags & FL_ONGROUND))
