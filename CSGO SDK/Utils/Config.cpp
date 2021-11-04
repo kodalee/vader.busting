@@ -155,3 +155,12 @@ void ConfigManager::OpenConfigFolder() {
 		ILFree_fn(pidl);
 	}
 }
+
+int ConfigManager::GetConfigID(std::string name) {
+	for (size_t i = 0; i < GetConfigs().size(); i++) {
+		if (GetConfigs().at(i) == name)
+			return i;
+	}
+
+	return -1;
+}

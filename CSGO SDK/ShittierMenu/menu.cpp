@@ -1,7 +1,7 @@
 #include "Menu.hpp"
 #include "Fonts.h"
 #include <chrono>
-
+#include "../Utils/Config.hpp"
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "IMGAY/imgui_internal.h"
 #include "IMGAY/impl/imgui_impl_dx9.h"
@@ -974,7 +974,8 @@ void Visuals()
 			}
 		}
 	}
-	ImGui::EndColumns();}
+	ImGui::EndColumns();
+}
 
 void Misc()
 {
@@ -1053,13 +1054,6 @@ void Misc()
 
 			case 1:
 			{
-
-				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
-
-				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Reload active", ImVec2(100, 0))) g_lua.reload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
-
-				ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(75.f); ImGui::PushItemWidth(158.f);  if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts(); ImGui::PopItemWidth(); ImGui::CustomSpacing(1.f);
-
 				//ImGui::Text("scripts");
 
 				//for (auto s : g_lua.scripts)
@@ -1074,19 +1068,103 @@ void Misc()
 				//	}
 				//}
 
-				ImGui::Text("scripts");
-
-				for (auto s : g_lua.scripts)
+				ImGui::Text("Configs");
+				ImGui::NewLine();
 				{
-					ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
-					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-						auto scriptId = g_lua.get_script_id(s);
-						if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
+					static int selected_cfg;
+					static std::vector<std::string> cfg_list;
+					static bool initialise_configs = true;
+					bool reinit = false;
+					if (initialise_configs || (GetTickCount() % 1000) == 0) {
+						cfg_list = ConfigManager::GetConfigs();
+						initialise_configs = false;
+						reinit = true;
+					}
+
+					static std::string config_name;
+					ImGui::Text(XorStr("Name")); ImGui::SameLine(); // my ghetto way of having the name first then the input box
+					ImGui::InputText("##name", (char*)config_name.c_str(), 26);
+
+					if (!cfg_list.empty()) {
+						for (auto penis : cfg_list)
+							if (ImGui::Selectable(penis.c_str()))
+								selected_cfg = ConfigManager::GetConfigID(penis);
+					}
+					else
+						ImGui::Text("No configs");
+
+					if (reinit) {
+						if (selected_cfg >= cfg_list.size())
+							selected_cfg = cfg_list.size() - 1;
+
+						if (selected_cfg < 0)
+							selected_cfg = 0;
+					}
+
+					ImGui::NewLine();
+
+					if (!cfg_list.empty()) {
+						if (ImGui::Button(XorStr("Save"))) {
+							ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
+						}
+
+						ImGui::SameLine();
+
+						if (ImGui::Button(XorStr("Load")))
+						{
+							if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
+								ConfigManager::ResetConfig();
+
+								ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
+								g_Vars.m_global_skin_changer.m_update_skins = true;
+								g_Vars.m_global_skin_changer.m_update_gloves = true;
+							}
+						}
+						ImGui::SameLine();
+						if (ImGui::Button(XorStr("Delete")))
+						{
+							ConfigManager::RemoveConfig(cfg_list.at(selected_cfg));
+							cfg_list = ConfigManager::GetConfigs();
+						}
+						ImGui::SameLine();
+					}
+
+					if (ImGui::Button(XorStr("Create"))) {
+						if (config_name.empty())
+							return;
+
+						ConfigManager::CreateConfig(config_name);
+						cfg_list = ConfigManager::GetConfigs();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button(XorStr("Reset"))) {
+						ConfigManager::ResetConfig();
 					}
 				}
+
+				ImGui::NextColumn(); ImGui::NewLine();
+
+				ImGui::Text("Scripts");
 				ImGui::NewLine();
 
-				break;
+				{
+					for (auto s : g_lua.scripts)
+					{
+						if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
+							auto scriptId = g_lua.get_script_id(s);
+							if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
+						}
+					}
+
+					ImGui::NewLine();
+
+					if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts();
+
+					if (ImGui::Button("Reload active", ImVec2(100, 0))) g_lua.reload_all_scripts();
+
+					if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts();
+				}
+
 			}
 		}
 	}
