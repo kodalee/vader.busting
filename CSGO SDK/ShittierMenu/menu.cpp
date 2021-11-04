@@ -1069,7 +1069,6 @@ void Misc()
 			//	}
 			//}
 
-			ImGui::Text("Configs");
 			ImGui::NewLine();
 			{
 				static int selected_cfg;
