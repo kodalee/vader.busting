@@ -18,6 +18,7 @@ void WriteUsercmdD( bf_write* buf, CUserCmd* incmd, CUserCmd* outcmd ) {
 
 
 bool __fastcall Hooked::WriteUsercmdDeltaToBuffer( void* ECX, void* EDX, int nSlot, bf_write* buffer, int o_from, int o_to, bool isnewcommand ) {
+    g_Vars.globals.szLastHookCalled = XorStr("48");
 
     if (Interfaces::m_pEngine->IsConnected() && Interfaces::m_pEngine->IsInGame() && Interfaces::m_pEngine->GetLocalPlayer()) {
 
