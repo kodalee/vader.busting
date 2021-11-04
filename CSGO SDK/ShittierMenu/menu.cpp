@@ -989,185 +989,89 @@ void Misc()
 	ImGui::SetColumnOffset(2, 2 * group_w / 2.9f);
 	ImGui::SetColumnOffset(3, group_w);
 
-	
+
 	ImGui::NewLine();
 	{
 		switch (miscSubtabs)
 		{
-			case 0:
-			{
-				InsertCheckbox(Bhop, XorStr("Auto Jump"), &g_Vars.misc.autojump);
-				InsertCheckbox(AutoStrafe, XorStr("Auto Strafe"), &g_Vars.misc.autostrafer);
-				InsertCheckbox(WASDStrafe, XorStr("WASD-Strafer"), &g_Vars.misc.autostrafer_wasd);
-				InsertCheckbox(AutoPeek, XorStr("Auto-Peek"), &g_Vars.misc.autopeek);
-				ImGui::SameLine();
-				biggestMeme2();
-				ImGui::Hotkey("##AutoPeekKey", &g_Vars.misc.autopeek_bind.key, &g_Vars.misc.autopeek_bind.cond, ImVec2{ 40,20 });
+		case 0:
+		{
+			InsertCheckbox(Bhop, XorStr("Auto Jump"), &g_Vars.misc.autojump);
+			InsertCheckbox(AutoStrafe, XorStr("Auto Strafe"), &g_Vars.misc.autostrafer);
+			InsertCheckbox(WASDStrafe, XorStr("WASD-Strafer"), &g_Vars.misc.autostrafer_wasd);
+			InsertCheckbox(AutoPeek, XorStr("Auto-Peek"), &g_Vars.misc.autopeek);
+			ImGui::SameLine();
+			biggestMeme2();
+			ImGui::Hotkey("##AutoPeekKey", &g_Vars.misc.autopeek_bind.key, &g_Vars.misc.autopeek_bind.cond, ImVec2{ 40,20 });
 
-				InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
-				InsertCheckbox(FastStop, XorStr("Fast Stop"), &g_Vars.misc.quickstop);
-				ImGui::NextColumn();
-				ImGui::NewLine();
+			InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
+			InsertCheckbox(FastStop, XorStr("Fast Stop"), &g_Vars.misc.quickstop);
+			ImGui::NextColumn();
+			ImGui::NewLine();
 
-				InsertCheckbox(AccurateWalk, XorStr("Accurate Walk"), &g_Vars.misc.accurate_walk);
-				InsertCheckbox(SlideWalk, XorStr("Slide Walk"), &g_Vars.misc.slide_walk);
-				InsertCheckbox(InfStamina, XorStr("Infinite Stamina"), &g_Vars.misc.fastduck);
-				InsertCheckbox(BuyBot, XorStr("Buy Bot"), &g_Vars.misc.autobuy_enabled);
+			InsertCheckbox(AccurateWalk, XorStr("Accurate Walk"), &g_Vars.misc.accurate_walk);
+			InsertCheckbox(SlideWalk, XorStr("Slide Walk"), &g_Vars.misc.slide_walk);
+			InsertCheckbox(InfStamina, XorStr("Infinite Stamina"), &g_Vars.misc.fastduck);
+			InsertCheckbox(BuyBot, XorStr("Buy Bot"), &g_Vars.misc.autobuy_enabled);
 
-				const char* first_weapon_str[]{ "None","SCAR-20 / G3SG1","SSG-08","AWP" };
-				const char* second_weapon_str[]{ "None","Dualies","Desert Eagle / R8 Revolver" };
+			const char* first_weapon_str[]{ "None","SCAR-20 / G3SG1","SSG-08","AWP" };
+			const char* second_weapon_str[]{ "None","Dualies","Desert Eagle / R8 Revolver" };
 
-				const char* models[]{ "Mamogus","Stormtrooper","Darth Vader", "Shrek" };
+			const char* models[]{ "Mamogus","Stormtrooper","Darth Vader", "Shrek" };
 
-				std::vector<MultiItem_t> other_weapon_conditions = {
-					{ XorStr("Armor"), &g_Vars.misc.autobuy_armor },
-					{ XorStr("Flashbang"), &g_Vars.misc.autobuy_flashbang },
-					{ XorStr("HE Grenade"), &g_Vars.misc.autobuy_hegrenade },
-					{ XorStr("Molotov"), &g_Vars.misc.autobuy_molotovgrenade },
-					{ XorStr("Smoke"), &g_Vars.misc.autobuy_smokegreanade },
-					{ XorStr("Decoy"), &g_Vars.misc.autobuy_decoy },
-					{ XorStr("Taser"), &g_Vars.misc.autobuy_zeus },
-					{ XorStr("Defuse kit"), &g_Vars.misc.autobuy_defusekit },
-				};
+			std::vector<MultiItem_t> other_weapon_conditions = {
+				{ XorStr("Armor"), &g_Vars.misc.autobuy_armor },
+				{ XorStr("Flashbang"), &g_Vars.misc.autobuy_flashbang },
+				{ XorStr("HE Grenade"), &g_Vars.misc.autobuy_hegrenade },
+				{ XorStr("Molotov"), &g_Vars.misc.autobuy_molotovgrenade },
+				{ XorStr("Smoke"), &g_Vars.misc.autobuy_smokegreanade },
+				{ XorStr("Decoy"), &g_Vars.misc.autobuy_decoy },
+				{ XorStr("Taser"), &g_Vars.misc.autobuy_zeus },
+				{ XorStr("Defuse kit"), &g_Vars.misc.autobuy_defusekit },
+			};
 
-				if (g_Vars.misc.autobuy_enabled || GUI::ctx->setup) {
-					InsertCombo(XorStr("Primary Weapon"), &g_Vars.misc.autobuy_first_weapon, first_weapon_str);
-					InsertCombo(XorStr("Secondary Weapon"), &g_Vars.misc.autobuy_second_weapon, second_weapon_str);
-					InsertMultiCombo(std::string(XorStr("Utility")).c_str(), other_weapon_conditions);
-				}
-
-				InsertCheckbox(Watermark, XorStr("Watermark"), &g_Vars.misc.watermark);
-				InsertCheckbox(ClanTag, XorStr("Clan-tag"), &g_Vars.misc.clantag_changer);
-
-				std::vector<MultiItem_t> notifications = {
-					{ XorStr("Damage dealt"), &g_Vars.esp.event_dmg },
-					{ XorStr("Damage taken"), &g_Vars.esp.event_harm },
-					{ XorStr("Misses"), &g_Vars.esp.event_resolver },
-				};
-
-				InsertMultiCombo(std::string(XorStr("Notifications")).c_str(), notifications);
-
-				InsertCheckbox(ModelChange, XorStr("Model Changer"), &g_Vars.misc.models);
-				InsertCombo(XorStr("Models"), &g_Vars.misc.model_change, models);
-
-				break;
+			if (g_Vars.misc.autobuy_enabled || GUI::ctx->setup) {
+				InsertCombo(XorStr("Primary Weapon"), &g_Vars.misc.autobuy_first_weapon, first_weapon_str);
+				InsertCombo(XorStr("Secondary Weapon"), &g_Vars.misc.autobuy_second_weapon, second_weapon_str);
+				InsertMultiCombo(std::string(XorStr("Utility")).c_str(), other_weapon_conditions);
 			}
 
-			case 1:
+			InsertCheckbox(Watermark, XorStr("Watermark"), &g_Vars.misc.watermark);
+			InsertCheckbox(ClanTag, XorStr("Clan-tag"), &g_Vars.misc.clantag_changer);
+
+			std::vector<MultiItem_t> notifications = {
+				{ XorStr("Damage dealt"), &g_Vars.esp.event_dmg },
+				{ XorStr("Damage taken"), &g_Vars.esp.event_harm },
+				{ XorStr("Misses"), &g_Vars.esp.event_resolver },
+			};
+
+			InsertMultiCombo(std::string(XorStr("Notifications")).c_str(), notifications);
+
+			InsertCheckbox(ModelChange, XorStr("Model Changer"), &g_Vars.misc.models);
+			InsertCombo(XorStr("Models"), &g_Vars.misc.model_change, models);
+
+			break;
+		}
+
+		case 1:
+		{
+			//ImGui::Text("scripts");
+
+			//for (auto s : g_lua.scripts)
+			//{
+			//	ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
+			//	if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
+			//		auto scriptId = g_lua.get_script_id(s);
+			//		if (g_lua.loaded.at(scriptId))
+			//			g_lua.unload_script(scriptId);
+			//		else
+			//			g_lua.load_script(scriptId);
+			//	}
+			//}
+
+			ImGui::Text("Configs");
+			ImGui::NewLine();
 			{
-				//ImGui::Text("scripts");
-
-				//for (auto s : g_lua.scripts)
-				//{
-				//	ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
-				//	if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-				//		auto scriptId = g_lua.get_script_id(s);
-				//		if (g_lua.loaded.at(scriptId))
-				//			g_lua.unload_script(scriptId);
-				//		else
-				//			g_lua.load_script(scriptId);
-				//	}
-				//}
-
-				ImGui::Text("Configs");
-				ImGui::NewLine();
-				{
-					static int selected_cfg;
-					static std::vector<std::string> cfg_list;
-					static bool initialise_configs = true;
-					bool reinit = false;
-					if (initialise_configs || (GetTickCount() % 1000) == 0) {
-						cfg_list = ConfigManager::GetConfigs();
-						initialise_configs = false;
-						reinit = true;
-					}
-
-					static std::string config_name;
-					ImGui::Text(XorStr("Name")); ImGui::SameLine(); // my ghetto way of having the name first then the input box
-					ImGui::InputText("##name", (char*)config_name.c_str(), 26);
-
-					if (!cfg_list.empty()) {
-						for (auto penis : cfg_list)
-							if (ImGui::Selectable(penis.c_str()))
-								selected_cfg = ConfigManager::GetConfigID(penis);
-					}
-					else
-						ImGui::Text("No configs");
-
-					if (reinit) {
-						if (selected_cfg >= cfg_list.size())
-							selected_cfg = cfg_list.size() - 1;
-
-						if (selected_cfg < 0)
-							selected_cfg = 0;
-					}
-
-					ImGui::NewLine();
-
-					if (!cfg_list.empty()) {
-						if (ImGui::Button(XorStr("Save"))) {
-							ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
-						}
-
-						ImGui::SameLine();
-
-						if (ImGui::Button(XorStr("Load")))
-						{
-							if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
-								ConfigManager::ResetConfig();
-
-								ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
-								g_Vars.m_global_skin_changer.m_update_skins = true;
-								g_Vars.m_global_skin_changer.m_update_gloves = true;
-							}
-						}
-						ImGui::SameLine();
-						if (ImGui::Button(XorStr("Delete")))
-						{
-							ConfigManager::RemoveConfig(cfg_list.at(selected_cfg));
-							cfg_list = ConfigManager::GetConfigs();
-						}
-						ImGui::SameLine();
-					}
-
-					if (ImGui::Button(XorStr("Create"))) {
-						if (config_name.empty())
-							return;
-
-						ConfigManager::CreateConfig(config_name);
-						cfg_list = ConfigManager::GetConfigs();
-					}
-					ImGui::SameLine();
-					if (ImGui::Button(XorStr("Reset"))) {
-						ConfigManager::ResetConfig();
-					}
-				}
-
-				ImGui::NextColumn(); ImGui::NewLine();
-
-				ImGui::Text("Scripts");
-				ImGui::NewLine();
-
-<<<<<<< Updated upstream
-				{
-					for (auto s : g_lua.scripts)
-					{
-						if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-							auto scriptId = g_lua.get_script_id(s);
-							if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
-						}
-					}
-
-					ImGui::NewLine();
-
-					if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts();
-
-					if (ImGui::Button("Reload active", ImVec2(100, 0))) g_lua.reload_all_scripts();
-
-					if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts();
-				}
-
-=======
 				static int selected_cfg;
 				static std::vector<std::string> cfg_list;
 				static bool initialise_configs = true;
@@ -1179,46 +1083,35 @@ void Misc()
 				}
 
 				static std::string config_name;
-				ImGui::InputText(XorStr("Config name"), (char*)config_name.c_str(), 26);
+				ImGui::Text(XorStr("Name")); ImGui::SameLine(); // my ghetto way of having the name first then the input box
+				ImGui::InputText("##name", (char*)config_name.c_str(), 26);
 
 				if (!cfg_list.empty()) {
-					for (auto penis : cfg_list) {
-						ImGui::Selectable(penis.c_str());
-						for (int i = 0; i < cfg_list.size(); i++) {
-								selected_cfg = i;
-						}
-					//for (auto penis : cfg_list) {
-					//	if (ImGui::Selectable(penis.c_str())) {
-					//		for (auto it = penis.begin(); it != penis.end(); ++it) {
-					//			auto index = std::distance(penis.begin(), it);
-					//			selected_cfg = index;
-					//		}
-					//	}
-					}
-
-
-					//for (auto penis : cfg_list)
-					//	if (ImGui::Selectable(penis.c_str()))
-					//		for (int i = 0; i < penis.size(); i++)
-					//			selected_cfg = i;
+					for (auto penis : cfg_list)
+						if (ImGui::Selectable(penis.c_str()))
+							selected_cfg = ConfigManager::GetConfigID(penis);
 				}
 				else
 					ImGui::Text("No configs");
 
-				//if (reinit) {
-				//	if (selected_cfg >= cfg_list.size())
-				//		selected_cfg = cfg_list.size() - 1;
+				if (reinit) {
+					if (selected_cfg >= cfg_list.size())
+						selected_cfg = cfg_list.size() - 1;
 
-				//	if (selected_cfg < 0)
-				//		selected_cfg = 0;
-				//}
+					if (selected_cfg < 0)
+						selected_cfg = 0;
+				}
+
+				ImGui::NewLine();
 
 				if (!cfg_list.empty()) {
-					if (ImGui::Button(XorStr("Save"), ImVec2{ 40, 40 })) {
+					if (ImGui::Button(XorStr("Save"))) {
 						ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
 					}
 
-					if (ImGui::Button(XorStr("Load"), ImVec2{ 40, 40 }))
+					ImGui::SameLine();
+
+					if (ImGui::Button(XorStr("Load")))
 					{
 						if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
 							ConfigManager::ResetConfig();
@@ -1228,28 +1121,52 @@ void Misc()
 							g_Vars.m_global_skin_changer.m_update_gloves = true;
 						}
 					}
-					if (ImGui::Button(XorStr("Delete"), ImVec2{ 40, 40 }))
+					ImGui::SameLine();
+					if (ImGui::Button(XorStr("Delete")))
 					{
 						ConfigManager::RemoveConfig(cfg_list.at(selected_cfg));
 						cfg_list = ConfigManager::GetConfigs();
 					}
+					ImGui::SameLine();
 				}
 
-				if (ImGui::Button(XorStr("Create"), ImVec2{ 40, 40 })) {
+				if (ImGui::Button(XorStr("Create"))) {
 					if (config_name.empty())
 						return;
 
 					ConfigManager::CreateConfig(config_name);
 					cfg_list = ConfigManager::GetConfigs();
 				}
-
-				if (ImGui::Button(XorStr("Reset"), ImVec2{ 40, 40 })) {
+				ImGui::SameLine();
+				if (ImGui::Button(XorStr("Reset"))) {
 					ConfigManager::ResetConfig();
 				}
-
-				break;
->>>>>>> Stashed changes
 			}
+
+			ImGui::NextColumn(); ImGui::NewLine();
+
+			ImGui::Text("Scripts");
+			ImGui::NewLine();
+
+			{
+				for (auto s : g_lua.scripts)
+				{
+					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
+						auto scriptId = g_lua.get_script_id(s);
+						if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
+					}
+				}
+
+				ImGui::NewLine();
+
+				if (ImGui::Button("Refresh scripts", ImVec2(100, 0))) g_lua.refresh_scripts();
+
+				if (ImGui::Button("Reload active", ImVec2(100, 0))) g_lua.reload_all_scripts();
+
+				if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts();
+			}
+
+		}
 		}
 	}
 	ImGui::EndColumns();
@@ -1400,7 +1317,7 @@ void IMGUIMenu::Render()
 			case 3:
 			{
 				ImGui::TrueSubTab("  Misc  ", miscSubtabs, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab("  Scripts  ", miscSubtabs, 1, ImVec2(0.f, 25.f));
+				ImGui::TrueSubTab("  Configs  ", miscSubtabs, 1, ImVec2(0.f, 25.f));
 				break;
 			}
 		}
