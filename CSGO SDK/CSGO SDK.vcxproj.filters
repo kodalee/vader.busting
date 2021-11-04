@@ -391,6 +391,7 @@
     <ClCompile Include="Libraries\lua-wrapper\src\lzio.c" />
     <ClCompile Include="Libraries\lua-api\lua_hooks.cpp" />
     <ClCompile Include="Libraries\lua-api\lua_api.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui_stdlib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -927,6 +928,7 @@
     <ClInclude Include="Libraries\sol\sol.hpp" />
     <ClInclude Include="Libraries\lua-api\lua_hooks.h" />
     <ClInclude Include="Libraries\lua-api\lua_api.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imgui_stdlib.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">
