@@ -597,6 +597,27 @@ void Render::Engine::WorldCircle( Vector origin, float radius, Color color, Colo
 	}
 }
 
+void Render::Engine::text(int x, int y, unsigned long font, std::string string, bool text_centered, Color colour) {
+	const auto converted_text = std::wstring(string.begin(), string.end());
+
+	int width, height;
+	Interfaces::m_pSurface->GetTextSize(font, converted_text.c_str(), width, height);
+
+	Interfaces::m_pSurface->DrawSetTextColor(colour.r(), colour.g(), colour.b(), colour.a());
+	Interfaces::m_pSurface->DrawSetTextFont(font);
+	Interfaces::m_pSurface->DrawSetTextPos(text_centered ? (x - (width / 2)) : x, y);
+	Interfaces::m_pSurface->DrawPrintText(converted_text.c_str(), wcslen(converted_text.c_str()));
+}
+
+Vector2D Render::Engine::GetTextSize(unsigned long font, std::string text) {
+	std::wstring a(text.begin(), text.end());
+	const wchar_t* wstr = a.c_str();
+	static int w, h;
+
+	Interfaces::m_pSurface->GetTextSize(font, wstr, w, h);
+	return { static_cast<float>(w), static_cast<float>(h) };
+}
+
 void Render::Engine::Line( int x0, int y0, int x1, int y1, Color color ) {
 	Interfaces::m_pSurface->DrawSetColor( color );
 	Interfaces::m_pSurface->DrawLine( x0, y0, x1, y1 );

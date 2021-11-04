@@ -159,6 +159,8 @@ namespace Render {
 		void Polygon( int count, Vertex_t* vertices, const Color& col );
 		void FilledTriangle( const Vector2D& pos1, const Vector2D& pos2, const Vector2D& pos3, const Color& col );
 		void WorldCircle( Vector origin, float radius, Color color, Color colorFill = { } );
+		void text(int x, int y, unsigned long font, std::string string, bool text_centered, Color colour);
+		Vector2D GetTextSize(unsigned long font, std::string text);
 		void Line( int x0, int y0, int x1, int y1, Color color );
 		void Rect( int x, int y, int w, int h, Color color );
 		void RectFilled( int x, int y, int w, int h, Color color );

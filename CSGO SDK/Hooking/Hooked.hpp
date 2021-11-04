@@ -117,9 +117,9 @@ namespace Hooked
 	inline DrawModelExecuteFn oDrawModelExecute;
 	void __fastcall DrawModelExecute( void* ECX, void* EDX, IMatRenderContext* MatRenderContext, DrawModelState_t& DrawModelState, ModelRenderInfo_t& RenderInfo, matrix3x4_t* pCustomBoneToWorld );
 
-	using WriteUsercmdDeltaToBufferFn = bool( __thiscall* )( void*, int, void*, int, int, bool );
+	using WriteUsercmdDeltaToBufferFn = bool( __thiscall* )( void*, int, bf_write*, int, int, bool );
 	inline WriteUsercmdDeltaToBufferFn oWriteUsercmdDeltaToBuffer;
-	bool __fastcall WriteUsercmdDeltaToBuffer( void* ECX, void* EDX, int nSlot, void* buf, int from, int to, bool isnewcommand );
+	bool __fastcall WriteUsercmdDeltaToBuffer( void* ECX, void* EDX, int nSlot, bf_write* buf, int from, int to, bool isnewcommand );
 
 	IClientNetworkable* hkCreateCCSPlayer( int entnum, int serialNum );
 	bool __fastcall hkSetupBones( uintptr_t ecx, void* edx, matrix3x4_t* matrix, int bone_count, int bone_mask, float time );

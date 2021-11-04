@@ -235,6 +235,8 @@ void Ragebot()
 		//biggestMeme2();
 		//ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
 
+		InsertCheckbox(text_exploit, XorStr("test exploit"), &g_Vars.rage.tickbase_exploit); // dont know if this is working.
+
 		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
 		ImGui::SameLine();
 		biggestMeme2();

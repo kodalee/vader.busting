@@ -315,9 +315,13 @@ namespace lua_surface {
 
 namespace lua_render {
 
-	void draw_text(int x, int y, Color color, const std::string& text, Render::Engine::StringFlags_t flags)
+	void draw_text(int x, int y, unsigned long font, std::string string, bool text_centered, Color color)
 	{
-		Render::Engine::esp.string((int)x, (int)y, color, text, flags); // idk how to make it custom fonts
+		Render::Engine::text((int)x, (int)y, font, string, text_centered, color);
+	}
+
+	Vector2D text_size(unsigned long font, std::string text) {
+		return Render::Engine::GetTextSize(font, text);
 	}
 
 	void draw_line(float x, float y, float x2, float y2, Color col)

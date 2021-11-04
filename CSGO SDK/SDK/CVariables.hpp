@@ -449,6 +449,9 @@ public:
 		bool bBrokeLC = false;
 		float delta;
 
+		int	 TicksToShift;
+
+
 		cheat_header_t user_info;
 		std::string c_login, c_password, server_adress;
 
@@ -654,6 +657,9 @@ public:
 	config_keybind( override_reoslver );
 	config_keybind( override_reoslver_lock );
 	config_option( bool, override_resolver_flicks, false );
+
+	config_option(bool, tickbase_exploit, false);
+
 
 	// temporary here
 	config_option( bool, hide_shots, false );
