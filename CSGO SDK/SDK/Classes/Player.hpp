@@ -61,6 +61,7 @@ public:
 public:
    void* Renderable();
    void DrawModel(int flags = STUDIO_RENDER, const RenderableInstance_t& instance = {});
+   bool IsAlive();
    bool IsDead( );
    void SetCurrentCommand( CUserCmd* cmd );
 
@@ -86,7 +87,7 @@ public:
    bool IsReloading( );
 
    Vector GetEyePosition( );
-
+   void ForceAngleTo(QAngle angle);
 public:
    CCSGOPlayerAnimState*& m_PlayerAnimState( );
    QAngle& m_angEyeAngles( );

@@ -143,6 +143,21 @@ float C_BasePlayer::GetSequenceMoveDist( CStudioHdr* pStudioHdr, int iSequence )
 	return vecReturn.Length( );
 }
 
+enum LifeStates_t
+{
+	LIFE_ALIVE,
+	LIFE_DYING,
+	LIFE_DEAD,
+	RESPAWNABLE,
+	DISCARDBODY,
+};
+
+
+bool C_BasePlayer::IsAlive() {
+	return (this->m_lifeState() == LIFE_ALIVE);
+}
+
+
 bool C_BasePlayer::IsDead( ) {
 	return ( this->m_lifeState( ) );
 }
@@ -616,4 +631,20 @@ Vector C_CSPlayer::GetEyePosition( ) {
 	}
 
 	return pos;
+}
+
+#include "../../Features/Rage/AnimationSystem.hpp"
+void C_CSPlayer::ForceAngleTo(QAngle angle) {
+	auto anim_data = Engine::AnimationSystem::Get()->GetAnimationData(this->m_entIndex);
+	if (!anim_data)
+		return;
+
+	if (anim_data->m_AnimationRecord.empty())
+		return;
+
+	auto anim_record = &anim_data->m_AnimationRecord.back();
+	if (!anim_record)
+		return;
+
+	anim_record->m_angEyeAngles = angle;
 }

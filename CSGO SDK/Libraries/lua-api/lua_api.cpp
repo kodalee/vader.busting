@@ -4,6 +4,8 @@
 #include "../../Utils/LogSystem.hpp"
 #include "../../Features/Miscellaneous/Miscellaneous.hpp"
 #include "../../SDK/Displacement.hpp"
+#include "../../SDK/Classes/entity.hpp"
+#include "../../SDK/Classes/Player.hpp"
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
 void lua_panic(sol::optional<std::string> message) {
 
@@ -65,9 +67,9 @@ namespace lua_cheat {
 }
 
 namespace lua_math {
-	Vector calc_angle(Vector& src, Vector& dst)
+	QAngle calc_angle(Vector& src, Vector& dst)
 	{
-		return Math::VecCalcAngle(src, dst);
+		return Math::CalcAngle(src, dst);
 	}
 
 	float get_fov(Vector& src, Vector& dst)
@@ -117,17 +119,14 @@ namespace lua_engine {
 		return Interfaces::m_pEngine->GetLocalPlayer();
 	}
 
-	Vector get_view_angles() {
-		QAngle va; Vector vectora;
-		Interfaces::m_pEngine->GetViewAngles(va);
-		Math::AngleVectors(va, vectora);
-		return vectora;
+	QAngle get_view_angles() {
+		QAngle vaa;
+		Interfaces::m_pEngine->GetViewAngles(vaa);
+		return vaa;
 	}
 
-	void set_view_angles(Vector va) {
-		QAngle qangleaa;
-		Math::VectorAngles(va, qangleaa);
-		Interfaces::m_pEngine->SetViewAngles(qangleaa);
+	void set_view_angles(QAngle va) {
+		Interfaces::m_pEngine->SetViewAngles(va);
 	}
 
 	int get_max_clients() {
@@ -152,6 +151,10 @@ namespace lua_engine {
 	}
 }
 namespace lua_entitylist {
+	C_CSPlayer* get_client_entity(int idx) {
+		return (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(idx);
+	}
+
 	int get_highest_entity_index() {
 		return Interfaces::m_pEntList->GetHighestEntityIndex();
 	}
@@ -533,17 +536,25 @@ bool c_lua::initialize() {
 		"cross_product", &Vector::Cross,
 		"normalize", &Vector::Normalize
 		);
-	//this->lua.new_usertype<C_BaseEntity>("c_baseentity",
-	//	"is_player", &C_BaseEntity::IsPlayer,
-	//	"is_alive", &C_BaseEntity::IsAlive,
-	//	"is_dormant", &C_BaseEntity::is_dormant,
-	//	"get_abs_origin", &C_BaseEntity::get_abs_origin,
-	//	"get_eye_position", &C_BaseEntity::get_eye_position,
-	//	"get_shoot_position", &C_BaseEntity::get_shoot_pos,
-	//	"get_hitbox_position", &C_BaseEntity::get_hitbox_position,
-	//	"get_player_name", &C_BaseEntity::get_player_name,
-	//	"get_index", &C_BaseEntity::get_index
-	//	);
+	this->lua.new_usertype<QAngle>("qangle",
+		sol::constructors<QAngle(), QAngle(float, float, float)>(),
+		"x", &QAngle::x,
+		"y", &QAngle::y,
+		"z", &QAngle::z,
+		"normalize", &QAngle::Normalize
+		);
+	this->lua.new_usertype<C_CSPlayer>("c_baseentity",
+		"is_player", &C_CSPlayer::IsPlayer,
+		"is_alive", &C_CSPlayer::IsAlive,
+		"is_dormant", &C_CSPlayer::IsDormant,
+		"get_abs_origin", &C_CSPlayer::GetAbsOrigin,
+		"get_eye_position", &C_CSPlayer::GetEyePosition,
+		"get_shoot_position", &C_CSPlayer::GetShootPosition,
+		"get_hitbox_position", &C_CSPlayer::GetHitboxPosition,
+		"get_index", &C_CSPlayer::EntIndex,
+		"get_team", &C_CSPlayer::m_iTeamNum,
+		"set_clientside_angle", &C_CSPlayer::ForceAngleTo
+		);
 
 	auto cheat = this->lua.create_table();
 	cheat["set_event_callback"] = lua_cheat::set_event_callback;
@@ -586,6 +597,7 @@ bool c_lua::initialize() {
 	engine["is_in_game"] = lua_engine::is_in_game;
 
 	auto entity_list = this->lua.create_table();
+	entity_list["get_client_entity"] = lua_entitylist::get_client_entity;
 	entity_list["get_highest_entity_index"] = lua_entitylist::get_highest_entity_index;
 
 	auto utils = this->lua.create_table();
