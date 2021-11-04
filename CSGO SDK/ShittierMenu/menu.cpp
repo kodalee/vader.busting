@@ -232,9 +232,9 @@ void Ragebot()
 		ImGui::Hotkey(std::string(XorStr("##Override resolver key") + std::to_string(rage_current_group)).c_str(), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond, ImVec2{ 40,20 });
 
 		InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.rage.exploit);
-		//ImGui::SameLine();
-		//biggestMeme2();
-		//ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
+		ImGui::SameLine();
+		biggestMeme2();
+		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
 
 		InsertCheckbox(text_exploit, XorStr("test exploit"), &g_Vars.rage.tickbase_exploit); // dont know if this is working.
 
@@ -385,7 +385,7 @@ void HvH()
 		const char* FakelagType[] = { XorStr("Maximum"), XorStr("Dynamic"), XorStr("Fluctuate") };
 		InsertCombo(XorStr("Type"), &g_Vars.fakelag.choke_type, FakelagType);
 		InsertSliderInt(XorStr("Limit"), &g_Vars.fakelag.choke, 0, 16, "%d");
-		//InsertSliderInt(XorStr("Double-tap Limit"), &g_Vars.fakelag.dt_choke, 0, 16, "%d");
+		InsertSliderInt(XorStr("Double-tap Limit"), &g_Vars.fakelag.dt_choke, 0, 16, "%d");
 
 		g_Vars.fakelag.trigger_duck = g_Vars.fakelag.trigger_weapon_activity = g_Vars.fakelag.trigger_shooting = false;
 		g_Vars.fakelag.trigger_land = true;
@@ -1003,6 +1003,12 @@ void Misc()
 			ImGui::SameLine();
 			biggestMeme2();
 			ImGui::Hotkey("##AutoPeekKey", &g_Vars.misc.autopeek_bind.key, &g_Vars.misc.autopeek_bind.cond, ImVec2{ 40,20 });
+
+			if (g_Vars.misc.autopeek) {
+				InsertCheckbox(AutoPeek, XorStr("Auto-Peek Visualize"), &g_Vars.misc.autopeek_visualise);
+				ImGui::SameLine();
+				ColorPicker(XorStr(""), g_Vars.misc.autopeek_color, false);
+			}
 
 			InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
 			InsertCheckbox(FastStop, XorStr("Fast Stop"), &g_Vars.misc.quickstop);

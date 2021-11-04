@@ -25,19 +25,19 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		// gay idc
 		InputHelper::Update( );
 
-		if( InputSys::Get()->WasKeyPressed( g_Vars.menu.key.key ) ) {
-			g_Vars.globals.menuOpen = !g_Vars.globals.menuOpen;
-		}
+		//if( InputSys::Get()->WasKeyPressed( g_Vars.menu.key.key ) ) {
+		//	g_Vars.globals.menuOpen = !g_Vars.globals.menuOpen;
+		//}
 
 		Render::DirectX::begin( );
 		{
-			GUI::ctx->animation = g_Vars.globals.menuOpen ? ( GUI::ctx->animation + ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime )
-				: ( ( GUI::ctx->animation - ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime ) );
+			//GUI::ctx->animation = g_Vars.globals.menuOpen ? ( GUI::ctx->animation + ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime )
+			//	: ( ( GUI::ctx->animation - ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime ) );
 
-			if( !g_Vars.globals.menuOpen )
-				GUI::ctx->ColorPickerInfo.HashedID = 0;
+			//if( !g_Vars.globals.menuOpen )
+			//	GUI::ctx->ColorPickerInfo.HashedID = 0;
 
-			GUI::ctx->animation = std::clamp<float>( GUI::ctx->animation, 0.f, 1.0f );
+			//GUI::ctx->animation = std::clamp<float>( GUI::ctx->animation, 0.f, 1.0f );
 
 			if( g_Vars.antiaim.enabled && false ) {
 				auto m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
@@ -72,7 +72,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 			}
 
 			Hitmarkers::RenderHitmarkers( );
-			Menu::Draw( );
+			//Menu::Draw( );
 		}
 		Render::DirectX::end( );
 
