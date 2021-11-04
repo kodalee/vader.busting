@@ -192,6 +192,17 @@ namespace lua_utils {
 		return FloatColor(r, g, b, a);
 	}
 
+	Color create_color_rainbow(int alpha) {
+		static float rainbow;
+		rainbow += 0.001f;
+		if (rainbow > 1.f)
+			rainbow = 0.f;
+
+
+
+		return Color::HSBtoRGB(rainbow, 1.0f, 1.0f, alpha);
+	}
+
 }
 
 namespace lua_globals {
@@ -427,6 +438,7 @@ bool c_lua::initialize() {
 		"command_number", sol::readonly(&CUserCmd::command_number),
 		"tick_count", sol::readonly(&CUserCmd::tick_count),
 		"viewangles", &CUserCmd::viewangles,
+		"aimdirection", &CUserCmd::aimdirection,
 		"forwardmove", &CUserCmd::forwardmove,
 		"sidemove", &CUserCmd::sidemove,
 		"upmove", &CUserCmd::upmove,
@@ -446,9 +458,33 @@ bool c_lua::initialize() {
 		"is_empty", &IGameEvent::IsEmpty,
 		"get_bool", &IGameEvent::GetBool,
 		"get_int", &IGameEvent::GetInt,
+		"get_uint64", &IGameEvent::GetUint64,
 		"get_float", &IGameEvent::GetFloat,
 		"get_string", &IGameEvent::GetString
 		);
+	this->lua.new_enum("hitboxes",
+		"HEAD", Hitboxes::HITBOX_HEAD,
+		"NECK", Hitboxes::HITBOX_NECK,
+		"LOWER_NECK", Hitboxes::HITBOX_LOWER_NECK,
+		"PELVIS", Hitboxes::HITBOX_PELVIS,
+		"STOMACH", Hitboxes::HITBOX_STOMACH,
+		"UPPER_CHEST", Hitboxes::HITBOX_UPPER_CHEST,
+		"CHEST", Hitboxes::HITBOX_CHEST,
+		"LOWER_CHEST", Hitboxes::HITBOX_LOWER_CHEST,
+		"RIGHT_THIGH", Hitboxes::HITBOX_RIGHT_THIGH,
+		"LEFT_THIGH", Hitboxes::HITBOX_LEFT_THIGH,
+		"RIGHT_CALF", Hitboxes::HITBOX_RIGHT_CALF,
+		"LEFT_CALF", Hitboxes::HITBOX_LEFT_CALF,
+		"RIGHT_FOOT", Hitboxes::HITBOX_RIGHT_FOOT,
+		"LEFT_FOOT", Hitboxes::HITBOX_LEFT_FOOT,
+		"RIGHT_HAND", Hitboxes::HITBOX_RIGHT_HAND,
+		"LEFT_HAND", Hitboxes::HITBOX_LEFT_HAND,
+		"RIGHT_UPPER_ARM", Hitboxes::HITBOX_RIGHT_UPPER_ARM,
+		"RIGHT_FOREARM", Hitboxes::HITBOX_RIGHT_FOREARM,
+		"LEFT_UPPER_ARM", Hitboxes::HITBOX_LEFT_UPPER_ARM,
+		"LEFT_FOREARM", Hitboxes::HITBOX_LEFT_FOREARM,
+		"MAX", Hitboxes::HITBOX_MAX
+	);
 	this->lua.new_enum("fontflags",
 		"italic", FontFlags_t::FONTFLAG_ITALIC,
 		"underline", FontFlags_t::FONTFLAG_UNDERLINE,
@@ -472,11 +508,17 @@ bool c_lua::initialize() {
 		"get_latency", &INetChannel::GetLatency,
 		"get_avg_latency", &INetChannel::GetAvgLatency
 		);
-	this->lua.new_usertype<Vector2D>("vector2",
+	this->lua.new_usertype<Vector2D>("vector2d",
 		sol::constructors<Vector2D(), Vector2D(float, float), Vector2D(Vector2D)>(),
 		"x", &Vector2D::x,
 		"y", &Vector2D::y,
 		"length", &Vector2D::Length
+		);
+	this->lua.new_usertype<Vertex_t>("c_vertex",
+		sol::constructors<Vertex_t(), Vertex_t(Vector2D), Vertex_t(Vector2D, Vector2D)>(),
+		"init", &Vertex_t::Init,
+		"position", &Vertex_t::m_Position,
+		"tex_coord", &Vertex_t::m_TexCoord
 		);
 	this->lua.new_usertype<Vector>("vector",
 		sol::constructors<Vector(), Vector(float, float, float)>(),
@@ -553,6 +595,7 @@ bool c_lua::initialize() {
 	utils["apply_clan_tag"] = lua_utils::apply_clan_tag;
 	utils["color"] = lua_utils::create_color;
 	utils["floatcolor"] = lua_utils::create_floatcolor;
+	utils["color_rainbow"] = lua_utils::create_color_rainbow; // i couldn't make rainbow work in lua idk why so i just put this in - remove if you dont want to make lua api look bad ( lol )
 
 	auto globals = this->lua.create_table();
 	globals["realtime"] = lua_globals::realtime;
