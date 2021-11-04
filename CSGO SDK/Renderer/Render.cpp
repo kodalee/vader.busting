@@ -503,7 +503,7 @@ namespace Render::Engine {
 void Render::Engine::Initialise( ) {
 	LoadFontFromResource( weaponicons, sizeof( weaponicons ) );
 
-	esp = Font( XorStr( "Tahoma" ), 11, FW_NORMAL, FONTFLAG_DROPSHADOW );
+	esp = Font( XorStr( "Verdana" ), 12, FW_NORMAL, FONTFLAG_DROPSHADOW );
 	segoe = Font( XorStr( "Segoe UI" ), 13, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW | FONTFLAG_DROPSHADOW );
 	pixel = Font( XorStr( "04B03" ), 8, FW_NORMAL, FONTFLAG_OUTLINE );
 	pixel_reg = Font( XorStr( "Small Fonts" ), 8, FW_NORMAL, FONTFLAG_OUTLINE );

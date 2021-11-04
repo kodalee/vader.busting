@@ -440,9 +440,8 @@ public:
 		uint32_t m_iShotTick = { };
 
 		struct cheat_header_t {
-			char username[ 32 ];
-			uint64_t sub_expiration;
-			uint32_t access_token;
+			int32_t days_left;
+			char username[ 25 ];
 		};
 
 		Vector m_vecVelocity;

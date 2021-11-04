@@ -233,7 +233,7 @@ void DrawWatermark() {
 #ifdef BETA
 	logo.append(XorStr(" [beta]")); // :)
 #endif
-	const std::string user = XorStr("admin") /*g_cl.m_user*/;
+	const std::string user = g_Vars.globals.user_info.username; /*g_cl.m_user*/
 
 	std::string text = logo + XorStr(" | ") + user;
 
@@ -1929,9 +1929,9 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 			auto current = &anim_data->m_AnimationRecord.front( );
 			if( current ) {
 				if( current->m_bResolved )
-					g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 0, 255, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "R" ) );
+					g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 0, 255, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "RESOLVED" ) );
 				else
-					g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 0, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "R" ) );
+					g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 0, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "" ) );
 
 				//g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( current->m_iResolverMode ) );
 			}
@@ -1939,7 +1939,7 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	}
 
 	if( player->m_bIsScoped( ) && g_Vars.esp.draw_scoped )
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 0, 150, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "ZOOM" ) );
+		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 0, 150, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "SCOPED" ) );
 
 	if( g_Vars.esp.draw_money )
 		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 133, 198, 22, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "$" ) + std::to_string( player->m_iAccount( ) ) );
@@ -1957,7 +1957,7 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 216, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "FLASH" ) );
 
 	if( g_Vars.esp.draw_defusing && player->m_bIsDefusing( ) ) {
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 235, 82, 82, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "DEF" ) );
+		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 235, 82, 82, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "DEFUSER" ) );
 	}
 
 	/*g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flWeight ) );

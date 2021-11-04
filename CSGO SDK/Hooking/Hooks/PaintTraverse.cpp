@@ -22,17 +22,17 @@ namespace Hooked
 		static FnL MsgCol = reinterpret_cast< FnL >( GetProcAddress( GetModuleHandleA( XorStr( "tier0.dll" ) ), XorStr( "?ConColorMsg@@YAXABVColor@@PBDZZ" ) ) );
 
 		Color accent = g_Vars.menu.ascent.ToRegularColor( );
-		static int days_remaining = g_Vars.globals.user_info.sub_expiration / ( 60 * 60 * 24 );
+		//static int days_remaining = g_Vars.globals.user_info.sub_expiration / ( 60 * 60 * 24 );
 		//static int days_remaining = 335;
 
 		int display_number = 0;
 		std::string display_text = { };
 		static bool lifetime = false;
-		if( days_remaining < 0 ) {
-			// u mad?
-			exit( 69 );
-			return;
-		}
+		//if( days_remaining < 0 ) {
+		//	// u mad?
+		//	exit( 69 );
+		//	return;
+		//}
 
 		static int aaa = -1;
 		if( aaa == -1 ) {

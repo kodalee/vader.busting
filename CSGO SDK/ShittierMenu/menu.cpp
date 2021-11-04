@@ -7,6 +7,7 @@
 #include "IMGAY/impl/imgui_impl_dx9.h"
 #include "IMGAY/impl/imgui_impl_win32.h"
 #include "../Utils/logo.h"
+#include "../Utils/Config.hpp"
 
 //lua
 
@@ -1039,10 +1040,8 @@ void Misc()
 				InsertCheckbox(ClanTag, XorStr("Clan-tag"), &g_Vars.misc.clantag_changer);
 
 				std::vector<MultiItem_t> notifications = {
-					{ XorStr("Bomb"), &g_Vars.esp.event_bomb },
 					{ XorStr("Damage dealt"), &g_Vars.esp.event_dmg },
 					{ XorStr("Damage taken"), &g_Vars.esp.event_harm },
-					{ XorStr("Purchases"), &g_Vars.esp.event_buy },
 					{ XorStr("Misses"), &g_Vars.esp.event_resolver },
 				};
 
@@ -1149,6 +1148,7 @@ void Misc()
 				ImGui::Text("Scripts");
 				ImGui::NewLine();
 
+<<<<<<< Updated upstream
 				{
 					for (auto s : g_lua.scripts)
 					{
@@ -1167,6 +1167,88 @@ void Misc()
 					if (ImGui::Button("Unload all", ImVec2(100, 0))) g_lua.unload_all_scripts();
 				}
 
+=======
+				static int selected_cfg;
+				static std::vector<std::string> cfg_list;
+				static bool initialise_configs = true;
+				bool reinit = false;
+				if (initialise_configs || (GetTickCount() % 1000) == 0) {
+					cfg_list = ConfigManager::GetConfigs();
+					initialise_configs = false;
+					reinit = true;
+				}
+
+				static std::string config_name;
+				ImGui::InputText(XorStr("Config name"), (char*)config_name.c_str(), 26);
+
+				if (!cfg_list.empty()) {
+					for (auto penis : cfg_list) {
+						ImGui::Selectable(penis.c_str());
+						for (int i = 0; i < cfg_list.size(); i++) {
+								selected_cfg = i;
+						}
+					//for (auto penis : cfg_list) {
+					//	if (ImGui::Selectable(penis.c_str())) {
+					//		for (auto it = penis.begin(); it != penis.end(); ++it) {
+					//			auto index = std::distance(penis.begin(), it);
+					//			selected_cfg = index;
+					//		}
+					//	}
+					}
+
+
+					//for (auto penis : cfg_list)
+					//	if (ImGui::Selectable(penis.c_str()))
+					//		for (int i = 0; i < penis.size(); i++)
+					//			selected_cfg = i;
+				}
+				else
+					ImGui::Text("No configs");
+
+				//if (reinit) {
+				//	if (selected_cfg >= cfg_list.size())
+				//		selected_cfg = cfg_list.size() - 1;
+
+				//	if (selected_cfg < 0)
+				//		selected_cfg = 0;
+				//}
+
+				if (!cfg_list.empty()) {
+					if (ImGui::Button(XorStr("Save"), ImVec2{ 40, 40 })) {
+						ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
+					}
+
+					if (ImGui::Button(XorStr("Load"), ImVec2{ 40, 40 }))
+					{
+						if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
+							ConfigManager::ResetConfig();
+
+							ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
+							g_Vars.m_global_skin_changer.m_update_skins = true;
+							g_Vars.m_global_skin_changer.m_update_gloves = true;
+						}
+					}
+					if (ImGui::Button(XorStr("Delete"), ImVec2{ 40, 40 }))
+					{
+						ConfigManager::RemoveConfig(cfg_list.at(selected_cfg));
+						cfg_list = ConfigManager::GetConfigs();
+					}
+				}
+
+				if (ImGui::Button(XorStr("Create"), ImVec2{ 40, 40 })) {
+					if (config_name.empty())
+						return;
+
+					ConfigManager::CreateConfig(config_name);
+					cfg_list = ConfigManager::GetConfigs();
+				}
+
+				if (ImGui::Button(XorStr("Reset"), ImVec2{ 40, 40 })) {
+					ConfigManager::ResetConfig();
+				}
+
+				break;
+>>>>>>> Stashed changes
 			}
 		}
 	}

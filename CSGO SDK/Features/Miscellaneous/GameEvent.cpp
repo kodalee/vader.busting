@@ -404,17 +404,17 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 			return;
 
 		std::stringstream msg;
-		msg << XorStr( "wpn: " ) << pEvent->GetString( XorStr( "weapon" ) ) << XorStr( " | " );
-		msg << XorStr( "money: " ) << std::string( XorStr( "$" ) ).append( std::to_string( player->m_iAccount( ) ) ).data( ) << XorStr( " | " );
-		msg << XorStr( "ent: " ) << info.szName;
+		//msg << XorStr( "wpn: " ) << pEvent->GetString( XorStr( "weapon" ) ) << XorStr( " | " );
+		//msg << XorStr( "money: " ) << std::string( XorStr( "$" ) ).append( std::to_string( player->m_iAccount( ) ) ).data( ) << XorStr( " | " );
+		//msg << XorStr( "ent: " ) << info.szName;
 
-		ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "buy" ) );
+		//ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "buy" ) );
 
 		break;
 	}
 	case hash_32_fnv1a_const( "bomb_begindefuse" ):
 	{
-		if( !g_Vars.esp.event_bomb )
+		if( !g_Vars.esp.event_bomb || g_Vars.esp.event_bomb )
 			return;
 
 		auto userid = pEvent->GetInt( XorStr( "userid" ) );
@@ -449,7 +449,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	}
 	case hash_32_fnv1a_const( "bomb_abortdefuse" ):
 	{
-		if( !g_Vars.esp.event_bomb )
+		if( !g_Vars.esp.event_bomb || g_Vars.esp.event_bomb)
 			return;
 
 		auto userid = pEvent->GetInt( XorStr( "userid" ) );
@@ -478,7 +478,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	}
 	case hash_32_fnv1a_const( "bomb_pickup" ):
 	{
-		if( !g_Vars.esp.event_bomb )
+		if( !g_Vars.esp.event_bomb || g_Vars.esp.event_bomb)
 			return;
 
 		auto userid = pEvent->GetInt( XorStr( "userid" ) );
@@ -506,7 +506,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	}
 	case hash_32_fnv1a_const( "bomb_beginplant" ):
 	{
-		if( !g_Vars.esp.event_bomb )
+		if( !g_Vars.esp.event_bomb || g_Vars.esp.event_bomb)
 			return;
 
 		auto userid = pEvent->GetInt( XorStr( "userid" ) );
@@ -535,7 +535,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	}
 	case hash_32_fnv1a_const( "bomb_abortplant" ):
 	{
-		if( !g_Vars.esp.event_bomb )
+		if( !g_Vars.esp.event_bomb || g_Vars.esp.event_bomb)
 			return;
 
 		auto userid = pEvent->GetInt( XorStr( "userid" ) );

@@ -461,6 +461,12 @@ namespace Engine {
 		//printf(std::to_string(lag_data->m_History.size()).c_str());
 		//printf("\n");
 
+		if (Engine::g_ResolverData[player->EntIndex()].fakewalking)
+			printf("fakewalking nigga\n");
+
+		if (record->m_bFakeWalking)
+			printf("fakewalking nigga pt2\n");
+
 		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !(record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
 			record->m_iResolverMode = EResolverModes::RESOLVE_WALK;
 
