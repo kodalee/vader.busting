@@ -531,6 +531,7 @@ bool c_lua::initialize() {
 	
 	auto render = this->lua.create_table();
 	render["draw_text"] = lua_render::draw_text;
+	render["text_size"] = lua_render::text_size;
 	render["draw_line"] = lua_render::draw_line;
 	render["draw_rect"] = lua_render::draw_rect;
 	render["draw_rect_filled"] = lua_render::draw_rect_filled;
