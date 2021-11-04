@@ -2,6 +2,8 @@
 #include "../../source.hpp"
 #include "../../Features/Visuals/EventLogger.hpp"
 #include "../../Utils/LogSystem.hpp"
+#include "../../Features/Miscellaneous/Miscellaneous.hpp"
+#include "../../SDK/Displacement.hpp"
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
 void lua_panic(sol::optional<std::string> message) {
 
@@ -150,10 +152,46 @@ namespace lua_engine {
 	}
 }
 namespace lua_entitylist {
-
 	int get_highest_entity_index() {
 		return Interfaces::m_pEntList->GetHighestEntityIndex();
 	}
+}
+
+namespace lua_utils {
+	sol::table get_player_data(player_info_t& p) {
+		sol::table t = g_lua.lua.create_table();
+		t["name"] = std::string(p.szName);
+		t["steamid"] = std::string(p.szSteamID);
+		t["userid"] = p.userId;
+		return t;
+	}
+
+	double clamp(double v, double mi, double ma) {
+		return std::clamp(v, mi, ma);
+	}
+
+	uint64_t find_signature(const std::string& szModule, const std::string& szSignature)
+	{
+		return Memory::Scan(szModule.c_str(), szSignature.c_str());
+	}
+
+	void apply_clan_tag_func(const char* name) {
+		static auto apply_clan_tag = (int(__fastcall*)(const char*, const char*)) Engine::Displacement.Function.m_uClanTagChange;
+		apply_clan_tag(name, name);
+	}
+
+	void apply_clan_tag(std::string clan) {
+		apply_clan_tag_func(clan.c_str());
+	}
+
+	Color create_color(int r, int g, int b, int a) {
+		return Color(r, g, b, a);
+	}
+
+	FloatColor create_floatcolor(float r, float g, float b, float a) {
+		return FloatColor(r, g, b, a);
+	}
+
 }
 
 namespace lua_globals {
@@ -508,6 +546,14 @@ bool c_lua::initialize() {
 	auto entity_list = this->lua.create_table();
 	entity_list["get_highest_entity_index"] = lua_entitylist::get_highest_entity_index;
 
+	auto utils = this->lua.create_table();
+	utils["get_player_data"] = lua_utils::get_player_data;
+	utils["clamp"] = lua_utils::clamp;
+	utils["find_signature"] = lua_utils::find_signature;
+	utils["apply_clan_tag"] = lua_utils::apply_clan_tag;
+	utils["color"] = lua_utils::create_color;
+	utils["floatcolor"] = lua_utils::create_floatcolor;
+
 	auto globals = this->lua.create_table();
 	globals["realtime"] = lua_globals::realtime;
 	globals["framecount"] = lua_globals::framecount;
@@ -547,6 +593,7 @@ bool c_lua::initialize() {
 	this->lua["debugoverlay"] = debugoverlay;
 	this->lua["engine"] = engine;
 	this->lua["entity_list"] = entity_list;
+	this->lua["utils"] = utils;
 	this->lua["globals"] = globals;
 	this->lua["cvar"] = cvar;
 	this->lua["render"] = render;
