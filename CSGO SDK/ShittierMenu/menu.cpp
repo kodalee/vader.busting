@@ -6,6 +6,7 @@
 #include "IMGAY/imgui_internal.h"
 #include "IMGAY/impl/imgui_impl_dx9.h"
 #include "IMGAY/impl/imgui_impl_win32.h"
+#include "IMGAY/imgui_stdlib.h"
 #include "../Utils/logo.h"
 #include "../Utils/Config.hpp"
 
@@ -1083,7 +1084,7 @@ void Misc()
 
 				static std::string config_name;
 				ImGui::Text(XorStr("Name")); ImGui::SameLine(); // my ghetto way of having the name first then the input box
-				ImGui::InputText("##name", (char*)config_name.c_str(), 26);
+				ImGui::InputText("##name", &config_name);
 
 				if (!cfg_list.empty()) {
 					for (auto penis : cfg_list)

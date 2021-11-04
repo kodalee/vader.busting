@@ -260,6 +260,7 @@
     <ClCompile Include="ShittierMenu\clip_win.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_draw.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui_stdlib.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_widgets.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
@@ -442,6 +443,7 @@
     <ClInclude Include="ShittierMenu\IMGAY\imconfig.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui_internal.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imgui_stdlib.h" />
     <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.h" />
     <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_rectpack.h" />
