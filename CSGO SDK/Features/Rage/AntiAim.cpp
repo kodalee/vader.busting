@@ -444,11 +444,11 @@ namespace Interfaces
 
 		}
 
-		if (!bUsingManualAA && g_Vars.antiaim.preserve) {
-			if (local->m_vecVelocity().Length2D() > 3.25f && local->m_vecVelocity().Length2D() < 20.f && !g_Vars.globals.Fakewalking) {
-				flRetValue = flViewAnlge + 180.f;
-			}
-		}
+		//if (!bUsingManualAA && g_Vars.antiaim.preserve) {
+		//	if (local->m_vecVelocity().Length2D() > 3.25f && local->m_vecVelocity().Length2D() < 20.f && !g_Vars.globals.Fakewalking) {
+		//		flRetValue = flViewAnlge + 180.f;
+		//	}
+		//}
 
 		static int iUpdates;
 		if (iUpdates > pow(10, 10))

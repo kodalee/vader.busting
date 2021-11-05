@@ -34,6 +34,7 @@ namespace Engine {
 		bool m_bCollectedValidMoveData;
 		bool m_bWentDormant;
 		bool m_bPredictingUpdates;
+		bool is_flicking;
 		bool m_player_fire;
 
 		Vector m_vecSavedOrigin;
@@ -64,8 +65,6 @@ namespace Engine {
 		float left_damage[64];
 		float right_damage[64];
 		float back_damage[64];
-
-		bool is_flicking;
 
 		std::vector<Vector> last_eye_positions;
 

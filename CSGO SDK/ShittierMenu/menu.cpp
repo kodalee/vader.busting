@@ -336,7 +336,7 @@ void HvH()
 			}
 
 
-			InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
+			//InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
 			InsertCheckbox(AntiAimManual, XorStr("Manual"), &g_Vars.antiaim.manual);
 			if (g_Vars.antiaim.manual) {
 				ColorPicker(XorStr("Manual color"), g_Vars.antiaim.manual_color, true, false);

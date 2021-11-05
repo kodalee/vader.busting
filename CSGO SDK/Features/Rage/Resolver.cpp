@@ -461,12 +461,6 @@ namespace Engine {
 		//printf(std::to_string(lag_data->m_History.size()).c_str());
 		//printf("\n");
 
-		if (Engine::g_ResolverData[player->EntIndex()].fakewalking)
-			printf("fakewalking nigga\n");
-
-		if (record->m_bFakeWalking)
-			printf("fakewalking nigga pt2\n");
-
 		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !(record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
 			record->m_iResolverMode = EResolverModes::RESOLVE_WALK;
 
@@ -492,6 +486,7 @@ namespace Engine {
 		if (pLagData.IsValid()) {
 			// predict the next time if they stop moving.
 			pLagData->m_iMissedShotsLBY = 0;
+			pLagData->m_iMissedShots = 0;
 		}
 
 		// haven't checked this yet, do it in CResolver::ResolveStand( ... )
@@ -552,7 +547,7 @@ namespace Engine {
 		//	g_ResolverData[ player->EntIndex( ) ].m_flFinalResolverYaw = pLagData->m_flDirection;
 		//}
 
-		if (is_flicking) {
+		if (g_ResolverData[player->EntIndex()].is_flicking) {
 			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
 		}
 		else {
@@ -566,7 +561,7 @@ namespace Engine {
 				// we missed more than 2 shots
 				// lets bruteforce since we have no idea where he at.
 				else if (nMisses > 0) {
-					switch (nMisses % 5) {
+					switch (nMisses % 6) {
 					case 1:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
 						break;
@@ -890,7 +885,7 @@ namespace Engine {
 			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2)
 			{
 				record->m_iResolverMode = EResolverModes::RESOLVE_PRED;
-				is_flicking = true;
+				g_ResolverData[player->EntIndex()].is_flicking = true;
 				record->m_bResolved = true;
 				Engine::g_ResolverData[player->EntIndex()].m_bPredictingUpdates = true;
 				Add[player->EntIndex()] = 1.1f;
@@ -898,7 +893,7 @@ namespace Engine {
 				g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
 			}
 			else
-				is_flicking = false;
+				g_ResolverData[player->EntIndex()].is_flicking = false;
 
 			//// LBY updated via PROXY.
 			//if (g_ResolverData[player->EntIndex()].m_flLowerBodyYawTarget != g_ResolverData[player->EntIndex()].m_flOldLowerBodyYawTarget) {
