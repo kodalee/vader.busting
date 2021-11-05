@@ -18,7 +18,21 @@ IDirect3DTexture9* logo_nuts;
  
 int tab = 0, aimbotTab = 1, rageTab = 0, legitTab = 0, visualsSubTab = 0, miscSubtabs = 0;
 
-void ColorPicker(const char* name, float* color, bool alpha) {
+void ColorPicker(const char* name, float* color, bool alpha, bool combo) {
+
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+	ImGuiStyle* style = &ImGui::GetStyle();
+
+	auto alphaSliderFlag = alpha ? ImGuiColorEditFlags_AlphaBar : ImGuiColorEditFlags_NoAlpha;
+	//if (ImGui::CalcTextSize(name).x > 0.00f)
+	//{
+	//	ImGui::Text(name);
+	//}
+	ImGui::SameLine(combo ? 170.f : 0.0f, -1.0f, 0.0f);
+	ImGui::ColorEdit4(std::string{ "##" }.append(name).append("Picker").c_str(), color, alphaSliderFlag | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip);
+}
+
+void ColorPicker_w_name(const char* name, float* color, bool alpha, bool combo) {
 
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 	ImGuiStyle* style = &ImGui::GetStyle();
@@ -28,7 +42,7 @@ void ColorPicker(const char* name, float* color, bool alpha) {
 	{
 		ImGui::Text(name);
 	}
-	ImGui::SameLine();
+	ImGui::SameLine(combo ? 170.f : 0.0f, -1.0f, 0.0f);
 	ImGui::ColorEdit4(std::string{ "##" }.append(name).append("Picker").c_str(), color, alphaSliderFlag | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip);
 }
 
@@ -325,7 +339,7 @@ void HvH()
 			InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
 			InsertCheckbox(AntiAimManual, XorStr("Manual"), &g_Vars.antiaim.manual);
 			if (g_Vars.antiaim.manual) {
-				ColorPicker(XorStr("Manual color"), g_Vars.antiaim.manual_color, true);
+				ColorPicker(XorStr("Manual color"), g_Vars.antiaim.manual_color, true, false);
 			}
 			if (g_Vars.antiaim.manual) {
 				ImGui::Text(XorStr("Left"));
@@ -420,48 +434,48 @@ void Visuals()
 
 				InsertCheckbox(box, XorStr("Box"), &g_Vars.esp.box);
 				if (g_Vars.esp.box) {
-					ColorPicker(XorStr("##Box"), g_Vars.esp.box_color, false);
+					ColorPicker(XorStr("##Box"), g_Vars.esp.box_color, false, false);
 				}
 
 				InsertCheckbox(offscren_enabled, XorStr("Offscreen"), &g_Vars.esp.offscren_enabled);
 				if (g_Vars.esp.offscren_enabled) {
-					ColorPicker(XorStr("##OffscreenColor"), g_Vars.esp.offscreen_color, false);
+					ColorPicker(XorStr("##OffscreenColor"), g_Vars.esp.offscreen_color, false, false);
 					InsertSliderFloat(XorStr("Offscreen distance"), &g_Vars.esp.offscren_distance, 10, 100.f, XorStr("%.0f%%"));
 					InsertSliderFloat(XorStr("Offscreen size"), &g_Vars.esp.offscren_size, 4, 16.f, XorStr("%.0fpx"));
 				}
 
 				InsertCheckbox(name, XorStr("Name"), &g_Vars.esp.name);
 				if (g_Vars.esp.name) {
-					ColorPicker(XorStr("##NameColor"), g_Vars.esp.name_color, false);
+					ColorPicker(XorStr("##NameColor"), g_Vars.esp.name_color, false, false);
 				}
 
 				InsertCheckbox(health, XorStr("Health"), &g_Vars.esp.health);
 				if (g_Vars.esp.health) {
-					ColorPicker(XorStr("##HealthColor"), g_Vars.esp.health_color, false);
+					ColorPicker(XorStr("##HealthColor"), g_Vars.esp.health_color, false, false);
 					InsertCheckbox(health_override, XorStr("Health color override"), &g_Vars.esp.health_override);
 				}
 
 				InsertCheckbox(skeleton, XorStr("Skeleton"), &g_Vars.esp.skeleton);
 				if (g_Vars.esp.skeleton) {
-					ColorPicker(XorStr("##SkeletonColor"), g_Vars.esp.skeleton_color, true);
+					ColorPicker(XorStr("##SkeletonColor"), g_Vars.esp.skeleton_color, true, false);
 				}
 
 				InsertCheckbox(ammo, XorStr("Ammo"), &g_Vars.esp.draw_ammo_bar);
 				if (g_Vars.esp.draw_ammo_bar) {
-					ColorPicker(XorStr("##AmmoColor"), g_Vars.esp.ammo_color, false);
+					ColorPicker(XorStr("##AmmoColor"), g_Vars.esp.ammo_color, false, false);
 				}
 				InsertCheckbox(lby_timer, XorStr("LBY timer"), &g_Vars.esp.draw_lby_bar);
 				if (g_Vars.esp.draw_lby_bar) {
-					ColorPicker("##LBYColor", g_Vars.esp.lby_color, false);
+					ColorPicker("##LBYColor", g_Vars.esp.lby_color, false, false);
 				}
 
 				InsertCheckbox(weapon, XorStr("Weapon"), &g_Vars.esp.weapon);
 				if (g_Vars.esp.weapon) {
-					ColorPicker(XorStr("##WeaponColor"), g_Vars.esp.weapon_color, false);
+					ColorPicker(XorStr("##WeaponColor"), g_Vars.esp.weapon_color, false, false);
 				}
 				InsertCheckbox(weapon_icon, XorStr("Weapon icon"), &g_Vars.esp.weapon_icon);
 				if (g_Vars.esp.weapon_icon) {
-					ColorPicker(XorStr("##WeaponIconColor"), g_Vars.esp.weapon_icon_color, false);
+					ColorPicker(XorStr("##WeaponIconColor"), g_Vars.esp.weapon_icon_color, false, false);
 				}
 
 				std::vector<MultiItem_t> flags = {
@@ -493,7 +507,7 @@ void Visuals()
 				InsertCheckbox(FootSteps, XorStr("Footsteps"), &g_Vars.esp.footsteps);
 				if (g_Vars.esp.footsteps) {
 					ImGui::SameLine();
-					ColorPicker(XorStr(""), g_Vars.esp.footsteps_color, true);
+					ColorPicker(XorStr("footsteps color"), g_Vars.esp.footsteps_color, true, false);
 					InsertSliderFloat(XorStr("Footsteps thickness"), &g_Vars.esp.footsteps_thickness, 1.f, 10.f, XorStr("%.f"));
 					InsertSliderFloat(XorStr("Footsteps radius"), &g_Vars.esp.footsteps_radius, 50.f, 500.f, XorStr("%.f"));
 
@@ -657,37 +671,38 @@ void Visuals()
 							if (g_Vars.esp.enemy_chams_vis) {
 
 								InsertCombo("enemy vis", &g_Vars.esp.new_chams_enemy, chams_mats);
+								ColorPicker("##enemy_vis_color", g_Vars.esp.new_chams_enemy_color, true, true);
 								if (g_Vars.esp.new_chams_enemy == 3) {
 
 									InsertSliderFloat("enemy vis pearlescence", &g_Vars.esp.chams_enemy_pearlescence, 0.f, 100.f, "%.f");
-									ColorPicker("vis pearlescence color", g_Vars.esp.chams_enemy_pearlescence_color, true);
+									ColorPicker_w_name("vis pearlescence color", g_Vars.esp.chams_enemy_pearlescence_color, true, false);
 									InsertSliderFloat("enemy vis shine", &g_Vars.esp.chams_enemy_shine, 0.f, 100.f, "%.f");
 
 								}
 								InsertCombo("enemy vis overlay", &g_Vars.esp.new_chams_enemy_overlay, chams_mats_overlay);
+								ColorPicker("##enemy_vis_overlay_color", g_Vars.esp.new_chams_enemy_overlay_color, true, true);
 								if (g_Vars.esp.new_chams_enemy_overlay == 1) {
 
 									InsertSliderFloat("Glow strength ##enemy", &g_Vars.esp.chams_enemy_outline_value, 0.f, 100.f, "%.f");
 
 								}
 								InsertCheckbox(enemy_overlay_wireframe, XorStr("enemy vis overlay wireframe"), &g_Vars.esp.chams_enemy_outline_wireframe);
-								ColorPicker("enemy vis color", g_Vars.esp.new_chams_enemy_color, true);
-								ColorPicker("enemy vis overlay color", g_Vars.esp.new_chams_enemy_overlay_color, true);
-
 							}
 
 							InsertCheckbox(enemy_xqz_chams, XorStr("enemy xqz chams"), &g_Vars.esp.enemy_chams_xqz);
 							if (g_Vars.esp.enemy_chams_xqz) {
 
 								InsertCombo("enemy xqz", &g_Vars.esp.new_chams_enemy_xqz, chams_mats);
+								ColorPicker("##enemyxqzcolor", g_Vars.esp.new_chams_enemy_xqz_color, true, true);
 								if (g_Vars.esp.new_chams_enemy_xqz == 3) {
 
 									InsertSliderFloat("enemy xqz pearlescence", &g_Vars.esp.chams_enemy_xqz_pearlescence, 0.f, 100.f, "%.f");
-									ColorPicker("xqz pearlescence color", g_Vars.esp.chams_enemy_xqz_pearlescence_color, true);
+									ColorPicker_w_name("xqz pearlescence color", g_Vars.esp.chams_enemy_xqz_pearlescence_color, true, false);
 									InsertSliderFloat("enemy xqz shine", &g_Vars.esp.chams_enemy_xqz_shine, 0.f, 100.f, "%.f");
 
 								}
 								InsertCombo("enemy xqz overlay", &g_Vars.esp.new_chams_enemy_xqz_overlay, chams_mats_overlay);
+								ColorPicker("##enemy_xqz_overlay_color", g_Vars.esp.new_chams_enemy_xqz_overlay_color, true, true);
 								if (g_Vars.esp.new_chams_enemy_xqz_overlay == 1) {
 
 									InsertSliderFloat("Glow strength ##enemyxqz", &g_Vars.esp.chams_enemy_xqz_outline_value, 0.f, 100.f, "%.f");
@@ -695,16 +710,13 @@ void Visuals()
 
 								}
 								InsertCheckbox(enemy_xqz_overlay_wireframe, XorStr("enemy xqz overlay wireframe"), &g_Vars.esp.chams_enemy_outline_xqz_wireframe);
-								ColorPicker("enemy xqz color", g_Vars.esp.new_chams_enemy_xqz_color, true);
-								ColorPicker("enemy xqz overlay color", g_Vars.esp.new_chams_enemy_xqz_overlay_color, true);
-
 							}
 						}
 
 						InsertCheckbox(hitmatrix, XorStr("Shot chams"), &g_Vars.esp.hitmatrix);
 						if (g_Vars.esp.hitmatrix) {
 							InsertSliderFloat("Glow strength ##shot", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
-							ColorPicker(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true);
+							ColorPicker_w_name(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true, false);
 							InsertSliderFloat(XorStr("Expire time"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
 						}
 
@@ -715,15 +727,17 @@ void Visuals()
 						InsertCheckbox(enable_local_chams, "local chams", &g_Vars.esp.chams_local);
 						if (g_Vars.esp.chams_local) {
 							InsertCombo("local", &g_Vars.esp.new_chams_local, chams_mats_local);
+							ColorPicker("##local_color", g_Vars.esp.chams_local_color, true, true);
 							if (g_Vars.esp.new_chams_local == 3) {
 
 								InsertSliderFloat("local pearlescence", &g_Vars.esp.chams_local_pearlescence, 0.f, 100.f, "%.f");
-								ColorPicker("local pearlescence color", g_Vars.esp.chams_local_pearlescence_color, true);
+								ColorPicker_w_name("local pearlescence color", g_Vars.esp.chams_local_pearlescence_color, true, false);
 								InsertSliderFloat("local shine", &g_Vars.esp.chams_local_shine, 0.f, 100.f, "%.f");
 
 							}
 
 							InsertCombo("local overlay", &g_Vars.esp.new_chams_local_overlay, chams_mats_overlay);
+							ColorPicker("##local_overlay_color", g_Vars.esp.new_chams_local_overlay_color, true, true);
 							if (g_Vars.esp.new_chams_local_overlay == 1) {
 
 								InsertSliderFloat("Glow strength ##local", &g_Vars.esp.chams_local_outline_value, 0.f, 100.f, "%.f");
@@ -731,8 +745,6 @@ void Visuals()
 
 							}
 							InsertCheckbox(local_overlay_wireframe, "local overlay wireframe", &g_Vars.esp.chams_local_outline_wireframe);
-							ColorPicker("local color", g_Vars.esp.chams_local_color, true);
-							ColorPicker("local overlay color", g_Vars.esp.new_chams_local_overlay_color, true);
 							InsertCheckbox(chams_local_original_model, "draw original model ##local", &g_Vars.esp.new_chams_local_original_model);
 						}
 
@@ -745,15 +757,17 @@ void Visuals()
 						InsertCheckbox(enable_attachments_chams, "attachment chams", &g_Vars.esp.chams_attachments);
 						if (g_Vars.esp.chams_attachments) {
 							InsertCombo("attachment", &g_Vars.esp.attachments_chams_mat, chams_mats_local);
+							ColorPicker("##attachment_color", g_Vars.esp.attachments_chams_color, true, true);
 							if (g_Vars.esp.attachments_chams_mat == 3) {
 
 								InsertSliderFloat("attachment pearlescence", &g_Vars.esp.chams_attachments_pearlescence, 0.f, 100.f, "%.f");
-								ColorPicker("attachment pearlescence color", g_Vars.esp.chams_attachments_pearlescence_color, true);
+								ColorPicker("attachment pearlescence color", g_Vars.esp.chams_attachments_pearlescence_color, true, false);
 								InsertSliderFloat("attachment shine", &g_Vars.esp.chams_attachments_shine, 0.f, 100.f, "%.f");
 
 							}
 
 							InsertCombo("attachment overlay", &g_Vars.esp.new_chams_attachments_overlay, chams_mats_overlay_misc);
+							ColorPicker("##attachment_overlay_color", g_Vars.esp.new_chams_attachments_overlay_color, true, true);
 							if (g_Vars.esp.new_chams_attachments_overlay == 1) {
 
 								InsertSliderFloat("Glow strength ##attachments", &g_Vars.esp.chams_attachments_outline_value, 0.f, 100.f, "%.f");
@@ -761,15 +775,13 @@ void Visuals()
 
 							}
 							InsertCheckbox(attachments_overlay_wireframe, "attachment overlay wireframe", &g_Vars.esp.chams_attachments_outline_wireframe);
-							ColorPicker("attachment color", g_Vars.esp.attachments_chams_color, true);
-							ColorPicker("attachment overlay color", g_Vars.esp.new_chams_attachments_overlay_color, true);
 						}
 
 						break;
 					}
 					case 2: //fake 
 					{
-						InsertCombo("local fake", &g_Vars.esp.new_chams_local_fake, chams_mats);  ColorPicker("##localfakechamscolor", g_Vars.esp.new_chams_local_fake_color, true);
+						InsertCombo("local fake", &g_Vars.esp.new_chams_local_fake, chams_mats);  ColorPicker("##local_fake_chams_color", g_Vars.esp.new_chams_local_fake_color, true, true);
 						break;
 					}
 					case 3: //hands & weapon
@@ -778,15 +790,17 @@ void Visuals()
 						InsertCheckbox(enable_hand_chams, "hand chams", &g_Vars.esp.chams_hands);
 						if (g_Vars.esp.chams_hands) {
 							InsertCombo("hands", &g_Vars.esp.hands_chams_mat, chams_mats_local);
+							ColorPicker("##hand_color", g_Vars.esp.hands_chams_color, true, true);
 							if (g_Vars.esp.hands_chams_mat == 3) {
 
 								InsertSliderFloat("hand pearlescence", &g_Vars.esp.chams_hands_pearlescence, 0.f, 100.f, "%.f");
-								ColorPicker("hand pearlescence color", g_Vars.esp.chams_hands_pearlescence_color, true);
+								ColorPicker_w_name("hand pearlescence color", g_Vars.esp.chams_hands_pearlescence_color, true, false);
 								InsertSliderFloat("hand shine", &g_Vars.esp.chams_hands_shine, 0.f, 100.f, "%.f");
 
 							}
 
 							InsertCombo("hand overlay", &g_Vars.esp.new_chams_hands_overlay, chams_mats_overlay_misc);
+							ColorPicker("hand overlay color", g_Vars.esp.new_chams_hands_overlay_color, true, true);
 							if (g_Vars.esp.new_chams_hands_overlay == 1) {
 
 								InsertSliderFloat("Glow strength ##hands", &g_Vars.esp.chams_hands_outline_value, 0.f, 100.f, "%.f");
@@ -794,22 +808,22 @@ void Visuals()
 
 							}
 							InsertCheckbox(hand_overlay_wireframe, "hand overlay wireframe", &g_Vars.esp.chams_hands_outline_wireframe);
-							ColorPicker("hand color", g_Vars.esp.hands_chams_color, true);
-							ColorPicker("hand overlay color", g_Vars.esp.new_chams_hands_overlay_color, true);
 						}
 
 						InsertCheckbox(enable_weapon_chams, "weapon chams", &g_Vars.esp.chams_weapon);
 						if (g_Vars.esp.chams_weapon) {
 							InsertCombo("weapon", &g_Vars.esp.weapon_chams_mat, chams_mats_local);
+							ColorPicker("##weapon_color", g_Vars.esp.weapon_chams_color, true, true);
 							if (g_Vars.esp.weapon_chams_mat == 3) {
 
 								InsertSliderFloat("weapon pearlescence", &g_Vars.esp.chams_weapon_pearlescence, 0.f, 100.f, "%.f");
-								ColorPicker("weapon pearlescence color", g_Vars.esp.chams_weapon_pearlescence_color, true);
+								ColorPicker_w_name("weapon pearlescence color", g_Vars.esp.chams_weapon_pearlescence_color, true, false);
 								InsertSliderFloat("weapon shine", &g_Vars.esp.chams_weapon_shine, 0.f, 100.f, "%.f");
 
 							}
 
 							InsertCombo("weapon overlay", &g_Vars.esp.new_chams_weapon_overlay, chams_mats_overlay_misc);
+							ColorPicker("##weapon_overlay_color", g_Vars.esp.new_chams_weapon_overlay_color, true, true);
 							if (g_Vars.esp.new_chams_weapon_overlay == 1) {
 
 								InsertSliderFloat("Glow strength ##weapon", &g_Vars.esp.chams_weapon_outline_value, 0.f, 100.f, "%.f");
@@ -817,8 +831,6 @@ void Visuals()
 
 							}
 							InsertCheckbox(weapon_overlay_wireframe, "weapon overlay wireframe", &g_Vars.esp.chams_weapon_outline_wireframe);
-							ColorPicker("weapon color", g_Vars.esp.weapon_chams_color, true);
-							ColorPicker("weapon overlay color", g_Vars.esp.new_chams_weapon_overlay_color, true);
 						}
 
 						break;
@@ -840,8 +852,7 @@ void Visuals()
 				InsertMultiCombo(std::string(XorStr("World Adjustment")).c_str(), worldAdjustment);
 
 				if (g_Vars.esp.skybox) {
-					ImGui::Text(XorStr("Skybox Color"));
-					ColorPicker(XorStr("Skybox Color"), g_Vars.esp.skybox_modulation, false);
+					ColorPicker_w_name(XorStr("Skybox Color"), g_Vars.esp.skybox_modulation, false, false);
 				}
 
 				if (g_Vars.esp.night_mode) {
@@ -859,7 +870,7 @@ void Visuals()
 
 				InsertCheckbox(Bomb, XorStr("Bomb Timer"), &g_Vars.esp.draw_bombc4);
 				if (g_Vars.esp.draw_bombc4) {
-					ColorPicker(XorStr("##BombColor"), g_Vars.esp.c4_color, false);
+					ColorPicker(XorStr("##BombColor"), g_Vars.esp.c4_color, false, false);
 				}
 
 				std::vector<MultiItem_t> droppedWeapons = {
@@ -868,7 +879,7 @@ void Visuals()
 				};
 
 				InsertMultiCombo(std::string(XorStr("Dropped Weapons")).c_str(), droppedWeapons);
-				ColorPicker(XorStr("##DropperWeaponsColor"), g_Vars.esp.dropped_weapons_color, false);
+				ColorPicker(XorStr("##DropperWeaponsColor"), g_Vars.esp.dropped_weapons_color, false, true);
 
 				ImGui::NextColumn();
 				ImGui::NewLine();
@@ -876,7 +887,7 @@ void Visuals()
 				InsertCheckbox(Grenades, XorStr("Grenade ESP"), &g_Vars.esp.nades);
 				InsertCheckbox(GrenadesPrediction, XorStr("Grenade Prediction"), &g_Vars.esp.NadePred);
 				if (g_Vars.esp.NadePred) {
-					ColorPicker(XorStr("##GrenadeColor"), g_Vars.esp.nade_pred_color, false);
+					ColorPicker(XorStr("##GrenadeColor"), g_Vars.esp.nade_pred_color, false, false);
 				}
 				InsertSliderFloat(XorStr("Override FOV"), &g_Vars.esp.world_fov, 0.f, 200.f, XorStr("%.0f degress"));
 				InsertSliderFloat(XorStr("Viewmodel FOV"), &g_Vars.misc.viewmodel_fov, 0.f, 200.f, XorStr("%.0f degress"));
@@ -906,7 +917,7 @@ void Visuals()
 
 				InsertCheckbox(draw_hitboxes, XorStr("Shot capsules"), &g_Vars.esp.draw_hitboxes);
 				if (g_Vars.esp.draw_hitboxes) {
-					ColorPicker(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true);
+					ColorPicker(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true, false);
 				}
 
 				std::vector<MultiItem_t> removals = {
@@ -935,12 +946,12 @@ void Visuals()
 				InsertCheckbox(ForceCrosshair, XorStr("Force Crosshair"), &g_Vars.esp.autowall_crosshair);
 				InsertCheckbox(ClientImpacts, XorStr("Client Impacts"), &g_Vars.misc.impacts_spoof);
 				if (g_Vars.misc.impacts_spoof) {
-					ColorPicker(XorStr("##ClientImpactsColor"), g_Vars.esp.client_impacts, true);
+					ColorPicker(XorStr("##ClientImpactsColor"), g_Vars.esp.client_impacts, true, false);
 				}
 
 				InsertCheckbox(ServerImpacts, XorStr("Server Impacts"), &g_Vars.misc.server_impacts_spoof);
 				if (g_Vars.misc.server_impacts_spoof) {
-					ColorPicker(XorStr("##ServerColor"), g_Vars.esp.server_impacts, true);
+					ColorPicker(XorStr("##ServerColor"), g_Vars.esp.server_impacts, true, false);
 				}
 
 				InsertCheckbox(BulletTracers, XorStr("Bullet Tracers"), &g_Vars.esp.beam_enabled);
@@ -949,7 +960,7 @@ void Visuals()
 				}
 				InsertCheckbox(AmbientLighting, XorStr("Ambient Lighting"), &g_Vars.esp.ambient_ligtning);
 				if (g_Vars.esp.ambient_ligtning) {
-					ColorPicker(XorStr("##AmbientColor"), g_Vars.esp.ambient_ligtning_color, false);
+					ColorPicker(XorStr("##AmbientColor"), g_Vars.esp.ambient_ligtning_color, false, false);
 				}
 
 				InsertCheckbox(SkipOcclusion, XorStr("Skip Occlusion"), &g_Vars.esp.skip_occulusion);
@@ -957,16 +968,15 @@ void Visuals()
 
 				InsertCheckbox(DrawAAAngles, XorStr("Draw Antiaim Angles"), &g_Vars.esp.draw_antiaim_angles);
 				if (g_Vars.esp.draw_antiaim_angles) {
-					ColorPicker(XorStr("Real Color"), g_Vars.esp.draw_antiaim_angles_real, false);
-					ColorPicker(XorStr("Lby Color"), g_Vars.esp.draw_antiaim_angles_lby, false);
+					ColorPicker_w_name(XorStr("Real Color"), g_Vars.esp.draw_antiaim_angles_real, false, false);
+					ColorPicker_w_name(XorStr("Lby Color"), g_Vars.esp.draw_antiaim_angles_lby, false, false);
 				}
 
 				InsertCheckbox(TeslaImpact, XorStr("Tesla on Impact"), &g_Vars.esp.tesla_impact);
 
 				InsertCheckbox(TeslaKill, XorStr("Tesla on Kill"), &g_Vars.esp.tesla_kill);
 				if (g_Vars.esp.tesla_kill) {
-					ImGui::SameLine();
-					ColorPicker(XorStr(""), g_Vars.esp.tesla_kill_color, false);
+					ColorPicker(XorStr("tesla kill color"), g_Vars.esp.tesla_kill_color, false, false);
 					InsertSliderFloat(XorStr("Tesla Width"), &g_Vars.esp.tesla_kill_width, 0.f, 10.f, XorStr("%.f"));
 					InsertSliderFloat(XorStr("Tesla Beams"), &g_Vars.esp.tesla_kill_beams, 0.f, 20.f, XorStr("%.f"));
 					InsertSliderFloat(XorStr("Tesla Radius"), &g_Vars.esp.tesla_kill_radius, 0.f, 200.f, XorStr("%.f"));
@@ -1008,7 +1018,7 @@ void Misc()
 			if (g_Vars.misc.autopeek) {
 				InsertCheckbox(AutoPeek, XorStr("Auto-Peek Visualize"), &g_Vars.misc.autopeek_visualise);
 				ImGui::SameLine();
-				ColorPicker(XorStr(""), g_Vars.misc.autopeek_color, false);
+				ColorPicker(XorStr("auto peek color"), g_Vars.misc.autopeek_color, false, false);
 			}
 
 			InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
