@@ -19,7 +19,7 @@ IDirect3DVertexShader9* vertShader;
 HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourceRect, const RECT* pDestRect, HWND hDestWindowOverride, const RGNDATA* pDirtyRegion ) {
 	g_Vars.globals.szLastHookCalled = XorStr( "27" );
 	g_Vars.globals.m_pD3D9Device = pDevice;
-	if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_DELETE)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
+	if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_INSERT)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
 
 	if( Render::DirectX::initialized ) {
 		// gay idc
