@@ -1320,7 +1320,7 @@ void IMGUIMenu::Render()
 			}
 			case 1:
 			{
-				ImGui::SelectedSubTab("  Basic  ", ImVec2(0.f, 25.f));
+				ImGui::SelectedSubTab("  Main  ", ImVec2(0.f, 25.f));
 				break;
 			}
 			case 2:
