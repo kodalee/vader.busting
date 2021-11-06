@@ -193,6 +193,8 @@ namespace Hooked
 			g_Vars.globals.RandomInit = true;
 		}
 
+		//Engine::g_Resolver.collect_wall_detect(stage);
+
 		if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START) {
 			IEsp::Get()->SetupAgents();
 		}

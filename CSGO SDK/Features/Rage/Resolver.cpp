@@ -9,6 +9,8 @@
 static float NextLBYUpdate[65];
 static float Add[65];
 
+C_CSPlayer* get_entity(const int index) { return reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(index)); }
+
 namespace Engine {
 	// well alpha took supremacy resolver, but supremacy resolver is actual dogshit
 	// so this is going to be a hard test for viopastins.
@@ -394,6 +396,198 @@ namespace Engine {
 		}
 	}
 
+	void CResolver::collect_wall_detect(const ClientFrameStage_t stage)
+	{
+		if (stage != FRAME_NET_UPDATE_POSTDATAUPDATE_START)
+			return;
+
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (!local || !local->IsAlive())
+			return;
+
+		last_eye_positions.insert(last_eye_positions.begin(), local->m_vecOrigin() + local->m_vecViewOffset());
+		if (last_eye_positions.size() > 128)
+			last_eye_positions.pop_back();
+
+		auto nci = Interfaces::m_pEngine->GetNetChannelInfo();
+		if (!nci)
+			return;
+
+		const int latency_ticks = TIME_TO_TICKS(nci->GetLatency(FLOW_OUTGOING));
+		auto latency_based_eye_pos = last_eye_positions.size() <= latency_ticks ? last_eye_positions.back() : last_eye_positions[latency_ticks];
+
+		for (auto i = 1; i < Interfaces::m_pGlobalVars->maxClients; i++)
+		{
+			//auto& log = player_log::get().get_log(i);
+			auto player = get_entity(i);
+
+			if (!player || player == local)
+			{
+				continue;
+			}
+
+			if (player->IsTeammate(local))
+			{
+				continue;
+			}
+
+			if (!player->IsAlive())
+			{
+				continue;
+			}
+
+			if (player->IsDormant())
+			{
+				continue;
+			}
+
+			if (player->m_vecVelocity().Length2D() > 0.1f)
+			{
+				continue;
+			}
+
+			auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
+			if (!anim_data)
+				return;
+
+			if (anim_data->m_AnimationRecord.empty())
+				return;
+
+			if (!anim_data->m_AnimationRecord.empty() && player->m_flSimulationTime() - anim_data->m_AnimationRecord[0].m_flSimulationTime == 0)
+				continue;
+
+			//if (anim_data->m_AnimationRecord[0].m_vecLastNonDormantOrig != player->m_vecOrigin() && local->IsAlive())
+			//{
+			//	g_ResolverData[player->EntIndex()].m_iMode = 1;
+			//}
+			//else {
+			//	g_ResolverData[player->EntIndex()].m_iMode = 0;
+			//}
+
+			//if (player->m_flSimulationTime() - anim_data->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && log.m_vecLastNonDormantOrig == player->get_origin() && log.m_iMode == RMODE_MOVING)
+			//{
+			//	if (player->get_simtime() - log.m_flLastLowerBodyYawTargetUpdateTime > 1.65f)
+			//	{
+			//		log.m_iMode = RMODE_WALL;
+			//	}
+			//}
+
+			//if (g_ResolverData[player->EntIndex()].m_iMode == 1)
+			//{
+			const auto at_target_angle = Math::CalcAngle(player->m_vecOrigin(), last_eye);
+
+			//Vector left_dir, right_dir, back_dir;
+			//Math::angle_vectors(Vector(0.f, at_target_angle.y - 90.f, 0.f), &left_dir);
+			//Math::angle_vectors(Vector(0.f, at_target_angle.y + 90.f, 0.f), &right_dir);
+			//Math::angle_vectors(Vector(0.f, at_target_angle.y + 180.f, 0.f), &back_dir);
+
+
+			Vector direction_1, direction_2, direction_3;
+			Math::AngleVectors(QAngle(0.f, Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y - 90.f, 0.f), &direction_1);
+			Math::AngleVectors(QAngle(0.f, Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y + 90.f, 0.f), &direction_2);
+			Math::AngleVectors(QAngle(0.f, Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y + 180.f, 0.f), &direction_3);
+
+			const float height = 64;
+
+			const auto left_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_1 * 16.f);
+			const auto right_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_2 * 16.f);
+			const auto back_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_3 * 16.f);
+
+			//log.anti_freestanding_record.left_damage = penetration::get().get_damage(latency_based_eye_pos,
+			anti_freestanding_record.left_damage = Autowall::ScaleDamage(player, left_damage[i], 1.f, Hitgroup_Chest);
+
+			//anti_freestanding_record.left_damage = penetration::scale(player, &left_damage[i],
+			//	HITGROUP_CHEST);
+			//data->anti_freestanding_record.right_damage = FEATURES::RAGEBOT::autowall.CalculateDamage(latency_based_eye_pos,
+			//	right_eye_pos, local_player, entity, 1).damage;
+			anti_freestanding_record.right_damage = Autowall::ScaleDamage(player, right_damage[i], 1.f, Hitgroup_Chest);
+			//penetration::get().get_damage(g_cl.m_local, player, right_eye_pos, &right_damage[i],
+			//get_big_fucking_gun(), &latency_based_eye_pos);
+		//BACKWARDS
+			anti_freestanding_record.back_damage = Autowall::ScaleDamage(player, back_damage[i], 1.f, Hitgroup_Chest);
+
+			Ray_t ray;
+			CGameTrace trace;
+			CTraceFilterWorldOnly filter;
+
+			Ray_t first_ray(left_eye_pos, latency_based_eye_pos);
+			Interfaces::m_pEngineTrace->TraceRay(first_ray, MASK_ALL, &filter, &trace);
+			anti_freestanding_record.left_fraction = trace.fraction;
+
+			Ray_t second_ray(right_eye_pos, latency_based_eye_pos);
+			Interfaces::m_pEngineTrace->TraceRay(second_ray, MASK_ALL, &filter, &trace);
+			anti_freestanding_record.right_fraction = trace.fraction;
+
+			Ray_t third_ray(back_eye_pos, latency_based_eye_pos);
+			Interfaces::m_pEngineTrace->TraceRay(third_ray, MASK_ALL, &filter, &trace);
+			anti_freestanding_record.back_fraction = trace.fraction;
+
+			//const auto eye_pos = player->get_eye_pos();
+			//auto left_eye_pos = eye_pos + (left_dir * 16.f);
+			//auto right_eye_pos = eye_pos + (right_dir * 16.f);
+			//auto back_eye_pos = eye_pos + (back_dir * 16.f);
+
+			//static CCSWeaponData big_fucking_gun{};
+			//auto get_big_fucking_gun = [&]() -> CCSWeaponData*
+			//{
+			//	big_fucking_gun.iDamage = 200;
+			//	big_fucking_gun.flRangeModifier = 1.0f;
+			//	big_fucking_gun.flPenetration = 6.0f;
+			//	big_fucking_gun.flArmorRatio = 2.0f;
+			//	big_fucking_gun.flRange = 8192.f;
+			//	return &big_fucking_gun;
+			//};
+
+			//penetration::get().get_damage(g_pLocalPlayer, player, left_eye_pos, &left_damage[i], get_big_fucking_gun(), &last_eye);
+			//penetration::get().get_damage(g_pLocalPlayer, player, right_eye_pos, &right_damage[i], get_big_fucking_gun(), &last_eye);
+			//penetration::get().get_damage(g_pLocalPlayer, player, back_eye_pos, &back_damage[i], get_big_fucking_gun(), &last_eye);
+		//}
+		}
+	}
+
+
+	bool CResolver::wall_detect(C_CSPlayer* player, C_AnimationRecord* record, float& angle) const
+	{
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (!local->IsAlive())
+			return false;
+
+		if (player == local)
+			return false;
+
+		const auto at_target_angle = Math::CalcAngle(record->m_vecOrigin, last_eye);
+
+		auto set = false;
+
+		const auto left = left_damage[player->EntIndex()];
+		const auto right = right_damage[player->EntIndex()];
+		const auto back = back_damage[player->EntIndex()];
+
+		auto max_dmg = std::max(left, std::max(right, back)) - 1.f;
+		if (left < max_dmg)
+		{
+			max_dmg = left;
+			angle = Math::AngleNormalize(at_target_angle.y + 90.f);
+			set = true;
+		}
+		if (right < max_dmg)
+		{
+			max_dmg = right;
+			angle = Math::AngleNormalize(at_target_angle.y - 90.f);
+			set = true;
+		}
+		if (back < max_dmg || !set)
+		{
+			max_dmg = back;
+			angle = Math::AngleNormalize(at_target_angle.y + 180.f);
+		}
+
+		return true;
+	}
+
+
 	void CResolver::MatchShot(C_CSPlayer* data, C_AnimationRecord* record) {
 		// do not attempt to do this in nospread mode.
 		//if (g_menu.main.config.mode.get() == 1)
@@ -461,10 +655,10 @@ namespace Engine {
 		//printf(std::to_string(lag_data->m_History.size()).c_str());
 		//printf("\n");
 
-		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !(record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
+		if ((record->m_fFlags & FL_ONGROUND) && speed > 15.f && !record->m_bFakeWalking)
 			record->m_iResolverMode = EResolverModes::RESOLVE_WALK;
 
-		if ((record->m_fFlags & FL_ONGROUND) && (speed < 0.1f || record->m_bFakeWalking /*|| record->m_bUnsafeVelocityTransition*/))
+		if ((record->m_fFlags & FL_ONGROUND) && (speed < 16.f || record->m_bFakeWalking))
 			record->m_iResolverMode = EResolverModes::RESOLVE_STAND;
 
 		else if (!(record->m_fFlags & FL_ONGROUND))
@@ -474,12 +668,16 @@ namespace Engine {
 		ResolveAngles(player, record);
 
 		// write potentially resolved angles.
+		//if(Engine::g_ResolverData[player->EntIndex()].m_iMode == 0)
 		record->m_angEyeAngles.y = player->m_angEyeAngles().y = g_ResolverData[player->EntIndex()].m_flFinalResolverYaw;
 	}
 
 	void CResolver::ResolveWalk(C_CSPlayer* player, C_AnimationRecord* record) {
 		// apply lby to eyeangles.
 		g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+
+		printf("applying last moving\n");
+		printf(" \n");
 
 		// get lag data.
 		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->EntIndex());
@@ -520,6 +718,13 @@ namespace Engine {
 
 		const int nMisses = pLagData->m_iMissedShots;
 
+		auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
+		if (!anim_data)
+			return;
+
+		if (anim_data->m_AnimationRecord.empty())
+			return;
+
 		// we have a valid moving record.
 		static Vector vDormantOrigin;
 		if (player->IsDormant()) {
@@ -552,34 +757,46 @@ namespace Engine {
 		}
 		else {
 			// we have valid move data but we can't freestand them.
-			if (data.m_bCollectedValidMoveData && !data.m_bCollectedFreestandData) {
+			if (data.m_bCollectedValidMoveData) {
 				// https://www.unknowncheats.me/forum/counterstrike-global-offensive/292854-animation-syncing.html
 				// we haven't missed a shot and last move is valid.
-				if (nMisses < 1 && (IsLastMoveValid(record, g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget) || data.m_bCollectedValidMoveData))
+				if (nMisses < 1 && (IsLastMoveValid(record, g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget) || data.m_bCollectedValidMoveData)) {
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
+				}
 
 				// we missed more than 2 shots
 				// lets bruteforce since we have no idea where he at.
 				else if (nMisses > 0) {
 					switch (nMisses % 6) {
 					case 1:
-						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
+						if (!wall_detect(player, record, g_ResolverData[player->EntIndex()].m_flFinalResolverYaw)) {
+							Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
+							g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+						}
+						else {
+							Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+						}
 						break;
 
 					case 2:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 						break;
 
 					case 3:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 						break;
 
 					case 4:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 						break;
 
 					case 5:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 						break;
 
 					default:
@@ -588,60 +805,39 @@ namespace Engine {
 				}
 			}
 
-			else if (data.m_bCollectedFreestandData && data.m_bCollectedValidMoveData) {
-				switch (nMisses % 6) {
-				case 0:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
-					break;
-				case 1:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
-					break;
-
-				case 2:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
-					break;
-
-				case 3:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
-					break;
-
-				case 4:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
-					break;
-
-				case 5:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
-					break;
-
-				default:
-					break;
-				}
-			}
-
-
 			// if there isn't any valid move data
 			// lets bruteforce.
-			else if (!data.m_bCollectedFreestandData && !data.m_bCollectedValidMoveData) {
+			else if (!data.m_bCollectedValidMoveData) {
 				switch (nMisses % 5) {
 
 				case 0:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y;
+					if (!wall_detect(player, record, record->m_angEyeAngles.y)) {
+						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					}
+					else {
+						Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+					}
 					break;
 
 				case 1:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
+					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 2:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 3:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 4:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				default:
@@ -653,23 +849,33 @@ namespace Engine {
 			else {
 				switch (nMisses % 5) {
 				case 0:
-					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_flBestYaw;
+					if (!wall_detect(player, record, record->m_angEyeAngles.y)) {
+						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					}
+					else {
+						Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+					}
 					break;
 
 				case 1:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 2:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 3:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 4:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				default:
