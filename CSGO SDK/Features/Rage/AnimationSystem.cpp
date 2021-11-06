@@ -422,10 +422,10 @@ namespace Engine
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
 		}
-		else {
-			record->m_bFakeWalking = false;
-			Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
-		}
+		//else {
+		//	record->m_bFakeWalking = false;
+		//	Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
+		//}
 
 		// detect players abusing micromovements or other trickery
 		//if ( record->m_vecVelocity.Length( ) < 18.f 
@@ -455,6 +455,8 @@ namespace Engine
 			// and predict one tick ahead.
 			record->m_vecAnimationVelocity = previous_record->m_vecVelocity + accel;
 		}
+
+		record->m_vecLastNonDormantOrig = record->m_vecOrigin;
 
 		record->m_bTeleportDistance = record->m_vecOrigin.DistanceSquared( previous_record->m_vecOrigin ) > 4096.0f;
 

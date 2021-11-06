@@ -20,6 +20,8 @@ namespace Math
 
 	void Rotate(std::array<Vector2D, 3>& points, float rotation);
 
+	void angle_vectors(const QAngle& angles, Vector* forward, Vector* right = nullptr, Vector* up = nullptr);
+
 	void AngleVectors(const QAngle& angles, Vector& forward, Vector& right, Vector& up);
 
 	void VectorAngles( const Vector & forward, QAngle & angles );

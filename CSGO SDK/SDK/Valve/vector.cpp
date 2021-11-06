@@ -4,6 +4,7 @@
 #include "qangle.hpp"
 #include "matrix.hpp"
 
+
 Vector::Vector( ) {
 	this->Set( );
 }

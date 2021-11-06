@@ -36,6 +36,7 @@ namespace Engine {
 		bool m_bPredictingUpdates;
 		bool is_flicking;
 		bool m_player_fire;
+		int m_iMode;
 
 		Vector m_vecSavedOrigin;
 		LastMoveData_t m_sMoveData;
@@ -131,8 +132,10 @@ namespace Engine {
 		};
 		void on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw);
 		void collect_wall_detect(const ClientFrameStage_t stage);
+		bool wall_detect(C_CSPlayer* player, C_AnimationRecord* record, float& angle) const;
 		bool AntiFreestanding(C_CSPlayer* entity, float& yaw);
 		void FindBestAngle(C_CSPlayer* player);
+		//bool wall_detect(Engine::C_LagRecord* record, float& angle) const;
 	};
 
 	extern CResolver g_Resolver;
