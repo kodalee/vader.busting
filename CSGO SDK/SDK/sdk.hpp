@@ -1164,69 +1164,57 @@ enum class MotionBlurMode_t {
 	MOTION_BLUR_SFM = 3
 };
 
+#define CONCAT_IMPL( x, y ) x##y
+#define MACRO_CONCAT( x, y ) CONCAT_IMPL( x, y )
+#define PAD( size ) uint8_t MACRO_CONCAT( _pad, __COUNTER__ )[ size ];
+
 class CViewSetup {
 public:
-	int x;
-	int oldX;
-	int y;
-	int oldY;
-	int width;
-	int oldWidth;
-	int height;
-	int oldHeight;
-
-	bool m_bOrtho;
-	float m_OrthoLeft;
-	float m_OrthoTop;
-	float m_OrthoRight;
-	float m_OrthoBottom;
-
+	int         m_X;					// 0x0000
+	int         m_OldX;				// 0x0004
+	int         m_Y;					// 0x0008
+	int	        m_OldY;				// 0x000C
+	int         m_Width;				// 0x0010
+	int         m_OldWidth;			// 0x0014
+	int         m_Height;				// 0x0018
+	int         m_OldHeight;			// 0x001C
+	bool        m_Ortho;				// 0x0020
+	float       m_OrthoLeft;			// 0x0024
+	float       m_OrthoTop;			// 0x0028
+	float       m_OrthoRight;			// 0x002C
+	float       m_OrthoBottom;			// 0x0030
+	bool        m_CustomView_matrix;	// 0x0034
+	matrix3x4_t m_CustomMatrix;		// 0x0038
 private:
-	char pad1[ 0x7C ];
-
+	PAD(0x48);						// 0x0068
 public:
-	float fov;
-	float fovViewmodel;
-	Vector origin;
-	QAngle angles;
-
-	float zNear;
-	float zFar;
-	float zNearViewmodel;
-	float zFarViewmodel;
-
-	float m_flAspectRatio;
-	float m_flNearBlurDepth;
-	float m_flNearFocusDepth;
-	float m_flFarFocusDepth;
-	float m_flFarBlurDepth;
-	float m_flNearBlurRadius;
-	float m_flFarBlurRadius;
-	int m_nDoFQuality;
-	MotionBlurMode_t m_nMotionBlurMode;
-
-	float m_flShutterTime;
-	Vector m_vShutterOpenPosition;
-	QAngle m_shutterOpenAngles;
-	Vector m_vShutterClosePosition;
-	QAngle m_shutterCloseAngles;
-
-	float m_flOffCenterTop;
-	float m_flOffCenterBottom;
-	float m_flOffCenterLeft;
-	float m_flOffCenterRight;
-
-	bool m_bOffCenter : 1;
-	bool m_bRenderToSubrectOfLargerScreen : 1;
-	bool m_bDoBloomAndToneMapping : 1;
-	bool m_bDoDepthOfField : 1;
-	bool m_bHDRTarget : 1;
-	bool m_bDrawWorldNormal : 1;
-	bool m_bCullFrontFaces : 1;
-	bool m_bCacheFullSceneState : 1;
-	bool m_bRenderFlashlightDepthTranslucents : 1;
-private:
-	char pad2[ 0x40 ];
+	float       m_Fov;                  // 0x00B0
+	float       m_ViewmodelFov;		// 0x00B4
+	Vector      m_Origin;
+	QAngle       m_Angles;
+	float       m_ZNear;
+	float       m_ZFar;
+	float       m_ZNearViewmodel;
+	float       m_ZFarViewmodel;
+	float       m_AspectRatio;
+	float       m_NearBlurDepth;
+	float       m_NearFocusDepth;
+	float       m_FarFocusDepth;
+	float       m_FarBlurDepth;
+	float       m_NearBlurRadius;
+	float       m_FarBlurRadius;
+	int         m_Quality;
+	int         m_MotionBlurMode;
+	float       m_ShutterTime;
+	Vector      m_ShutterOpenPos;
+	QAngle       m_Shutter_OpenAngles;
+	Vector      m_ShutterClosePos;
+	QAngle       m_ShutterCloseAngles;
+	float       m_OffcenterTop;
+	float       m_OffcenterBottom;
+	float       m_OffcenterLeft;
+	float       m_OffcenterRight;
+	int         m_EdgeBlur;
 };
 
 class CCycleCount {

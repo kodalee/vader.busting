@@ -54,8 +54,7 @@ namespace Hooked
 		g_Vars.globals.szLastHookCalled = XorStr( "21" );
 		std::string szPanelName = Interfaces::m_pPanel->GetName( vguiPanel );
 
-		if( !strcmp( XorStr( "HudZoom" ), szPanelName.data( ) ) && g_Vars.esp.remove_post_proccesing )
-			return;
+		if( !strcmp( XorStr( "HudZoom" ), szPanelName.data( ) ) && g_Vars.esp.remove_scope ) return;
 
 		oPaintTraverse( ecx, vguiPanel, forceRepaint, allowForce );
 

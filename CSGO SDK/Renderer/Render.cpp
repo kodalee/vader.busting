@@ -488,6 +488,7 @@ namespace Render::Engine {
 	Font console;
 	Font hud;
 	Font segoe;
+	Font tahoma_sexy;
 	Font cs;
 	Font cs_large;
 	Font damage;
@@ -505,6 +506,7 @@ void Render::Engine::Initialise( ) {
 
 	esp = Font( XorStr( "Verdana" ), 12, FW_NORMAL, FONTFLAG_DROPSHADOW );
 	segoe = Font( XorStr( "Segoe UI" ), 13, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW | FONTFLAG_DROPSHADOW );
+	tahoma_sexy = Font(XorStr("Tahoma"), 12, 700, FONTFLAG_DROPSHADOW);
 	pixel = Font( XorStr( "04B03" ), 8, FW_NORMAL, FONTFLAG_OUTLINE );
 	pixel_reg = Font( XorStr( "Small Fonts" ), 8, FW_NORMAL, FONTFLAG_OUTLINE );
 	console = Font( XorStr( "Lucida Console" ), 10, FW_DONTCARE, FONTFLAG_DROPSHADOW );

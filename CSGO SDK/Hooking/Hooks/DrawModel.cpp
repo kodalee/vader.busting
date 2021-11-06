@@ -103,7 +103,7 @@ void __fastcall Hooked::DrawModelExecute( void* ECX, void* EDX, IMatRenderContex
    static bool run_once = false;
    static bool run_once2 = false;
 
-   if ( g_Vars.esp.remove_scope_blur ) {
+   if ( g_Vars.esp.remove_scope ) {
 	  if ( !run_once ) {
 		 auto blur_overlay = Interfaces::m_pMatSystem->FindMaterial( ( "dev/scope_bluroverlay" ), XorStr( TEXTURE_GROUP_OTHER ) );
 		 auto lens_dirt = Interfaces::m_pMatSystem->FindMaterial( ( "models/weapons/shared/scope/scope_lens_dirt" ), XorStr( TEXTURE_GROUP_OTHER ) );

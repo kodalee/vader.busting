@@ -256,7 +256,7 @@ void DrawWatermark() {
 	Vector2D screen = Render::GetScreenSize();
 
 	// Calculating text size and position
-	auto text_size = Render::Engine::segoe.size(text);
+	auto text_size = Render::Engine::tahoma_sexy.size(text);
 	auto text_pos = Vector2D(screen.x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
 		margin + padding); // Top align
 
@@ -268,8 +268,7 @@ void DrawWatermark() {
 
 	Render::Engine::RectFilled(bg_pos.x, bg_pos.y, bg_size.x, bg_size.y, col_background); // Background
 	Render::Engine::Rect(bg_pos.x, bg_pos.y, bg_size.x, 2, col_accent); // Accent line
-	Render::Engine::segoe.string(text_pos.x, text_pos.y, col_text, text); // Text
-
+	Render::Engine::tahoma_sexy.string(text_pos.x, text_pos.y, col_text, text); // Text
 }
 
 bool CEsp::Begin( C_CSPlayer* player ) {
@@ -829,18 +828,18 @@ void CEsp::Keybinds() {
 	// the actual window
 	//Render::Engine::RectFilled( pos + Vector2D( 0, 20 + 2 ), Vector2D( this->m_KeyBinds.size.x, this->m_KeyBinds.size.y - 1 ), main );
 
-	auto hold_size = Render::Engine::segoe.size(XorStr("[Hold]"));
-	auto toggle_size = Render::Engine::segoe.size(XorStr("[Toggle]"));
-	auto always_size = Render::Engine::segoe.size(XorStr("[Always]"));
+	auto hold_size = Render::Engine::tahoma_sexy.size(XorStr("[Hold]"));
+	auto toggle_size = Render::Engine::tahoma_sexy.size(XorStr("[Toggle]"));
+	auto always_size = Render::Engine::tahoma_sexy.size(XorStr("[Always]"));
 
 	if (!vecNames.empty()) {
 		float offset = 15.0f;
 		for (auto name : vecNames) {
 			// hotkey name
-			Render::Engine::segoe.string(pos.x + 2, pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha), name.first.c_str());
+			Render::Engine::tahoma_sexy.string(pos.x + 2, pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha), name.first.c_str());
 
 			// hotkey type
-			Render::Engine::segoe.string(pos.x + (this->m_KeyBinds.size.x - (name.second == KeyBindType::HOLD ? hold_size.m_width : name.second == KeyBindType::TOGGLE ? toggle_size.m_width : always_size.m_width)), pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha),
+			Render::Engine::tahoma_sexy.string(pos.x + (this->m_KeyBinds.size.x - (name.second == KeyBindType::HOLD ? hold_size.m_width : name.second == KeyBindType::TOGGLE ? toggle_size.m_width : always_size.m_width)), pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha),
 				name.second == KeyBindType::HOLD ? XorStr("[Hold]") : name.second == KeyBindType::TOGGLE ? XorStr("[Toggle]") : XorStr("[Always]"));
 
 			// add offset
@@ -1228,10 +1227,10 @@ void CEsp::Main( ) {
 		}
 	}
 
+	OverlayInfo();
+
 	if( !g_Vars.esp.esp_enable )
 		return;
-
-	OverlayInfo( );
 
 	static float auto_peek_radius = 0.f;
 	bool condition = g_Vars.misc.autopeek && g_Vars.misc.autopeek_visualise && !AutoPeekPos.IsZero( ) && g_Vars.misc.autopeek_bind.enabled;
@@ -1620,7 +1619,7 @@ void CEsp::Main( ) {
 					}
 
 					if( WorldToScreen( origin, screen_origin ) ) {
-						static const auto size = Vector2D( Render::Engine::segoe.size( buf ).m_width + 2, 4.f );
+						static const auto size = Vector2D( Render::Engine::tahoma_sexy.size( buf ).m_width + 2, 4.f );
 
 						auto new_pos = Vector2D( screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5 );
 
@@ -1629,7 +1628,7 @@ void CEsp::Main( ) {
 							Render::Engine::RectFilled( new_pos, size, FloatColor( 0.f, 0.f, 0.f, 0.58f ).ToRegularColor( ) );
 							Render::Engine::RectFilled( Vector2D( new_pos.x + 1, new_pos.y + 1 ), Vector2D( ( size.x - 1 ) * factor, size.y - 2 ), g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 255 * 0.87f ) );
 
-							Render::Engine::segoe.string( new_pos.x + ( size.x * 0.5f ), new_pos.y - 9, g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 180 * 0.87f ), buf, Render::Engine::ALIGN_CENTER );
+							Render::Engine::tahoma_sexy.string( new_pos.x + ( size.x * 0.5f ), new_pos.y - 9, g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 180 * 0.87f ), buf, Render::Engine::ALIGN_CENTER );
 						}
 					}
 				}
@@ -1642,7 +1641,7 @@ void CEsp::Main( ) {
 
 				Vector2D out;
 				if( WorldToScreen( entity->GetAbsOrigin( ), out ) ) {
-					Render::Engine::segoe.string( out.x + 2, out.y, g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 180 * 0.87f ), XorStr( "C4" ) );
+					Render::Engine::tahoma_sexy.string( out.x + 2, out.y, g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 180 * 0.87f ), XorStr( "C4" ) );
 				}
 			}
 		}
@@ -1676,13 +1675,13 @@ void CEsp::Main( ) {
 				continue;
 
 			if( g_Vars.esp.dropped_weapons ) {
-				Render::Engine::segoe.string( out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ), name );
+				Render::Engine::tahoma_sexy.string( out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ), name );
 			}
 
 			if( g_Vars.esp.dropped_weapons_ammo ) {
 				auto clip = weapon->m_iClip1( );
 				if( clip > 0 ) {
-					const auto TextSize = Render::Engine::segoe.size( name );
+					const auto TextSize = Render::Engine::tahoma_sexy.size( name );
 
 					const auto MaxClip = weapondata->m_iMaxClip;
 					auto Width = TextSize.m_width;
@@ -2149,7 +2148,7 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	Color clr = g_Vars.esp.name_color.ToRegularColor( ).OverrideAlpha( 180, true );
 	clr.RGBA[ 3 ] *= m_flAlpha[ player->EntIndex( ) ];
 
-	Render::Engine::segoe.string( bbox.x + bbox.w / 2, bbox.y - Render::Engine::segoe.m_size.m_height - 1, clr, name, Render::Engine::ALIGN_CENTER );
+	Render::Engine::tahoma_sexy.string( bbox.x + bbox.w / 2, bbox.y - Render::Engine::tahoma_sexy.m_size.m_height - 1, clr, name, Render::Engine::ALIGN_CENTER );
 
 	/*if( g_Vars.globals.nOverrideEnemy == player->EntIndex( ) ) {
 		Color clr = Color( 255, 255, 255, 180 );

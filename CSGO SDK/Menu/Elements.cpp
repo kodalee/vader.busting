@@ -600,7 +600,6 @@ namespace Menu {
 					}
 
 					GUI::Controls::Checkbox(XorStr("Visualize damage"), &g_Vars.esp.visualize_damage);
-					GUI::Controls::Checkbox(XorStr("Disable post processing"), &g_Vars.esp.remove_post_proccesing);
 					GUI::Controls::Checkbox(XorStr("Taser range"), &g_Vars.esp.zeus_distance);
 					GUI::Controls::ColorPicker(XorStr("Taser range color"), &g_Vars.esp.zeus_distance_color);
 					GUI::Controls::Checkbox(XorStr("Keybind list"), &g_Vars.esp.keybind_window_enabled);
@@ -685,10 +684,11 @@ namespace Menu {
 						{ XorStr("Flashbang effects"), &g_Vars.esp.remove_flash },
 						{ XorStr("Scope effects"), &g_Vars.esp.remove_scope },
 						{ XorStr("Scope zoom"), &g_Vars.esp.remove_scope_zoom },
-						{ XorStr("Scope blur"), &g_Vars.esp.remove_scope_blur },
 						{ XorStr("Recoil shake"), &g_Vars.esp.remove_recoil_shake },
 						{ XorStr("Recoil punch"), &g_Vars.esp.remove_recoil_punch },
 						{ XorStr("View bob"), &g_Vars.esp.remove_bob },
+						{ XorStr("Sleeves"), &g_Vars.esp.remove_sleeves },
+						{ XorStr("Post processing"), &g_Vars.esp.remove_post_proccesing },
 					};
 
 					GUI::Controls::MultiDropdown(XorStr("Removals"), removals);
@@ -713,7 +713,6 @@ namespace Menu {
 
 
 					GUI::Controls::Checkbox(XorStr("Skip occlusion"), &g_Vars.esp.skip_occulusion);
-					GUI::Controls::Checkbox(XorStr("Remove sleeve rendering"), &g_Vars.esp.remove_sleeves);
 
 					GUI::Group::EndGroup();
 				}

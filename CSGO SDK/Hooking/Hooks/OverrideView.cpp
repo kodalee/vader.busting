@@ -19,21 +19,26 @@ void __fastcall Hooked::OverrideView( void* ECX, int EDX, CViewSetup* vsView ) {
 			auto weapon = ( C_WeaponCSBaseGun* )( local->m_hActiveWeapon( ).Get( ) );
 			if( weapon ) {
 				auto weapon_data = weapon->GetCSWeaponData( );
-				if( weapon_data.IsValid( ) ) {
-					if( local->m_bIsScoped( ) ) {
-						if( g_Vars.esp.remove_scope_zoom ) {
-							if( weapon->m_zoomLevel( ) == 2 ) {
-								vsView->fov = 45.0f;
+				if (weapon_data.IsValid()) {
+					if (local->m_bIsScoped()) {
+						if (g_Vars.esp.remove_scope_zoom) {
+							if (weapon->m_zoomLevel() == 2) {
+								vsView->m_Fov = 45.0f;
 							}
 							else {
-								vsView->fov = g_Vars.esp.world_fov;
+								vsView->m_Fov = g_Vars.esp.world_fov;
 							}
 						}
 					}
 					else {
-						vsView->fov = g_Vars.esp.world_fov;
+						vsView->m_Fov = g_Vars.esp.world_fov;
 					}
 				}
+			}
+
+			if (g_Vars.esp.remove_scope) {
+				if (local->m_bIsScoped())
+					vsView->m_EdgeBlur = 0;
 			}
 		}
 

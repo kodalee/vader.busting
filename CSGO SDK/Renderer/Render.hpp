@@ -142,6 +142,7 @@ namespace Render {
 		extern Font console;
 		extern Font hud;
 		extern Font segoe;
+		extern Font tahoma_sexy;
 		extern Font cs;
 		extern Font cs_large;
 		extern Font damage;
