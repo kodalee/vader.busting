@@ -633,7 +633,7 @@ void C_NewChams::RenderPlayer(C_CSPlayer* player) {
 void C_NewChams::OnPostScreenEffects() {
 	auto pLocal = C_CSPlayer::GetLocalPlayer();
 
-	if (!g_Vars.globals.HackIsReady || !Interfaces::m_pEngine->IsConnected() || !Interfaces::m_pEngine->IsInGame() || !pLocal) {
+	if (!g_Vars.globals.HackIsReady || !Interfaces::m_pEngine->IsConnected() || !Interfaces::m_pEngine->IsInGame() || !pLocal || !pLocal->IsAlive()) {
 		m_Hitmatrix.clear();
 		return;
 	}
