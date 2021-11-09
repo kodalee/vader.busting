@@ -615,6 +615,7 @@ bool c_lua::initialize() {
 
 	auto engine = this->lua.create_table();
 	engine["execute_client_cmd"] = lua_engine::execute_client_cmd;
+	engine["get_player_for_user_id"] = lua_engine::get_player_for_user_id;
 	engine["get_local_player_index"] = lua_engine::get_local_player_index;
 	engine["get_max_clients"] = lua_engine::get_max_clients;
 	engine["get_net_channel_info"] = lua_engine::get_net_channel_info;
