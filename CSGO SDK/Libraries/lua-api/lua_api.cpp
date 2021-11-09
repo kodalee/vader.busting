@@ -25,6 +25,31 @@ int extract_owner(sol::this_state st) {
 	return g_lua.get_script_id(filename);
 }
 
+namespace lua_events {
+
+	void gameevent_callback(sol::this_state s, std::string eventname, sol::function func) {
+		sol::state_view lua_state(s);
+		sol::table rs = lua_state["debug"]["getinfo"](2, ("S"));
+		std::string source = rs["source"];
+		std::string filename = std::filesystem::path(source.substr(1)).filename().string();
+
+		//if (eventname != "player_death" || "player_hurt") {
+
+		//	engine_console(eventname + ": unknown / unregistered gameevent, if you wish to have this event added dm exon or calli. " + filename);
+		//	g_lua.unload_script(g_lua.get_script_id(filename));
+		//}
+		//else {
+
+		g_luagameeventmanager.register_gameevent(eventname, g_lua.get_script_id(filename), func);
+		engine_console(filename + ": subscribed to gameevent " + eventname);
+
+		//}
+		
+
+	}
+
+}
+
 namespace lua_cheat {
 	void set_event_callback(sol::this_state s, std::string eventname, sol::function func) {
 		sol::state_view lua_state(s);
@@ -556,6 +581,9 @@ bool c_lua::initialize() {
 		"set_clientside_angle", &C_CSPlayer::ForceAngleTo
 		);
 
+	auto events = this->lua.create_table();
+	events["gameevent_callback"] = lua_events::gameevent_callback;
+
 	auto cheat = this->lua.create_table();
 	cheat["set_event_callback"] = lua_cheat::set_event_callback;
 	cheat["run_script"] = lua_cheat::run_script;
@@ -642,6 +670,7 @@ bool c_lua::initialize() {
 
 	render["world_to_screen"] = lua_render::world_to_screen;
 
+	this->lua["event"] = events;
 	this->lua["cheat"] = cheat;
 	this->lua["math"] = math;
 	this->lua["surface"] = surface;
@@ -704,6 +733,7 @@ void c_lua::unload_script(int id) {
 	this->menu_items = updated_items;
 
 	g_luahookmanager.unregister_hooks(id);
+	g_luagameeventmanager.unregister_gameevents(id);
 	this->loaded.at(id) = false;
 }
 

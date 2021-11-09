@@ -62,7 +62,7 @@ bool __fastcall Hooked::WriteUsercmdDeltaToBuffer( void* ECX, void* EDX, int nSl
         memcpy(&to_cmd, &from_cmd, sizeof(CUserCmd));
 
         to_cmd.command_number++;
-        to_cmd.tick_count += 200;
+        to_cmd.tick_count++;
 
         for (int i = new_commands; i <= total_new_commands; i++)
         {

@@ -378,6 +378,11 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				Hitmarkers::AddScreenHitmarker( hitgroup == Hitgroup_Head ? Color( 0, 150, 255 ) : Color( 255, 255, 255 ) );
 			}
 		}
+
+
+		for (auto hk : g_luagameeventmanager.get_gameevents("player_hurt")) hk.func();
+
+
 		break;
 	}
 	case hash_32_fnv1a_const( "item_purchase" ):
@@ -606,6 +611,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		auto iEnemyIndex = Interfaces::m_pEngine->GetPlayerForUserID( iUserID );
 		auto player = C_CSPlayer::GetPlayerByIndex(iUserID);
 
+
 		C_CSPlayer* pAttacker = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( iAttacker );
 		if( pAttacker ) {
 			if( iAttacker == Interfaces::m_pEngine->GetLocalPlayer( ) && iUserID != Interfaces::m_pEngine->GetLocalPlayer( ) ) {
@@ -641,6 +647,9 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		}
 
 		IEsp::Get( )->SetAlpha( iEnemyIndex );
+
+		for (auto hk : g_luagameeventmanager.get_gameevents("player_death")) hk.func();
+
 		break;
 	}
 	}
