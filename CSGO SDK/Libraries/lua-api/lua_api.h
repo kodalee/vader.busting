@@ -3,6 +3,7 @@
 #include <lua-wrapper/include/lua.hpp>
 #include <sol/sol.hpp>
 #include "lua_hooks.h"
+#include "lua_gameevents.h"
 
 
 enum MENUITEMTYPE {

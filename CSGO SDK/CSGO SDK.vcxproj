@@ -213,6 +213,7 @@
     <ClCompile Include="Hooking\Hooks\RetrieveMessage.cpp" />
     <ClCompile Include="Hooking\Hooks\SceneEnd.cpp" />
     <ClCompile Include="Libraries\lua-api\lua_api.cpp" />
+    <ClCompile Include="Libraries\lua-api\lua_gameevents.cpp" />
     <ClCompile Include="Libraries\lua-api\lua_hooks.cpp" />
     <ClCompile Include="Libraries\lua-wrapper\src\lapi.c" />
     <ClCompile Include="Libraries\lua-wrapper\src\lauxlib.c" />
@@ -391,6 +392,7 @@
     <ClInclude Include="Features\Rage\ZeusBot.hpp" />
     <ClInclude Include="Features\Visuals\IVEffects.h" />
     <ClInclude Include="Libraries\lua-api\lua_api.h" />
+    <ClInclude Include="Libraries\lua-api\lua_gameevents.h" />
     <ClInclude Include="Libraries\lua-api\lua_hooks.h" />
     <ClInclude Include="Libraries\lua-wrapper\include\lauxlib.h" />
     <ClInclude Include="Libraries\lua-wrapper\include\lua.h" />
