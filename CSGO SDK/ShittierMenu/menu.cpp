@@ -407,6 +407,12 @@ void HvH()
 		g_Vars.fakelag.alternative_choke = 0;
 
 		InsertSliderFloat(XorStr("Variance"), &g_Vars.fakelag.variance, 0.0f, 100.0f, XorStr("%.0f %%"));
+
+		InsertCheckbox(JediMindTrick, XorStr("Jedi Mind-Trick"), &g_Vars.misc.mind_trick);
+		ImGui::SameLine();
+		biggestMeme2();
+		ImGui::Hotkey("##Mind-Trick key", &g_Vars.misc.mind_trick_bind.key, &g_Vars.misc.mind_trick_bind.cond, ImVec2{ 40,20 });
+
 		
 	}
 	ImGui::EndColumns();
@@ -656,7 +662,7 @@ void Visuals()
 				const char* chams_mats_overlay[] = { "Disabled", "Glow", "Blinking" };
 				const char* chams_mats_overlay_misc[] = { "Disabled", "Glow" };
 				const char* chams_shot_mats[] = { "Flat", "Glow" };
-				const char* chams_filter_menu[] = { ("Enemy"), ("Local"), ("Fake"), ("Viewmodel") };
+				const char* chams_filter_menu[] = { ("Enemy"), ("Local"), ("Viewmodel") };
 				static int chams_filter = 0;
 				InsertCombo("chams", &chams_filter, chams_filter_menu);
 				switch (chams_filter)
@@ -779,12 +785,7 @@ void Visuals()
 
 						break;
 					}
-					case 2: //fake 
-					{
-						InsertCombo("Local fake", &g_Vars.esp.new_chams_local_fake, chams_mats);  ColorPicker("##local_fake_chams_color", g_Vars.esp.new_chams_local_fake_color, true, true);
-						break;
-					}
-					case 3: //hands & weapon
+					case 2: //hands & weapon
 					{
 
 						InsertCheckbox(enable_hand_chams, "Hand chams", &g_Vars.esp.chams_hands);

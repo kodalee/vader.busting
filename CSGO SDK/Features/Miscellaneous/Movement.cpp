@@ -809,10 +809,10 @@ namespace Interfaces
 		if( !LocalPlayer || LocalPlayer->IsDead( ) )
 			return;
 
-		if( g_TickbaseController.s_nExtraProcessingTicks ) {
-			g_Vars.globals.Fakewalking = false;
-			return;
-		}
+		//if( g_TickbaseController.s_nExtraProcessingTicks ) {
+		//	g_Vars.globals.Fakewalking = false;
+		//	return;
+		//}
 
 		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands( ) > g_Vars.misc.slow_walk_speed;
 
@@ -827,7 +827,7 @@ namespace Interfaces
 
 		// compensate for lost speed
 		int nTicksToStop = g_Vars.misc.slow_walk_speed * 25 / 100; // 25% of the choke limit
-		if( LocalPlayer->m_bIsScoped( ) )
+		if( LocalPlayer->m_bIsScoped( ) && !g_Vars.misc.mind_trick_bind.enabled )
 			nTicksToStop = 2;
 
 		// stop when necessary
@@ -835,12 +835,23 @@ namespace Interfaces
 			Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
 			&& LocalPlayer->m_fFlags() & FL_ONGROUND) {
 
-
 			InstantStop( );
+			//g_Vars.globals.updatingPacket = true;
+
 			//g_Vars.globals.Fakewalking = false;
 		}
+		//else {
+		//	g_Vars.globals.updatingPacket = false;
+		//}
 
-		//g_Vars.globals.Fakewalking = true;
+		if (*m_movement_data->m_pSendPacket || m_movement_data->m_pCmd->sidemove == 0) {
+			//*m_movement_data->m_pSendPacket = true;
+			g_Vars.globals.updatingPacket = true;
+		}
+		else {
+			g_Vars.globals.updatingPacket = false;
+		}
+			//g_Vars.globals.Fakewalking = true;
 
 		// fix event delay
 		g_Vars.globals.FakeWalkWillChoke = g_Vars.misc.slow_walk_speed - Interfaces::m_pClientState->m_nChokedCommands( );

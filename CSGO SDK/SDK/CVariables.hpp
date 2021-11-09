@@ -503,6 +503,7 @@ public:
 		float m_flAnimTime;
 		float m_flBody;
 		float m_flBodyPred;
+		bool updatingPacket;
 		bool  m_bUpdate;
 		float m_bGround;
 		int m_fFlags;
@@ -1344,9 +1345,11 @@ public:
 	config_option( float, third_person_dist, 100.f );
 
 	config_option( bool, slow_walk, false );
+	config_option( bool, mind_trick, false );
 	config_option( int, slow_walk_type, 0 );
 	config_option( int, slow_walk_speed, 16 );
 	config_keybind( slow_walk_bind );
+	config_keybind( mind_trick_bind );
 	config_option( bool, slow_walk_custom, false );
 
 	config_option( float, viewmodel_fov, 68.f );

@@ -294,7 +294,7 @@ namespace Engine
 #else
 							msg << XorStr("reason: ") << reason.data() << XorStr(" | ");
 							msg << XorStr("hitgroup: ") << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" | ");
-							msg << XorStr("ent: ") << FixedStrLength(info.szName).data();
+							msg << XorStr("player: ") << FixedStrLength(info.szName).data();
 
 							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), true, XorStr(""));
 #endif

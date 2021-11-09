@@ -787,6 +787,14 @@ void CEsp::Keybinds() {
 		AddBind(XorStr("Fake-walk"), g_Vars.misc.slow_walk_bind);
 	}
 
+	if (g_Vars.misc.extended_backtrack) {
+		AddBind(XorStr("Ping-spike"), g_Vars.misc.extended_backtrack_key);
+	}
+
+	if (g_Vars.misc.mind_trick) {
+		AddBind(XorStr("Jedi Mind-Trick"), g_Vars.misc.mind_trick_bind);
+	}
+
 	float gaySize = this->m_KeyBinds.size.y;
 
 	static float alpha = 0.f;
