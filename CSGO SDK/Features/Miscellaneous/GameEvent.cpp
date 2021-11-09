@@ -380,7 +380,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		}
 
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("player_hurt")) hk.func();
+		for (auto hk : g_luagameeventmanager.get_gameevents("player_hurt")) hk.func(pEvent);
 
 
 		break;
@@ -648,7 +648,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		IEsp::Get( )->SetAlpha( iEnemyIndex );
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("player_death")) hk.func();
+		for (auto hk : g_luagameeventmanager.get_gameevents("player_death")) hk.func(pEvent);
 
 		break;
 	}
