@@ -439,7 +439,7 @@ namespace lua_render {
 c_lua g_lua;
 bool c_lua::initialize() {
 	this->lua = sol::state(sol::c_call<decltype(&lua_panic), &lua_panic>);
-	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package);
+	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package, sol::lib::coroutine, sol::lib::os);
 
 	this->lua["collectgarbage"] = sol::nil;
 	this->lua["dofile"] = sol::nil;
