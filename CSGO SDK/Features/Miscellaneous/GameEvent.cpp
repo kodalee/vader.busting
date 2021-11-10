@@ -221,6 +221,10 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	{
 		g_Vars.globals.BobmActivityIndex = -1;
 		//IRoundFireBulletsStore::Get( )->EventCallBack( pEvent, 1, nullptr );
+
+		for (auto hk : g_luagameeventmanager.get_gameevents("round_end")) hk.func(pEvent);
+
+
 		break;
 	}
 	case hash_32_fnv1a_const( "round_freeze_end" ):
@@ -602,6 +606,10 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		g_Vars.globals.bBombActive = false;
 		g_Vars.globals.BobmActivityIndex = -1;
+
+		for (auto hk : g_luagameeventmanager.get_gameevents("round_start")) hk.func(pEvent);
+
+
 		break;
 	}
 	case hash_32_fnv1a_const( "player_death" ):
