@@ -38,6 +38,21 @@ Encrypted_t<GameEvent> GameEvent::Get( ) {
 	return &instance;
 }
 
+const unsigned short INVALID_STRING_INDEX = (unsigned short)-1;
+bool PrecacheModel_footsteps(const char* szModelName)
+{
+	INetworkStringTable* m_pModelPrecacheTable = Interfaces::g_pClientStringTableContainer->FindTable("modelprecache");
+
+	if (m_pModelPrecacheTable)
+	{
+		Interfaces::m_pModelInfo->FindOrLoadModel(szModelName);
+		int idx = m_pModelPrecacheTable->AddString(false, szModelName);
+		if (idx == INVALID_STRING_INDEX)
+			return false;
+	}
+	return true;
+}
+
 void C_GameEvent::Register( ) {
 	ADD_GAMEEVENT( player_hurt );
 	ADD_GAMEEVENT( bullet_impact );
@@ -171,22 +186,26 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	case hash_32_fnv1a_const("player_footstep"):
 	{
 
-		auto userid = Interfaces::m_pEngine->GetPlayerForUserID(pEvent->GetInt(XorStr("userid")));
-		auto e = static_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(userid));
+		auto entity = reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(Interfaces::m_pEngine->GetPlayerForUserID(pEvent->GetInt(XorStr("userid")))));
 
-		if (e->valid(true, true))
+		if (!entity)
+			return;
+
+		if (entity->valid(true, true))
 		{
 			if (g_Vars.esp.footsteps) 
 			{
 
-				static auto model_index = Interfaces::m_pModelInfo->GetModelIndex(XorStr("sprites/physbeam.vmt"));
 				Color RGBColor = Color::imcolor_to_ccolor(g_Vars.esp.footsteps_color);
+
+				if (!PrecacheModel_footsteps(XorStr("materials/sprites/physbeam.vmt")))
+					return;
 
 				BeamInfo_t info;
 
 				info.m_nType = TE_BEAMRINGPOINT;
-				info.m_pszModelName = XorStr("sprites/physbeam.vmt");
-				info.m_nModelIndex = model_index;
+				info.m_pszModelName = XorStr("materials/sprites/physbeam.vmt");
+				info.m_nModelIndex = Interfaces::m_pModelInfo->GetModelIndex(XorStr("materials/sprites/physbeam.vmt"));
 				info.m_nHaloIndex = -1;
 				info.m_flHaloScale = 3.0f;
 				info.m_flLife = 2.0f;
@@ -202,7 +221,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				info.m_flFrameRate = 60.0f;
 				info.m_nSegments = -1;
 				info.m_nFlags = FBEAM_FADEOUT;
-				info.m_vecCenter = e->GetAbsOrigin() + Vector(0.0f, 0.0f, 5.0f);
+				info.m_vecCenter = entity->m_vecOrigin() + Vector(0.0f, 0.0f, 5.0f);
 				info.m_flStartRadius = 5.0f;
 				info.m_flEndRadius = g_Vars.esp.footsteps_radius;
 				info.m_bRenderable = true;
