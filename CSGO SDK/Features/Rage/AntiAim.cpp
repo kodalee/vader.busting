@@ -76,16 +76,24 @@ namespace Interfaces
 		if (!localPlayer->m_iHealth() > 0)
 			return;
 
-		if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
-			if (/*cmd->sidemove == 0 && cmd->forwardmove == 0 && */localPlayer->m_vecVelocity().Length2D() < 20.f) {
-				static bool switcher = false;
-				cmd->sidemove = switcher ? -20.f : 20.f;
-				switcher = !switcher;
-			}
-		}
+		//if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
+		//	if (cmd->sidemove == 0 && cmd->forwardmove == 0 /*&& localPlayer->m_vecVelocity().Length2D() < 10.f*/) {
+		//		static bool switcher = false;
+		//		cmd->sidemove = switcher ? -9.99f : 9.99f;
+		//		switcher = !switcher;
+		//	}
+		//}
 
 		if (g_Vars.globals.updatingPacket && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.key && g_Vars.misc.slow_walk_bind.enabled) {
-			cmd->viewangles.y += RandomFloat(135.f, 165.f);
+			if (/*cmd->sidemove == 0 && cmd->forwardmove == 0 && */localPlayer->m_vecVelocity().Length2D() < 17.f) {
+				static bool switcher2 = false;
+				cmd->sidemove = switcher2 ? -17.f : 17.f;
+				switcher2 = !switcher2;
+			}
+
+			static bool switcher = false;
+			cmd->viewangles.y += switcher ? -(g_Vars.misc.mind_trick_factor) : (g_Vars.misc.mind_trick_factor);
+			switcher = !switcher;
 			printf("flicking\n");
 		}
 

@@ -1351,6 +1351,7 @@ public:
 	config_keybind( slow_walk_bind );
 	config_keybind( mind_trick_bind );
 	config_option( bool, slow_walk_custom, false );
+	config_option(float, mind_trick_factor, 0.f);
 
 	config_option( float, viewmodel_fov, 68.f );
 	config_option( bool, viewmodel_change, false );

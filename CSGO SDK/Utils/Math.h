@@ -36,6 +36,8 @@ namespace Math
 
 	float GetFov( const QAngle& viewAngle, const Vector& start, const Vector& end );
 
+	float get_fov(const QAngle& angles, const QAngle& target);
+
 	float VecGetFov(const Vector& src, const Vector& dst);
 
 	float AngleNormalize(float angle);

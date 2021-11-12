@@ -513,6 +513,17 @@ void Math::AngleVectors( const QAngle & angles, Vector & forward ) {
 	forward.z = -sp;
 }
 
+float Math::get_fov(const QAngle& angles, const QAngle& target)
+{
+	Vector ang, aim;
+
+	angle_vectors(angles, &aim);
+	angle_vectors(target, &ang);
+
+	return RAD2DEG(acos(aim.Dot(ang) / aim.LengthSquared()));
+}
+
+
 float Math::GetFov( const QAngle& viewAngle, const Vector& start, const Vector& end ) {
 
 	Vector dir, fw;

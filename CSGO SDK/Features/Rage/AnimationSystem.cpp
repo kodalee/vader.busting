@@ -566,7 +566,8 @@ namespace Engine
 				}
 
 				// if the enemy is resolved, why bother overriding?
-				g_Resolver.ResolveManual( player, current.Xor( ), bResolved );
+				g_Resolver.override_resolver(player, current.Xor());
+				//g_Resolver.ResolveManual( player, current.Xor( ), bResolved );
 			}
 
 			player->UpdateClientSideAnimationEx( );

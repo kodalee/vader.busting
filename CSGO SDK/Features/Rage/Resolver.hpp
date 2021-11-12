@@ -71,6 +71,7 @@ namespace Engine {
 
 	public:
 		void ResolveManual(C_CSPlayer* player, C_AnimationRecord* record, bool bDisallow = false);
+		void override_resolver(C_CSPlayer* player, C_AnimationRecord* record);
 		void ResolveYaw(C_CSPlayer* player, C_AnimationRecord* record);
 		void OnBodyUpdate(C_CSPlayer* player, float value);
 		void MatchShot(C_CSPlayer* data, C_AnimationRecord* record);

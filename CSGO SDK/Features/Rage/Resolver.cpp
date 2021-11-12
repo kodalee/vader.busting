@@ -655,6 +655,9 @@ namespace Engine {
 		//printf(std::to_string(lag_data->m_History.size()).c_str());
 		//printf("\n");
 
+		//printf(std::to_string(record->m_iChokeTicks).c_str());
+		//printf("\n");
+
 		if ((record->m_fFlags & FL_ONGROUND) && speed > 15.f && !record->m_bFakeWalking)
 			record->m_iResolverMode = EResolverModes::RESOLVE_WALK;
 
@@ -1033,6 +1036,103 @@ namespace Engine {
 
 		m_flLastAngle = m_vecViewAngles.y;
 		m_flLastDelta = m_flDelta;
+	}
+
+	void CResolver::override_resolver(C_CSPlayer* player, C_AnimationRecord* record)
+	{
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (!local || !local->IsAlive())
+			return;
+
+		record->m_override = false;
+
+		static auto had_taget = false;
+		if (!local || !g_Vars.rage.override_key.enabled)
+		{
+			had_taget = false;
+			return;
+		}
+
+		static std::vector<C_CSPlayer*> targets;
+
+		static auto weapon_recoil_scale = g_Vars.weapon_recoil_scale->GetFloat();
+
+		static auto last_checked = 0.f;
+		if (last_checked != Interfaces::m_pGlobalVars->curtime)
+		{
+			last_checked = Interfaces::m_pGlobalVars->curtime;
+			targets.clear();
+
+			QAngle viewangles;
+			Interfaces::m_pEngine->GetViewAngles(viewangles);
+
+			const auto needed_fov = 20.f;
+			for (auto i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++)
+			{
+				auto ent = get_entity(i);
+				if (!ent || !ent->IsAlive() || ent->IsDormant() || ent->IsTeammate(local) || ent == local || !ent->IsPlayer())
+					continue;
+
+				const auto fov = Math::get_fov(viewangles + local->m_aimPunchAngle() * weapon_recoil_scale, Math::CalcAngle(local->GetEyePosition(), ent->GetEyePosition()));
+				if (fov < needed_fov)
+				{
+					targets.push_back(ent);
+				}
+			}
+		}
+
+		if (targets.empty())
+		{
+			had_taget = false;
+			return;
+		}
+
+		auto found = false;
+		for (auto& target : targets)
+		{
+			if (player == target)
+			{
+				found = true;
+				break;
+			}
+		}
+
+		if (!found)
+			return;
+
+
+		QAngle viewangles;
+		Interfaces::m_pEngine->GetViewAngles(viewangles);
+
+		static auto last_delta = 0.f;
+		static auto last_angle = 0.f;
+
+		const auto at_target_yaw = Math::CalcAngle(last_eye, player->GetEyePosition()).y;
+		auto delta = Math::AngleNormalize(viewangles.y - at_target_yaw);
+
+		if (had_taget && fabsf(viewangles.y - last_angle) < 0.1f)
+		{
+			viewangles.y = last_angle;
+			delta = last_delta;
+		}
+
+		had_taget = true;
+
+		if (player->m_vecVelocity().Length2D() < 75.f)
+		{
+			if (delta > 1.2f)
+				record->m_angEyeAngles.y = Math::AngleNormalize(at_target_yaw + 90.f);
+			else if (delta < -1.2f)
+				record->m_angEyeAngles.y = Math::AngleNormalize(at_target_yaw - 90.f);
+			else
+				record->m_angEyeAngles.y = Math::AngleNormalize(at_target_yaw);
+
+			record->m_override = true;
+		}
+
+		last_angle = viewangles.y;
+		last_delta = delta;
 	}
 
 	void CResolver::PredictBodyUpdates(C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev) {

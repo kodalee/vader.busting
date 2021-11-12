@@ -816,7 +816,7 @@ namespace Interfaces
 
 		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands( ) > g_Vars.misc.slow_walk_speed;
 
-		if (Interfaces::m_pClientState->m_nChokedCommands() > 16) {
+		if (Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed) {
 			*m_movement_data->m_pSendPacket = true;
 			//printf("sent packet\n");
 		}
@@ -831,26 +831,38 @@ namespace Interfaces
 			nTicksToStop = 2;
 
 		// stop when necessary
-		if( (Interfaces::m_pClientState->m_nChokedCommands( ) > ( g_Vars.misc.slow_walk_speed - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) ||
+		if((Interfaces::m_pClientState->m_nChokedCommands( ) > ( g_Vars.misc.slow_walk_speed - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) ||
 			Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
 			&& LocalPlayer->m_fFlags() & FL_ONGROUND) {
 
 			InstantStop( );
-			//g_Vars.globals.updatingPacket = true;
+			g_Vars.globals.updatingPacket = true;
 
 			//g_Vars.globals.Fakewalking = false;
-		}
-		//else {
-		//	g_Vars.globals.updatingPacket = false;
-		//}
-
-		if (*m_movement_data->m_pSendPacket || m_movement_data->m_pCmd->sidemove == 0) {
-			//*m_movement_data->m_pSendPacket = true;
-			g_Vars.globals.updatingPacket = true;
 		}
 		else {
 			g_Vars.globals.updatingPacket = false;
 		}
+		//else if( (Interfaces::m_pClientState->m_nChokedCommands( ) > ( 16 - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) ||
+		//	Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
+		//	&& LocalPlayer->m_fFlags() & FL_ONGROUND) {
+
+		//	InstantStop( );
+		//	//g_Vars.globals.updatingPacket = true;
+
+		//	//g_Vars.globals.Fakewalking = false;
+		//}
+		//else {
+		//	g_Vars.globals.updatingPacket = false;
+		//}
+
+		//if (*m_movement_data->m_pSendPacket || Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed/*|| m_movement_data->m_pCmd->sidemove == 0*/) {
+		//	//*m_movement_data->m_pSendPacket = true;
+		//	g_Vars.globals.updatingPacket = true;
+		//}
+		//else {
+		//	g_Vars.globals.updatingPacket = false;
+		//}
 			//g_Vars.globals.Fakewalking = true;
 
 		// fix event delay
