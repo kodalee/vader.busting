@@ -89,6 +89,12 @@ namespace lua_cheat {
 
 		return false;
 	}
+
+	std::string username()
+	{
+		return g_Vars.globals.user_info.username;
+	}
+
 }
 
 namespace lua_math {
@@ -590,6 +596,7 @@ bool c_lua::initialize() {
 	cheat["reload_active_scripts"] = lua_cheat::reload_active_scripts;
 	cheat["get_button"] = lua_cheat::get_button;
 	cheat["set_button"] = lua_cheat::set_button;
+	cheat["username"] = lua_cheat::username;
 
 	auto math = this->lua.create_table();
 	math["calc_angle"] = lua_math::calc_angle;
