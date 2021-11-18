@@ -433,21 +433,6 @@ namespace Hooked
 
 			Engine::C_ShotInformation::Get( )->CorrectSnapshots( *bSendPacket );
 
-			bool bInAttack = cmd->buttons & IN_ATTACK;
-			bool bCanShoot = TICKS_TO_TIME( pLocal->m_nTickBase( ) ) >= weapon->m_flNextPrimaryAttack( );
-
-			if( !( TICKS_TO_TIME( pLocal->m_nTickBase( ) ) >= pLocal->m_flNextAttack( ) ) ) {
-				bCanShoot = false;
-			}
-
-			if( weapon->m_iItemDefinitionIndex( ) == WEAPON_REVOLVER )
-				bCanShoot = false;
-
-			if( bCanShoot && bInAttack && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && weaponInfo->m_iWeaponType != WEAPONTYPE_C4 ) {
-				if( !g_Vars.globals.Fakewalking )
-					*bSendPacket = false;
-			}
-
 			UpdateInformation( cmd.Xor( ) );
 
 			g_Vars.globals.m_bOldShot = g_Vars.globals.m_bAimbotShot;

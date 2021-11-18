@@ -110,18 +110,6 @@ namespace Interfaces
 				}
 			}
 		}
-		else {
-			if( cmd->buttons & IN_ATTACK ) {
-				//if( !g_TickbaseController.bInRapidFire ) {
-				if( LocalPlayer->CanShoot( ) ) {
-					if( !g_Vars.globals.Fakewalking ) {
-						*bSendPacket = false;
-						return;
-					}
-				}
-				//}
-			}
-		}
 
 		if( g_Vars.fakelag.iLagLimit <= 0 )
 			return;
