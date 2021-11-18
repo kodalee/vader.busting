@@ -35,11 +35,6 @@ void __fastcall Hooked::OverrideView( void* ECX, int EDX, CViewSetup* vsView ) {
 					}
 				}
 			}
-
-			if (g_Vars.esp.remove_scope) {
-				if (local->m_bIsScoped())
-					vsView->m_EdgeBlur = 0;
-			}
 		}
 
 		Interfaces::Movement::Get( )->ThirdPerson( );
