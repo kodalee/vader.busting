@@ -870,8 +870,8 @@ void Visuals()
 
 				InsertCombo(XorStr("Skybox Changer"), &g_Vars.esp.sky_changer, skyboxes);
 
-				InsertCheckbox(Bomb, XorStr("Bomb Timer"), &g_Vars.esp.draw_bombc4);
-				if (g_Vars.esp.draw_bombc4) {
+				InsertCheckbox(bomb_bar, XorStr("Bomb Timer"), &g_Vars.esp.draw_c4_bar);
+				if (g_Vars.esp.draw_c4_bar) {
 					ColorPicker(XorStr("##BombColor"), g_Vars.esp.c4_color, false, false);
 				}
 

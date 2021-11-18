@@ -23,6 +23,7 @@
 #include <sstream>
 #include <ctime>
 #include <Psapi.h>
+#include "../../Utils/tinyformat.h"
 //#include "../Rage/AnimationSystem.hpp"
 
 #include "../Miscellaneous/Movement.hpp"
@@ -1626,6 +1627,7 @@ void CEsp::Main( ) {
 						Render::Engine::damage.string( ( center.x * 0.5f ) + size_icon.x, center.y * 0.15f, Color::Red( ).OverrideAlpha( 255 * flRedBombAlpha ), std::string( buf ).substr( 2 ), Render::Engine::ALIGN_CENTER );
 					}
 
+
 					if( WorldToScreen( origin, screen_origin ) ) {
 						static const auto size = Vector2D( Render::Engine::tahoma_sexy.size( buf ).m_width + 2, 4.f );
 
@@ -1634,7 +1636,7 @@ void CEsp::Main( ) {
 						if( factor > 0.f ) {
 							Math::Clamp( factor, 0.f, 1.0f );
 							Render::Engine::RectFilled( new_pos, size, FloatColor( 0.f, 0.f, 0.f, 0.58f ).ToRegularColor( ) );
-							Render::Engine::RectFilled( Vector2D( new_pos.x + 1, new_pos.y + 1 ), Vector2D( ( size.x - 1 ) * factor, size.y - 2 ), g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 255 * 0.87f ) );
+							Render::Engine::RectFilled( Vector2D( new_pos.x + 1, new_pos.y + 3 ), Vector2D( ( size.x - 1 ) * factor, size.y - 2 ), g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 255 * 0.87f ) );
 
 							Render::Engine::tahoma_sexy.string( new_pos.x + ( size.x * 0.5f ), new_pos.y - 9, g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 180 * 0.87f ), buf, Render::Engine::ALIGN_CENTER );
 						}
@@ -1697,11 +1699,11 @@ void CEsp::Main( ) {
 					Width *= clip;
 					Width /= MaxClip;
 
-					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 1, 9 ), Vector2D( TextSize.m_width + 1, 4 ),
+					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 1, 11 ), Vector2D( TextSize.m_width + 1, 4 ),
 						FloatColor( 0.f, 0.f, 0.f, ( initial_alpha / 255.f ) * 0.58f ).ToRegularColor( ) );
 
 
-					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 2, 10 ), Vector2D( Width - 1, 2 ),
+					Render::Engine::RectFilled( Vector2D( out.x, out.y ) + Vector2D( 2, 12 ), Vector2D( Width - 1, 2 ),
 						g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ) );
 
 					if( clip <= static_cast< int >( MaxClip * 0.75 ) ) {

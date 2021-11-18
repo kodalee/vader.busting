@@ -679,6 +679,7 @@
     <ClInclude Include="source.hpp" />
     <ClInclude Include="SDK\Classes\weapon.hpp" />
     <ClInclude Include="SDK\Classes\WeaponInfo.hpp" />
+    <ClInclude Include="Utils\tinyformat.h" />
     <ClInclude Include="Utils\XorStr.hpp" />
   </ItemGroup>
   <ItemGroup>
