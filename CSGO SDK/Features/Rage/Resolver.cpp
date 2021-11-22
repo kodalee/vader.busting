@@ -755,6 +755,23 @@ namespace Engine {
 		//	g_ResolverData[ player->EntIndex( ) ].m_flFinalResolverYaw = pLagData->m_flDirection;
 		//}
 
+		if (g_ResolverData[player->EntIndex()].hitPlayer && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking)) {
+			static bool repeat[64];
+			if (!repeat[player->EntIndex()]) {
+				if (player->m_flLowerBodyYawTarget() != g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget) {
+					g_ResolverData[player->EntIndex()].storedLbyDelta = Math::AngleNormalize(g_ResolverData[player->EntIndex()].m_flFinalResolverYaw - player->m_flLowerBodyYawTarget());
+					g_ResolverData[player->EntIndex()].hasStoredLby = true;
+					repeat[player->EntIndex()] = true;
+				}
+			}
+			if (repeat[player->EntIndex()]) {
+				g_ResolverData[player->EntIndex()].hasStoredLby = true;
+			}
+		}
+		else {
+			g_ResolverData[player->EntIndex()].hasStoredLby = false;
+		}
+
 		if (g_ResolverData[player->EntIndex()].is_flicking) {
 			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
 		}
@@ -773,12 +790,17 @@ namespace Engine {
 				else if (nMisses > 0) {
 					switch (nMisses % 6) {
 					case 1:
-						if (!wall_detect(player, record, g_ResolverData[player->EntIndex()].m_flFinalResolverYaw)) {
-							Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
-							g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+						if (g_ResolverData[player->EntIndex()].hasStoredLby && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 5.f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
+							g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Math::AngleNormalize(player->m_flLowerBodyYawTarget() + g_ResolverData[player->EntIndex()].storedLbyDelta);
 						}
 						else {
-							Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+							if (!wall_detect(player, record, g_ResolverData[player->EntIndex()].m_flFinalResolverYaw)) {
+								Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
+								g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+							}
+							else {
+								Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+							}
 						}
 						break;
 
@@ -814,12 +836,17 @@ namespace Engine {
 				switch (nMisses % 5) {
 
 				case 0:
-					if (!wall_detect(player, record, record->m_angEyeAngles.y)) {
-						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
-						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					if (g_ResolverData[player->EntIndex()].hasStoredLby && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 5.f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Math::AngleNormalize(player->m_flLowerBodyYawTarget() + g_ResolverData[player->EntIndex()].storedLbyDelta);
 					}
 					else {
-						Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+						if (!wall_detect(player, record, record->m_angEyeAngles.y)) {
+							Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
+							g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+						}
+						else {
+							Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+						}
 					}
 					break;
 
@@ -852,12 +879,17 @@ namespace Engine {
 			else {
 				switch (nMisses % 5) {
 				case 0:
-					if (!wall_detect(player, record, record->m_angEyeAngles.y)) {
-						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
-						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					if (g_ResolverData[player->EntIndex()].hasStoredLby && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 5.f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
+						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Math::AngleNormalize(player->m_flLowerBodyYawTarget() + g_ResolverData[player->EntIndex()].storedLbyDelta);
 					}
 					else {
-						Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+						if (!wall_detect(player, record, record->m_angEyeAngles.y)) {
+							Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
+							g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+						}
+						else {
+							Engine::g_ResolverData[player->EntIndex()].m_iMode = 1;
+						}
 					}
 					break;
 

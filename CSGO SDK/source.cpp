@@ -799,17 +799,17 @@ namespace Interfaces
 		//pPropManager->GetProp(XorStr("DT_CSPlayer"), XorStr("m_flLowerBodyYawTarget"), &prop);
 		//m_Body_original = std::make_shared<RecvPropHook>(prop, &Hooked::RecvProxy_m_flLowerBodyYawTarget);
 
-		//auto& database = pPropManager->database;
-		//auto BaseOverlay = std::find( database.begin( ), database.end( ), XorStr( "DT_BaseAnimatingOverlay" ) );
-		//
-		//if( database.end( ) != BaseOverlay ) {
-		//	auto OverlayVars = BaseOverlay->child_tables.front( );
-		//	auto AnimOverlays = OverlayVars.child_tables.front( );
-		//	auto anim_layer_6 = AnimOverlays.child_tables.at( 6 );
-		//
-		//	auto playback = anim_layer_6.child_props.at( 2 );
-		//	m_pPlaybackRateSwap = std::make_shared< RecvPropHook >( playback, &Hooked::RecvProxy_PlaybackRate );
-		//}
+		auto& database = pPropManager->database;
+		auto BaseOverlay = std::find( database.begin( ), database.end( ), XorStr( "DT_BaseAnimatingOverlay" ) );
+		
+		if( database.end( ) != BaseOverlay ) {
+			auto OverlayVars = BaseOverlay->child_tables.front( );
+			auto AnimOverlays = OverlayVars.child_tables.front( );
+			auto anim_layer_6 = AnimOverlays.child_tables.at( 6 );
+		
+			auto playback = anim_layer_6.child_props.at( 2 );
+			m_pPlaybackRateSwap = std::make_shared< RecvPropHook >( playback, &Hooked::RecvProxy_PlaybackRate );
+		}
 
 		MH_Initialize( );
 

@@ -302,6 +302,8 @@ namespace Engine
 					};
 
 					if (td->is_resolver_issue) {
+						g_ResolverData[player->EntIndex()].hitPlayer = false;
+
 						if (it->snapshot->ResolverType == EResolverModes::RESOLVE_PRED || g_ResolverData[player->EntIndex()].is_flicking)
 							lag_data->m_iMissedShotsLBY++;
 						else

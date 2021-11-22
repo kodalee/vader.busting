@@ -12,6 +12,7 @@
 #include "../Visuals/ESP.hpp"
 #include "../Visuals/CChams.hpp"
 #include "../Rage/ShotInformation.hpp"
+#include "../Rage/Resolver.hpp"
 #pragma comment(lib,"Winmm.lib")
 #include "../Rage/TickbaseShift.hpp"
 #include "../Visuals/IVEffects.h"
@@ -317,6 +318,10 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 					msg << XorStr( "hit " ) << enemy_info.szName << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
 
 					ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "" ) );
+				}
+
+				if (hitgroup == Hitgroup_Head && entity->m_vecVelocity().Length2D() < 0.1f) {
+					Engine::g_ResolverData[entity->EntIndex()].hitPlayer = true;
 				}
 
 				if( g_Vars.misc.hitsound ) {
