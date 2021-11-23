@@ -1969,6 +1969,19 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 235, 82, 82, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "DEFUSER" ) );
 	}
 
+#ifdef DEV 
+
+	auto current = &anim_data->m_AnimationRecord.front();
+
+	if (current && anim_data && lag_data.IsValid()) {
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), current->m_iResolverText); // draw resolver mode
+	}
+
+
+
+
+#endif
+
 	/*g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flWeight ) );
 	g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flCycle ) );
 	g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flPrevCycle ) );

@@ -72,6 +72,8 @@ namespace Engine
 
 		int m_iResolverMode;
 
+		std::string m_iResolverText;
+
 		C_AnimationLayer m_serverAnimOverlays[ 13 ];
 	};
 

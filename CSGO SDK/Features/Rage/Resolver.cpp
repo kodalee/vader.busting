@@ -549,6 +549,9 @@ namespace Engine {
 
 	bool CResolver::wall_detect(C_CSPlayer* player, C_AnimationRecord* record, float& angle) const
 	{
+		record->m_iResolverText = XorStr("FREESTAND");
+
+
 		auto local = C_CSPlayer::GetLocalPlayer();
 
 		if (!local->IsAlive())
@@ -676,6 +679,8 @@ namespace Engine {
 	}
 
 	void CResolver::ResolveWalk(C_CSPlayer* player, C_AnimationRecord* record) {
+		record->m_iResolverText = XorStr("MOVING");
+
 		// apply lby to eyeangles.
 		g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
 
@@ -705,6 +710,9 @@ namespace Engine {
 		auto local = C_CSPlayer::GetLocalPlayer();
 		if (!local)
 			return;
+
+		record->m_iResolverText = XorStr("STAND");
+
 
 		// get resolver data.
 		auto& data = g_ResolverData[player->EntIndex()];
@@ -782,6 +790,7 @@ namespace Engine {
 				// we haven't missed a shot and last move is valid.
 				if (nMisses < 1 && (IsLastMoveValid(record, g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget) || data.m_bCollectedValidMoveData)) {
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = g_ResolverData[player->EntIndex()].m_sMoveData.m_flLowerBodyYawTarget;
+					record->m_iResolverText = XorStr("LASTMOVE");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 				}
 
@@ -792,6 +801,7 @@ namespace Engine {
 					case 1:
 						if (g_ResolverData[player->EntIndex()].hasStoredLby && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 5.f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
 							g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Math::AngleNormalize(player->m_flLowerBodyYawTarget() + g_ResolverData[player->EntIndex()].storedLbyDelta);
+							record->m_iResolverText = XorStr("LOGGED LBY");
 						}
 						else {
 							if (!wall_detect(player, record, g_ResolverData[player->EntIndex()].m_flFinalResolverYaw)) {
@@ -806,21 +816,25 @@ namespace Engine {
 
 					case 2:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+						record->m_iResolverText = XorStr("BRUTE +70");
 						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 						break;
 
 					case 3:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+						record->m_iResolverText = XorStr("BRUTE -70");
 						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 						break;
 
 					case 4:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+						record->m_iResolverText = XorStr("BRUTE 180");
 						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 						break;
 
 					case 5:
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+						record->m_iResolverText = XorStr("SET TO LBY");
 						Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 						break;
 
@@ -838,6 +852,7 @@ namespace Engine {
 				case 0:
 					if (g_ResolverData[player->EntIndex()].hasStoredLby && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 5.f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Math::AngleNormalize(player->m_flLowerBodyYawTarget() + g_ResolverData[player->EntIndex()].storedLbyDelta);
+						record->m_iResolverText = XorStr("LOGGED LBY");
 					}
 					else {
 						if (!wall_detect(player, record, record->m_angEyeAngles.y)) {
@@ -852,21 +867,25 @@ namespace Engine {
 
 				case 1:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					record->m_iResolverText = XorStr("BRUTE 180");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 2:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+					record->m_iResolverText = XorStr("BRUTE -70");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 3:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+					record->m_iResolverText = XorStr("BRUTE +70");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 4:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+					record->m_iResolverText = XorStr("SET TO LBY");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
@@ -881,6 +900,7 @@ namespace Engine {
 				case 0:
 					if (g_ResolverData[player->EntIndex()].hasStoredLby && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 5.f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
 						g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = Math::AngleNormalize(player->m_flLowerBodyYawTarget() + g_ResolverData[player->EntIndex()].storedLbyDelta);
+						record->m_iResolverText = XorStr("LOGGED LBY");
 					}
 					else {
 						if (!wall_detect(player, record, record->m_angEyeAngles.y)) {
@@ -895,21 +915,25 @@ namespace Engine {
 
 				case 1:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 70.f;
+					record->m_iResolverText = XorStr("BRUTE +70");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 2:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y - 70.f;
+					record->m_iResolverText = XorStr("BRUTE -70");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 3:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = angAway.y + 180.f;
+					record->m_iResolverText = XorStr("BRUTE 180");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
 				case 4:
 					g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = record->m_flLowerBodyYawTarget;
+					record->m_iResolverText = XorStr("SET TO LBY");
 					Engine::g_ResolverData[player->EntIndex()].m_iMode = 0;
 					break;
 
@@ -936,6 +960,8 @@ namespace Engine {
 			// we are done.
 			return;
 		}
+
+		record->m_iResolverText = XorStr("AIR");
 
 		// get lag data.
 		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
@@ -1161,6 +1187,7 @@ namespace Engine {
 				record->m_angEyeAngles.y = Math::AngleNormalize(at_target_yaw);
 
 			record->m_override = true;
+			record->m_iResolverText = XorStr("OVERRIDE");
 		}
 
 		last_angle = viewangles.y;
