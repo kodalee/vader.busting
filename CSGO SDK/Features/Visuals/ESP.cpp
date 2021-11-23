@@ -1635,7 +1635,7 @@ void CEsp::Main( ) {
 
 						if( factor > 0.f ) {
 							Math::Clamp( factor, 0.f, 1.0f );
-							Render::Engine::RectFilled( new_pos, size, FloatColor( 0.f, 0.f, 0.f, 0.58f ).ToRegularColor( ) );
+							Render::Engine::RectFilled( Vector2D(new_pos.x + 1, new_pos.y + 3), size, FloatColor( 0.f, 0.f, 0.f, 0.58f ).ToRegularColor( ) );
 							Render::Engine::RectFilled( Vector2D( new_pos.x + 1, new_pos.y + 3 ), Vector2D( ( size.x - 1 ) * factor, size.y - 2 ), g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 255 * 0.87f ) );
 
 							Render::Engine::tahoma_sexy.string( new_pos.x + ( size.x * 0.5f ), new_pos.y - 9, g_Vars.esp.c4_color.ToRegularColor( ).OverrideAlpha( 180 * 0.87f ), buf, Render::Engine::ALIGN_CENTER );
