@@ -43,9 +43,14 @@ bool PrecacheModel( const char* szModelName )
 
 void CBulletBeamTracer::DrawBeam( ) {
 	C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer( );
-	if( !LocalPlayer || LocalPlayer->IsDead( ) )
+	if( !LocalPlayer )
 		return;
 
+	if ( LocalPlayer->IsDead( ) ) {
+		bulletImpactInfo.clear( );
+		return;
+	}
+  
 	float time = Interfaces::m_pGlobalVars->curtime;
 	bool       is_final_impact;
 
