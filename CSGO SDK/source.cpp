@@ -22,6 +22,8 @@
 #include "Features/Game/Prediction.hpp"
 #include "Loader/Exports.h"
 
+#include "Utils/fnv.h"
+
 #include <fstream>
 
 extern ClientClass* CCSPlayerClass;
@@ -33,6 +35,15 @@ extern CreateClientClassFn oCreateCCSPlayer;
 
 //56 8D 51 3C BE
 matrix3x4_t g_HeadBone;
+
+class CParticleCollection;
+class C_INIT_RandomColor {
+	BYTE pad_0[92];
+public:
+	Vector	m_flNormColorMin;
+	Vector	m_flNormColorMax;
+};
+
 
 using FnProcessInterpolatedList = void( __cdecl* )( );
 FnProcessInterpolatedList oProcessInterpolatedList;
@@ -107,6 +118,47 @@ void __fastcall hkFireEvents( void* ecx, void* edx ) {
 
 	oFireEvents( ecx );
 }
+
+using ParticleCollection = void(__thiscall*)(C_INIT_RandomColor* thisPtr, CParticleCollection* pParticles, int start_p, int nParticleCount, int nAttributeWriteMask, void* pContext);
+ParticleCollection oRandomColor_InitNewParticlesScalar;
+
+void __fastcall Hooked_RandomColor_InitNewParticlesScalar(C_INIT_RandomColor* thisPtr, void* edx, CParticleCollection* pParticles, int start_p, int nParticleCount, int nAttributeWriteMask, void* pContext) { // https://www.unknowncheats.me/forum/3119811-post19.html
+	Vector o_min = thisPtr->m_flNormColorMin;
+	Vector o_max = thisPtr->m_flNormColorMax;
+
+	if (g_Vars.esp.molotov_color_enable) {
+
+		const char* mat_name = *(char**)(*(uintptr_t*)((uintptr_t)pParticles + 0x48) + 0x40);
+		assert(mat_name);
+
+		switch (fnv::hashRuntime(mat_name))
+		{
+		case fnv::hash("particle\\fire_burning_character\\fire_env_fire.vmt"):
+		case fnv::hash("particle\\fire_burning_character\\fire_env_fire_depthblend.vmt"):
+		case fnv::hash("particle\\fire_burning_character\\fire_burning_character_depthblend.vmt"):
+		case fnv::hash("particle\\fire_burning_character\\fire_burning_character.vmt"):
+		case fnv::hash("particle\\fire_burning_character\\fire_burning_character_nodepth.vmt"):
+		case fnv::hash("particle\\particle_flares\\particle_flare_001.vmt"):
+		case fnv::hash("particle\\particle_flares\\particle_flare_004.vmt"):
+		case fnv::hash("particle\\particle_flares\\particle_flare_004b_mod_ob.vmt"):
+		case fnv::hash("particle\\particle_flares\\particle_flare_004b_mod_z.vmt"):
+		case fnv::hash("particle\\fire_explosion_1\\fire_explosion_1_bright.vmt"):
+		case fnv::hash("particle\\fire_explosion_1\\fire_explosion_1b.vmt"):
+		case fnv::hash("particle\\fire_particle_4\\fire_particle_4.vmt"):
+		case fnv::hash("particle\\fire_explosion_1\\fire_explosion_1_oriented.vmt"):
+			thisPtr->m_flNormColorMin = thisPtr->m_flNormColorMax = g_Vars.esp.molotov_color;
+			break;
+			//default:
+				//printf("%s\n", mat_name);
+		}
+	}
+
+	oRandomColor_InitNewParticlesScalar(thisPtr, pParticles, start_p, nParticleCount, nAttributeWriteMask, pContext);
+
+	thisPtr->m_flNormColorMin = o_min;
+	thisPtr->m_flNormColorMax = o_max;
+}
+
 
 using net_showfragments_t = bool( __thiscall* )( void* );
 net_showfragments_t o_net_show_fragments;
@@ -876,6 +928,9 @@ namespace Interfaces
 
 		static auto calc_view_bob = Memory::Scan( XorStr( "client.dll" ), XorStr( "55 8B EC A1 ? ? ? ? 83 EC 10 56 8B F1 B9" ) );
 		oCalcViewBob = Hooked::HooksManager.CreateHook<decltype( oCalcViewBob ) >( &hkCalcViewBob, ( void* )calc_view_bob );
+
+		static auto particlesystem = Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 EC 18 56 8B F1 C7 45"));
+		oRandomColor_InitNewParticlesScalar = Hooked::HooksManager.CreateHook<decltype(oRandomColor_InitNewParticlesScalar) >(&Hooked_RandomColor_InitNewParticlesScalar, (void*)particlesystem);
 
 		//oDrawModel = Hooked::HooksManager.HookVirtual<decltype( oDrawModel )>( m_pStudioRender, &Hooked::DrawModel, Index::StudioRender::DrawModel );
 		oDrawModelExecute = Hooked::HooksManager.HookVirtual<decltype( oDrawModelExecute )>( m_pModelRender.Xor( ), &Hooked::DrawModelExecute, Index::ModelDraw::DrawModelExecute );

@@ -470,6 +470,7 @@
     <ClInclude Include="Features\Rage\ExtendedBactrack.hpp" />
     <ClInclude Include="Features\Visuals\ExtendedEsp.hpp" />
     <ClInclude Include="Features\Rage\FakeLag.hpp" />
+    <ClInclude Include="Utils\fnv.h" />
     <ClInclude Include="Utils\FnvHash.hpp" />
     <ClInclude Include="Libraries\freetype\freetype\config\ftconfig.h" />
     <ClInclude Include="Libraries\freetype\freetype\config\ftheader.h" />

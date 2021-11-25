@@ -868,6 +868,9 @@ void Visuals()
 					InsertSliderFloat(XorStr("Rain alpha"), &g_Vars.esp.weather_alpha, 0.f, 100.0f, XorStr("%.f"));
 				}
 
+				InsertCheckbox(Enablemolotovcolor, XorStr("Molotov Color"), &g_Vars.esp.molotov_color_enable);
+				ColorPicker(XorStr("##MolotovColor"), g_Vars.esp.molotov_color, false, false);
+
 				InsertCombo(XorStr("Skybox Changer"), &g_Vars.esp.sky_changer, skyboxes);
 
 				InsertCheckbox(bomb_bar, XorStr("Bomb Timer"), &g_Vars.esp.draw_c4_bar);

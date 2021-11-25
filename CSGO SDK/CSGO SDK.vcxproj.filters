@@ -932,6 +932,7 @@
     <ClInclude Include="ShittierMenu\IMGAY\imgui_stdlib.h" />
     <ClInclude Include="Libraries\lua-api\lua_gameevents.h" />
     <ClInclude Include="Utils\tinyformat.h" />
+    <ClInclude Include="Utils\fnv.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

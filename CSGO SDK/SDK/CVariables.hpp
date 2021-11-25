@@ -1276,6 +1276,9 @@ public:
 	config_option( bool, weather, false );
 	config_option( float, weather_alpha, 40.f );
 
+	config_option(bool, molotov_color_enable, false);
+	config_option(FloatColor, molotov_color, FloatColor(0.0f, 0.0f, 1.0f, 1.0f));
+
 	config_option( bool, indicator_side, false );
 	config_option( bool, indicator_exploits, false );
 	config_option( bool, indicator_aimbot, false );
