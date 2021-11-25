@@ -791,7 +791,7 @@ void Visuals()
 
 						InsertCheckbox(enable_hand_chams, "Hand chams", &g_Vars.esp.chams_hands);
 						if (g_Vars.esp.chams_hands) {
-							InsertCombo("Hands", &g_Vars.esp.hands_chams_mat, chams_mats_local);
+							InsertCombo("Hands ##chams", &g_Vars.esp.hands_chams_mat, chams_mats_local);
 							ColorPicker("##hand_color", g_Vars.esp.hands_chams_color, true, true);
 							if (g_Vars.esp.hands_chams_mat == 3) {
 
@@ -814,7 +814,7 @@ void Visuals()
 
 						InsertCheckbox(enable_weapon_chams, "Weapon chams", &g_Vars.esp.chams_weapon);
 						if (g_Vars.esp.chams_weapon) {
-							InsertCombo("Weapon", &g_Vars.esp.weapon_chams_mat, chams_mats_local);
+							InsertCombo("Weapon ##chams", &g_Vars.esp.weapon_chams_mat, chams_mats_local);
 							ColorPicker("##weapon_color", g_Vars.esp.weapon_chams_color, true, true);
 							if (g_Vars.esp.weapon_chams_mat == 3) {
 
