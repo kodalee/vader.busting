@@ -1,6 +1,7 @@
 #pragma once
 #pragma once
 #include "../../SDK/sdk.hpp"
+#include "../../ShittierMenu/Menu.hpp"
 
 class C_Window {
 public:
@@ -25,7 +26,7 @@ public:
 
 	void Drag( ) {
 		auto current_mouse_pos = InputSys::Get( )->GetMousePosition( );
-		if( g_Vars.globals.menuOpen && !GUI::ctx->dragging
+		if( g_IMGUIMenu.Opened && !GUI::ctx->dragging
 			&& InputSys::Get( )->IsKeyDown( VirtualKeys::LeftButton )
 			&& ( IsInBox( current_mouse_pos, pos, size ) || IsInBox( mouse_pos, pos, size ) ) ) {
 			pos += current_mouse_pos - mouse_pos;
@@ -74,7 +75,6 @@ class __declspec( novtable ) IEsp : public NonCopyable {
 public:
    static Encrypted_t<IEsp> Get( );
    virtual void DrawAntiAimIndicator( ) = NULL;
-   virtual void SetupAgents() = NULL;
    virtual void Main( ) = NULL;
    virtual void SetAlpha( int idx ) = NULL;
    virtual float GetAlpha( int idx ) = NULL;

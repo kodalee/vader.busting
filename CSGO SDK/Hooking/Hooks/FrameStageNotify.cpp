@@ -195,10 +195,6 @@ namespace Hooked
 
 		//Engine::g_Resolver.collect_wall_detect(stage);
 
-		if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START) {
-			IEsp::Get()->SetupAgents();
-		}
-
 		if( stage == FRAME_RENDER_START && Interfaces::m_pEngine->IsConnected( ) && local ) {
 			if( g_Vars.r_rainalpha->fnChangeCallback.m_Size != 0 )
 				g_Vars.r_rainalpha->fnChangeCallback.m_Size = 0;

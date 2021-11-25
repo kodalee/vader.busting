@@ -1031,8 +1031,6 @@ void Misc()
 			const char* first_weapon_str[]{ "None","SCAR-20 / G3SG1","SSG-08","AWP" };
 			const char* second_weapon_str[]{ "None","Dualies","Desert Eagle / R8 Revolver" };
 
-			const char* models[]{ "Mamogus","Stormtrooper","Darth Vader", "Shrek" };
-
 			std::vector<MultiItem_t> other_weapon_conditions = {
 				{ XorStr("Armor"), &g_Vars.misc.autobuy_armor },
 				{ XorStr("Flashbang"), &g_Vars.misc.autobuy_flashbang },
@@ -1061,8 +1059,7 @@ void Misc()
 
 			InsertMultiCombo(std::string(XorStr("Notifications")).c_str(), notifications);
 
-			InsertCheckbox(ModelChange, XorStr("Model Changer"), &g_Vars.misc.models);
-			InsertCombo(XorStr("Models"), &g_Vars.misc.model_change, models);
+			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log)
 
 			break;
 		}

@@ -287,6 +287,16 @@ namespace Engine
 							msg << XorStr("reason: ") << reason.data() << XorStr(" | ");
 							msg << XorStr("lby: ") << int(it->snapshot->resolve_record.m_iResolverMode == EResolverModes::RESOLVE_PRED) << XorStr(" | ");
 							//msg << XorStr( "dmg: " ) << it->snapshot->m_nSelectedDamage << XorStr( " | " );
+
+#ifdef DEV 
+
+							auto current = &anim_data->m_AnimationRecord.front();
+							if (current) {
+								msg << XorStr("res: ") << current->m_iResolverText << XorStr(" | ");
+							}
+
+#endif
+
 							msg << XorStr("hitgroup: ") << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" | ");
 							msg << FixedStrLength(info.szName).data();
 
