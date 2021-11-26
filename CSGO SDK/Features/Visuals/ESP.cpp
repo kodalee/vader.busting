@@ -1970,13 +1970,17 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 
 #ifdef DEV 
 
-	auto current = &anim_data->m_AnimationRecord.front();
+	if (anim_data && lag_data.IsValid()) {
+		if (!anim_data->m_AnimationRecord.empty()) {
+			auto current = &anim_data->m_AnimationRecord.front();
+			if (current) {
 
-	if (current && anim_data && lag_data.IsValid()) {
-		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), current->m_iResolverText); // draw resolver mode
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), current->m_iResolverText); // draw resolver mode
+
+			}
+
+		}
 	}
-
-
 
 
 #endif

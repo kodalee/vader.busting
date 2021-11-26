@@ -290,9 +290,16 @@ namespace Engine
 
 #ifdef DEV 
 
-							auto current = &anim_data->m_AnimationRecord.front();
-							if (current) {
-								msg << XorStr("res: ") << current->m_iResolverText << XorStr(" | ");
+							if (anim_data && lag_data.IsValid()) {
+								if (!anim_data->m_AnimationRecord.empty()) {
+									auto current = &anim_data->m_AnimationRecord.front();
+									if (current) {
+
+										msg << XorStr("res: ") << current->m_iResolverText << XorStr(" | ");
+
+									}
+
+								}
 							}
 
 #endif
