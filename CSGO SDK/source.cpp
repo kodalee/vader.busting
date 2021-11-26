@@ -123,6 +123,7 @@ using ParticleCollection = void(__thiscall*)(C_INIT_RandomColor* thisPtr, CParti
 ParticleCollection oRandomColor_InitNewParticlesScalar;
 
 void __fastcall Hooked_RandomColor_InitNewParticlesScalar(C_INIT_RandomColor* thisPtr, void* edx, CParticleCollection* pParticles, int start_p, int nParticleCount, int nAttributeWriteMask, void* pContext) { // https://www.unknowncheats.me/forum/3119811-post19.html
+	g_Vars.globals.szLastHookCalled = XorStr("48");
 	Vector o_min = thisPtr->m_flNormColorMin;
 	Vector o_max = thisPtr->m_flNormColorMax;
 

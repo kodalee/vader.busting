@@ -1593,37 +1593,13 @@ void CEsp::Main( ) {
 					if( factor > 0.f ) {
 						Math::Clamp( factor, 0.f, 1.0f );
 
-						Vector2D center = Render::GetScreenSize( );
-
-						static float flBombTickTime = Interfaces::m_pGlobalVars->realtime;
-						static float flRedBombAlpha = 1.f;
 						if( g_Vars.globals.bBombTicked ) {
-							flRedBombAlpha = 1.f;
-							flBombTickTime = Interfaces::m_pGlobalVars->realtime;
 							g_Vars.globals.bBombTicked = false;
 						}
 
-						float flBeepDelta = fabs( Interfaces::m_pGlobalVars->realtime - flBombTickTime );
-						bool bRenderRedBomb = ( flBeepDelta <= 0.1f && flBeepDelta > 0.f ) || g_Vars.globals.bBombTicked;
-						if( !bRenderRedBomb ) {
-							flRedBombAlpha -= ( 1.0f / 0.1f ) * Interfaces::m_pGlobalVars->frametime;
-						}
+						Render::Engine::indi.string(6, 11, { 0,0, 0, 125 }, buf);
+						Render::Engine::indi.string(5, 10, Color::Green(), buf);
 
-						flRedBombAlpha = std::clamp<float>( flRedBombAlpha, 0.f, 1.f );
-
-						static const auto size_icon = Vector2D( Render::Engine::cs_large.size( XorStr( "q" ) ).m_width + 2, 4.f );
-						static const auto size = Vector2D( Render::Engine::damage.size( buf ).m_width + 2, 4.f );
-						Render::Engine::cs_large.string( ( ( center.x * 0.5f ) - Render::Engine::damage.size( std::string( " - " ) + subs ).m_width ) + 30, center.y * 0.15f + 2,
-							Color::White( ).OverrideAlpha( 180 - ( 180 * flRedBombAlpha ) ), XorStr( "q" ), Render::Engine::ALIGN_LEFT );
-
-						//if( bRenderRedBomb )
-						Render::Engine::cs_large.string( ( ( center.x * 0.5f ) - Render::Engine::damage.size( std::string( " - " ) + subs ).m_width ) + 30, center.y * 0.15f + 2,
-							Color::Red( ).OverrideAlpha( 255 * flRedBombAlpha ), XorStr( "q" ), Render::Engine::ALIGN_LEFT );
-
-						Render::Engine::damage.string( ( center.x * 0.5f ) + size_icon.x, center.y * 0.15f, Color::White( ).OverrideAlpha( 180 - ( 180 * flRedBombAlpha ) ), std::string( buf ).substr( 2 ), Render::Engine::ALIGN_CENTER );
-
-						//if( bRenderRedBomb )
-						Render::Engine::damage.string( ( center.x * 0.5f ) + size_icon.x, center.y * 0.15f, Color::Red( ).OverrideAlpha( 255 * flRedBombAlpha ), std::string( buf ).substr( 2 ), Render::Engine::ALIGN_CENTER );
 					}
 
 
