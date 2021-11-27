@@ -898,14 +898,23 @@ namespace Interfaces
 			}
 			)#";
 
-			std::ofstream("csgo/materials/wireframe_vader.vmt") << R"#(" VertexLitGeneric "{
+			std::ofstream("csgo/materials/animated_wireframe_vader.vmt") << R"#("VertexLitGeneric" {
 
-			"$additive" "1"
-	        "$envmap"  "models/effects/cube_white"
-			"$envmaptint" "[0 0 0]"
-			"$envmapfresnel" "1"
-			"$envmapfresnelminmaxexp" "[0 16 12]"
-			"$alpha" "0.8"
+				"$basetexture" "nature/urban_puddle01a_ssbump"
+				"$additive" "1"
+				"$selfillum" "1"
+				"$nocull" "1"
+				"$wireframe" "1"
+                "Proxies"
+                {
+                     "TextureScroll"
+                     {
+                    "texturescrollvar" "$BasetextureTransform"
+                    "texturescrollrate" "0.5"
+                    "texturescrollangle" "90"
+                     }
+                }
+
 			}
 			)#";
 
@@ -942,7 +951,7 @@ namespace Interfaces
 			}
 			)#";
 
-			m_matWireframe = Interfaces::m_pMatSystem->FindMaterial( XorStr( "wireframe_vader" ), TEXTURE_GROUP_MODEL );
+			m_matWireframe = Interfaces::m_pMatSystem->FindMaterial( XorStr( "animated_wireframe_vader" ), TEXTURE_GROUP_MODEL );
 
 			m_matBlinking = Interfaces::m_pMatSystem->FindMaterial( XorStr( "models/inventory_items/dogtags/dogtags_outline" ), TEXTURE_GROUP_OTHER );
 
@@ -1407,11 +1416,11 @@ namespace Interfaces
 					material = 4;
 					break;
 				}
-				//case 2:
-				//{
-				//	material = 8;
-				//	break;
-				//}
+				case 2:
+				{
+					material = 6;
+					break;
+				}
 
 				}
 
@@ -1452,11 +1461,11 @@ namespace Interfaces
 					material = 4;
 					break;
 				}
-				//case 2:
-				//{
-				//	material = 8;
-				//	break;
-				//}
+				case 2:
+				{
+					material = 6;
+					break;
+				}
 
 				}
 

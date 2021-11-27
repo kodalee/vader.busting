@@ -662,6 +662,7 @@ void Visuals()
 				const char* chams_mats_local[] = { "Disabled",  "Texture", "Flat", "Custom" };
 				const char* chams_mats_overlay[] = { "Disabled", "Glow", "Blinking" };
 				const char* chams_mats_overlay_misc[] = { "Disabled", "Glow" };
+				const char* chams_mats_overlay_viewmodel[] = { "Disabled", "Glow", "Animated" };
 				const char* chams_shot_mats[] = { "Flat", "Glow" };
 				const char* chams_filter_menu[] = { ("Enemy"), ("Local"), ("Viewmodel") };
 				static int chams_filter = 0;
@@ -801,8 +802,8 @@ void Visuals()
 
 							}
 
-							InsertCombo("Hand overlay", &g_Vars.esp.new_chams_hands_overlay, chams_mats_overlay_misc);
-							ColorPicker("Hand overlay color", g_Vars.esp.new_chams_hands_overlay_color, true, true);
+							InsertCombo("Hand overlay", &g_Vars.esp.new_chams_hands_overlay, chams_mats_overlay_viewmodel);
+							ColorPicker("##hand_overlay_color", g_Vars.esp.new_chams_hands_overlay_color, true, true);
 							if (g_Vars.esp.new_chams_hands_overlay == 1) {
 
 								InsertSliderFloat("Glow strength ##hands", &g_Vars.esp.chams_hands_outline_value, 0.f, 100.f, "%.f");
@@ -824,7 +825,7 @@ void Visuals()
 
 							}
 
-							InsertCombo("Weapon overlay", &g_Vars.esp.new_chams_weapon_overlay, chams_mats_overlay_misc);
+							InsertCombo("Weapon overlay", &g_Vars.esp.new_chams_weapon_overlay, chams_mats_overlay_viewmodel);
 							ColorPicker("##weapon_overlay_color", g_Vars.esp.new_chams_weapon_overlay_color, true, true);
 							if (g_Vars.esp.new_chams_weapon_overlay == 1) {
 
