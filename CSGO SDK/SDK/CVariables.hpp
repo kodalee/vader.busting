@@ -1203,6 +1203,7 @@ public:
 	config_option( FloatColor, fov_crosshair_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
 	config_option( bool, force_sniper_crosshair, false );
+	config_option(bool, force_viewmodel_scoped, false);
 
 	config_option( bool, event_bomb, false );
 	config_option( bool, event_harm, false );

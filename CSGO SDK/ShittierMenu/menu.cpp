@@ -945,7 +945,8 @@ void Visuals()
 				ImGui::NewLine();
 
 				InsertCheckbox(ForceCrosshair, XorStr("Force Crosshair"), &g_Vars.esp.force_sniper_crosshair);
-				InsertCheckbox(PenetrationCrosshair, XorStr("Penetration crosshair"), &g_Vars.esp.autowall_crosshair);
+				InsertCheckbox(PenetrationCrosshair, XorStr("Penetration Crosshair"), &g_Vars.esp.autowall_crosshair);
+				InsertCheckbox(ViewModelOnScope, XorStr("Force Viewmodel On Scope"), &g_Vars.esp.force_viewmodel_scoped);
 				InsertCheckbox(ClientImpacts, XorStr("Client Impacts"), &g_Vars.misc.impacts_spoof);
 				if (g_Vars.misc.impacts_spoof) {
 					ColorPicker(XorStr("##ClientImpactsColor"), g_Vars.esp.client_impacts, true, false);

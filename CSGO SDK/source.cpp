@@ -161,6 +161,23 @@ void __fastcall Hooked_RandomColor_InitNewParticlesScalar(C_INIT_RandomColor* th
 }
 
 
+using ShouldDrawViewModel = bool(__thiscall*)(void*);
+ShouldDrawViewModel oShouldDrawViewModel;
+bool __fastcall hkShouldDrawViewModel(void* ecx, void* edx) { // https://www.unknowncheats.me/forum/counterstrike-global-offensive/455514-viewmodel-drawing-scoped.html
+	g_Vars.globals.szLastHookCalled = XorStr("49");
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	if (!local || local->IsDead())
+		return oShouldDrawViewModel(ecx);
+
+	if (local->m_bIsScoped() && g_Vars.esp.force_viewmodel_scoped)
+		return true;
+
+
+	return oShouldDrawViewModel(ecx);
+}
+
+
 using net_showfragments_t = bool( __thiscall* )( void* );
 net_showfragments_t o_net_show_fragments;
 bool __fastcall net_show_fragments( void* cvar, void* edx ) {
@@ -932,6 +949,9 @@ namespace Interfaces
 
 		static auto particlesystem = Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 EC 18 56 8B F1 C7 45"));
 		oRandomColor_InitNewParticlesScalar = Hooked::HooksManager.CreateHook<decltype(oRandomColor_InitNewParticlesScalar) >(&Hooked_RandomColor_InitNewParticlesScalar, (void*)particlesystem);
+
+		static auto ShouldDrawViewModel = Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 51 57 E8"));
+		oShouldDrawViewModel = Hooked::HooksManager.CreateHook<decltype(oShouldDrawViewModel) >(&hkShouldDrawViewModel, (void*)ShouldDrawViewModel);
 
 		//oDrawModel = Hooked::HooksManager.HookVirtual<decltype( oDrawModel )>( m_pStudioRender, &Hooked::DrawModel, Index::StudioRender::DrawModel );
 		oDrawModelExecute = Hooked::HooksManager.HookVirtual<decltype( oDrawModelExecute )>( m_pModelRender.Xor( ), &Hooked::DrawModelExecute, Index::ModelDraw::DrawModelExecute );
