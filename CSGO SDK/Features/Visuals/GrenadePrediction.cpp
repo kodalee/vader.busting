@@ -198,17 +198,17 @@ void CGrenadePrediction::Paint( ) {
 			}
 		}
 
-		if( wpn_index == WEAPON_MOLOTOV || wpn_index == WEAPON_FIREBOMB || wpn_index == WEAPON_HEGRENADE || wpn_index == WEAPON_SMOKE ) {
-			auto color = Color( 255, 255, 255, 120 );
+		//if( wpn_index == WEAPON_MOLOTOV || wpn_index == WEAPON_FIREBOMB || wpn_index == WEAPON_HEGRENADE || wpn_index == WEAPON_SMOKE ) {
+		//	auto color = Color( 255, 255, 255, 120 );
 
-			if( target.second ) {
-				if( target.first >= target.second->m_iHealth( ) ) {
-					color = Color( 173, 208, 37, 120 );
-				}
-			}
+		//	if( target.second ) {
+		//		if( target.first >= target.second->m_iHealth( ) ) {
+		//			color = Color( 173, 208, 37, 120 );
+		//		}
+		//	}
 
-			Render::Engine::WorldCircle( *vecPath.rbegin( ), 131.f, color, Color( 0, 0, 0, 0 ) );
-		}
+		//	Render::Engine::WorldCircle( *vecPath.rbegin( ), 131.f, color, Color( 0, 0, 0, 0 ) );
+		//}
 
 		// we have a target for damage.
 		if( target.second ) {
@@ -222,12 +222,12 @@ void CGrenadePrediction::Paint( ) {
 
 			if( WorldToScreen( vecBounces.back( ).first, screen ) ) {
 				if( wpn_index == WEAPON_MOLOTOV || wpn_index == WEAPON_FIREBOMB ) {
-					Render::Engine::segoe.string( screen.x, screen.y + 5,
+					Render::Engine::tahoma_sexy.string( screen.x, screen.y + 5,
 						Color( 255, 255, 255, 180 ),
 						std::string( XorStr( "Reach" ) ), Render::Engine::ALIGN_CENTER );
 				}
 				else {
-					Render::Engine::segoe.string( screen.x, screen.y + 5,
+					Render::Engine::tahoma_sexy.string( screen.x, screen.y + 5,
 						target.first >= target.second->m_iHealth( ) ? Color( 173, 208, 37, 180 ) : Color( 255, 255, 255, 180 ),
 						std::string( XorStr( "-" ) + std::to_string( ( int )target.first ) ), Render::Engine::ALIGN_CENTER );
 				}
