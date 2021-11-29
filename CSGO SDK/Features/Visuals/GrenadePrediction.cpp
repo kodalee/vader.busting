@@ -240,7 +240,7 @@ void CGrenadePrediction::Paint( ) {
 				Render::Engine::Line( ab, cd, g_Vars.esp.nade_pred_color.ToRegularColor( ) );
 
 				// hmm?
-				Render::Engine::Line( ab + Vector2D( 1, 0 ), cd + Vector2D( 1, 0 ), g_Vars.esp.nade_pred_color.ToRegularColor( ) );
+				//Render::Engine::Line( ab + Vector2D( 1, 0 ), cd + Vector2D( 1, 0 ), g_Vars.esp.nade_pred_color.ToRegularColor( ) );
 			}
 
 			prev = *it;
@@ -256,7 +256,7 @@ void CGrenadePrediction::Paint( ) {
 
 		// last bounce
 		if( WorldToScreen( vecBounces.rbegin( )->first, temp ) ) {
-			Render::Engine::CircleFilled( temp.x, temp.y, 2, 4, vecBounces.rbegin( )->second );
+			Render::Engine::CircleFilled( temp.x, temp.y, 3, 4, vecBounces.rbegin( )->second );
 		}
 	}
 }
