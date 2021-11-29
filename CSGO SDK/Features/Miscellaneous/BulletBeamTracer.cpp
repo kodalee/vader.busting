@@ -83,11 +83,34 @@ void CBulletBeamTracer::DrawBeam( ) {
 	if( !bulletImpactInfo.empty( ) ) {
 		for( auto& it : bulletImpactInfo ) {
 			float delta = time - it.m_flExpTime;
-			Color col = it.m_nIndex == LocalPlayer->EntIndex( ) ? Color::HSBtoRGB( delta, 1.0f, 1.0f ) : Color( 255, 15, 46 );
-			col.SetAlpha( 1.0f - delta * 255 );
+
+			Color LocalPlayerColor = g_Vars.esp.beam_color_rainbow ? Color::HSBtoRGB(delta, 1.0f, 1.0f) : g_Vars.esp.beam_color_local.ToRegularColor();
+			Color col = it.m_nIndex == LocalPlayer->EntIndex( ) ? LocalPlayerColor : g_Vars.esp.beam_color_enemy.ToRegularColor();
+			if (g_Vars.esp.beam_type == 0 || (it.m_nIndex == LocalPlayer->EntIndex() && g_Vars.esp.beam_color_rainbow)) {
+				col.SetAlpha(1.0f - delta * 255);
+			}
+			else {
+				col.SetAlpha(1.0f);
+			}
+
+
 			Vector2D w2s_start, w2s_end;
 			bool a = WorldToScreen( it.m_vecStartPos, w2s_start );
 			bool b = WorldToScreen( it.m_vecHitPos, w2s_end );
+
+			const char* beam_model;
+
+			switch (g_Vars.esp.beam_model) {
+			case 0:
+				beam_model = XorStr("materials/sprites/laserbeam.vmt");
+				break;
+			case 1:
+				beam_model = XorStr("materials/sprites/purplelaser1.vmt");
+				break;
+			case 2:
+				beam_model = XorStr("materials/sprites/physbeam.vmt");
+				break;
+			}
 
 			switch( g_Vars.esp.beam_type ) {
 			case 0:
@@ -95,15 +118,15 @@ void CBulletBeamTracer::DrawBeam( ) {
 					Render::Engine::Line( w2s_start, w2s_end, col );
 				break;
 			case 1:
-				if( !PrecacheModel( XorStr( "materials/sprites/laserbeam.vmt" ) ) ) {
+				if( !PrecacheModel( beam_model ) ) {
 					break;
 				}
 
 				BeamInfo_t beam_info;
 
 				beam_info.m_nType = 0;
-				beam_info.m_pszModelName = XorStr( "materials/sprites/laserbeam.vmt" );
-				beam_info.m_nModelIndex = Interfaces::m_pModelInfo->GetModelIndex( XorStr( "materials/sprites/laserbeam.vmt" ) );
+				beam_info.m_pszModelName = beam_model;
+				beam_info.m_nModelIndex = Interfaces::m_pModelInfo->GetModelIndex( beam_model );
 				beam_info.m_flHaloScale = 0.0f;
 				beam_info.m_flLife = 0.09f; //0.09
 				beam_info.m_flWidth = .6f;

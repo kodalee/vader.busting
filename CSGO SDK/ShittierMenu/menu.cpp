@@ -939,7 +939,8 @@ void Visuals()
 
 				InsertMultiCombo(std::string(XorStr("Removals")).c_str(), removals);
 
-				const char* tracers[]{ "Line","Beam" };
+				const char* tracers[]{ "Line", "Beam" };
+				const char* beam_models[]{ "Laserbeam", "Purplelaser", "Physbeam" };
 
 				ImGui::NextColumn();
 				ImGui::NewLine();
@@ -959,7 +960,16 @@ void Visuals()
 
 				InsertCheckbox(BulletTracers, XorStr("Bullet Tracers"), &g_Vars.esp.beam_enabled);
 				if (g_Vars.esp.beam_enabled) {
+					InsertCheckbox(EnemyTracers, XorStr("Enemy Tracers"), &g_Vars.esp.beam_enemy_enable);
+					ColorPicker(XorStr("Enemy Tracer Color"), g_Vars.esp.beam_color_enemy, false, false);
+					ColorPicker_w_name(XorStr("Local Tracer Color"), g_Vars.esp.beam_color_local, false, false);
+					InsertCheckbox(RainbowTracerColor, XorStr("Rainbow Local Color"), &g_Vars.esp.beam_color_rainbow);
+
+
 					InsertCombo(XorStr("Bullet Tracer Type"), &g_Vars.esp.beam_type, tracers);
+				}
+				if (g_Vars.esp.beam_type == 1 && g_Vars.esp.beam_enabled) {
+					InsertCombo(XorStr("Beam Type"), &g_Vars.esp.beam_model, beam_models);
 				}
 				InsertCheckbox(AmbientLighting, XorStr("Ambient Lighting"), &g_Vars.esp.ambient_ligtning);
 				if (g_Vars.esp.ambient_ligtning) {

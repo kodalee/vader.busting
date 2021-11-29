@@ -144,7 +144,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				if( bCameFromLocal ) {
 					IBulletBeamTracer::Get( )->PushBeamInfo( { Interfaces::m_pGlobalVars->curtime, LocalPlayer->GetEyePosition( ), Vector( x, y, z ), Color( ), ent->EntIndex( ), LocalPlayer->m_nTickBase( ) } );
 				}
-				else if( bCameFromEnemy ) {
+				else if( bCameFromEnemy && g_Vars.esp.beam_enemy_enable) {
 					if( !ent->IsDormant( ) )
 						IBulletBeamTracer::Get( )->PushBeamInfo( { Interfaces::m_pGlobalVars->curtime, ent->GetEyePosition( ), Vector( x, y, z ), Color( ), ent->EntIndex( ), -1 } );
 				}
