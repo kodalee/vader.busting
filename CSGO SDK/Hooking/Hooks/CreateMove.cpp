@@ -151,6 +151,26 @@ namespace Hooked
 		__forceinline NetPos( float time, Vector pos ) : m_time{ time }, m_pos{ pos } {};
 	};
 
+	auto rel32_resolve = [](uintptr_t ptr) {
+		auto offset = *(uintptr_t*)(ptr + 0x1);
+		return (uintptr_t*)(ptr + 5 + offset);
+	};
+
+	inline void UpdateAnimationState(CCSGOPlayerAnimState* state, QAngle ang) {
+		static auto func = rel32_resolve(Memory::Scan(XorStr("client.dll"), XorStr("E8 ? ? ? ? 0F 57 C0 0F 11 86")));
+		if (!func)
+			return;
+
+		__asm {
+			push  0
+			mov	  ecx, state
+			movss xmm1, dword ptr[ang + 4]
+			movss xmm2, dword ptr[ang]
+			call  func
+		}
+	}
+
+
 	void UpdateInformation( CUserCmd* cmd ) {
 		auto local = C_CSPlayer::GetLocalPlayer( );
 		if( !local )
@@ -182,7 +202,7 @@ namespace Hooked
 		Interfaces::m_pPrediction->SetLocalViewAngles( g_Vars.globals.RegularAngles );
 
 		// set lby to predicted value.
-		local->m_flLowerBodyYawTarget( ) = g_Vars.globals.m_flBody;
+		//local->m_flLowerBodyYawTarget( ) = g_Vars.globals.m_flBody;
 
 		// CCSGOPlayerAnimState::Update, bypass already animated checks.
 		if( state->m_nLastFrame == Interfaces::m_pGlobalVars->framecount )
@@ -192,15 +212,27 @@ namespace Hooked
 
 		state->m_flFeetYawRate = 0.f;
 
+		UpdateAnimationState(state, g_Vars.globals.RegularAngles);
+
 		local->UpdateClientSideAnimationEx( );
 
-		auto flWeight12Backup = local->m_AnimOverlay( ).Element( 12 ).m_flWeight;
+		C_AnimationLayer layers[13];
 
-		local->m_AnimOverlay( ).Element( 12 ).m_flWeight = 0.f;
+		std::memcpy(layers, local->m_AnimOverlay().m_Memory.m_pMemory, sizeof(layers)); // setup
+
+		auto flWeight12Backup = layers[ 12 ].m_flWeight;
+
+		layers[12].m_flWeight = 0.f;
 
 		if( local->m_flPoseParameter( ) ) {
 			local->m_flPoseParameter( )[ 6 ] = g_Vars.globals.m_flJumpFall;
 		}
+
+		if (g_Vars.globals.m_flAnimFrame != state->m_flLastUpdateTime)
+		{
+			std::memcpy(local->m_AnimOverlay().m_Memory.m_pMemory, layers, sizeof(layers)); // apply
+		}
+
 
 		// pull the lower body direction towards the eye direction, but only when the player is moving
 		if( state->m_bOnGround ) {
@@ -245,7 +277,7 @@ namespace Hooked
 			std::memcpy( g_Vars.globals.m_RealBonesPositions, local->m_vecBonePos( ), boneCount * sizeof( Vector ) );
 			std::memcpy( g_Vars.globals.m_RealBonesRotations, local->m_quatBoneRot( ), boneCount * sizeof( Quaternion ) );
 
-			local->m_AnimOverlay( ).Element( 12 ).m_flWeight = flWeight12Backup;
+			layers[12].m_flWeight = flWeight12Backup;
 			if( g_Vars.globals.m_flPoseParams ) {
 				std::memcpy( local->m_flPoseParameter( ), g_Vars.globals.m_flPoseParams, sizeof( local->m_flPoseParameter( ) ) );
 			}
