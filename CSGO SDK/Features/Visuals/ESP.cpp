@@ -1223,17 +1223,17 @@ void CEsp::Main( ) {
 		Indicators( );
 
 	// draw the damage at the latest pos we hit an enemy at
-	if( g_Vars.esp.visualize_damage && Hitmarkers::m_vecWorldHitmarkers.size( ) ) {
-		Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers.back( );
-		Vector2D vecPos;
-		if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) ) {
-			auto vecTextSize = Render::Engine::damage.size( std::to_string( Hitmarkers::m_nLastDamageData.second ) );
+	//if( g_Vars.esp.visualize_damage && Hitmarkers::m_vecWorldHitmarkers.size( ) ) {
+	//	Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers.back( );
+	//	Vector2D vecPos;
+	//	if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) ) {
+	//		auto vecTextSize = Render::Engine::damage.size( std::to_string( Hitmarkers::m_nLastDamageData.second ) );
 
-			Vector2D vecRenderPos = vecPos - Vector2D( vecTextSize.m_width / 2, 8 + vecTextSize.m_height );
-			Render::Engine::damage.string( vecRenderPos.x, vecRenderPos.y, Hitmarkers::m_nLastDamageData.first.OverrideAlpha( 220 * info.m_flAlpha ),
-				std::to_string( Hitmarkers::m_nLastDamageData.second ) );
-		}
-	}
+	//		Vector2D vecRenderPos = vecPos - Vector2D( vecTextSize.m_width / 2, 8 + vecTextSize.m_height );
+	//		Render::Engine::damage.string( vecRenderPos.x, vecRenderPos.y, Hitmarkers::m_nLastDamageData.first.OverrideAlpha( 220 * info.m_flAlpha ),
+	//			std::to_string( Hitmarkers::m_nLastDamageData.second ) );
+	//	}
+	//}
 
 	OverlayInfo();
 

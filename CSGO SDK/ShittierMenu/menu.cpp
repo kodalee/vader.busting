@@ -907,7 +907,7 @@ void Visuals()
 			case 2:
 			{
 				InsertCheckbox(PreserveKillfeed, XorStr("Preserve Killfeed"), &g_Vars.esp.preserve_killfeed);
-				InsertCheckbox(VisualizeDamage, XorStr("Visualize Damage"), &g_Vars.esp.visualize_damage);
+				//InsertCheckbox(VisualizeDamage, XorStr("Visualize Damage"), &g_Vars.esp.visualize_damage); // disabled for now, very buggy.
 				InsertCheckbox(TaserRange, XorStr("Taser Range"), &g_Vars.esp.zeus_distance);
 				InsertCheckbox(KeybindList, XorStr("Keybind List"), &g_Vars.esp.keybind_window_enabled);
 				InsertCheckbox(Radar, XorStr("Radar"), &g_Vars.misc.ingame_radar);
