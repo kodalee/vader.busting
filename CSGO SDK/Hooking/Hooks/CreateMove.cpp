@@ -194,13 +194,23 @@ namespace Hooked
 
 		local->UpdateClientSideAnimationEx( );
 
-		auto flWeight12Backup = local->m_AnimOverlay( ).Element( 12 ).m_flWeight;
+		C_AnimationLayer layers[13];
 
-		local->m_AnimOverlay( ).Element( 12 ).m_flWeight = 0.f;
+		std::memcpy(layers, local->m_AnimOverlay().m_Memory.m_pMemory, sizeof(layers)); // setup
+
+		auto flWeight12Backup = layers[12].m_flWeight;
+
+		layers[12].m_flWeight = 0.f;
 
 		if( local->m_flPoseParameter( ) ) {
 			local->m_flPoseParameter( )[ 6 ] = g_Vars.globals.m_flJumpFall;
 		}
+
+		if (g_Vars.globals.m_flAnimFrame != state->m_flLastUpdateTime)
+		{
+			std::memcpy(local->m_AnimOverlay().m_Memory.m_pMemory, layers, sizeof(layers)); // apply
+		}
+
 
 		// pull the lower body direction towards the eye direction, but only when the player is moving
 		if( state->m_bOnGround ) {
@@ -245,7 +255,7 @@ namespace Hooked
 			std::memcpy( g_Vars.globals.m_RealBonesPositions, local->m_vecBonePos( ), boneCount * sizeof( Vector ) );
 			std::memcpy( g_Vars.globals.m_RealBonesRotations, local->m_quatBoneRot( ), boneCount * sizeof( Quaternion ) );
 
-			local->m_AnimOverlay( ).Element( 12 ).m_flWeight = flWeight12Backup;
+			layers[12].m_flWeight = flWeight12Backup;
 			if( g_Vars.globals.m_flPoseParams ) {
 				std::memcpy( local->m_flPoseParameter( ), g_Vars.globals.m_flPoseParams, sizeof( local->m_flPoseParameter( ) ) );
 			}
