@@ -867,6 +867,7 @@ void Visuals()
 				InsertCheckbox(EnableRain, XorStr("Rain"), &g_Vars.esp.weather);
 				if (g_Vars.esp.weather) {
 					InsertSliderFloat(XorStr("Rain alpha"), &g_Vars.esp.weather_alpha, 0.f, 100.0f, XorStr("%.f"));
+					InsertCheckbox(EnableThunderSounds, XorStr("Thunder Sounds"), &g_Vars.esp.weather_thunder);
 				}
 
 				InsertCheckbox(Enablemolotovcolor, XorStr("Molotov Color"), &g_Vars.esp.molotov_color_enable);

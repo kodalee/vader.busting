@@ -54,6 +54,7 @@ namespace Interfaces
 		virtual void ClantagChanger( );
 		virtual void ViewModelChanger( );
 		virtual void SkyboxChanger( );
+		virtual void RainSoundEffects( );
 	};
 
 	C_Miscellaneous g_Misc;
@@ -70,6 +71,7 @@ namespace Interfaces
 
 		ClantagChanger( );
 		ViewModelChanger( );
+		RainSoundEffects( );
 	}
 
 	void C_Miscellaneous::ModulateWorld( ) {
@@ -244,6 +246,43 @@ namespace Interfaces
 				iOldSky = g_Vars.esp.sky_changer;
 			}
 		}
+	}
+
+	void C_Miscellaneous::RainSoundEffects( ) {
+
+		if ( !g_Vars.esp.weather || !g_Vars.esp.weather_thunder || !g_Vars.globals.HackIsReady || !Interfaces::m_pEngine->IsInGame( ) || !Interfaces::m_pEngine->IsConnected( ) )
+			return;
+
+		static clock_t start_t = clock();
+
+		double timeSoFar = (double)(clock() - start_t) / CLOCKS_PER_SEC;
+
+		static int choose;
+
+		if (timeSoFar > 6.0)
+		{
+			switch (choose)
+			{
+			case 1:Interfaces::m_pSurface->PlaySound_(XorStr("ambient/playonce/weather/thunder4.wav")); break;
+			case 2:Interfaces::m_pSurface->PlaySound_(XorStr("ambient/playonce/weather/thunder5.wav")); break;
+			case 3:Interfaces::m_pSurface->PlaySound_(XorStr("ambient/playonce/weather/thunder6.wav")); break;
+			case 4:Interfaces::m_pSurface->PlaySound_(XorStr("ambient/playonce/weather/thunder_distant_01.wav")); break;
+			case 5:Interfaces::m_pSurface->PlaySound_(XorStr("ambient/playonce/weather/thunder_distant_02.wav")); break;
+			case 6:Interfaces::m_pSurface->PlaySound_(XorStr("ambient/playonce/weather/thunder_distant_06.wav")); break;
+			}
+			start_t = clock();
+		}
+		else
+		{
+			int randomnum = 1 + (rand() % 6);
+
+			if (randomnum == choose)
+				choose = 1 + (rand() % 6); // could still be the same number but less likely
+			else
+				choose = randomnum;
+		}
+
+
 	}
 
 	Miscellaneous* Miscellaneous::Get( ) {
