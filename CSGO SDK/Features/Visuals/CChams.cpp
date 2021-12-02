@@ -1349,6 +1349,9 @@ namespace Interfaces
 					}
 				}
 
+				if (g_Vars.esp.new_chams_attachments_original_model)
+					Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
+
 				//set attachments chams
 				OverrideMaterial(false, g_Vars.esp.attachments_chams_mat, g_Vars.esp.attachments_chams_color, 0.f, false,
 					g_Vars.esp.chams_attachments_pearlescence_color, g_Vars.esp.chams_attachments_pearlescence, g_Vars.esp.chams_attachments_shine);
@@ -1394,6 +1397,10 @@ namespace Interfaces
 			if( !g_Vars.esp.chams_weapon )
 				goto end;
 
+			if (g_Vars.esp.new_chams_weapon_original_model)
+				Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
+
+
 			//set weapon chams
 			OverrideMaterial(false, g_Vars.esp.weapon_chams_mat, g_Vars.esp.weapon_chams_color, 0.f, false,
 				g_Vars.esp.chams_weapon_pearlescence_color, g_Vars.esp.chams_weapon_pearlescence, g_Vars.esp.chams_weapon_shine);
@@ -1438,6 +1445,10 @@ namespace Interfaces
 		else if( client_class->m_ClassID == ClassId_t::CBaseAnimating ) {
 			if( !g_Vars.esp.chams_hands )
 				goto end;
+
+			if (g_Vars.esp.new_chams_hands_original_model)
+				Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, pBoneToWorld);
+
 
 			//set hands chams
 			OverrideMaterial(false, g_Vars.esp.hands_chams_mat, g_Vars.esp.hands_chams_color, 0.f, false,

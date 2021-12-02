@@ -793,6 +793,8 @@ void Visuals()
 
 							}
 							InsertCheckbox(attachments_overlay_wireframe, "Attachment overlay wireframe", &g_Vars.esp.chams_attachments_outline_wireframe);
+							InsertCheckbox(chams_attachments_original_model, "Draw original model ##attachment", &g_Vars.esp.new_chams_attachments_original_model);
+
 						}
 
 						break;
@@ -821,6 +823,7 @@ void Visuals()
 
 							}
 							InsertCheckbox(hand_overlay_wireframe, "Hand overlay wireframe", &g_Vars.esp.chams_hands_outline_wireframe);
+							InsertCheckbox(chams_hands_original_model, "Draw original model ##hands", &g_Vars.esp.new_chams_hands_original_model);
 						}
 
 						InsertCheckbox(enable_weapon_chams, "Weapon chams", &g_Vars.esp.chams_weapon);
@@ -844,6 +847,7 @@ void Visuals()
 
 							}
 							InsertCheckbox(weapon_overlay_wireframe, "Weapon overlay wireframe", &g_Vars.esp.chams_weapon_outline_wireframe);
+							InsertCheckbox(chams_weapon_original_model, "Draw original model ##weapon", &g_Vars.esp.new_chams_weapon_original_model);
 						}
 
 						break;
