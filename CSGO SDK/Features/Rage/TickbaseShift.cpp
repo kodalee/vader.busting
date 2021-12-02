@@ -54,7 +54,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 	const bool bStart = s_bBuilding;
 	s_bBuilding = g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !GetAsyncKeyState(VK_LBUTTON)
 #ifndef STANDALONE_CSGO
-		//	&& s_nTicksSinceUse >= s_nTicksRequired
+			&& s_nTicksSinceUse >= s_nTicksRequired
 		&& !m_bSupressRecharge
 #endif
 		;
