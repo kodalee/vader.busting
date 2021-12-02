@@ -42,6 +42,8 @@ namespace Interfaces
 
 		void SendFakeFlick();
 
+		bool airstuck();
+
 		void fake_flick(Encrypted_t<CUserCmd> cmd);
 
 		virtual bool IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings);
@@ -84,6 +86,14 @@ namespace Interfaces
 		//	}
 		//}
 
+		static bool swap = false;
+		swap = !swap;
+
+		auto prevTickCount = cmd->tick_count;
+
+		auto tickAmount = INT_MAX / 8;
+
+
 		if (g_Vars.globals.updatingPacket && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.key && g_Vars.misc.slow_walk_bind.enabled) {
 			if (/*cmd->sidemove == 0 && cmd->forwardmove == 0 && */localPlayer->m_vecVelocity().Length2D() < 17.f) {
 				static bool switcher2 = false;
@@ -92,6 +102,15 @@ namespace Interfaces
 			}
 
 			static bool switcher = false;
+			auto curtime = Interfaces::m_pGlobalVars->curtime + .01f;
+			if (Interfaces::m_pGlobalVars->curtime >= curtime) {
+				cmd->tick_count = tickAmount;
+				auto curtime2 = Interfaces::m_pGlobalVars->curtime + .015f;
+				if (Interfaces::m_pGlobalVars->curtime >= curtime2) {
+					cmd->tick_count = tickAmount;
+					cmd->command_number = INT_MAX;
+				}
+			}
 			cmd->viewangles.y += switcher ? -(g_Vars.misc.mind_trick_factor) : (g_Vars.misc.mind_trick_factor);
 			switcher = !switcher;
 			printf("flicking\n");
@@ -274,6 +293,48 @@ namespace Interfaces
 		// do not allow 2 consecutive sendpacket true if faking angles.
 		if (*bSendPacket && g_Vars.globals.m_bOldPacket)
 			*bSendPacket = false;
+
+
+		static bool swap = false;
+		swap = !swap;
+
+		auto prevTickCount = cmd->tick_count;
+
+		auto tickAmount = INT_MAX / 8;
+
+		if (g_Vars.misc.move_exploit && g_Vars.misc.move_exploit_key.enabled) {
+			auto prevCommandNumber = cmd->command_number;
+
+			if (swap) {
+				g_Vars.fakelag.choke = 14;
+			}
+			else {
+				g_Vars.fakelag.choke = 16;
+			}
+
+			if (*bSendPacket == false) {
+				cmd->tick_count = tickAmount;
+				cmd->command_number = prevCommandNumber;
+
+
+				//*g_send_packet = true;
+			}
+
+			if (*bSendPacket)
+			{
+				auto curtime = Interfaces::m_pGlobalVars->curtime + .01f;
+				if (Interfaces::m_pGlobalVars->curtime >= curtime) {
+					cmd->tick_count = tickAmount;
+					auto curtime2 = Interfaces::m_pGlobalVars->curtime + .015f;
+					if (Interfaces::m_pGlobalVars->curtime >= curtime2) {
+						cmd->tick_count = tickAmount;
+						cmd->command_number = INT_MAX;
+					}
+					//g_cmd->command_number = tickAmount;
+				}
+
+			}
+		}
 
 
 		// https://github.com/VSES/SourceEngine2007/blob/master/se2007/engine/cl_main.cpp#L1877-L1881

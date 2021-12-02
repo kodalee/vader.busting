@@ -540,33 +540,31 @@ namespace Engine
 
 			// attempt to resolve the player	
 			if( !player->IsTeammate( C_CSPlayer::GetLocalPlayer( ) ) && !IsPlayerBot( ) ) {
-				g_Resolver.ResolveYaw( player, current.Xor( ) );
-
 				// predict lby updates
-				g_Resolver.PredictBodyUpdates( player, current.Xor( ), previous.Xor( ) );
+				g_Resolver.ResolveAngles( player, current.Xor( ) );
 
 				bool bValid = previous.Xor( );
 
 				// we're sure that we resolved the player.
 				if ( bValid )
 				{
-					current.Xor( )->m_bResolved = current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_PRED ||
+					current.Xor( )->m_bResolved = current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_BODY ||
 						current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_WALK ||
-						current.Xor( )->m_flLowerBodyYawTarget != previous.Xor( )->m_flLowerBodyYawTarget;
+						current.Xor( )->m_flLowerBodyYawTarget == previous.Xor( )->m_flLowerBodyYawTarget;
 				}
 				else
 				{
-					current.Xor()->m_bResolved = current.Xor()->m_iResolverMode == EResolverModes::RESOLVE_PRED || current.Xor()->m_iResolverMode == EResolverModes::RESOLVE_WALK;
+					current.Xor()->m_bResolved = current.Xor()->m_iResolverMode == EResolverModes::RESOLVE_BODY || (current.Xor()->m_vecVelocity.Length2D() > 0.1f && current.Xor()->m_bFakeWalking) /*current.Xor()->m_iResolverMode == EResolverModes::RESOLVE_WALK*/;
 				}
 
 				bool bResolved = current.Xor( )->m_bResolved;
 				if( g_Vars.rage.override_resolver_flicks ) {
-					if( current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_PRED )
+					if( current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_BODY)
 						bResolved = false;
 				}
 
 				// if the enemy is resolved, why bother overriding?
-				g_Resolver.override_resolver(player, current.Xor());
+				//g_Resolver.override_resolver(player, current.Xor());
 				//g_Resolver.ResolveManual( player, current.Xor( ), bResolved );
 			}
 

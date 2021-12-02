@@ -91,9 +91,15 @@ namespace Engine
 
 		int m_iMissedShots = 0;
 		int m_iMissedShotsLBY = 0;
+		int m_stand_index2 = 0;
+		int m_body_index = 0;
+		int m_last_move = 0;
+		int m_unknown_move = 0;
+		int m_delta_index = 0;
 
 		bool m_bHitLastMove = false;
 		std::deque< float > m_flLastMoveYaw;
+		C_AnimationRecord m_walk_record;
 
 		bool m_bGotAbsYaw = false;
 		bool m_bGotAbsYawShot = false;

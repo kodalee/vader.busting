@@ -358,6 +358,8 @@ namespace Engine
 			} );
 
 			if( correct != predictionData->m_CorrectionData.begin( ) && correct != predictionData->m_CorrectionData.end( ) ) {
+				// GEICO FROM FUTURE
+
 				//if( g_Vars.globals.LastVelocityModifier > ( local->m_flVelocityModifier( ) + ( TIME_TO_TICKS( Interfaces::m_pClientState->m_nChokedCommands( ) ) * 0.4f ) ) ) {
 				//	auto weapon = ( C_WeaponCSBaseGun* )local->m_hActiveWeapon( ).Get( );
 				//	if( !weapon || ( weapon && weapon->m_iItemDefinitionIndex( ) != WEAPON_REVOLVER && weapon->GetCSWeaponData( )->m_iWeaponType != WEAPONTYPE_GRENADE ) ) {

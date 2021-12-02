@@ -472,10 +472,16 @@ namespace Interfaces
 
 		// we have a normal weapon or a non cocking revolver
 		// choke if its the processing tick.
-		if (g_Vars.globals.bCanWeaponFire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver) {
+		if (g_Vars.globals.bCanWeaponFire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && (!g_Vars.rage.key_dt.enabled && !g_Vars.rage.exploit)) {
 			*sendPacket = false;
+			printf("setting send packet\n");
 			StripAttack(cmd);
 			return false;
+		}
+
+		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
+			*sendPacket = true;
+			//printf("setting send packet to true\n");
 		}
 
 		// run aim on zeus
@@ -500,6 +506,14 @@ namespace Interfaces
 		m_rage_data->m_bEarlyStop = false;
 		g_Vars.globals.OverridingMinDmg = m_rage_data->rbot->min_damage_override && g_Vars.rage.key_dmg_override.enabled;
 		g_Vars.globals.OverridingHitscan = m_rage_data->rbot->override_hitscan && g_Vars.rage.override_key.enabled;
+
+		if (m_rage_data->m_pCmd->buttons & (IN_ATTACK) || GetAsyncKeyState(VK_LBUTTON)) {
+			g_TickbaseController.m_bSupressRecharge = true;
+			printf("supressing\n");
+		}
+		else {
+			g_TickbaseController.m_bSupressRecharge = false;
+		}
 
 		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
 			if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
@@ -998,6 +1012,7 @@ namespace Interfaces
 				// calculate end point
 				Vector vecEnd = vecStart + vecDirection * m_rage_data->m_pWeaponInfo->m_flWeaponRange;
 
+				// GEICO FROM FUTURE AGAIN LOOK I FOUND SHIT
 				//if( !bIsCapsule ) {
 				//	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray_t( m_rage_data->m_vecEyePos, vecEnd ), MASK_SHOT, pPoint->target->player, &tr );
 				//}
@@ -1114,12 +1129,12 @@ namespace Interfaces
 
 		float hitchance = m_rage_data->rbot->hitchance;
 
-		//if( g_TickbaseController.Using( ) ) {
-		//	if( hitchance != m_rage_data->rbot->doubletap_hitchance ) {
-		//		//ILoggerEvent::Get( )->PushEvent( "used dt hitchance", FloatColor::White, true, "dt" );
-		//		hitchance = m_rage_data->rbot->doubletap_hitchance;
-		//	}
-		//}
+		if( g_TickbaseController.Using( ) ) {
+			if( hitchance != m_rage_data->rbot->doubletap_hitchance ) {
+				//ILoggerEvent::Get( )->PushEvent( "used dt hitchance", FloatColor::White, true, "dt" );
+				hitchance = m_rage_data->rbot->doubletap_hitchance;
+			}
+		}
 
 		float m_flAccuracyBoostHitchance;
 		if (m_rage_data->rbot->accry_boost_on_shot) {
@@ -1524,12 +1539,12 @@ namespace Interfaces
 	std::pair<bool, C_AimPoint> C_Ragebot::RunHitscan() {
 		m_rage_data->m_vecEyePos = g_Vars.globals.m_vecFixedEyePosition;
 
-		g_TickbaseController.m_bSupressRecharge = false;
+		//g_TickbaseController.m_bSupressRecharge = false;
 
 		if (!SetupTargets())
 			return { false, C_AimPoint() };
 
-		g_TickbaseController.m_bSupressRecharge = true;
+		//g_TickbaseController.m_bSupressRecharge = true;
 
 		//for( auto& p : m_rage_data->m_aim_points ) {
 		//	Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
@@ -1863,7 +1878,10 @@ namespace Interfaces
 
 		int hp = pPoint->target->player->m_iHealth();
 		float mindmg = (m_rage_data->rbot->min_damage > 100 ? hp + (m_rage_data->rbot->min_damage - 100) : m_rage_data->rbot->min_damage);
-		if (m_rage_data->rbot->min_damage_override && g_Vars.rage.key_dmg_override.enabled) {
+		if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+			mindmg = m_rage_data->rbot->doubletap_dmg;
+		}
+		else if (m_rage_data->rbot->min_damage_override && g_Vars.rage.key_dmg_override.enabled) {
 			mindmg = m_rage_data->rbot->min_damage_override_amount > 100 ? hp + (m_rage_data->rbot->min_damage_override_amount - 100) : m_rage_data->rbot->min_damage_override_amount;
 		}
 		else if (!pPoint->penetrated) {

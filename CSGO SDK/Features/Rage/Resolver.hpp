@@ -18,8 +18,14 @@ namespace Engine {
 		RESOLVE_STAND1,
 		RESOLVE_STAND2,
 		RESOLVE_AIR,
-		RESOLVE_PRED,
-		RESOLVE_EDGE,
+		RESOLVE_BODY,
+		RESOLVE_STOPPED_MOVING,
+		RESOLVE_OVERRIDE,
+		RESOLVE_LASTMOVE,
+		RESOLVE_ANTIFREESTAND,
+		RESOLVE_UNKNOWM,
+		RESOLVE_DELTA,
+		RESOLVE_BRUTEFORCE,
 	};
 
 	struct CResolverData {
@@ -59,8 +65,7 @@ namespace Engine {
 
 	class CResolver {
 	private:
-		void ResolveAngles(C_CSPlayer* player, C_AnimationRecord* record);
-		void ResolveWalk(C_CSPlayer* player, C_AnimationRecord* record);
+		void ResolveWalk(C_CSPlayer* data, C_AnimationRecord* record);
 		void ResolveStand(C_CSPlayer* player, C_AnimationRecord* record);
 		void ResolveAir(C_CSPlayer* player, C_AnimationRecord* record);
 
@@ -70,6 +75,8 @@ namespace Engine {
 		float right_damage[64];
 		float back_damage[64];
 
+		int m_iMode;
+
 		std::vector<Vector> last_eye_positions;
 
 	public:
@@ -78,8 +85,12 @@ namespace Engine {
 		void ResolveYaw(C_CSPlayer* player, C_AnimationRecord* record);
 		void OnBodyUpdate(C_CSPlayer* player, float value);
 		void MatchShot(C_CSPlayer* data, C_AnimationRecord* record);
-
-		void PredictBodyUpdates(C_CSPlayer* player, C_AnimationRecord* record, C_AnimationRecord* prev);
+		void SetMode(C_AnimationRecord* record);
+		void LastMoveLby(C_AnimationRecord* record, C_CSPlayer* player);
+		float GetDirectionAngle(int index, C_CSPlayer* player);
+		float GetLBYRotatedYaw(float lby, float yaw);
+		float GetAwayAngle(C_AnimationRecord* record);
+		void ResolveAngles(C_CSPlayer* player, C_AnimationRecord* record);
 
 		AntiFreestandingRecord anti_freestanding_record;
 
@@ -134,11 +145,12 @@ namespace Engine {
 				m_dist -= penalty;
 			}
 		};
+		void resolve(C_CSPlayer* player, C_AnimationRecord* record);
 		void on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw);
 		void collect_wall_detect(const ClientFrameStage_t stage);
 		bool wall_detect(C_CSPlayer* player, C_AnimationRecord* record, float& angle) const;
-		bool AntiFreestanding(C_CSPlayer* entity, float& yaw);
 		void FindBestAngle(C_CSPlayer* player);
+		bool AntiFreestanding(C_CSPlayer* entity, float& yaw);
 		//bool wall_detect(Engine::C_LagRecord* record, float& angle) const;
 	};
 

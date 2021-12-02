@@ -71,6 +71,8 @@ namespace Engine
 		float m_flFeetCycle;
 
 		int m_iResolverMode;
+		bool m_moved;
+		float     m_body_update;
 
 		std::string m_iResolverText;
 

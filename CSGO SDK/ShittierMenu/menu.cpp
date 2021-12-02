@@ -250,6 +250,10 @@ void Ragebot()
 		ImGui::SameLine();
 		biggestMeme2();
 		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
+		if (g_Vars.rage.exploit) {
+			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
+			InsertSliderInt(XorStr("Doubletap Minimum Damage"), &rbot->doubletap_dmg, 1, 100, "%d");
+		}
 
 		InsertCheckbox(text_exploit, XorStr("test exploit"), &g_Vars.rage.tickbase_exploit); // dont know if this is working.
 
@@ -413,6 +417,12 @@ void HvH()
 		biggestMeme2();
 		ImGui::Hotkey("##Mind-Trick key", &g_Vars.misc.mind_trick_bind.key, &g_Vars.misc.mind_trick_bind.cond, ImVec2{ 40,20 });
 		InsertSliderFloat(XorStr("Mind-Trick Factor"), &g_Vars.misc.mind_trick_factor, 1.f, 180.f, XorStr("%.0f %%"));
+
+		InsertCheckbox(MoveExploit, XorStr("Move Exploit"), &g_Vars.misc.move_exploit);
+		ImGui::SameLine();
+		biggestMeme2();
+		ImGui::Hotkey("##Move Exploit key", &g_Vars.misc.move_exploit_key.key, &g_Vars.misc.move_exploit_key.cond, ImVec2{ 40,20 });
+
 
 		
 	}

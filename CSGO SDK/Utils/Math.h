@@ -48,6 +48,8 @@ namespace Math
 
 	void SmoothAngle(QAngle src, QAngle& dst, float factor);
 
+	void CalcAngle3(const Vector src, const Vector dst, QAngle& angles);
+
 	QAngle CalcAngle(Vector src, Vector dst, bool bruh = false);
 	Vector VecCalcAngle(const Vector& src, const Vector& dest);
 

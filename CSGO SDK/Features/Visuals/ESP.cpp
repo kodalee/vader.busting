@@ -1269,18 +1269,18 @@ void CEsp::Main( ) {
 			g_Vars.misc.autopeek_color.ToRegularColor( ), g_Vars.misc.autopeek_color.ToRegularColor( ).OverrideAlpha( g_Vars.misc.autopeek_color.ToRegularColor( ).a( ) * 0.4f, true ) );
 	}
 
-	if( !g_Vars.globals.vecExploitOrigin.IsZero( ) && g_Vars.globals.bMoveExploiting ) {
-		g_Vars.globals.vecExploitOrigin.z = m_LocalPlayer->GetAbsOrigin( ).z;
-		Render::Engine::WorldCircle( g_Vars.globals.vecExploitOrigin, 5.f, Color( 0, 255, 0, 100 ), Color( 0, 255, 0, 50 ) );
+	//if( !g_Vars.globals.vecExploitOrigin.IsZero( ) && g_Vars.globals.bMoveExploiting ) {
+	//	g_Vars.globals.vecExploitOrigin.z = m_LocalPlayer->GetAbsOrigin( ).z;
+	//	Render::Engine::WorldCircle( g_Vars.globals.vecExploitOrigin, 5.f, Color( 0, 255, 0, 100 ), Color( 0, 255, 0, 50 ) );
 
-		Vector2D origin;
-		Vector2D origin2;
-		if( WorldToScreen( m_LocalPlayer->GetAbsOrigin( ), origin ) ) {
-			if( WorldToScreen( g_Vars.globals.vecExploitOrigin, origin2 ) ) {
-				Render::Engine::Line( origin, origin2, Color( 255, 255, 255, 255 ) );
-			}
-		}
-	}
+	//	Vector2D origin;
+	//	Vector2D origin2;
+	//	if( WorldToScreen( m_LocalPlayer->GetAbsOrigin( ), origin ) ) {
+	//		if( WorldToScreen( g_Vars.globals.vecExploitOrigin, origin2 ) ) {
+	//			Render::Engine::Line( origin, origin2, Color( 255, 255, 255, 255 ) );
+	//		}
+	//	}
+	//}
 
 	DrawZeusDistance( );
 

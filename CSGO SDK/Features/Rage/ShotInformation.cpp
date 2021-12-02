@@ -285,7 +285,7 @@ namespace Engine
 							msg << XorStr("missed shot ");
 #if defined (BETA_MODE) || defined(DEV)
 							msg << XorStr("reason: ") << reason.data() << XorStr(" | ");
-							msg << XorStr("lby: ") << int(it->snapshot->resolve_record.m_iResolverMode == EResolverModes::RESOLVE_PRED) << XorStr(" | ");
+							msg << XorStr("lby: ") << int(it->snapshot->ResolverType == EResolverModes::RESOLVE_BODY) << XorStr(" | ");
 							//msg << XorStr( "dmg: " ) << it->snapshot->m_nSelectedDamage << XorStr( " | " );
 
 #ifdef DEV 
@@ -321,8 +321,16 @@ namespace Engine
 					if (td->is_resolver_issue) {
 						g_ResolverData[player->EntIndex()].hitPlayer = false;
 
-						if (it->snapshot->ResolverType == EResolverModes::RESOLVE_PRED || g_ResolverData[player->EntIndex()].is_flicking)
+						if (it->snapshot->ResolverType == EResolverModes::RESOLVE_BODY)
 							lag_data->m_iMissedShotsLBY++;
+						else if(it->snapshot->ResolverType == EResolverModes::RESOLVE_DELTA)
+							lag_data->m_delta_index++;
+						else if(it->snapshot->ResolverType == EResolverModes::RESOLVE_LASTMOVE)
+							lag_data->m_last_move++;
+						else if(it->snapshot->ResolverType == EResolverModes::RESOLVE_UNKNOWM)
+							lag_data->m_unknown_move++;
+						else if(it->snapshot->ResolverType == EResolverModes::RESOLVE_STAND2)
+							lag_data->m_stand_index2++;
 						else
 							lag_data->m_iMissedShots++;
 
@@ -467,6 +475,10 @@ namespace Engine
 			if (lagData.IsValid()) {
 				lagData->m_iMissedShots = 0;
 				lagData->m_iMissedShotsLBY = 0;
+				lagData->m_body_index = 0;
+				lagData->m_delta_index = 0;
+				lagData->m_stand_index2 = 0;
+				lagData->m_unknown_move = 0;
 				g_Vars.globals.m_iFiredShots = 0;
 			}
 
@@ -480,6 +492,10 @@ namespace Engine
 				if (lagData.IsValid()) {
 					lagData->m_iMissedShots = 0;
 					lagData->m_iMissedShotsLBY = 0;
+					lagData->m_body_index = 0;
+					lagData->m_delta_index = 0;
+					lagData->m_stand_index2 = 0;
+					lagData->m_unknown_move = 0;
 					g_Vars.globals.m_iFiredShots = 0;
 				}
 			}

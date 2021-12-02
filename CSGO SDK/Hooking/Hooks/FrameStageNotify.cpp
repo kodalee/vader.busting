@@ -193,7 +193,7 @@ namespace Hooked
 			g_Vars.globals.RandomInit = true;
 		}
 
-		//Engine::g_Resolver.collect_wall_detect(stage);
+		Engine::g_Resolver.collect_wall_detect(stage);
 
 		if( stage == FRAME_RENDER_START && Interfaces::m_pEngine->IsConnected( ) && local ) {
 			if( g_Vars.r_rainalpha->fnChangeCallback.m_Size != 0 )

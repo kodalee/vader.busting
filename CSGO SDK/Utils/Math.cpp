@@ -603,6 +603,39 @@ void Math::SmoothAngle( QAngle src, QAngle& dst, float factor ) {
 	dst = src + delta / factor;
 }
 
+#define M_RADPI 57.295779513082f
+void Math::CalcAngle3(const Vector src, const Vector dst, QAngle& angles) {
+	auto delta = src - dst;
+	Vector vec_zero = Vector(0.0f, 0.0f, 0.0f);
+	QAngle ang_zero = QAngle(0.0f, 0.0f, 0.0f);
+
+
+	if (delta == vec_zero)
+		angles = ang_zero;
+
+	const auto len = delta.Length();
+
+	if (delta.z == 0.0f && len == 0.0f)
+		angles = ang_zero;
+
+	if (delta.y == 0.0f && delta.x == 0.0f)
+		angles = ang_zero;
+
+
+#ifdef QUICK_MATH
+	angles.x = (fast_asin(delta.z / delta.Length()) * M_RADPI);
+	angles.y = (fast_atan(delta.y / delta.x) * M_RADPI);
+#else
+	angles.x = (asinf(delta.z / delta.Length()) * M_RADPI);
+	angles.y = (atanf(delta.y / delta.x) * M_RADPI);
+#endif
+
+	angles.z = 0.0f;
+	if (delta.x >= 0.0f) { angles.y += 180.0f; }
+
+	angles.Clamp();
+}
+
 QAngle Math::CalcAngle( Vector src, Vector dst, bool bruh ) {
 	//xd
 	if( bruh ) {
