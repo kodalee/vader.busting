@@ -1240,22 +1240,22 @@ void CEsp::Main( ) {
 	if( !g_Vars.esp.esp_enable )
 		return;
 
-	static float auto_peek_radius = 0.f;
+	//static float auto_peek_radius = 0.f;
 	bool condition = g_Vars.misc.autopeek && g_Vars.misc.autopeek_visualise && !AutoPeekPos.IsZero( ) && g_Vars.misc.autopeek_bind.enabled;
-	float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
-	if( condition ) {
-		auto_peek_radius += multiplier * ( 1.0f - auto_peek_radius );
-	}
-	else {
-		// makes the animation end faster
-		// if we dont do dis ther is like a 1.f radius circle for like 1 second
-		if( auto_peek_radius > 0.01f )
-			auto_peek_radius += multiplier * ( 0.0f - auto_peek_radius );
-		else
-			auto_peek_radius = 0.0f;
-	}
+	//float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
+	//if( condition ) {
+	//	auto_peek_radius += multiplier * ( 1.0f - auto_peek_radius );
+	//}
+	//else {
+	//	// makes the animation end faster
+	//	// if we dont do dis ther is like a 1.f radius circle for like 1 second
+	//	if( auto_peek_radius > 0.01f )
+	//		auto_peek_radius += multiplier * ( 0.0f - auto_peek_radius );
+	//	else
+	//		auto_peek_radius = 0.0f;
+	//}
 
-	auto_peek_radius = std::clamp( auto_peek_radius, 0.f, 1.0f );
+	//auto_peek_radius = std::clamp( auto_peek_radius, 0.f, 1.0f );
 
 	// fixes the fadeout disappearing rlly fast
 	static Vector last_autopeek_pos = AutoPeekPos;
@@ -1263,11 +1263,13 @@ void CEsp::Main( ) {
 		last_autopeek_pos = AutoPeekPos;
 	}
 
-	if( auto_peek_radius > 0.f ) {
+	//if( auto_peek_radius > 0.f ) {
 		//* 0.4f
-		Render::Engine::WorldCircle( AutoPeekPos.IsZero( ) ? last_autopeek_pos : AutoPeekPos, 15.f * auto_peek_radius,
-			g_Vars.misc.autopeek_color.ToRegularColor( ), g_Vars.misc.autopeek_color.ToRegularColor( ).OverrideAlpha( g_Vars.misc.autopeek_color.ToRegularColor( ).a( ) * 0.4f, true ) );
+	if (condition) {
+		Render::Engine::WorldCircle(AutoPeekPos.IsZero() ? last_autopeek_pos : AutoPeekPos, 15.f * 1.0f,
+			Color(0, 0, 0, 0), g_Vars.misc.autopeek_color.ToRegularColor().OverrideAlpha(g_Vars.misc.autopeek_color.ToRegularColor().a() * 0.5f, true));
 	}
+	//}
 
 	//if( !g_Vars.globals.vecExploitOrigin.IsZero( ) && g_Vars.globals.bMoveExploiting ) {
 	//	g_Vars.globals.vecExploitOrigin.z = m_LocalPlayer->GetAbsOrigin( ).z;
