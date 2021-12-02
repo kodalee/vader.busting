@@ -252,7 +252,7 @@ void Ragebot()
 		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
 		if (g_Vars.rage.exploit) {
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
-			InsertSliderInt(XorStr("Doubletap Minimum Damage"), &rbot->doubletap_dmg, 1, 100, "%d");
+			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
 		}
 
 		InsertCheckbox(text_exploit, XorStr("test exploit"), &g_Vars.rage.tickbase_exploit); // dont know if this is working.
