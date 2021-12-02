@@ -472,9 +472,8 @@ namespace Interfaces
 
 		// we have a normal weapon or a non cocking revolver
 		// choke if its the processing tick.
-		if (g_Vars.globals.bCanWeaponFire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && (!g_Vars.rage.key_dt.enabled && !g_Vars.rage.exploit)) {
+		if (g_Vars.globals.bCanWeaponFire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.key_dt.enabled) {
 			*sendPacket = false;
-			printf("setting send packet\n");
 			StripAttack(cmd);
 			return false;
 		}
