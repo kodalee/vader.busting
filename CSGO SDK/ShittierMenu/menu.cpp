@@ -1085,8 +1085,9 @@ void Misc()
 
 			InsertMultiCombo(std::string(XorStr("Notifications")).c_str(), notifications);
 
-			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log)
-
+#if defined(BETA_MODE) || defined(DEV)
+			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log);
+#endif
 			break;
 		}
 
