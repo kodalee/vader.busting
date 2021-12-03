@@ -761,6 +761,10 @@ void CEsp::Keybinds() {
 			AddBind(XorStr("Double tap"), g_Vars.rage.key_dt);
 		}
 
+		if (g_Vars.misc.move_exploit) {
+			AddBind(XorStr("Move Exploit"), g_Vars.misc.move_exploit_key);
+		}
+
 		//AddBind( XorStr( "Force safe point" ), g_Vars.rage.force_safe_point );
 		AddBind(XorStr("Min dmg override"), g_Vars.rage.key_dmg_override);
 		AddBind(XorStr("Force body-aim"), g_Vars.rage.prefer_body);
