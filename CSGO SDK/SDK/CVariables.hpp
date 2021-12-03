@@ -448,7 +448,6 @@ public:
 		bool bBrokeLC = false;
 		float delta;
 
-		int	 TicksToShift;
 
 
 		cheat_header_t user_info;
