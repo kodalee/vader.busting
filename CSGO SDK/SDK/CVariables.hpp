@@ -1253,6 +1253,8 @@ public:
 
 	config_option( bool, draw_hitboxes, false );
 
+	config_option(int, shot_visualization, 0);
+
 	config_option( bool, blur_in_scoped, false );
 	config_option( float, blur_in_scoped_value, 50.f );
 

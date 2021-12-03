@@ -673,7 +673,6 @@ void Visuals()
 				const char* chams_mats_overlay[] = { "Disabled", "Glow", "Blinking" };
 				const char* chams_mats_overlay_misc[] = { "Disabled", "Glow" };
 				const char* chams_mats_overlay_viewmodel[] = { "Disabled", "Glow", "Animated" };
-				const char* chams_shot_mats[] = { "Flat", "Glow" };
 				const char* chams_filter_menu[] = { ("Enemy"), ("Local"), ("Viewmodel") };
 				static int chams_filter = 0;
 				InsertCombo("chams", &chams_filter, chams_filter_menu);
@@ -731,12 +730,6 @@ void Visuals()
 							}
 						}
 
-						InsertCheckbox(hitmatrix, XorStr("Shot chams"), &g_Vars.esp.hitmatrix);
-						if (g_Vars.esp.hitmatrix) {
-							InsertSliderFloat("Glow strength ##shot", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
-							ColorPicker_w_name(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true, false);
-							InsertSliderFloat(XorStr("Expire time"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
-						}
 
 						break;
 					}
@@ -902,6 +895,51 @@ void Visuals()
 				InsertMultiCombo(std::string(XorStr("Dropped Weapons")).c_str(), droppedWeapons);
 				ColorPicker(XorStr("##DropperWeaponsColor"), g_Vars.esp.dropped_weapons_color, false, true);
 
+				///////
+
+				InsertCheckbox(draw_hitboxes, XorStr("Shot capsules"), &g_Vars.esp.draw_hitboxes);
+				if (g_Vars.esp.draw_hitboxes) {
+					ColorPicker(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true, false);
+				}
+
+				InsertCheckbox(hitmatrix, XorStr("Shot chams"), &g_Vars.esp.hitmatrix);
+				if (g_Vars.esp.hitmatrix) {
+					InsertSliderFloat("Glow strength ##shot", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
+					ColorPicker_w_name(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true, false);
+					InsertSliderFloat(XorStr("Expire time"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
+				}
+
+				const char* shot_visualization_options[] = { "Hitboxes", "Chams", "Skeleton" };
+
+
+				InsertCombo(XorStr("Shot Visualization"), &g_Vars.esp.shot_visualization, shot_visualization_options);
+				switch (g_Vars.esp.shot_visualization) {
+				case 0:
+				{
+					ColorPicker_w_name(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true, false);
+					break;
+				}
+
+				case 1:
+				{
+					InsertSliderFloat("Glow strength ##shot", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
+					ColorPicker_w_name(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true, false);
+					InsertSliderFloat(XorStr("Expire time ##chams"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
+					break;
+				}
+				case 3:
+				{
+					ColorPicker_w_name(XorStr("Shot Skeleton color"), g_Vars.esp.hitskeleton_color, true, false);
+					InsertSliderFloat(XorStr("Expire time ##skeleton"), &g_Vars.esp.hitskeleton_time, 1.f, 10.f, XorStr("%0.0f seconds"));
+					break;
+				}
+
+
+				}
+
+
+				//////////
+
 				ImGui::NextColumn();
 				ImGui::NewLine();
 
@@ -935,10 +973,6 @@ void Visuals()
 					InsertSliderFloat(XorStr("Thirdperson Distance"), &g_Vars.misc.third_person_dist, 0.f, 250.f, XorStr("%.0f%%"));
 				}
 
-				InsertCheckbox(draw_hitboxes, XorStr("Shot capsules"), &g_Vars.esp.draw_hitboxes);
-				if (g_Vars.esp.draw_hitboxes) {
-					ColorPicker(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true, false);
-				}
 
 				std::vector<MultiItem_t> removals = {
 					{ XorStr("Smoke"), &g_Vars.esp.remove_smoke },
