@@ -901,7 +901,7 @@ void Visuals()
 				switch (g_Vars.esp.shot_visualization) {
 				case 0:
 				{
-					ColorPicker_w_name(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true, false);
+					ColorPicker_w_name(XorStr("Hitboxes color"), g_Vars.esp.hitboxes_color, true, false);
 					break;
 				}
 				case 1:
