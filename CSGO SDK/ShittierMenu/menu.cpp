@@ -895,23 +895,29 @@ void Visuals()
 				InsertMultiCombo(std::string(XorStr("Dropped Weapons")).c_str(), droppedWeapons);
 				ColorPicker(XorStr("##DropperWeaponsColor"), g_Vars.esp.dropped_weapons_color, false, true);
 
-				const char* shot_visualization_options[] = { "Hitboxes", "Chams", "Skeleton" };
+				const char* shot_visualization_options[] = { "Off", "Hitboxes", "Chams", "Skeleton" };
 
 				InsertCombo(XorStr("Shot Visualization"), &g_Vars.esp.shot_visualization, shot_visualization_options);
 				switch (g_Vars.esp.shot_visualization) {
 				case 0:
 				{
-					ColorPicker_w_name(XorStr("Hitboxes color"), g_Vars.esp.hitboxes_color, true, false);
+
+
 					break;
 				}
 				case 1:
+				{
+					ColorPicker_w_name(XorStr("Hitboxes color"), g_Vars.esp.hitboxes_color, true, false);
+					break;
+				}
+				case 2:
 				{
 					InsertSliderFloat("Glow strength ##shot", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
 					ColorPicker_w_name(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true, false);
 					InsertSliderFloat(XorStr("Expire time ##chams"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
 					break;
 				}
-				case 2:
+				case 3:
 				{
 					ColorPicker_w_name(XorStr("Shot Skeleton color"), g_Vars.esp.hitskeleton_color, true, false);
 					InsertSliderFloat(XorStr("Expire time ##skeleton"), &g_Vars.esp.hitskeleton_time, 1.f, 10.f, XorStr("%0.0f seconds"));
