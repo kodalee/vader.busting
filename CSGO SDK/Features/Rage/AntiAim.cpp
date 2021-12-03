@@ -395,16 +395,6 @@ namespace Interfaces
 			cmd->viewangles.y += Math::AngleNormalize(ang.y);
 		}
 
-		if (g_Vars.rage.tickbase_exploit) {
-			int shift_timer = 0;
-
-			if (++shift_timer >= 14)
-				shift_timer = 0;
-
-			g_Vars.globals.TicksToShift = shift_timer > 0 ? 16 : 0;
-
-
-		}
 
 		/*if ( g_Vars.antiaim.imposta ) {
 			Interfaces::AntiAimbot::Get( )->ImposterBreaker( bSendPacket, cmd );

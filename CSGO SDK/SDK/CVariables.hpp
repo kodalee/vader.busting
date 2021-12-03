@@ -658,7 +658,6 @@ public:
 	config_keybind( override_reoslver_lock );
 	config_option( bool, override_resolver_flicks, false );
 
-	config_option(bool, tickbase_exploit, false);
 
 
 	// temporary here
