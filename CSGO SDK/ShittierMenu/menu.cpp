@@ -904,7 +904,6 @@ void Visuals()
 					ColorPicker_w_name(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true, false);
 					break;
 				}
-
 				case 1:
 				{
 					InsertSliderFloat("Glow strength ##shot", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
