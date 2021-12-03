@@ -963,7 +963,7 @@ namespace Interfaces
 
 		o_net_show_fragments = Hooked::HooksManager.HookVirtual<decltype( o_net_show_fragments )>( Interfaces::m_pCvar->FindVar("net_showfragments"), &net_show_fragments, 13 );
 
-		oWriteUsercmdDeltaToBuffer = Hooked::HooksManager.HookVirtual<decltype( oWriteUsercmdDeltaToBuffer )>( m_pClient.Xor( ), &WriteUsercmdDeltaToBuffer, 23 );
+		//oWriteUsercmdDeltaToBuffer = Hooked::HooksManager.HookVirtual<decltype( oWriteUsercmdDeltaToBuffer )>( m_pClient.Xor( ), &WriteUsercmdDeltaToBuffer, 23 );
 
 		//oTraceRay = Hooked::HooksManager.HookVirtual<decltype( oTraceRay )>( m_pEngineTrace.Xor( ), &TraceRay, 5 );
 
