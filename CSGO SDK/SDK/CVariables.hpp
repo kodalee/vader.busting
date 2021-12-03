@@ -1087,9 +1087,11 @@ public:
 
 	config_option(int, new_chams_weapon_overlay, 0);
 	config_option(FloatColor, new_chams_weapon_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(bool, new_chams_weapon_original_model, false);
 
 	config_option(int, new_chams_attachments_overlay, 0);
 	config_option(FloatColor, new_chams_attachments_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(bool, new_chams_attachments_original_model, false);
 
 	config_option(int, new_chams_onshot_mat, 0);
 	config_option(float, new_chams_onshot_mat_glow_value, 0.f);

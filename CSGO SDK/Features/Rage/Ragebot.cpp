@@ -468,6 +468,11 @@ namespace Interfaces
 			return false;
 		}
 
+		// run aim on zeus
+		if (weapon->m_iItemDefinitionIndex() != WEAPON_ZEUS
+			&& (weaponInfo->m_iWeaponType == WEAPONTYPE_KNIFE || weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE || weaponInfo->m_iWeaponType == WEAPONTYPE_C4))
+			return false;
+
 		bool revolver = weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER;
 
 		// we have a normal weapon or a non cocking revolver
@@ -482,11 +487,6 @@ namespace Interfaces
 			*sendPacket = true;
 			//printf("setting send packet to true\n");
 		}
-
-		// run aim on zeus
-		if (weapon->m_iItemDefinitionIndex() != WEAPON_ZEUS
-			&& (weaponInfo->m_iWeaponType == WEAPONTYPE_KNIFE || weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE || weaponInfo->m_iWeaponType == WEAPONTYPE_C4))
-			return false;
 
 		if (!SetupRageOptions())
 			return false;

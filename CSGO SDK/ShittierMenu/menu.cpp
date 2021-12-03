@@ -252,7 +252,7 @@ void Ragebot()
 		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
 		if (g_Vars.rage.exploit) {
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
-			InsertSliderInt(XorStr("Doubletap Minimum Damage"), &rbot->doubletap_dmg, 1, 100, "%d");
+			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
 		}
 
 		InsertCheckbox(text_exploit, XorStr("test exploit"), &g_Vars.rage.tickbase_exploit); // dont know if this is working.
@@ -793,6 +793,8 @@ void Visuals()
 
 							}
 							InsertCheckbox(attachments_overlay_wireframe, "Attachment overlay wireframe", &g_Vars.esp.chams_attachments_outline_wireframe);
+							InsertCheckbox(chams_attachments_original_model, "Draw original model ##attachment", &g_Vars.esp.new_chams_attachments_original_model);
+
 						}
 
 						break;
@@ -821,6 +823,7 @@ void Visuals()
 
 							}
 							InsertCheckbox(hand_overlay_wireframe, "Hand overlay wireframe", &g_Vars.esp.chams_hands_outline_wireframe);
+							InsertCheckbox(chams_hands_original_model, "Draw original model ##hands", &g_Vars.esp.new_chams_hands_original_model);
 						}
 
 						InsertCheckbox(enable_weapon_chams, "Weapon chams", &g_Vars.esp.chams_weapon);
@@ -844,6 +847,7 @@ void Visuals()
 
 							}
 							InsertCheckbox(weapon_overlay_wireframe, "Weapon overlay wireframe", &g_Vars.esp.chams_weapon_outline_wireframe);
+							InsertCheckbox(chams_weapon_original_model, "Draw original model ##weapon", &g_Vars.esp.new_chams_weapon_original_model);
 						}
 
 						break;
