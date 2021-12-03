@@ -895,22 +895,7 @@ void Visuals()
 				InsertMultiCombo(std::string(XorStr("Dropped Weapons")).c_str(), droppedWeapons);
 				ColorPicker(XorStr("##DropperWeaponsColor"), g_Vars.esp.dropped_weapons_color, false, true);
 
-				///////
-
-				InsertCheckbox(draw_hitboxes, XorStr("Shot capsules"), &g_Vars.esp.draw_hitboxes);
-				if (g_Vars.esp.draw_hitboxes) {
-					ColorPicker(XorStr("Shot capsules color"), g_Vars.esp.hitboxes_color, true, false);
-				}
-
-				InsertCheckbox(hitmatrix, XorStr("Shot chams"), &g_Vars.esp.hitmatrix);
-				if (g_Vars.esp.hitmatrix) {
-					InsertSliderFloat("Glow strength ##shot", &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, "%.f");
-					ColorPicker_w_name(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true, false);
-					InsertSliderFloat(XorStr("Expire time"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
-				}
-
 				const char* shot_visualization_options[] = { "Hitboxes", "Chams", "Skeleton" };
-
 
 				InsertCombo(XorStr("Shot Visualization"), &g_Vars.esp.shot_visualization, shot_visualization_options);
 				switch (g_Vars.esp.shot_visualization) {
@@ -936,9 +921,6 @@ void Visuals()
 
 
 				}
-
-
-				//////////
 
 				ImGui::NextColumn();
 				ImGui::NewLine();
