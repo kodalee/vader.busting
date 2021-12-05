@@ -933,6 +933,7 @@
     <ClInclude Include="Libraries\lua-api\lua_gameevents.h" />
     <ClInclude Include="Utils\tinyformat.h" />
     <ClInclude Include="Utils\fnv.h" />
+    <ClInclude Include="SDK\CLuaConfigs.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

@@ -556,7 +556,7 @@ void Visuals()
 
 					InsertCheckbox(chams_enemy_outline, XorStr("Add glow enemy"), &g_Vars.esp.chams_enemy_outline);
 					if (g_Vars.esp.chams_enemy_outline) {
-						ColorPicker(XorStr("##GlowEnemy"), g_Vars.esp.chams_enemy_outline_color, true);
+						ColorPicker(XorStr("##GlowEnemy"), g_Vars.esp.chams_enemy_outline_color, true);l
 					}
 
 					if (g_Vars.esp.chams_enemy_outline) {
@@ -1167,6 +1167,7 @@ void Misc()
 
 				if (!cfg_list.empty()) {
 					if (ImGui::Button(XorStr("Save"))) {
+						LuaConfigSystem::Save();
 						ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
 					}
 
@@ -1177,7 +1178,9 @@ void Misc()
 						if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
 							ConfigManager::ResetConfig();
 
+							LuaConfigSystem::Load();
 							ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
+							
 							g_Vars.m_global_skin_changer.m_update_skins = true;
 							g_Vars.m_global_skin_changer.m_update_gloves = true;
 						}

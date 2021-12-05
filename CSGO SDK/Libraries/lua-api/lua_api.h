@@ -4,7 +4,7 @@
 #include <sol/sol.hpp>
 #include "lua_hooks.h"
 #include "lua_gameevents.h"
-
+#include "../../SDK/CLuaConfigs.h"
 
 enum MENUITEMTYPE {
 	MENUITEM_CHECKBOX = 0,

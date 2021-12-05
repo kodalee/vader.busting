@@ -50,6 +50,68 @@ namespace lua_events {
 
 }
 
+namespace cheat_config {
+	/*
+	config.get(key)
+	Returns value of given key or nil if key not found.
+	*/
+	std::tuple<sol::object, sol::object, sol::object, sol::object> get(sol::this_state s, std::string key) {
+		std::tuple<sol::object, sol::object, sol::object, sol::object> retn = std::make_tuple(sol::nil, sol::nil, sol::nil, sol::nil);
+
+		for (auto kv : LuaConfigSystem::C_BOOL)
+			if (kv.first == key)
+				retn = std::make_tuple(sol::make_object(s, kv.second), sol::nil, sol::nil, sol::nil);
+
+		for (auto kv : LuaConfigSystem::C_COLOR)
+			if (kv.first == key)
+				retn = std::make_tuple(sol::make_object(s, (int)(kv.second[0] * 255)), sol::make_object(s, (int)(kv.second[1] * 255)), sol::make_object(s, (int)(kv.second[2] * 255)), sol::make_object(s, (int)(kv.second[3] * 255)));
+
+		for (auto kv : LuaConfigSystem::C_FLOAT)
+			if (kv.first == key)
+				retn = std::make_tuple(sol::make_object(s, kv.second), sol::nil, sol::nil, sol::nil);
+
+		for (auto kv : LuaConfigSystem::C_INT)
+			if (kv.first == key)
+				retn = std::make_tuple(sol::make_object(s, kv.second), sol::nil, sol::nil, sol::nil);
+
+		for (auto kv : LuaConfigSystem::C_MULTI)
+			if (kv.first == key)
+				retn = std::make_tuple(sol::make_object(s, kv.second), sol::nil, sol::nil, sol::nil);
+
+		return retn;
+	}
+
+	/*
+	config.set(key, value)
+	Sets value for key
+	*/
+	void set_bool(std::string key, bool v) {
+		LuaConfigSystem::C_BOOL[key] = v;
+	}
+
+	void set_float(std::string key, float v) {
+		if (ceilf(v) != v)
+			LuaConfigSystem::C_FLOAT[key] = v;
+		else
+			LuaConfigSystem::C_INT[key] = (int)v;
+	}
+
+	void set_color(std::string key, int r, int g, int b, int a) {
+		LuaConfigSystem::C_COLOR[key][0] = r / 255.f;
+		LuaConfigSystem::C_COLOR[key][1] = g / 255.f;
+		LuaConfigSystem::C_COLOR[key][2] = b / 255.f;
+		LuaConfigSystem::C_COLOR[key][3] = a / 255.f;
+	}
+
+	void set_multiselect(std::string key, int pos, bool e) {
+		LuaConfigSystem::C_MULTI[key][pos] = e;
+	}
+
+	void set_int(std::string key, int value) {
+		LuaConfigSystem::C_INT[key] = value;
+	}
+}
+
 namespace lua_cheat {
 	void set_event_callback(sol::this_state s, std::string eventname, sol::function func) {
 		sol::state_view lua_state(s);

@@ -430,6 +430,7 @@
     <ClInclude Include="Renderer\Wrapper\sprite\sprite.h" />
     <ClInclude Include="SDK\Classes\IInputSystem.hpp" />
     <ClInclude Include="SDK\Classes\INetworkStringTable.h" />
+    <ClInclude Include="SDK\CLuaConfigs.h" />
     <ClInclude Include="SDK\Utils\auto.hpp" />
     <ClInclude Include="Features\Miscellaneous\AutoBuy.hpp" />
     <ClInclude Include="Features\Rage\Autowall.h" />
