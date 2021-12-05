@@ -50,7 +50,7 @@ namespace lua_events {
 
 }
 
-namespace cheat_config {
+namespace lua_config {
 	/*
 	config.get(key)
 	Returns value of given key or nil if key not found.
@@ -651,6 +651,10 @@ bool c_lua::initialize() {
 
 	auto events = this->lua.create_table();
 	events["gameevent_callback"] = lua_events::gameevent_callback;
+
+	auto config = this->lua.create_table();
+	config["get"] = lua_config::get;
+	config["set"] = sol::overload(lua_config::set_bool, lua_config::set_color, lua_config::set_float, lua_config::set_multiselect, lua_config::set_int);
 
 	auto cheat = this->lua.create_table();
 	cheat["set_event_callback"] = lua_cheat::set_event_callback;
