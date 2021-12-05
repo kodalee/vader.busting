@@ -745,6 +745,7 @@ bool c_lua::initialize() {
 	render["world_to_screen"] = lua_render::world_to_screen;
 
 	this->lua["event"] = events;
+	this->lua["config"] = config;
 	this->lua["cheat"] = cheat;
 	this->lua["math"] = math;
 	this->lua["surface"] = surface;
