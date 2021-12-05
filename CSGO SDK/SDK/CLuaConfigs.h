@@ -3,6 +3,19 @@
 #ifndef CONFIGSYSTEM_H_
 #define CONFIGSYSTEM_H_
 
+inline std::string ReplaceInString(std::string str, const std::string& oldStr, const std::string& newStr) //stackoverflow is best
+{
+	std::string finalString;
+	std::string::size_type pos = 0u;
+	while ((pos = str.find(oldStr, pos)) != std::string::npos) {
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+	finalString = str;
+
+	return finalString;
+}
+
 namespace LuaConfigSystem {
 	inline std::vector<const char*> presets = { "default" /*too lazy to add multiple presets to menu for now */ };
 	inline std::unordered_map<std::string, bool> C_BOOL;
@@ -53,7 +66,7 @@ namespace LuaConfigSystem {
 
 	inline void Save() {
 		char FilePath[MAX_PATH] = { 0 };
-		sprintf(FilePath, std::string(std::experimental::filesystem::current_path().string() + XorStr("\\vader.tech\\lua.ini")).c_str());
+		sprintf(FilePath, ReplaceInString(std::experimental::filesystem::current_path().string() + "\\vader.tech\\lua.ini", "\\", "/").c_str());
 
 		for (auto e : C_BOOL) {
 			if (!std::string(e.first).find("_")) continue;
@@ -91,7 +104,7 @@ namespace LuaConfigSystem {
 
 	inline void Load() {
 		char FilePath[MAX_PATH] = { 0 };
-		sprintf(FilePath, std::string(std::experimental::filesystem::current_path().string() + XorStr("\\vader.tech\\lua.ini")).c_str());
+		sprintf(FilePath, ReplaceInString(std::experimental::filesystem::current_path().string() + "\\vader.tech\\lua.ini", "\\", "/").c_str());
 
 		char b_buffer[65536], i_buffer[65536], f_buffer[65536], c_buffer[65536], m_buffer[65536] = { 0 };
 
