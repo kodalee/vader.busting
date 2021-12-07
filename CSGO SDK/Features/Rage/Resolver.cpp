@@ -560,7 +560,7 @@ namespace Engine {
 				record->m_iResolverText = "UPDATE";
 			}
 			else {
-				switch (pLagData->m_iMissedShots % 4) {
+				switch (pLagData->m_unknown_move % 4) {
 				case 0:
 					if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
 						m_iMode = 1;
