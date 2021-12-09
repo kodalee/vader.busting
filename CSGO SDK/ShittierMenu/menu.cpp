@@ -670,8 +670,9 @@ void Visuals()
 				const char* chams_mats_local[] = { "Disabled",  "Texture", "Flat", "Custom" };
 				const char* chams_mats_overlay[] = { "Disabled", "Glow", "Blinking" };
 				const char* chams_mats_overlay_misc[] = { "Disabled", "Glow" };
+				const char* glow_types[] = { "Standard", "Pulse", "Inner" };
 				const char* chams_mats_overlay_viewmodel[] = { "Disabled", "Glow", "Animated" };
-				const char* chams_filter_menu[] = { ("Enemy"), ("Local"), ("Viewmodel") };
+				const char* chams_filter_menu[] = { ("Enemy"), ("Local"), ("Viewmodel"), ("Glow") };
 				static int chams_filter = 0;
 				InsertCombo("chams", &chams_filter, chams_filter_menu);
 				switch (chams_filter)
@@ -726,6 +727,10 @@ void Visuals()
 								}
 								InsertCheckbox(enemy_xqz_overlay_wireframe, XorStr("Enemy XQZ overlay wireframe"), &g_Vars.esp.chams_enemy_outline_xqz_wireframe);
 							}
+
+							InsertCheckbox(enemy_backtrack_chams, XorStr("Backtrack Chams"), &g_Vars.esp.chams_history);
+							ColorPicker("##enemybacktrackcolor", g_Vars.esp.chams_history_color, true, false);
+
 						}
 
 
@@ -840,6 +845,24 @@ void Visuals()
 							InsertCheckbox(weapon_overlay_wireframe, "Weapon overlay wireframe", &g_Vars.esp.chams_weapon_outline_wireframe);
 							InsertCheckbox(chams_weapon_original_model, "Draw original model ##weapon", &g_Vars.esp.new_chams_weapon_original_model);
 						}
+
+						break;
+					}
+					case 3: //hands & weapon
+					{
+						InsertCombo("Glow Type", &g_Vars.esp.glow_type, glow_types);
+
+						InsertCheckbox(enemy_glow, XorStr("Enemy Glow ##enemy"), &g_Vars.esp.glow_enemy);
+						ColorPicker("##enemyglowcolor", g_Vars.esp.glow_enemy_color, true, false);
+
+						InsertCheckbox(local_glow, XorStr("Local Glow ##local"), &g_Vars.esp.glow_local);
+						ColorPicker("##localglowcolor", g_Vars.esp.glow_local_color, true, false);
+
+						InsertCheckbox(weapons_glow, XorStr("Weapons Glow ##weapons"), &g_Vars.esp.glow_weapons);
+						ColorPicker("##weaponsglowcolor", g_Vars.esp.glow_weapons_color, true, false);
+						
+						InsertCheckbox(grenades_glow, XorStr("Grenades Glow ##grenades"), &g_Vars.esp.glow_grenade);
+						ColorPicker("##grenadesglowcolor", g_Vars.esp.glow_grenade_color, true, false);
 
 						break;
 					}
