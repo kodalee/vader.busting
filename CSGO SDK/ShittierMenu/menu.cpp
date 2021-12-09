@@ -1453,8 +1453,8 @@ void IMGUIMenu::Render()
 	const std::string user = g_Vars.globals.user_info.username;
 
 
-	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(740, 30) }, ImColor(255, 255, 255), user.c_str());
-	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(775, 30) }, ImColor(255, 255, 255), "Hello, ");
+	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(137, 30) }, ImColor(255, 255, 255), user.c_str());
+	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(170, 30) }, ImColor(255, 255, 255), "Hello, ");
 
 	ImGui::EndChild();
 	ImGui::End();
