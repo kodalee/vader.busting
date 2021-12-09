@@ -1434,6 +1434,28 @@ void IMGUIMenu::Render()
 			break;
 	}
 	style->Colors[ImGuiCol_Border] = ImColor(0, 0, 0, 0);
+
+	ImGui::AddCircleImageFilled(
+		logo_nuts,
+		ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(45, 35),
+		30.f,
+		ImColor(255, 255, 255),
+		360
+	);
+
+	auto window = ImGui::GetCurrentWindow();
+	if (window->SkipItems)
+		return;
+
+	ImGuiContext& g = *GImGui;
+	window->DrawList->PathClear();
+
+	const std::string user = g_Vars.globals.user_info.username;
+
+
+	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(740, 30) }, ImColor(255, 255, 255), user.c_str());
+	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(775, 30) }, ImColor(255, 255, 255), "Hello, ");
+
 	ImGui::EndChild();
 	ImGui::End();
 	ImGui::PopFont();

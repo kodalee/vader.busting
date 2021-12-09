@@ -251,7 +251,7 @@ void DrawWatermark() {
 
 		text = logo + XorStr(" | ") + user + XorStr(" | latency: ") + std::to_string(delay) + XorStr(" ms | ") + std::to_string(fps) + XorStr(" fps");
 
-}
+    }
 
 	Vector2D screen = Render::GetScreenSize();
 
