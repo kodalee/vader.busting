@@ -369,8 +369,8 @@ void HvH()
 				if (g_Vars.antiaim.distort_twist) {
 					InsertSliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1fs"));
 				}
-				InsertSliderFloat(XorStr("Max time"), &g_Vars.antiaim.distort_max_time, 0.f, 10.f, "%f");
-				InsertSliderFloat(XorStr("Range"), &g_Vars.antiaim.distort_range, -360.f, 360.f, "%f");
+				InsertSliderFloat(XorStr("Max time"), &g_Vars.antiaim.distort_max_time, 0.f, 10.f, "%.f");
+				InsertSliderFloat(XorStr("Range"), &g_Vars.antiaim.distort_range, -360.f, 360.f, "%.f");
 
 				std::vector<MultiItem_t> distort_disablers = {
 					{ XorStr("Fakewalking"), &g_Vars.antiaim.distort_disable_fakewalk },
