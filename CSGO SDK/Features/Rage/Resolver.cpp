@@ -6,6 +6,7 @@
 #include "../Rage/Autowall.h"
 #include "../Visuals/EventLogger.hpp"
 #include "Ragebot.hpp"
+#include "TickbaseShift.hpp"
 
 static float NextLBYUpdate[65];
 static float Add[65];

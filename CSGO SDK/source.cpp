@@ -848,6 +848,7 @@ namespace Interfaces
 		g_Vars.mat_ambient_light_b->fnChangeCallback.m_Size = 0;
 
 		g_Vars.cl_extrapolate->SetValue( 0 );
+		//g_Vars.cl_lagcompensation->SetValue( 0 );
 
 #if defined(DEV) || defined(BETA_MODE) || defined(DEBUG_MODE)
 		//	g_Vars.host_limitlocal->nFlags &= ~FCVAR_HIDDEN;

@@ -51,6 +51,13 @@ int& C_BasePlayer::m_iHealth( ) {
 	return *( int* )( ( uintptr_t )this + Engine::Displacement.DT_BasePlayer.m_iHealth );
 }
 
+bool C_BasePlayer::IsTeammate(C_BasePlayer* player) {
+	if (!player || !this)
+		return false;
+
+	return this->m_iTeamNum() == player->m_iTeamNum();
+}
+
 int& C_BasePlayer::m_fFlags( ) {
 	return *( int* )( ( uintptr_t )this + Engine::Displacement.DT_BasePlayer.m_fFlags );
 }
@@ -157,6 +164,10 @@ bool C_BasePlayer::IsAlive() {
 	return (this->m_lifeState() == LIFE_ALIVE);
 }
 
+VarMapping_t* C_BasePlayer::VarMapping()
+{
+	return reinterpret_cast<VarMapping_t*>((DWORD)this + 0x24);
+}
 
 bool C_BasePlayer::IsDead( ) {
 	return ( this->m_lifeState( ) );

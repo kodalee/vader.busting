@@ -70,6 +70,7 @@ namespace Index
 }
 #pragma endregion
 
+
 class IHandleEntity {
 public:
 	void SetRefEHandle( const CBaseHandle& handle );

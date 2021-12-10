@@ -51,6 +51,7 @@ void CVariables::Create( ) {
    cl_forwardspeed = Interfaces::m_pCvar->FindVar( XorStr( "cl_forwardspeed" ) );
    cl_upspeed = Interfaces::m_pCvar->FindVar( XorStr( "cl_upspeed" ) );
    cl_extrapolate = Interfaces::m_pCvar->FindVar( XorStr( "cl_extrapolate" ) );
+   cl_lagcompensation = Interfaces::m_pCvar->FindVar( XorStr( "cl_lagcompensation" ) );
 
    sv_noclipspeed = Interfaces::m_pCvar->FindVar( XorStr( "sv_noclipspeed" ) );
 

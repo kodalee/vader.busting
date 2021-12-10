@@ -7,6 +7,22 @@
 
 class C_BaseViewModel;
 
+class VarMapEntry_t
+{
+public:
+	unsigned short type;
+	unsigned short m_bNeedsToInterpolate;
+	void* data;
+	void* watcher;
+};
+
+struct VarMapping_t
+{
+	CUtlVector<VarMapEntry_t> m_Entries;
+	int m_nInterpolatedEntries;
+	float m_lastInterpolationTime;
+};
+
 class CPlayerState {
 public:
    virtual ~CPlayerState( ) { }
@@ -45,6 +61,7 @@ public:
    char& m_lifeState( );
    int& m_nTickBase( );
    int& m_iHealth( );
+   bool IsTeammate(C_BasePlayer* player);
    int& m_fFlags( );
    int& m_iDefaultFOV( );
    int& m_iObserverMode( );
@@ -62,6 +79,7 @@ public:
    void* Renderable();
    void DrawModel(int flags = STUDIO_RENDER, const RenderableInstance_t& instance = {});
    bool IsAlive();
+   VarMapping_t* VarMapping();
    bool IsDead( );
    void SetCurrentCommand( CUserCmd* cmd );
 

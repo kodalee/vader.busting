@@ -1513,6 +1513,7 @@ public:
 	ConVar* cl_forwardspeed;
 	ConVar* cl_upspeed;
 	ConVar* cl_extrapolate;
+	ConVar* cl_lagcompensation;
 
 	ConVar* sv_noclipspeed;
 
