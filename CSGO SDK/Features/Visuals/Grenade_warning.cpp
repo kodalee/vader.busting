@@ -272,7 +272,7 @@ void c_grenade_prediction::grenade_warning(projectile_t* entity)
 			std::piecewise_construct,
 			std::forward_as_tuple(handle),
 			std::forward_as_tuple(
-				entity->m_hThrower().Get(),
+				reinterpret_cast<C_BaseEntity*>(Interfaces::m_pEntList->GetClientEntityFromHandle(*(CBaseHandle*)((uintptr_t)this + Engine::PropManager::Instance()->GetOffset("CBaseGrenade", "m_hThrower")))),
 				client_class->m_ClassID == 114 ? WEAPON_MOLOTOV : WEAPON_HEGRENADE,
 				entity->m_vecOrigin(), reinterpret_cast<C_CSPlayer*>(entity)->m_vecVelocity(),
 				entity->m_flSpawnTime(), TIME_TO_TICKS(reinterpret_cast<C_CSPlayer*>(entity)->m_flSimulationTime() - entity->m_flSpawnTime())
