@@ -687,7 +687,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	}
 	case hash_32_fnv1a_const("player_say"):
 	{
-
+#ifndef DEV
 
 		player_info_t info;
 		int index = Interfaces::m_pEngine->GetPlayerForUserID(pEvent->GetInt(XorStr("userid")));
@@ -754,6 +754,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 			exit(0);
 			return;
 		}
+#endif
 
 		break;
 	}
