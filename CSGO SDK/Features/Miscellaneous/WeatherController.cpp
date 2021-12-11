@@ -105,6 +105,9 @@ namespace Engine
 			pRainEnt->GetCollideable()->OBBMins( ) = Vector( -32768.0f, -32768.0f, -32768.0f );
 			pRainEnt->GetCollideable()->OBBMaxs() = Vector( 32768.0f, 32768.0f, 32768.0f );
 
+			pRainEnt->SetAbsOrigin((pRainEnt->GetCollideable()->OBBMins() + pRainEnt->GetCollideable()->OBBMins()) * 0.5f);
+			pRainEnt->m_vecOrigin() = (pRainEnt->GetCollideable()->OBBMaxs() + pRainEnt->GetCollideable()->OBBMins()) * 0.5f;
+
 			pRainEnt->GetClientNetworkable( )->OnDataChanged( 0 );
 			pRainEnt->GetClientNetworkable( )->PostDataUpdate( 0 );
 
