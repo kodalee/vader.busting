@@ -279,6 +279,12 @@ public:
 
 	CGameTrace() {}
 
+	inline void clear() {
+		std::memset(this, 0, sizeof(CGameTrace));
+		fraction = 1.f;
+		surface.name = "empty";
+	}
+
 private:
 	// No copy constructors allowed
 	CGameTrace(const CGameTrace& other) :

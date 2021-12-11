@@ -22,6 +22,8 @@ public:
   int GetEntryIndex( ) const;
   int GetSerialNumber( ) const;
 
+  unsigned long ToLong() const;
+
   int ToInt( ) const;
   bool operator !=( const CBaseHandle &other ) const;
   bool operator ==( const CBaseHandle &other ) const;
@@ -82,6 +84,10 @@ inline int CBaseHandle::GetEntryIndex( ) const {
 
 inline int CBaseHandle::GetSerialNumber( ) const {
   return m_Index >> NUM_ENT_ENTRY_BITS;
+}
+
+inline unsigned long CBaseHandle::ToLong() const {
+	return (unsigned long)m_Index;
 }
 
 inline int CBaseHandle::ToInt( ) const {
