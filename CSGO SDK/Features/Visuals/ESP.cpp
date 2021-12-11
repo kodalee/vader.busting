@@ -24,7 +24,6 @@
 #include <ctime>
 #include <Psapi.h>
 #include "../../Utils/tinyformat.h"
-#include "Grenade_warning.h"
 //#include "../Rage/AnimationSystem.hpp"
 
 #include "../Miscellaneous/Movement.hpp"
@@ -101,7 +100,6 @@ private:
 	bool ValidPlayer( C_CSPlayer* player );
 	void AmmoBar( C_CSPlayer* player, BBox_t bbox );
 	void RenderNades( C_WeaponCSBaseGun* nade );
-	void grenade_projectiles(C_BaseEntity* entity);
 	void DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player );
 	void DrawHealthBar( C_CSPlayer* player, BBox_t bbox );
 	void DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info );
@@ -1308,18 +1306,6 @@ void CEsp::Main( ) {
 		if( !entity->GetClientClass( ) /*|| !entity->GetClientClass( )->m_ClassID*/ )
 			continue;
 
-		if (entity->IsDormant())
-			continue;
-
-		switch (entity->GetClientClass()->m_ClassID)
-		{
-		default:
-			grenade_projectiles(entity);
-			break;
-		
-
-		}
-
 		if (g_Vars.esp.nades) {
 			if (entity->GetClientClass()->m_ClassID == CInferno) {
 				C_Inferno* pInferno = reinterpret_cast<C_Inferno*>(entity);
@@ -1795,11 +1781,6 @@ void CEsp::AmmoBar( C_CSPlayer* player, BBox_t bbox ) {
 
 		Render::Engine::Rect( bbox.x + 1, bbox.y + bbox.h + 3 + index, bar, 2, clr );
 	}
-}
-
-void CEsp::grenade_projectiles(C_BaseEntity* entity)
-{
-	c_grenade_prediction::get().grenade_warning((projectile_t*)entity);
 }
 
 void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {

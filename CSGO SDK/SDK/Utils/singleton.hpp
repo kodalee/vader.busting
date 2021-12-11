@@ -20,16 +20,6 @@ namespace SDK::Core
 		return ( const T* )( this );
 	 }
 
-	 static T& get()
-	 {
-		 static T inst
-		 {
-
-		 };
-
-		 return inst;
-	 }
-
   protected:
 	 Singleton( ) = default;
 	 Singleton( const Singleton& ) = delete;

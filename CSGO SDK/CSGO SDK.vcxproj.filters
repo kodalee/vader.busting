@@ -393,7 +393,6 @@
     <ClCompile Include="Libraries\lua-api\lua_api.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_stdlib.cpp" />
     <ClCompile Include="Libraries\lua-api\lua_gameevents.cpp" />
-    <ClCompile Include="Features\Visuals\Grenade_warning.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -935,7 +934,6 @@
     <ClInclude Include="Utils\tinyformat.h" />
     <ClInclude Include="Utils\fnv.h" />
     <ClInclude Include="SDK\CLuaConfigs.h" />
-    <ClInclude Include="Features\Visuals\Grenade_warning.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

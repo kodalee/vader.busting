@@ -2,21 +2,6 @@
 
 #include "../sdk.hpp"
 #include "../Valve/UtlVector.hpp"
-#include "PropManager.hpp"
-
-
-#define NETVAR(type, name, table, netvar)                           \
-    type& name##() const {                                          \
-        static int _##name = Engine::PropManager::Instance()->GetOffset(table, netvar);     \
-        return *(type*)((uintptr_t)this + _##name);                 \
-        }
-
-
-#define OFFSET(type, name, offset)\
-type &name##() const\
-{\
-        return *(type*)(uintptr_t(this) + offset);\
-}
 
 #pragma region decl_indices
 namespace Index
@@ -288,70 +273,6 @@ public:
 	int& m_nModelIndex( );
 	int& m_nPrecipType( );
 
-};
-
-class projectile_t : public C_BaseEntity
-{
-public:
-	int m_vInitialVelocity() {
-		static auto m_vInitialVelocity = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_vInitialVelocity"));
-		return *(int*)((uintptr_t)this + m_vInitialVelocity);
-	}
-
-	int m_flAnimTime() {
-		static auto m_flAnimTime = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_flAnimTime"));
-		return *(int*)((uintptr_t)this + m_flAnimTime);
-	}
-
-	int m_nExplodeEffectTickBegin() {
-		static auto m_nExplodeEffectTickBegin = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_nExplodeEffectTickBegin"));
-		return *(int*)((uintptr_t)this + m_nExplodeEffectTickBegin);
-	}
-
-	int m_nBody() {
-		static auto m_nBody = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_nBody"));
-		return *(int*)((uintptr_t)this + m_nBody);
-	}
-
-	int m_nForceBone() {
-		static auto m_nForceBone = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_nForceBone"));
-		return *(int*)((uintptr_t)this + m_nForceBone);
-	}
-
-	int m_vecVelocity() {
-		static auto m_vecVelocity = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseGrenade"), XorStr("m_vecVelocity"));
-		return *(int*)((uintptr_t)this + m_vecVelocity);
-	}
-
-	int m_hThrower() {
-		static auto m_hThrower = Engine::PropManager::Instance()->GetOffset("CBaseGrenade", "m_hThrower");
-		return *(int*)((uintptr_t)this + m_hThrower);
-	}
-
-	int m_hThrower() {
-		static auto m_hThrower = Engine::PropManager::Instance()->GetOffset("CBaseGrenade", "m_hThrower");
-		return *(int*)((uintptr_t)this + m_hThrower);
-	}
-
-	int m_vecOrigin() {
-		static auto m_vecOrigin = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_vecOrigin"));
-		return *(int*)((uintptr_t)this + m_vecOrigin);
-	}
-
-	int m_flSpawnTime() {
-		static auto m_flSpawnTime = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_vecExplodeEffectOrigin")) + 0xC;
-		return *(int*)((uintptr_t)this + m_flSpawnTime);
-	}
-
-	//NETVAR(Vector, m_vInitialVelocity, XorStr("CBaseCSGrenadeProjectile"), XorStr("m_vInitialVelocity"));
-	//NETVAR(int, m_flAnimTime, XorStr("CBaseCSGrenadeProjectile"), XorStr("m_flAnimTime"));
-	//NETVAR(int, m_nExplodeEffectTickBegin, XorStr("CBaseCSGrenadeProjectile"), XorStr("m_nExplodeEffectTickBegin"));
-	//NETVAR(int, m_nBody, XorStr("CBaseCSGrenadeProjectile"), XorStr("m_nBody"));
-	//NETVAR(int, m_nForceBone, XorStr("CBaseCSGrenadeProjectile"), XorStr("m_nForceBone"));
-	//NETVAR(Vector, m_vecVelocity, XorStr("CBaseGrenade"), XorStr("m_vecVelocity"));
-	//NETVAR(CHandle<C_CSPlayer>, m_hThrower, "CBaseGrenade", "m_hThrower");
-	//NETVAR(Vector, m_vecOrigin, XorStr("CBaseCSGrenadeProjectile"), XorStr("m_vecOrigin"));
-	//OFFSET(float, m_flSpawnTime, Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_vecExplodeEffectOrigin")) + 0xC);
 };
 
 class C_PlantedC4 : public C_BaseEntity {
