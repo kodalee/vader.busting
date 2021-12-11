@@ -169,6 +169,8 @@ namespace Hooked
 					}
 				}
 			}
+
+			Interfaces::Miscellaneous::Get()->Main();
 		}
 
 		if( g_Vars.esp.remove_post_proccesing ) {
@@ -458,8 +460,6 @@ namespace Hooked
 			}
 			else
 				g_Vars.globals.m_iServerType = -1; // no connected
-
-			Interfaces::Miscellaneous::Get( )->Main( );
 
 			if( g_Vars.esp.beam_enabled && g_Vars.globals.HackIsReady && g_Vars.globals.RenderIsReady && g_Vars.esp.beam_type == 1 )
 				IBulletBeamTracer::Get( )->Main( );
