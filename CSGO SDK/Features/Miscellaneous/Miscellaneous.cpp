@@ -205,7 +205,7 @@ namespace Interfaces
 
 		int pos = (int)(local->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick * 2) % (length * 2);
 
-		fnClantagChanged((pos <= length ? tag.substr(0, pos) : tag.substr(pos - length, length - (pos - length))).c_str(), XorStr("vader.tech"));
+		fnClantagChanged((pos <= length ? tag.substr(0, pos) : tag.substr(pos - length, length - (pos - length))).c_str(), tag.c_str());
 	}
 
 	void C_Miscellaneous::ViewModelChanger( ) {
