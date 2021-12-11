@@ -189,8 +189,10 @@ namespace Interfaces
 		case 2:
 		{
 			run_once = true;
-			tag = g_Vars.misc.custom_clantag;
-			length = tag.length();
+			if (g_Vars.misc.custom_clantag != "") {
+				tag = g_Vars.misc.custom_clantag;
+				length = tag.length();
+			}
 			break;
 		}
 
