@@ -182,14 +182,14 @@ namespace Interfaces
 		case 1:
 		{
 			run_once = true;
-			tag = "vader.tech";
+			tag = XorStr("vader.tech");
 			length = tag.length();
 			break;
 		}
 		case 2:
 		{
 			run_once = true;
-			if (g_Vars.misc.custom_clantag != "") {
+			if (g_Vars.misc.custom_clantag != XorStr("")) {
 				tag = g_Vars.misc.custom_clantag;
 				length = tag.length();
 			}
@@ -205,7 +205,7 @@ namespace Interfaces
 
 		int pos = (int)(local->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick * 2) % (length * 2);
 
-		fnClantagChanged((pos <= length ? tag.substr(0, pos) : tag.substr(pos - length, length - (pos - length))).c_str(), "vader.tech");
+		fnClantagChanged((pos <= length ? tag.substr(0, pos) : tag.substr(pos - length, length - (pos - length))).c_str(), XorStr("vader.tech"));
 	}
 
 	void C_Miscellaneous::ViewModelChanger( ) {
