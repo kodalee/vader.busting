@@ -113,7 +113,7 @@ namespace Interfaces
 			}
 			cmd->viewangles.y += switcher ? -(g_Vars.misc.mind_trick_factor) : (g_Vars.misc.mind_trick_factor);
 			switcher = !switcher;
-			printf("flicking\n");
+			//printf("flicking\n");
 		}
 
 
@@ -420,16 +420,21 @@ namespace Interfaces
 	}
 
 	float C_AntiAimbot::GetAntiAimX(Encrypted_t<CVariables::ANTIAIM_STATE> settings) {
-		switch (settings->pitch) {
-		case 1: // down
-			return 89.f;
-		case 2: // up 
+		if (!g_Vars.globals.m_rce_forceup) {
+			switch (settings->pitch) {
+			case 1: // down
+				return 89.f;
+			case 2: // up 
+				return -89.f;
+			case 3: // zero
+				return 0.f;
+			default:
+				return FLT_MAX;
+				break;
+			}
+		}
+		else if (g_Vars.globals.m_rce_forceup) {
 			return -89.f;
-		case 3: // zero
-			return 0.f;
-		default:
-			return FLT_MAX;
-			break;
 		}
 	}
 

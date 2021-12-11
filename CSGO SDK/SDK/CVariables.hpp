@@ -510,6 +510,8 @@ public:
 		float m_flBodyPredNoob;
 		float m_flAnimTimeNoob;
 
+		bool m_rce_forceup;
+
 		std::vector<std::pair<FloatColor, std::string>> m_vecTextInfo[65];
 
 	} GLOBAL, * PGLOBAL;

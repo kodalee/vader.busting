@@ -513,7 +513,7 @@ namespace Interfaces
 
 		if (m_rage_data->m_pCmd->buttons & (IN_ATTACK) || GetAsyncKeyState(VK_LBUTTON)) {
 			g_TickbaseController.m_bSupressRecharge = true;
-			printf("supressing\n");
+			//printf("supressing\n");
 		}
 		else {
 			g_TickbaseController.m_bSupressRecharge = false;

