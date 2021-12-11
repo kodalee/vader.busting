@@ -3,11 +3,6 @@
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Renderer/Render.hpp"
 
-int random_int(int min, int max) {
-	typedef int(*RandomInt_t)(int, int);
-	static RandomInt_t m_RandomInt = (RandomInt_t)GetProcAddress(GetModuleHandle(("vstdlib.dll")), XorStr("RandomInt"));
-	return m_RandomInt(min, max);
-}
 
 namespace Engine
 {
@@ -66,11 +61,8 @@ namespace Engine
 		}
 
 		if( pPrecipitation && pPrecipitation->m_pCreateFn ) {
-			auto serial = random_int(0, 4095);
-			auto entry = Interfaces::m_pEntList->GetHighestEntityIndex() + 1;
+			IClientNetworkable* pRainNetworkable = ((IClientNetworkable * (*)(int, int))pPrecipitation->m_pCreateFn)(MAX_EDICTS - 1, 0);
 
-
-			IClientNetworkable* pRainNetworkable = ( ( IClientNetworkable * ( * )( int, int ) )pPrecipitation->m_pCreateFn )(entry, serial);
 			if( !pRainNetworkable ) {
 				return;
 			}
@@ -102,8 +94,8 @@ namespace Engine
 
 			// only PRECIPITATION_TYPE_RAIN and PRECIPITATION_TYPE_SNOW work..?
 			pRainEnt->m_nPrecipType( ) = PrecipitationType_t::PRECIPITATION_TYPE_SNOW;
-			pRainEnt->GetCollideable()->OBBMins( ) = Vector( -32768.0f, -32768.0f, -32768.0f );
-			pRainEnt->GetCollideable()->OBBMaxs() = Vector( 32768.0f, 32768.0f, 32768.0f );
+			pRainEnt->GetCollideable()->OBBMins( ) = Vector( -16384.0f, -16384.0f, -16384.0f);
+			pRainEnt->GetCollideable()->OBBMaxs() = Vector( 16384.0f, 16384.0f, 16384.0f );
 
 			pRainEnt->GetClientNetworkable( )->OnDataChanged( 0 );
 			pRainEnt->GetClientNetworkable( )->PostDataUpdate( 0 );
