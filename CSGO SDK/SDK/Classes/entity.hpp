@@ -323,6 +323,16 @@ public:
 		return *(int*)((uintptr_t)this + m_vecVelocity);
 	}
 
+	int m_hThrower() {
+		static auto m_hThrower = Engine::PropManager::Instance()->GetOffset("CBaseGrenade", "m_hThrower");
+		return *(int*)((uintptr_t)this + m_hThrower);
+	}
+
+	int m_hThrower() {
+		static auto m_hThrower = Engine::PropManager::Instance()->GetOffset("CBaseGrenade", "m_hThrower");
+		return *(int*)((uintptr_t)this + m_hThrower);
+	}
+
 	int m_vecOrigin() {
 		static auto m_vecOrigin = Engine::PropManager::Instance()->GetOffset(XorStr("CBaseCSGrenadeProjectile"), XorStr("m_vecOrigin"));
 		return *(int*)((uintptr_t)this + m_vecOrigin);
