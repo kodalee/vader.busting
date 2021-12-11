@@ -940,7 +940,7 @@ namespace Menu {
 					GUI::Controls::MultiDropdown(XorStr("Indicators"), m_indicators);
 					GUI::Controls::ColorPicker(XorStr("Indicators color"), &g_Vars.esp.indicator_color);
 
-					GUI::Controls::Checkbox(XorStr("Clan-tag spammer"), &g_Vars.misc.clantag_changer);
+					//GUI::Controls::Checkbox(XorStr("Clan-tag spammer"), &g_Vars.misc.clantag_changer);
 
 					std::vector<MultiItem_t> notifications = {
 						{ XorStr("Bomb"), &g_Vars.esp.event_bomb },

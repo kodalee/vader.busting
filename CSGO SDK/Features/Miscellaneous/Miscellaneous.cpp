@@ -163,20 +163,38 @@ namespace Interfaces
 	void C_Miscellaneous::ClantagChanger() {
 		static bool run_once = false;
 		static auto fnClantagChanged = (int(__fastcall*)(const char*, const char*)) Engine::Displacement.Function.m_uClanTagChange;
+		static std::string tag;
+		static int length;
 
-		if (!g_Vars.misc.clantag_changer) {
+		switch (g_Vars.misc.clantag_changer)
+		{
+		case 0:
+		{
+
 			if (run_once) {
 				fnClantagChanged(XorStr(""), XorStr(""));
 				run_once = false;
 			}
-
 			return;
+
+			break;
+		}
+		case 1:
+		{
+			run_once = true;
+			tag = "vader.tech";
+			length = tag.length();
+			break;
+		}
+		case 2:
+		{
+			run_once = true;
+			tag = g_Vars.misc.custom_clantag;
+			length = tag.length();
+			break;
 		}
 
-		run_once = true;
-
-		static std::string tag = "vader.tech";
-		static int length = tag.length();
+		}
 
 		auto local = C_CSPlayer::GetLocalPlayer();
 

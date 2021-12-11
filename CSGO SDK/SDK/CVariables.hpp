@@ -1382,7 +1382,8 @@ public:
 	config_option( int, hitsound_custom, 0 );
 	config_option( float, hitsound_volume, 100.f );
 
-	config_option( bool, clantag_changer, false );
+	config_option( int, clantag_changer, 0 );
+	config_option( std::string, custom_clantag, "Vader.tech" );
 
 	config_option( bool, chat_spammer, false );
 

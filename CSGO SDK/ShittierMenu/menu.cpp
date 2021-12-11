@@ -1121,7 +1121,12 @@ void Misc()
 			}
 
 			InsertCheckbox(Watermark, XorStr("Watermark"), &g_Vars.misc.watermark);
-			InsertCheckbox(ClanTag, XorStr("Clan-tag"), &g_Vars.misc.clantag_changer);
+			const char* clantag_options[] = { "Off", "Default", "Custom" };
+
+			InsertCombo(XorStr("Clan-tag"), &g_Vars.misc.clantag_changer, clantag_options);
+			if (g_Vars.misc.clantag_changer == 2) {
+				ImGui::InputText("##Custom Clantag", &g_Vars.misc.custom_clantag);
+			}
 
 			std::vector<MultiItem_t> notifications = {
 				{ XorStr("Damage dealt"), &g_Vars.esp.event_dmg },
