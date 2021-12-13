@@ -62,89 +62,115 @@ namespace Interfaces
 
 	//void C_AntiAimbot::SendFakeFlick() {
 	//	if (g_TickbaseController.m_didFakeFlick) {
-	//		g_TickbaseController.s_nExtraProcessingTicks = 14;
+	//		//g_TickbaseController.s_nSpeed = 14;
 	//		g_TickbaseController.ignoreallcmds = true;
 	//		g_TickbaseController.m_didFakeFlick = false;
 	//	}
 	//}
 
-	void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
-	{
-		if (!g_Vars.misc.mind_trick || !g_Vars.misc.mind_trick_bind.enabled || !g_Vars.misc.slow_walk_bind.enabled)
-			return;
-
-		auto localPlayer = C_CSPlayer::GetLocalPlayer();
-
-		if (!localPlayer->m_iHealth() > 0)
-			return;
-
-		//if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
-		//	if (cmd->sidemove == 0 && cmd->forwardmove == 0 /*&& localPlayer->m_vecVelocity().Length2D() < 10.f*/) {
-		//		static bool switcher = false;
-		//		cmd->sidemove = switcher ? -9.99f : 9.99f;
-		//		switcher = !switcher;
-		//	}
-		//}
-
-		static bool swap = false;
-		swap = !swap;
-
-		auto prevTickCount = cmd->tick_count;
-
-		auto tickAmount = INT_MAX / 8;
 
 
-		if (g_Vars.globals.updatingPacket && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.key && g_Vars.misc.slow_walk_bind.enabled) {
-			if (/*cmd->sidemove == 0 && cmd->forwardmove == 0 && */localPlayer->m_vecVelocity().Length2D() < 17.f) {
-				static bool switcher2 = false;
-				cmd->sidemove = switcher2 ? -17.f : 17.f;
-				switcher2 = !switcher2;
-			}
+	//void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
+	//{
+	//	if (!g_Vars.misc.mind_trick || !g_Vars.misc.mind_trick_bind.enabled)
+	//		return;
 
-			static bool switcher = false;
-			auto curtime = Interfaces::m_pGlobalVars->curtime + .01f;
-			if (Interfaces::m_pGlobalVars->curtime >= curtime) {
-				cmd->tick_count = tickAmount;
-				auto curtime2 = Interfaces::m_pGlobalVars->curtime + .015f;
-				if (Interfaces::m_pGlobalVars->curtime >= curtime2) {
-					cmd->tick_count = tickAmount;
-					cmd->command_number = INT_MAX;
-				}
-			}
-			cmd->viewangles.y += switcher ? -(g_Vars.misc.mind_trick_factor) : (g_Vars.misc.mind_trick_factor);
-			switcher = !switcher;
-			//printf("flicking\n");
-		}
+	//	auto localPlayer = C_CSPlayer::GetLocalPlayer();
+
+	//	if (!localPlayer->m_iHealth() > 0)
+	//		return;
+
+	//	if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+	//		if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
+	//			printf("choked true\n");
+	//			if (Interfaces::m_pGlobalVars->curtime < g_Vars.globals.m_flBodyPred) {
+	//				printf("curtime true\n");
+	//				if (g_TickbaseController.lastShiftedCmdNr != Interfaces::m_pClientState->m_nLastOutgoingCommand()) {
+	//					printf("doesn't equal true\n");
+	//					//static bool switcher2 = false;
+	//					//g_cl.m_cmd->m_view_angles.x -= 180.f;
+	//					//g_cl.m_cmd->m_view_angles.y += switcher2 ? g_menu.main.antiaim.angleflick.get() : -(g_menu.main.antiaim.angleflick.get());
+	//					//switcher2 = !switcher2;
+	//					cmd->viewangles.y += 135.f;
+	//					//g_cl.ticksToShift = 0;
+	//					if (/*g_cl.m_cmd->m_side_move == 0 && g_cl.m_cmd->m_forward_move == 0 && */localPlayer->m_vecVelocity().Length2D() < 11.f) {
+	//						static bool switcher = false;
+	//						cmd->sidemove = switcher ? -13.37f : 13.37f;
+	//						switcher = !switcher;
+	//					}
+	//					g_TickbaseController.m_didFakeFlick = true;
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//	////if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
+	//	////	if (cmd->sidemove == 0 && cmd->forwardmove == 0 /*&& localPlayer->m_vecVelocity().Length2D() < 10.f*/) {
+	//	////		static bool switcher = false;
+	//	////		cmd->sidemove = switcher ? -9.99f : 9.99f;
+	//	////		switcher = !switcher;
+	//	////	}
+	//	////}
+
+	//	//static bool swap = false;
+	//	//swap = !swap;
+
+	//	//auto prevTickCount = cmd->tick_count;
+
+	//	//auto tickAmount = INT_MAX / 8;
 
 
-		//if (g_Vars.globals.updatingPacket) {
-		//	cmd->viewangles.y += RandomFloat(135.f, 165.f);
-		//	printf("flicking\n");
-		//}
+	//	//if (g_Vars.globals.updatingPacket && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.key && g_Vars.misc.slow_walk_bind.enabled) {
+	//	//	if (/*cmd->sidemove == 0 && cmd->forwardmove == 0 && */localPlayer->m_vecVelocity().Length2D() < 17.f) {
+	//	//		static bool switcher2 = false;
+	//	//		cmd->sidemove = switcher2 ? -17.f : 17.f;
+	//	//		switcher2 = !switcher2;
+	//	//	}
+
+	//	//	static bool switcher = false;
+	//	//	auto curtime = Interfaces::m_pGlobalVars->curtime + .01f;
+	//	//	if (Interfaces::m_pGlobalVars->curtime >= curtime) {
+	//	//		cmd->tick_count = tickAmount;
+	//	//		auto curtime2 = Interfaces::m_pGlobalVars->curtime + .015f;
+	//	//		if (Interfaces::m_pGlobalVars->curtime >= curtime2) {
+	//	//			cmd->tick_count = tickAmount;
+	//	//			cmd->command_number = INT_MAX;
+	//	//		}
+	//	//	}
+	//	//	cmd->viewangles.y += switcher ? -(g_Vars.misc.mind_trick_factor) : (g_Vars.misc.mind_trick_factor);
+	//	//	switcher = !switcher;
+	//	//	//printf("flicking\n");
+	//	//}
+
+
+	//	////if (g_Vars.globals.updatingPacket) {
+	//	////	cmd->viewangles.y += RandomFloat(135.f, 165.f);
+	//	////	printf("flicking\n");
+	//	////}
 
 
 
-		//if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
-		//	if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
-		//		if (localPlayer->m_flAnimationTime() < g_Vars.globals.m_flBodyPred) {
-		//			if (g_TickbaseController.lastShiftedCmdNr != Interfaces::m_pClientState->m_nLastOutgoingCommand()) {
-		//				//static bool switcher2 = false;
-		//				//g_cl.m_cmd->m_view_angles.x -= 180.f;
-		//				//g_cl.m_cmd->m_view_angles.y += switcher2 ? g_menu.main.antiaim.angleflick.get() : -(g_menu.main.antiaim.angleflick.get());
-		//				//switcher2 = !switcher2;
-		//				cmd->viewangles.y += 135.f;
-		//				//g_cl.ticksToShift = 0;
-		//				if (/*g_cl.m_cmd->m_side_move == 0 && g_cl.m_cmd->m_forward_move == 0 && */localPlayer->m_vecVelocity().Length2D() < 11.f) {
-		//					static bool switcher = false;
-		//					cmd->sidemove = switcher ? -13.37f : 13.37f;
-		//					switcher = !switcher;
-		//				}
-		//				g_TickbaseController.m_didFakeFlick = true;
-		//			}
-		//		}
-		//	}
-		//}
-	}
+	//	////if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+	//	////	if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
+	//	////		if (localPlayer->m_flAnimationTime() < g_Vars.globals.m_flBodyPred) {
+	//	////			if (g_TickbaseController.lastShiftedCmdNr != Interfaces::m_pClientState->m_nLastOutgoingCommand()) {
+	//	////				//static bool switcher2 = false;
+	//	////				//g_cl.m_cmd->m_view_angles.x -= 180.f;
+	//	////				//g_cl.m_cmd->m_view_angles.y += switcher2 ? g_menu.main.antiaim.angleflick.get() : -(g_menu.main.antiaim.angleflick.get());
+	//	////				//switcher2 = !switcher2;
+	//	////				cmd->viewangles.y += 135.f;
+	//	////				//g_cl.ticksToShift = 0;
+	//	////				if (/*g_cl.m_cmd->m_side_move == 0 && g_cl.m_cmd->m_forward_move == 0 && */localPlayer->m_vecVelocity().Length2D() < 11.f) {
+	//	////					static bool switcher = false;
+	//	////					cmd->sidemove = switcher ? -13.37f : 13.37f;
+	//	////					switcher = !switcher;
+	//	////				}
+	//	////				g_TickbaseController.m_didFakeFlick = true;
+	//	////			}
+	//	////		}
+	//	////	}
+	//	////}
+	//}
 
 	bool C_AntiAimbot::IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings) {
 		C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
@@ -344,7 +370,7 @@ namespace Interfaces
 
 			Distort(cmd);
 
-			fake_flick(cmd);
+			//fake_flick(cmd);
 		}
 		else {
 			//*bSendPacket = true;
@@ -503,8 +529,6 @@ namespace Interfaces
 
 
 		if (g_Vars.antiaim.freestand) {
-
-
 			if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
 				C_AntiAimbot::Directions Direction = HandleDirection(cmd);
 				switch (Direction) {
@@ -526,8 +550,6 @@ namespace Interfaces
 				break;
 				}
 			}
-
-
 		}
 
 		//if (!bUsingManualAA && g_Vars.antiaim.preserve) {

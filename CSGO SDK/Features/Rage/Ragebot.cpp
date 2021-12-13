@@ -1594,7 +1594,7 @@ namespace Interfaces
 			}
 			else {
 				// if damage to body higher than hp, prioritize body or safe points
-				if (int(flMaxBodyDamage) >= (iHealth / 2) || g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+				if (int(flMaxBodyDamage) >= (iHealth / 2) || (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) || !(bestPoint->target->player->m_fFlags() & FL_ONGROUND)) {
 					// don't shoot at head if we can shoot body and kill enemy
 					if (!p.isBody) {
 						continue; // go to next point
@@ -1614,6 +1614,7 @@ namespace Interfaces
 					// if damage to the head is higher than hp, prioritize head or safe points
 					if (int(flMaxHeadDamage) > iHealth) {
 						//// don't shoot at body if we can shoot head and kill enemy
+						// GEICO FROM FUTURE
 						if (!p.isHead) {
 							continue; // go to next point
 						}
@@ -1909,7 +1910,10 @@ namespace Interfaces
 			auto hitbox = hitboxSet->pHitbox(pPoint->hitboxIndex);
 
 			pPoint->isHead = pPoint->hitboxIndex == HITBOX_HEAD || pPoint->hitboxIndex == HITBOX_NECK;
-			pPoint->isBody = pPoint->hitboxIndex == HITBOX_PELVIS || pPoint->hitboxIndex == HITBOX_STOMACH || pPoint->hitboxIndex == HITBOX_CHEST || pPoint->hitboxIndex == HITBOX_UPPER_CHEST || pPoint->hitboxIndex == HITBOX_LOWER_CHEST;
+			pPoint->isBody = pPoint->hitboxIndex == HITBOX_PELVIS || pPoint->hitboxIndex == HITBOX_STOMACH || pPoint->hitboxIndex == HITBOX_CHEST ||
+				pPoint->hitboxIndex == HITBOX_UPPER_CHEST || pPoint->hitboxIndex == HITBOX_LOWER_CHEST || pPoint->hitboxIndex == HITBOX_LEFT_CALF ||
+				pPoint->hitboxIndex == HITBOX_RIGHT_CALF || pPoint->hitboxIndex == HITBOX_LEFT_FOOT || pPoint->hitboxIndex == HITBOX_RIGHT_FOOT ||
+				pPoint->hitboxIndex == HITBOX_RIGHT_THIGH || pPoint->hitboxIndex == HITBOX_LEFT_THIGH;
 
 			// nospread enabled
 			if (m_rage_data->m_flSpread != 0.0f && m_rage_data->m_flInaccuracy != 0.0f) {

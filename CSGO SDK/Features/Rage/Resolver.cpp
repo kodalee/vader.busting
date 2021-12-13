@@ -550,7 +550,7 @@ namespace Engine {
 
 			const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-			if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2)
+			if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
 			{
 				//m_iMode = 0;
 				record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
@@ -566,11 +566,13 @@ namespace Engine {
 					if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
 						m_iMode = 1;
 					}
-					else
+					else {
+						record->m_angEyeAngles.y = at_target_yaw + 180.f;
 						m_iMode = 0;
+					}
 					break;
 				case 1:
-					record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
+					record->m_angEyeAngles.y = at_target_yaw + 180.f;
 					m_iMode = 0;
 					break;
 				case 2:
@@ -603,7 +605,7 @@ namespace Engine {
 
 			const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-			if (/*(data->m_flLowerBodyYawTarget != data->m_old_body) &&*/ is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2)
+			if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
 			{
 				record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
 
@@ -612,7 +614,7 @@ namespace Engine {
 				record->m_iResolverText = "UPDATE";
 			}
 			else {
-				switch (pLagData->m_last_move % 4) {
+				switch (pLagData->m_last_move % 5) {
 				case 0:
 					record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
 					break;
@@ -621,14 +623,19 @@ namespace Engine {
 						m_iMode = 1;
 						//g_notify.add(XOR("ANTIFREESTANDING\n"));
 					}
-					else
+					else {
+						record->m_angEyeAngles.y = at_target_yaw + 180.f;
 						m_iMode = 0;
+					}
 					break;
 				case 2:
+					record->m_angEyeAngles.y = at_target_yaw + 180.f;
+					break;
+				case 3:
 					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget + 70.f;
 					m_iMode = 0;
 					break;
-				case 3:
+				case 4:
 					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget - 70.f;
 					m_iMode = 0;
 					break;

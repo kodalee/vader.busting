@@ -52,10 +52,10 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 
 
 	const bool bStart = s_bBuilding;
-	s_bBuilding = g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !GetAsyncKeyState(VK_LBUTTON)
+	s_bBuilding = /*m_didFakeFlick || */(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !GetAsyncKeyState(VK_LBUTTON)
 #ifndef STANDALONE_CSGO
 			&& s_nTicksSinceUse >= s_nTicksRequired
-		&& !m_bSupressRecharge
+		&& !m_bSupressRecharge)
 #endif
 		;
 
@@ -194,7 +194,9 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		while (s_nExtraProcessingTicks > 0)
 		{
 			bFinalTick = s_nExtraProcessingTicks == 1;
-
+			if (ignoreallcmds) {
+				Interfaces::m_pGlobalVars->tickcount = INT_MAX;
+			}
 			Hooked::oCL_Move(bFinalTick, 0.f);
 
 			if (inya)
@@ -207,6 +209,11 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 			}
 
 			s_nExtraProcessingTicks--;
+
+			//if (s_nExtraProcessingTicks <= 1) {
+			//	lastShiftedCmdNr = Interfaces::m_pClientState->m_nLastOutgoingCommand();
+			//}
+
 		}
 
 		//keep track of time

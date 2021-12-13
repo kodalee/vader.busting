@@ -13,6 +13,10 @@ class TickbaseSystem {
 public:
 	size_t s_nSpeed = 14;
 
+	bool m_didFakeFlick;
+	bool ignoreallcmds;
+	int lastShiftedCmdNr;
+
 	size_t s_nTickRate = 64;
 	float s_flTickInterval = 1.f / ( float )s_nTickRate;
 
