@@ -50,6 +50,17 @@ namespace lua_events {
 
 }
 
+namespace lua_ui {
+	float keybinds_pos_x() {
+		return g_Vars.esp.spec_window_x;
+	}
+
+	float keybinds_pos_y() {
+		return g_Vars.esp.spec_window_y;
+	}
+
+}
+
 namespace lua_config {
 	/*
 	config.get(key)
@@ -740,9 +751,12 @@ bool c_lua::initialize() {
 	render["draw_rect_filled"] = lua_render::draw_rect_filled;
 	render["draw_circle"] = lua_render::draw_circle;
 	render["draw_rect_outlined"] = lua_render::draw_rect_outlined;
-
-
 	render["world_to_screen"] = lua_render::world_to_screen;
+
+	auto ui = this->lua.create_table();
+	ui["keybinds_pos_x"] = lua_ui::keybinds_pos_x;
+	ui["keybinds_pos_y"] = lua_ui::keybinds_pos_y;
+
 
 	this->lua["event"] = events;
 	this->lua["config"] = config;
@@ -756,6 +770,7 @@ bool c_lua::initialize() {
 	this->lua["globals"] = globals;
 	this->lua["cvar"] = cvar;
 	this->lua["render"] = render;
+	this->lua["ui"] = ui;
 
 	this->refresh_scripts();
 	//this->load_script(this->get_script_id("autorun.lua"));
