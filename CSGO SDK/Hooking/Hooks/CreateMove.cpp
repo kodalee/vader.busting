@@ -322,7 +322,7 @@ namespace Hooked
 			RemoveButtons( IN_ATTACK2 );
 			RemoveButtons( IN_USE );
 
-			if( ImGui::GetIO().WantTextInput ) {
+			if( ImGui::GetIO().WantTextInput && g_IMGUIMenu.Initialized ) {
 				RemoveButtons( IN_MOVERIGHT );
 				RemoveButtons( IN_MOVELEFT );
 				RemoveButtons( IN_FORWARD );
