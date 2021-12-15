@@ -21,6 +21,7 @@
 #include "../../Features/Visuals/Hitmarker.hpp"
 #include "../../Features/Rage/AntiAim.hpp"
 #include "../../Features/Rage/Resolver.hpp"
+#include "../../ShittierMenu/menu.hpp"
 
 extern float fl_Override;
 extern bool g_Override;
@@ -314,14 +315,14 @@ namespace Hooked
 
 		auto movement = Interfaces::Movement::Get( );
 
-		if( g_Vars.globals.menuOpen ) {
+		if( g_IMGUIMenu.Opened ) {
 			// just looks nicer
 			auto RemoveButtons = [ & ] ( int key ) { cmd->buttons &= ~key; };
 			RemoveButtons( IN_ATTACK );
 			RemoveButtons( IN_ATTACK2 );
 			RemoveButtons( IN_USE );
 
-			if( GUI::ctx->typing ) {
+			if( ImGui::GetIO().WantTextInput ) {
 				RemoveButtons( IN_MOVERIGHT );
 				RemoveButtons( IN_MOVELEFT );
 				RemoveButtons( IN_FORWARD );

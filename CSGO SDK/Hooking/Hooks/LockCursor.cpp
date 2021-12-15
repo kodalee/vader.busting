@@ -10,7 +10,7 @@ void __stdcall Hooked::LockCursor() {
 	auto pLocal = C_CSPlayer::GetLocalPlayer();
 
 	bool state = true;
-	if (!Interfaces::m_pEngine->IsInGame() || (pLocal && pLocal->IsDead()) || GUI::ctx->typing) {
+	if (!Interfaces::m_pEngine->IsInGame() || (pLocal && pLocal->IsDead()) || ImGui::GetIO().WantTextInput) {
 		state = !(g_Vars.globals.menuOpen || g_IMGUIMenu.Opened);
 	}
 

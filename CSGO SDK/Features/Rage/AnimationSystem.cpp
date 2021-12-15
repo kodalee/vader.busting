@@ -422,16 +422,16 @@ namespace Engine
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
 		}
-		else {
-			printf(std::to_string(record->m_serverAnimOverlays[12].m_flWeight).c_str());
-			printf("\n");
-			printf(std::to_string(record->m_serverAnimOverlays[6].m_flWeight).c_str());
-			printf("\n");
-			printf(std::to_string(record->m_serverAnimOverlays[6].m_flPlaybackRate).c_str());
-			printf("\n");
-			printf(std::to_string(record->m_iChokeTicks).c_str());
-			printf("\n");
-		}
+		//else {
+		//	printf(std::to_string(record->m_serverAnimOverlays[12].m_flWeight).c_str());
+		//	printf("\n");
+		//	printf(std::to_string(record->m_serverAnimOverlays[6].m_flWeight).c_str());
+		//	printf("\n");
+		//	printf(std::to_string(record->m_serverAnimOverlays[6].m_flPlaybackRate).c_str());
+		//	printf("\n");
+		//	printf(std::to_string(record->m_iChokeTicks).c_str());
+		//	printf("\n");
+		//}
 		//else {
 		//	record->m_bFakeWalking = false;
 		//	Engine::g_ResolverData[player->EntIndex()].fakewalking = false;

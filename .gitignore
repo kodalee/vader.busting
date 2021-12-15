@@ -38,3 +38,4 @@
 *.exp
 Developer/Intermediate/CSGO SDK.vcxproj.FileListAbsolute.txt
 .vs/slnx.sqlite
+Developer/Intermediate/vc141.idb
