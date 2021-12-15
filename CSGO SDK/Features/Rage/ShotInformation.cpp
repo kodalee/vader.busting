@@ -323,14 +323,16 @@ namespace Engine
 
 						if (it->snapshot->ResolverType == EResolverModes::RESOLVE_BODY)
 							lag_data->m_iMissedShotsLBY++;
-						else if(it->snapshot->ResolverType == EResolverModes::RESOLVE_DELTA)
+						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_DELTA)
 							lag_data->m_delta_index++;
-						else if(it->snapshot->ResolverType == EResolverModes::RESOLVE_LASTMOVE)
+						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_LASTMOVE)
 							lag_data->m_last_move++;
-						else if(it->snapshot->ResolverType == EResolverModes::RESOLVE_UNKNOWM)
+						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_UNKNOWM)
 							lag_data->m_unknown_move++;
-						else if(it->snapshot->ResolverType == EResolverModes::RESOLVE_STAND2)
+						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_STAND2)
 							lag_data->m_stand_index2++;
+						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_LBY)
+							lag_data->m_lby_index++;
 						else
 							lag_data->m_iMissedShots++;
 
@@ -479,6 +481,7 @@ namespace Engine
 				lagData->m_delta_index = 0;
 				lagData->m_stand_index2 = 0;
 				lagData->m_unknown_move = 0;
+				lagData->m_lby_index = 0;
 				g_Vars.globals.m_iFiredShots = 0;
 			}
 
@@ -496,6 +499,7 @@ namespace Engine
 					lagData->m_delta_index = 0;
 					lagData->m_stand_index2 = 0;
 					lagData->m_unknown_move = 0;
+					lagData->m_lby_index = 0;
 					g_Vars.globals.m_iFiredShots = 0;
 				}
 			}

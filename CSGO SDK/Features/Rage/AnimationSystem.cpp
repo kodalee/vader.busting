@@ -414,13 +414,23 @@ namespace Engine
 		//	&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.0001f
 		//	&& record->m_serverAnimOverlays[12].m_flWeight > 0.0f
 		//	&& (record->m_fFlags & FL_ONGROUND)) {
-		if (record->m_iChokeTicks >= 6
-			&& record->m_serverAnimOverlays[12].m_flWeight == 0.0f
-			&& record->m_serverAnimOverlays[6].m_flWeight == 0.0f
-			&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.0001f
+		if (record->m_iChokeTicks >= 2
+			&& record->m_serverAnimOverlays[12].m_flWeight <= 0.035294f
+			&& record->m_serverAnimOverlays[6].m_flWeight <= 0.165f
+			&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.04f
 			&& (record->m_fFlags & FL_ONGROUND)) {
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
+		}
+		else {
+			printf(std::to_string(record->m_serverAnimOverlays[12].m_flWeight).c_str());
+			printf("\n");
+			printf(std::to_string(record->m_serverAnimOverlays[6].m_flWeight).c_str());
+			printf("\n");
+			printf(std::to_string(record->m_serverAnimOverlays[6].m_flPlaybackRate).c_str());
+			printf("\n");
+			printf(std::to_string(record->m_iChokeTicks).c_str());
+			printf("\n");
 		}
 		//else {
 		//	record->m_bFakeWalking = false;

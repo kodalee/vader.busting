@@ -279,6 +279,12 @@ namespace Engine {
 		if (!local)
 			return;
 
+		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+		if (!pLagData.IsValid())
+			return;
+
+		C_AnimationRecord* move = &pLagData->m_walk_record;
+
 		// mark this record if it contains a shot.
 		MatchShot(player, record);
 
@@ -464,6 +470,10 @@ namespace Engine {
 		if (!local)
 			return;
 
+		auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
+		if (!anim_data)
+			return;
+
 		// pointer for easy access.
 		C_AnimationRecord* move = &pLagData->m_walk_record;
 
@@ -475,6 +485,9 @@ namespace Engine {
 
 		float diff = Math::AngleNormalize(record->m_flLowerBodyYawTarget - move->m_flLowerBodyYawTarget);
 		float delta = record->m_anim_time - move->m_anim_time;
+
+		//if (diff < -35.f || diff > 35.f)
+		//	printf("Not breaking\n");
 
 		QAngle vAngle = QAngle(0, 0, 0);
 		Math::CalcAngle3(player->m_vecOrigin(), local->m_vecOrigin(), vAngle);
@@ -542,106 +555,125 @@ namespace Engine {
 		//	record->resolver_text = "DELTA";
 		//	record->m_angEyeAngles.y = math::normalize_float(data->m_flLowerBodyYawTarget + data->storedLbyDelta[index]);
 		//}
-		if (!record->m_moved) {
-
-			record->m_iResolverMode = RESOLVE_UNKNOWM;
-			record->m_iResolverText = "STAND";
 
 
-			const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-			if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
-			{
-				//m_iMode = 0;
-				record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
+		//if (diff > 35.f || diff < -35.f && pLagData->m_lby_index < 1)
+		//{
+		//	record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
+		//	record->m_iResolverText = "LBY";
+		//}
+		//else {
 
-				//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
+		//C_AnimationRecord* previous = &anim_data->m_AnimationRecord[1];
+		//if (previous) {
+		//	if (record->m_flLowerBodyYawTarget == previous->m_flLowerBodyYawTarget)
+		//		printf("Not breaking\n");
+		//}
 
-				record->m_iResolverMode = RESOLVE_BODY;
-				record->m_iResolverText = "UPDATE";
-			}
-			else {
-				switch (pLagData->m_unknown_move % 4) {
-				case 0:
-					if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
-						m_iMode = 1;
-					}
-					else {
+
+
+			if (!record->m_moved) {
+
+				record->m_iResolverMode = RESOLVE_UNKNOWM;
+				record->m_iResolverText = "STAND";
+
+
+				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+
+				if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
+				{
+					//m_iMode = 0;
+					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
+
+					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
+
+					record->m_iResolverMode = RESOLVE_BODY;
+					record->m_iResolverText = "UPDATE";
+				}
+				else {
+					switch (pLagData->m_unknown_move % 4) {
+					case 0:
+						if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
+							m_iMode = 1;
+						}
+						else {
+							record->m_angEyeAngles.y = at_target_yaw + 180.f;
+							m_iMode = 0;
+						}
+						break;
+					case 1:
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;
 						m_iMode = 0;
-					}
-					break;
-				case 1:
-					record->m_angEyeAngles.y = at_target_yaw + 180.f;
-					m_iMode = 0;
-					break;
-				case 2:
-					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget + 70.f;
-					m_iMode = 0;
-					break;
-				case 3:
-					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget - 70.f;
-					m_iMode = 0;
-					break;
-				}
-			}
-
-			//if (AntiFreestanding(player, data, record->m_angEyeAngles.y)) {
-			//	m_iMode = 1;
-			//	//g_notify.add(XOR("ANTIFREESTANDING\n"));
-			//}
-			//else
-			//	m_iMode = 0;
-			////SupremAntiFreestanding(record);
-
-		}
-		else if (record->m_moved) {
-			float diff = Math::AngleNormalize(record->m_flLowerBodyYawTarget - move->m_flLowerBodyYawTarget);
-			float delta = record->m_anim_time - move->m_anim_time;
-
-
-			record->m_iResolverMode = RESOLVE_LASTMOVE;
-			record->m_iResolverText = "LASTMOVE";
-
-			const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
-
-			if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
-			{
-				record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
-
-				//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
-				record->m_iResolverMode = RESOLVE_BODY;
-				record->m_iResolverText = "UPDATE";
-			}
-			else {
-				switch (pLagData->m_last_move % 5) {
-				case 0:
-					record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
-					break;
-				case 1:
-					if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
-						m_iMode = 1;
-						//g_notify.add(XOR("ANTIFREESTANDING\n"));
-					}
-					else {
-						record->m_angEyeAngles.y = at_target_yaw + 180.f;
+						break;
+					case 2:
+						record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget + 70.f;
 						m_iMode = 0;
+						break;
+					case 3:
+						record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget - 70.f;
+						m_iMode = 0;
+						break;
 					}
-					break;
-				case 2:
-					record->m_angEyeAngles.y = at_target_yaw + 180.f;
-					break;
-				case 3:
-					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget + 70.f;
-					m_iMode = 0;
-					break;
-				case 4:
-					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget - 70.f;
-					m_iMode = 0;
-					break;
+				}
+
+				//if (AntiFreestanding(player, data, record->m_angEyeAngles.y)) {
+				//	m_iMode = 1;
+				//	//g_notify.add(XOR("ANTIFREESTANDING\n"));
+				//}
+				//else
+				//	m_iMode = 0;
+				////SupremAntiFreestanding(record);
+
+			}
+			else if (record->m_moved) {
+				float diff = Math::AngleNormalize(record->m_flLowerBodyYawTarget - move->m_flLowerBodyYawTarget);
+				float delta = record->m_anim_time - move->m_anim_time;
+
+
+				record->m_iResolverMode = RESOLVE_LASTMOVE;
+				record->m_iResolverText = "LASTMOVE";
+
+				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+
+				if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
+				{
+					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
+
+					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
+					record->m_iResolverMode = RESOLVE_BODY;
+					record->m_iResolverText = "UPDATE";
+				}
+				else {
+					switch (pLagData->m_last_move % 5) {
+					case 0:
+						record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
+						break;
+					case 1:
+						if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
+							m_iMode = 1;
+							//g_notify.add(XOR("ANTIFREESTANDING\n"));
+						}
+						else {
+							record->m_angEyeAngles.y = at_target_yaw + 180.f;
+							m_iMode = 0;
+						}
+						break;
+					case 2:
+						record->m_angEyeAngles.y = at_target_yaw + 180.f;
+						break;
+					case 3:
+						record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget + 70.f;
+						m_iMode = 0;
+						break;
+					case 4:
+						record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget - 70.f;
+						m_iMode = 0;
+						break;
+					}
 				}
 			}
-		}
+		//}
 	}
 
 	//void CResolver::ResolvePoses(C_CSPlayer* player, C_AnimationRecord* record) {

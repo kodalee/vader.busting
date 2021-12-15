@@ -383,6 +383,16 @@ namespace Engine
 
 		this->m_iFlags = player->m_fFlags( );
 
+		int layerCount = 15;
+		for (int i = 0; i < layerCount; i++)
+		{
+			C_AnimationLayer currentLayer = player->GetAnimLayer(i);
+			m_LayerRecords[i].m_nOrder = currentLayer.m_nOrder;
+			m_LayerRecords[i].m_nSequence = currentLayer.m_nSequence;
+			m_LayerRecords[i].m_flWeight = currentLayer.m_flWeight;
+			m_LayerRecords[i].m_flCycle = currentLayer.m_flCycle;
+		}
+
 		std::memcpy( this->m_BoneMatrix, player->m_CachedBoneData( ).Base( ),
 			player->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
 

@@ -66,6 +66,8 @@ namespace Engine
 		Vector m_vecVelocity;
 		float m_flDuckAmount;
 
+		std::array<C_AnimationLayer, 15> m_LayerRecords;
+
 		bool m_bSkipDueToResolver = false; // skip record in hitscan
 		bool m_bTeleportDistance = false; // teleport distance was broken
 
@@ -92,6 +94,7 @@ namespace Engine
 		int m_iMissedShots = 0;
 		int m_iMissedShotsLBY = 0;
 		int m_stand_index2 = 0;
+		int m_lby_index = 0;
 		int m_body_index = 0;
 		int m_last_move = 0;
 		int m_unknown_move = 0;
