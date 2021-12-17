@@ -159,7 +159,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		InputSys::Get( )->SetScrollMouse( 0.f );
 	}
 
-	if (g_IMGUIMenu.Opened && g_IMGUIMenu.Initialize(pDevice))
+	if (g_IMGUIMenu.Initialize(pDevice) && g_IMGUIMenu.Opened)
 	{
 		pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
 		pDevice->GetVertexDeclaration(&vertDec);

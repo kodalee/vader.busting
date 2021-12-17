@@ -448,6 +448,7 @@ public:
 		bool bBrokeLC = false;
 		float delta;
 
+		int shift_amount;
 
 
 		cheat_header_t user_info;
@@ -649,6 +650,7 @@ public:
 	config_option( int, double_tap_type, 0 );
 
 	config_keybind( double_tap_bind );
+	config_option( bool, double_tap_lag_peek, false );
 //	config_keybind( hide_shots_bind );
 //	config_option( bool, break_lagcomp, false );
 

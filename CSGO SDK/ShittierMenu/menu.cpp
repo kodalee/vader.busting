@@ -253,6 +253,7 @@ void Ragebot()
 		if (g_Vars.rage.exploit) {
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
 			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
+			InsertCheckbox(DoubletapLagPeek, XorStr("Lag-Peek"), &g_Vars.rage.double_tap_lag_peek);
 		}
 
 		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
