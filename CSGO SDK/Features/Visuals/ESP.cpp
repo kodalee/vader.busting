@@ -467,7 +467,11 @@ void CEsp::Indicators() {
 	if (auto pLocal = C_CSPlayer::GetLocalPlayer(); pLocal) {
 		if (pLocal->m_vecVelocity().Length2D() > 270.f || g_Vars.globals.bBrokeLC) {
 			Indicator_t ind{ };
-			ind.color = g_Vars.globals.bBrokeLC ? Color(100, 255, 25) : Color(255, 0, 0);
+			if (!g_Vars.rage.key_dt.enabled && !g_Vars.rage.break_lagcomp) {
+				ind.color = g_Vars.globals.bBrokeLC ? Color(100, 255, 25) : Color(255, 0, 0);
+			}
+			else
+				ind.color = Color(100, 255, 25);
 			ind.text = XorStr("LC ");
 
 			indicators.push_back(ind);
