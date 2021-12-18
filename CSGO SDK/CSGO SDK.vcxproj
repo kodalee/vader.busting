@@ -592,6 +592,7 @@
     <ClInclude Include="SDK\Classes\IMoveHelper.hpp" />
     <ClInclude Include="SDK\Classes\INetChannel.hpp" />
     <ClInclude Include="SDK\Classes\INetMessage.hpp" />
+    <ClInclude Include="Utils\hud.h" />
     <ClInclude Include="Utils\InputSys.hpp" />
     <ClInclude Include="SDK\Classes\IPanel.hpp" />
     <ClInclude Include="SDK\Classes\IPhysics.hpp" />

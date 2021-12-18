@@ -10,6 +10,7 @@
 #include "../../SDK/Valve/recv_swap.hpp"
 #include "../../Utils/FnvHash.hpp"
 #include "../../SDK/displacement.hpp"
+#include "../../Utils/hud.h"
 
 static auto is_knife( const int i ) -> bool {
 	return ( i >= WEAPON_KNIFE_BAYONET && i < GLOVE_STUDDED_BLOODHOUND ) || i == WEAPON_KNIFE_T || i == WEAPON_KNIFE_CT;
@@ -501,101 +502,26 @@ void Skins::think() {
 		}
 	}
 
-	if (g_menu.main.skins.glove.get() > 0) {
-		CBaseHandle* wearables = local->m_hMyWearables();
-
-		// get pointer to entity from wearable handle 0.
-		// glove is at wearable 0, valve will likely add more wearables like hats and boots. thats why.
-		Weapon* glove = g_csgo.m_entlist->GetClientEntityFromHandle< Weapon* >(wearables[0]);
-
-		// there is no glove entity yet.
-		if (!glove) {
-			// attempt to get our old glove.
-			Weapon* old = g_csgo.m_entlist->GetClientEntityFromHandle< Weapon* >(m_glove_handle);
-
-			// this glove is still valid.
-			if (old) {
-
-				// write back handle to wearables.
-				wearables[0] = m_glove_handle;
-
-				// set glove pointer.
-				glove = old;
-			}
-		}
-
-		// if we at this point still not have a glove entity.
-		// we should create one.
-		if (!glove) {
-			ClientClass* list{ g_csgo.m_client->GetAllClasses() };
-
-			// iterate list.
-			for (; list != nullptr; list = list->m_pNext) {
-
-				// break if we found wearable
-				if (list->m_ClassID == g_netvars.GetClientID(HASH("CEconWearable")))
-					break;
-			}
-
-			// create an ent index and serial no for the new glove entity.
-			int index = g_csgo.m_entlist->GetHighestEntityIndex() + 1;
-			int serial = g_csgo.RandomInt(0xA00, 0xFFF);
-
-			// call ctor on CEconWearable entity.
-			Address networkable = list->m_pCreate(index, serial);
-
-			// get entity ptr via index.
-			glove = g_csgo.m_entlist->GetClientEntity< Weapon* >(index);
-
-			static Address offset = g_netvars.get(HASH("DT_EconEntity"), HASH("m_iItemIDLow"));
-
-			// m_bInitialized?
-			networkable.add(offset.add(0x8)).set< bool >(true);
-
-			// no idea what this is.
-			networkable.add(offset.sub(0xC)).set< bool >(true);
-
-			// set the wearable handle.
-			wearables[0] = index | (serial << 16);
-
-			// use this for later on.
-			m_glove_handle = wearables[0];
-		}
-
-		// store glove data.
-		GloveData* data = &m_glove_data[g_menu.main.skins.glove.get()];
-
-		// set default data,
-		glove->m_nFallbackSeed() = 0;
-		glove->m_nFallbackStatTrak() = -1;
-		glove->m_iItemIDHigh() = -1;
-		glove->m_iEntityQuality() = 4;
-		glove->m_iAccountID() = info.m_xuid_low;
-
-		// set custom data.
-		glove->m_nFallbackPaintKit() = 10000 + g_menu.main.skins.glove_id.get();
-		glove->m_iItemDefinitionIndex() = data->m_id;
-		glove->SetGloveModelIndex(data->m_model_index);
-
-		// update the glove.
-		glove->PreDataUpdate(DATA_UPDATE_CREATED);
-	}
-
 	// only force update every 1s.
-	if (m_update && g_csgo.m_globals->m_curtime >= m_update_time) {
+	if (m_update && Interfaces::m_pGlobalVars->curtime >= m_update_time) {
 		for (auto& w : weapons)
 			UpdateItem(w);
 
 		m_update = false;
-		m_update_time = g_csgo.m_globals->m_curtime + 1.f;
+		m_update_time = Interfaces::m_pGlobalVars->curtime + 1.f;
 	}
+}
+
+uintptr_t* rel32(uintptr_t ptr) {
+	auto offset = *(uintptr_t*)(ptr + 0x1);
+	return (uintptr_t*)(ptr + 5 + offset);
 }
 
 void Skins::UpdateItem(C_WeaponCSBaseGun* item) {
 	if (!item || !item->IsBaseCombatWeapon())
 		return;
 
-	if (g_csgo.m_cl->m_delta_tick == -1)
+	if (Interfaces::m_pClientState->m_nDeltaTick() == -1)
 		return;
 
 	//  if ( sub_106E32D0(v4, "round_start") )
@@ -605,27 +531,33 @@ void Skins::UpdateItem(C_WeaponCSBaseGun* item) {
 	// if( v1 )
 	//		SFWeaponSelection::ShowAndUpdateSelection( ( int * )v1, 2, 0, this );
 
-	item->m_bCustomMaterialInitialized() = item->m_nFallbackPaintKit() <= 0;
+	item->m_bCustomMaterialInitialized() = item->m_Item().m_nFallbackPaintKit() <= 0;
+
+	C_EconItemView* view = &item->m_Item();
 
 	item->m_CustomMaterials().RemoveAll();
-	item->m_CustomMaterials2().RemoveAll();
+	view->m_CustomMaterials().RemoveAll();
 
-	size_t count = item->m_VisualsDataProcessors().Count();
+	size_t count = item->m_Item().m_VisualsDataProcessors().Count();
 	for (size_t i{}; i < count; ++i) {
-		auto& elem = item->m_VisualsDataProcessors()[i];
+		auto& elem = item->m_Item().m_VisualsDataProcessors()[i];
 		if (elem) {
 			elem->unreference();
 			elem = nullptr;
 		}
 	}
 
-	item->m_VisualsDataProcessors().RemoveAll();
+	item->m_Item().m_VisualsDataProcessors().RemoveAll();
 
-	item->PostDataUpdate(DATA_UPDATE_CREATED);
-	item->OnDataChanged(DATA_UPDATE_CREATED);
+	item->GetClientNetworkable()->PostDataUpdate(0);
+	item->GetClientNetworkable()->OnDataChanged(0);
 
-	CHudElement* SFWeaponSelection = g_csgo.m_hud->FindElement(HASH("SFWeaponSelection"));
-	g_csgo.ShowAndUpdateSelection(SFWeaponSelection, 0, item, false);
+	using ShowAndUpdateSelection_t = void(__thiscall*)(CHudElement*, int, C_WeaponCSBaseGun*, bool);
+
+	auto ShowAndUpdateSelection = (ShowAndUpdateSelection_t)rel32(Memory::Scan(XorStr("client.dll"), XorStr("E8 ? ? ? ? A1 ? ? ? ? F3 0F 10 40 ? C6 83")));
+
+	auto SFWeaponSelection = CHud::Instance()->FindElement(fnv::hashRuntime("SFWeaponSelection"));
+	ShowAndUpdateSelection(SFWeaponSelection, 0, item, false);
 }
 
 void Skins::UpdateAnimations(C_CSPlayer* ent) {

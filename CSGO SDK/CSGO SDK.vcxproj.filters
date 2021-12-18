@@ -934,6 +934,7 @@
     <ClInclude Include="Utils\tinyformat.h" />
     <ClInclude Include="Utils\fnv.h" />
     <ClInclude Include="SDK\CLuaConfigs.h" />
+    <ClInclude Include="Utils\hud.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">
