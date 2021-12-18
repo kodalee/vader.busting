@@ -480,7 +480,7 @@ namespace Interfaces
 			g_TickbaseController.s_nSpeed = 14;
 		}
 
-		if (FakeLag::Get()->IsPeeking(cmd) && g_Vars.rage.key_dt.enabled && g_Vars.rage.double_tap_lag_peek) {
+		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.break_lagcomp) {
 			g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 > 0 ? 16 : 0;
 		}
 
