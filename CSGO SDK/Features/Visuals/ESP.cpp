@@ -470,8 +470,9 @@ void CEsp::Indicators() {
 			if (!g_Vars.rage.key_dt.enabled && !g_Vars.rage.break_lagcomp) {
 				ind.color = g_Vars.globals.bBrokeLC ? Color(100, 255, 25) : Color(255, 0, 0);
 			}
-			else
+			else if (g_Vars.rage.key_dt.enabled && g_Vars.rage.break_lagcomp) {
 				ind.color = Color(100, 255, 25);
+			}
 			ind.text = XorStr("LC ");
 
 			indicators.push_back(ind);
