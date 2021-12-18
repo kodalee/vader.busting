@@ -139,6 +139,8 @@ public:
    void PostThink( );
 
    bool	is( std::string networkname );
+   template<typename t>
+   t as();
 };
 
 FORCEINLINE C_CSPlayer* ToCSPlayer( C_BaseEntity* pEnt ) {

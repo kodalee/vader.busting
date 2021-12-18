@@ -1077,6 +1077,7 @@ void Misc()
 		{
 		case 0:
 		{
+			InsertCheckbox(Placeholder, XorStr("Skinchanger placeholder"), &g_Vars.misc.placeholder)
 			InsertCheckbox(Bhop, XorStr("Auto Jump"), &g_Vars.misc.autojump);
 			InsertCheckbox(AutoStrafe, XorStr("Auto Strafe"), &g_Vars.misc.autostrafer);
 			InsertCheckbox(WASDStrafe, XorStr("WASD-Strafer"), &g_Vars.misc.autostrafer_wasd);

@@ -232,6 +232,12 @@ bool C_BaseEntity::IsPlayer( ) {
 	return Memory::VCall<Fn>( this, Index::C_BaseEntity::IsPlayer )( this );
 }
 
+bool C_BaseEntity::IsBaseCombatWeapon() {
+	using Fn = bool(__thiscall*)(void*);
+	return Memory::VCall<Fn>(this, Index::C_BaseEntity::ISBASECOMBATWEAPON)(this);
+}
+
+
 bool C_BaseEntity::IsWeapon( ) {
 	using Fn = bool( __thiscall* )( void* );
 	return Memory::VCall<Fn>( this, Index::C_BaseEntity::IsWeapon )( this );

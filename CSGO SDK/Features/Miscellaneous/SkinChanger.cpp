@@ -15,626 +15,702 @@ static auto is_knife( const int i ) -> bool {
 	return ( i >= WEAPON_KNIFE_BAYONET && i < GLOVE_STUDDED_BLOODHOUND ) || i == WEAPON_KNIFE_T || i == WEAPON_KNIFE_CT;
 }
 
-static CHandle< C_BaseCombatWeapon > glove_handle{ };
+void Skins::load() {
+	// update model indexes on mapload.
+	m_knife_data[knives_t::BAYONET].setup(KNIFE_BAYONET,
+		XorStr("models/weapons/v_knife_bayonet.mdl"),
+		XorStr("models/weapons/w_knife_bayonet.mdl"),
+		XorStr("bayonet"));
 
-class CSkinChanger : public ISkinChanger {
-public:
-	void Create( ) override;
-	void Destroy( ) override;
-	void OnNetworkUpdate( bool start = true ) override;
-private:
-	void PostDataUpdateStart( C_CSPlayer* local );
-	void EraseOverrideIfExistsByIndex( const int definition_index );
-	void ApplyConfigOnAttributableItem( C_BaseAttributableItem* item, CVariables::skin_changer_data* config, const unsigned xuid_low );
-	void GloveChanger( C_CSPlayer* local );
-	static void SequenceProxyFn( CRecvProxyData* proxy_data_const, void* entity, void* output );
-	void DoSequenceRemapping( CRecvProxyData* data, C_BaseViewModel* entity );
-	int GetNewAnimation( const uint32_t model, const int sequence, C_BaseViewModel* viewModel );
-	CVariables::skin_changer_data* GetDataFromIndex( int idx );
-	void ForceItemUpdate( C_CSPlayer* local );
-	void UpdateHud( );
+	m_knife_data[knives_t::BOWIE].setup(KNIFE_BOWIE,
+		XorStr("models/weapons/v_knife_survival_bowie.mdl"),
+		XorStr("models/weapons/w_knife_survival_bowie.mdl"),
+		XorStr("knife_survival_bowie"));
 
-	std::unordered_map< std::string_view, std::string_view > m_icon_overrides;
-	RecvPropHook::Shared m_sequence_hook = nullptr;
 
-	float lastSkinUpdate = 0.0f;
-	float lastGloveUpdate = 0.0f;
-};
+	m_knife_data[knives_t::BUTTERFLY].setup(KNIFE_BUTTERFLY,
+		XorStr("models/weapons/v_knife_butterfly.mdl"),
+		XorStr("models/weapons/w_knife_butterfly.mdl"),
+		XorStr("knife_butterfly"));
 
-ISkinChanger* ISkinChanger::Get( ) {
-	static CSkinChanger instance;
-	return &instance;
+	m_knife_data[knives_t::FALCHION].setup(KNIFE_FALCHION,
+		XorStr("models/weapons/v_knife_falchion_advanced.mdl"),
+		XorStr("models/weapons/w_knife_falchion_advanced.mdl"),
+		XorStr("knife_falchion"));
+
+	m_knife_data[knives_t::FLIP].setup(KNIFE_FLIP,
+		XorStr("models/weapons/v_knife_flip.mdl"),
+		XorStr("models/weapons/w_knife_flip.mdl"),
+		XorStr("knife_flip"));
+
+	m_knife_data[knives_t::GUT].setup(KNIFE_GUT,
+		XorStr("models/weapons/v_knife_gut.mdl"),
+		XorStr("models/weapons/w_knife_gut.mdl"),
+		XorStr("knife_gut"));
+
+	m_knife_data[knives_t::HUNTSMAN].setup(KNIFE_HUNTSMAN,
+		XorStr("models/weapons/v_knife_tactical.mdl"),
+		XorStr("models/weapons/w_knife_tactical.mdl"),
+		XorStr("knife_tactical"));
+
+	m_knife_data[knives_t::KARAMBIT].setup(KNIFE_KARAMBIT,
+		XorStr("models/weapons/v_knife_karam.mdl"),
+		XorStr("models/weapons/w_knife_karam.mdl"),
+		XorStr("knife_karambit"));
+
+	m_knife_data[knives_t::M9].setup(KNIFE_M9_BAYONET,
+		XorStr("models/weapons/v_knife_m9_bay.mdl"),
+		XorStr("models/weapons/w_knife_m9_bay.mdl"),
+		XorStr("knife_m9_bayonet"));
+
+	m_knife_data[knives_t::DAGGER].setup(KNIFE_SHADOW_DAGGERS,
+		XorStr("models/weapons/v_knife_push.mdl"),
+		XorStr("models/weapons/w_knife_push.mdl"),
+		XorStr("knife_push"));
+
+	// update glove model indexes on mapload.
+	m_glove_data[gloves_t::BLOODHOUND].setup(5027,
+		XorStr("models/weapons/v_models/arms/glove_bloodhound/v_glove_bloodhound.mdl"),
+		XorStr("models/weapons/w_models/arms/glove_bloodhound/w_glove_bloodhound.mdl"));
+
+	m_glove_data[gloves_t::SPORTY].setup(5030,
+		XorStr("models/weapons/v_models/arms/glove_sporty/v_glove_sporty.mdl"),
+		XorStr("models/weapons/w_models/arms/glove_sporty/w_glove_sporty.mdl"));
+
+	m_glove_data[gloves_t::DRIVER].setup(5031,
+		XorStr("models/weapons/v_models/arms/glove_slick/v_glove_slick.mdl"),
+		XorStr("models/weapons/w_models/arms/glove_slick/w_glove_slick.mdl"));
+
+	m_glove_data[gloves_t::HANDWRAP].setup(5032,
+		XorStr("models/weapons/v_models/arms/glove_handwrap_leathery/v_glove_handwrap_leathery.mdl"),
+		XorStr("models/weapons/w_models/arms/glove_handwrap_leathery/w_glove_handwrap_leathery.mdl"));
+
+	m_glove_data[gloves_t::MOTO].setup(5033,
+		XorStr("models/weapons/v_models/arms/glove_motorcycle/v_glove_motorcycle.mdl"),
+		XorStr("models/weapons/w_models/arms/glove_motorcycle/w_glove_motorcycle.mdl"));
+
+	m_glove_data[gloves_t::SPECIALIST].setup(5034,
+		XorStr("models/weapons/v_models/arms/glove_specialist/v_glove_specialist.mdl"),
+		XorStr("models/weapons/w_models/arms/glove_specialist/w_glove_specialist.mdl"));
+
+	m_update_time = 0.f;
 }
 
-void CSkinChanger::Create( ) {
-	auto& pPropManager = Engine::PropManager::Instance( );
+void Skins::think() {
+	std::vector< C_WeaponCSBaseGun* > weapons{};
 
-	RecvProp* prop = nullptr;
-	pPropManager->GetProp( XorStr( "DT_BaseViewModel" ), XorStr( "m_nSequence" ), &prop );
-	m_sequence_hook = std::make_shared<RecvPropHook>( prop, &SequenceProxyFn );
-}
-
-void CSkinChanger::Destroy( ) {
-	m_sequence_hook->Unhook( );
-	m_sequence_hook.reset( );
-}
-
-void CSkinChanger::OnNetworkUpdate( bool start ) {
-	auto& global = g_Vars.m_global_skin_changer;
-
-	auto local = C_CSPlayer::GetLocalPlayer( );
-	if( !local )
+	auto local = C_CSPlayer::GetLocalPlayer();
+	if (!local || !local->IsAlive())
 		return;
 
-	if( !start ) {
-		if( global.m_update_skins && !global.m_update_gloves ) {
-			float meme = Interfaces::m_pGlobalVars->realtime - lastSkinUpdate;
-			if( !local->IsDead( ) && meme >= 0.65f ) {
-				lastSkinUpdate = Interfaces::m_pGlobalVars->realtime - 0.125f;
-			}
-			else if( meme >= 0.2f ) {
-				ForceItemUpdate( local );
-				global.m_update_skins = false;
-				lastSkinUpdate = Interfaces::m_pGlobalVars->realtime;
-			}
-		}
-
-		if( ( !global.m_active || !global.m_glove_changer ) || global.m_update_gloves ) {
-			auto glove = glove_handle.Get( );
-			if( glove ) {
-				auto networkable = glove->GetClientNetworkable( );
-				if( networkable ) {
-					networkable->SetDestroyedOnRecreateEntities( );
-					networkable->Release( );
-				}
-
-				glove_handle.Set( nullptr );
-			}
-
-			const auto glove_config = GetDataFromIndex( global.m_gloves_idx );
-			if( ( global.m_update_gloves && Interfaces::m_pGlobalVars->realtime - lastGloveUpdate >= 0.5f ) || ( glove_config && !glove_config->m_enabled && glove_config->m_executed ) ) {
-				//Interfaces::m_pClientState->m_nDeltaTick( ) = -1;
-				if( global.m_update_gloves )
-					lastGloveUpdate = Interfaces::m_pGlobalVars->realtime;
-
-				global.m_update_gloves = false;
-
-				if( glove_config )
-					glove_config->m_executed = false;
-			}
-		}
-		else if( local && global.m_glove_changer ) {
-			GloveChanger( local );
-		}
-		return;
-	}
-
-	if( !global.m_active )
+	if (!g_Vars.misc.placeholder)
 		return;
 
-	PostDataUpdateStart( local );
-}
-
-void CSkinChanger::PostDataUpdateStart( C_CSPlayer* local ) {
-	if( !local )
+	if (!Interfaces::m_pEngine->IsInGame())
 		return;
 
-	const auto local_index = local->EntIndex( );
-
-	player_info_t player_info;
-	if( !Interfaces::m_pEngine->GetPlayerInfo( local_index, &player_info ) )
+	player_info_t info;
+	if (!Interfaces::m_pEngine->GetPlayerInfo(local->EntIndex(), &info))
 		return;
 
-	auto& global = g_Vars.m_global_skin_changer;
-
-	// Handle weapon configs
-	{
-		auto weapons = local->m_hMyWeapons( );
-		for( int i = 0; i < 48; ++i ) {
-			auto weapon = ( C_BaseAttributableItem* )weapons[ i ].Get( );
-			if( !weapon )
-				continue;
-
-			auto& definition_index = weapon->m_Item( ).m_iItemDefinitionIndex( );
-
-			auto idx = is_knife( definition_index ) ? global.m_knife_idx : definition_index;
-			const auto active_conf = GetDataFromIndex( idx );
-			if( active_conf ) {
-				if( ( !active_conf->m_enabled || !global.m_active ) && active_conf->m_executed )
-					global.m_update_skins = true;
-
-				ApplyConfigOnAttributableItem( weapon, active_conf, player_info.xuid_low );
-			}
-			else {
-				EraseOverrideIfExistsByIndex( definition_index );
-			}
-		}
-	}
-	const auto view_model = ( C_BaseViewModel* )local->m_hViewModel( ).Get( );
-	if( !view_model )
-		return;
-
-	const auto view_model_weapon = ( C_BaseAttributableItem* )view_model->m_hWeapon( ).Get( );
-	if( !view_model_weapon )
-		return;
-
-	auto idx = view_model_weapon->m_Item( ).m_iItemDefinitionIndex( );
-	if( k_weapon_info.count( idx ) > 0 ) {
-		const auto override_info = k_weapon_info.at( idx );
-		const auto override_model_index = Interfaces::m_pModelInfo->GetModelIndex( override_info.model );
-		view_model->m_nModelIndex( ) = override_model_index;
-
-		const auto world_model = view_model_weapon->m_hWeaponWorldModel( ).Get( );
-		if( world_model )
-			world_model->m_nModelIndex( ) = override_model_index + 1;
-	}
-}
-
-void CSkinChanger::EraseOverrideIfExistsByIndex( const int definition_index ) {
-	if( k_weapon_info.count( definition_index ) <= 0 )
-		return;
-
-	// We have info about the item not needed to be overridden
-	const auto& original_item = k_weapon_info.at( definition_index );
-	auto& icon_override_map = m_icon_overrides;
-
-	if( !original_item.icon )
-		return;
-
-	const auto override_entry = icon_override_map.find( original_item.icon );
-
-	// We are overriding its icon when not needed
-	if( override_entry != end( icon_override_map ) )
-		icon_override_map.erase( override_entry ); // Remove the leftover override
-}
-
-void CSkinChanger::ApplyConfigOnAttributableItem( C_BaseAttributableItem* attribute, CVariables::skin_changer_data* config, const unsigned xuid_low ) {
-	if( !attribute )
-		return;
-
-	auto& item = attribute->m_Item( );
-	auto& global = g_Vars.m_global_skin_changer;
-
-	// Force fallback values to be used.
-	item.m_iItemIDHigh( ) = -1;
-
-	// Set the owner of the weapon to our lower XUID. (fixes StatTrak)
-	item.m_iAccountID( ) = xuid_low;
-
-	item.m_nFallbackPaintKit( ) = config->m_filter_paint_kits ? config->m_paint_kit : skin_kits[ config->m_paint_kit_no_filter ].id;
-
-	item.m_nFallbackSeed( ) = int( config->m_seed );
-
-	item.m_iEntityQuality( ) = 0;
-
-	if( int( config->m_stat_trak ) ) {
-		item.m_nFallbackStatTrak( ) = int( config->m_stat_trak );
-
-		item.m_iEntityQuality( ) = 9;
-	}
-
-	item.m_flFallbackWear( ) = config->m_wear;
-
-	auto& definition_index = item.m_iItemDefinitionIndex( );
-
-	auto& icon_override_map = m_icon_overrides;
-
-	bool knife = is_knife( definition_index );
-
-	int definition_override = 0;
-
-	if( knife ) {
-		definition_override = global.m_knife_idx;
-
-		item.m_iEntityQuality( ) = 3;
-	}
-	else if( config->m_definition_index >= GLOVE_STUDDED_BLOODHOUND && config->m_definition_index <= GLOVE_SPECIALIST )
-		definition_override = global.m_gloves_idx;
-
-	if( definition_override && definition_override != definition_index ) // We need to override defindex
-	{
-		// We have info about what we gonna override it to
-		if( k_weapon_info.count( definition_override ) > 0 ) {
-			const auto replacement_item = &k_weapon_info.at( definition_override );
-
-			const auto old_definition_index = definition_index;
-
-			item.m_iItemDefinitionIndex( ) = definition_override;
-
-			// Set the weapon model index -- required for paint kits to work on replacement items after the 29/11/2016 update.
-			auto idx = Interfaces::m_pModelInfo->GetModelIndex( replacement_item->model );
-			attribute->SetModelIndex( idx );
-
-			auto networkable = attribute->GetClientNetworkable( );
-			if( networkable ) {
-				networkable->PreDataUpdate( 0 );
-			}
-
-			// We didn't override 0, but some actual weapon, that we have data for
-			if( old_definition_index ) {
-				if( k_weapon_info.count( old_definition_index ) > 0 ) {
-					const auto original_item = &k_weapon_info.at( old_definition_index );
-					if( original_item->icon && replacement_item->icon )
-						icon_override_map[ original_item->icon ] = replacement_item->icon;
-				}
-			}
-		}
-	}
-	else {
-		EraseOverrideIfExistsByIndex( definition_index );
-	}
-
-	config->m_executed = false;
-}
-
-void CSkinChanger::GloveChanger( C_CSPlayer* local ) {
-	if( !local )
-		return;
-
-	return;
-
-	const auto local_index = local->EntIndex( );
-
-	player_info_t player_info;
-	if( !Interfaces::m_pEngine->GetPlayerInfo( local_index, &player_info ) )
-		return;
-
-	auto& global = g_Vars.m_global_skin_changer;
-
-	// Handle glove config
-	{
-		const auto wearables = local->m_hMyWearables( );
-
-		const auto glove_config = GetDataFromIndex( global.m_gloves_idx );
-
-		if( !glove_config || global.m_gloves_idx == 0  || !wearables ) {
-			return;
-		}
-
-		auto glove = ( C_BaseAttributableItem* )wearables[ 0 ].Get( );
-
-		if( !glove ) {
-			// Try to get our last created glove
-			const auto our_glove = ( C_BaseAttributableItem* )glove_handle.Get( );
-			if( our_glove ) // Our glove still exists
-			{
-				wearables[ 0 ] = glove_handle;
-				glove = our_glove;
-			}
-		}
-
-		if( local->IsDead( ) ) {
-			// We are dead but we have a glove, destroy it
-			if( glove ) {
-				auto networkable = glove->GetClientNetworkable( );
-				if( networkable ) {
-					networkable->SetDestroyedOnRecreateEntities( );
-					networkable->Release( );
-				}
-			}
-
-			return;
-		}
-
-		// We don't have a glove, but we should
-		bool just_created = false;
-		
-		if( !glove ) {
-			auto get_wearable_create_fn = [ ] ( ) -> CreateClientClassFn {
-				auto clazz = Interfaces::m_pClient->GetAllClasses( );
-			//	while( clazz->m_ClassID != CEconWearable )
-			//		clazz = clazz->m_pNext;
-
-				return ( CreateClientClassFn )clazz->m_pCreateFn;
-			};
-
-			static auto create_wearable_fn = get_wearable_create_fn( );
-
-			const auto entry = Interfaces::m_pEntList->GetHighestEntityIndex( ) + 1;
-			const auto serial = rand( ) % 0x1000;
-			create_wearable_fn( entry, serial );
-
-			glove = static_cast< C_BaseAttributableItem* >( Interfaces::m_pEntList->GetClientEntity( entry ) );
-
-			if( !glove )
-				return;
-
-			Vector new_pos = Vector{ 10000.0f, 10000.0f, 10000.f };
-			glove->SetAbsOrigin( new_pos );
-
-			wearables[ 0 ] = CBaseHandle( entry | ( serial << 16 ) );
-
-			// Let's store it in case we somehow lose it.
-			glove_handle = wearables[ 0 ];
-
-			just_created = true;
-		}
-
-		glove_config->m_executed = true;
-		if( glove ) {
-			// Thanks, Beakers
-			*( int* )( ( uintptr_t )glove + 0x64 ) = -1;
-			// *( int* ) ( ( uintptr_t ) local + 0xA20 ) = 1; // remove default arms in 3th person mode dword_15268230 = (int)"m_nBody";
-			ApplyConfigOnAttributableItem( glove, glove_config, player_info.xuid_low );
-		}
-	}
-}
-
-void CSkinChanger::SequenceProxyFn( CRecvProxyData* proxy_data_const, void* entity, void* output ) {
-	auto skins = ( CSkinChanger* )Get( );
-	if( skins && skins->m_sequence_hook ) {
-		auto original_fn = skins->m_sequence_hook->GetOriginalFunction( );
-
-		// Remove the constness from the proxy data allowing us to make changes.
-		const auto proxy_data = const_cast< CRecvProxyData* >( proxy_data_const );
-
-		const auto view_model = static_cast< C_BaseViewModel* >( entity );
-
-		skins->DoSequenceRemapping( proxy_data, view_model );
-
-		// Call the original function with our edited data.
-		original_fn( proxy_data_const, entity, output );
-	}
-}
-
-void CSkinChanger::DoSequenceRemapping( CRecvProxyData* data, C_BaseViewModel* entity ) {
-	auto local = C_CSPlayer::GetLocalPlayer( );
-	if( !local || local->IsDead( ) )
-		return;
-
-	const auto owner = entity->m_hOwner( ).Get( );
-	if( owner != local )
-		return;
-
-	const auto view_model_weapon = entity->m_hWeapon( ).Get( );
-	if( !view_model_weapon )
-		return;
-
-	auto idx = view_model_weapon->m_Item( ).m_iItemDefinitionIndex( );
-	if( k_weapon_info.count( idx ) <= 0 )
-		return;
-
-	const auto weapon_info = &k_weapon_info.at( idx );
-
-	if( weapon_info ) {
-		const auto override_model = weapon_info->model;
-
-		auto& sequence = data->m_Value.m_Int;
-		sequence = GetNewAnimation( hash_32_fnv1a_const( override_model ), sequence, entity );
-	}
-}
-
-int CSkinChanger::GetNewAnimation( const uint32_t model, const int sequence, C_BaseViewModel* viewModel ) {
-
-	// This only fixes if the original knife was a default knife.
-	// The best would be having a function that converts original knife's sequence
-	// into some generic enum, then another function that generates a sequence
-	// from the sequences of the new knife. I won't write that.
-	enum ESequence {
-		SEQUENCE_DEFAULT_DRAW = 0,
-		SEQUENCE_DEFAULT_IDLE1 = 1,
-		SEQUENCE_DEFAULT_IDLE2 = 2,
-		SEQUENCE_DEFAULT_LIGHT_MISS1 = 3,
-		SEQUENCE_DEFAULT_LIGHT_MISS2 = 4,
-		SEQUENCE_DEFAULT_HEAVY_MISS1 = 9,
-		SEQUENCE_DEFAULT_HEAVY_HIT1 = 10,
-		SEQUENCE_DEFAULT_HEAVY_BACKSTAB = 11,
-		SEQUENCE_DEFAULT_LOOKAT01 = 12,
-
-		SEQUENCE_BUTTERFLY_DRAW = 0,
-		SEQUENCE_BUTTERFLY_DRAW2 = 1,
-		SEQUENCE_BUTTERFLY_LOOKAT01 = 13,
-		SEQUENCE_BUTTERFLY_LOOKAT03 = 15,
-
-		SEQUENCE_FALCHION_IDLE1 = 1,
-		SEQUENCE_FALCHION_HEAVY_MISS1 = 8,
-		SEQUENCE_FALCHION_HEAVY_MISS1_NOFLIP = 9,
-		SEQUENCE_FALCHION_LOOKAT01 = 12,
-		SEQUENCE_FALCHION_LOOKAT02 = 13,
-
-		SEQUENCE_DAGGERS_IDLE1 = 1,
-		SEQUENCE_DAGGERS_LIGHT_MISS1 = 2,
-		SEQUENCE_DAGGERS_LIGHT_MISS5 = 6,
-		SEQUENCE_DAGGERS_HEAVY_MISS2 = 11,
-		SEQUENCE_DAGGERS_HEAVY_MISS1 = 12,
-
-		SEQUENCE_BOWIE_IDLE1 = 1,
-	};
-
-	auto random_sequence = [ ] ( const int low, const int high ) -> int {
-		return rand( ) % ( high - low + 1 ) + low;
-	};
-
-	// Hashes for best performance.
-	switch( model ) {
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_butterfly.mdl" ) ):
-	{
-		switch( sequence ) {
-		case SEQUENCE_DEFAULT_DRAW:
-			return random_sequence( SEQUENCE_BUTTERFLY_DRAW, SEQUENCE_BUTTERFLY_DRAW2 );
-		case SEQUENCE_DEFAULT_LOOKAT01:
-			return random_sequence( SEQUENCE_BUTTERFLY_LOOKAT01, SEQUENCE_BUTTERFLY_LOOKAT03 );
-		default:
-			return sequence + 1;
-		}
-	}
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_falchion_advanced.mdl" ) ):
-	{
-		switch( sequence ) {
-		case SEQUENCE_DEFAULT_IDLE2:
-			return SEQUENCE_FALCHION_IDLE1;
-		case SEQUENCE_DEFAULT_HEAVY_MISS1:
-			return random_sequence( SEQUENCE_FALCHION_HEAVY_MISS1, SEQUENCE_FALCHION_HEAVY_MISS1_NOFLIP );
-		case SEQUENCE_DEFAULT_LOOKAT01:
-			return random_sequence( SEQUENCE_FALCHION_LOOKAT01, SEQUENCE_FALCHION_LOOKAT02 );
-		case SEQUENCE_DEFAULT_DRAW:
-		case SEQUENCE_DEFAULT_IDLE1:
-			return sequence;
-		default:
-			return sequence - 1;
-		}
-	}
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_push.mdl" ) ):
-	{
-		switch( sequence ) {
-		case SEQUENCE_DEFAULT_IDLE2:
-			return SEQUENCE_DAGGERS_IDLE1;
-		case SEQUENCE_DEFAULT_LIGHT_MISS1:
-		case SEQUENCE_DEFAULT_LIGHT_MISS2:
-			return random_sequence( SEQUENCE_DAGGERS_LIGHT_MISS1, SEQUENCE_DAGGERS_LIGHT_MISS5 );
-		case SEQUENCE_DEFAULT_HEAVY_MISS1:
-			return random_sequence( SEQUENCE_DAGGERS_HEAVY_MISS2, SEQUENCE_DAGGERS_HEAVY_MISS1 );
-		case SEQUENCE_DEFAULT_HEAVY_HIT1:
-		case SEQUENCE_DEFAULT_HEAVY_BACKSTAB:
-		case SEQUENCE_DEFAULT_LOOKAT01:
-			return sequence + 3;
-		case SEQUENCE_DEFAULT_DRAW:
-		case SEQUENCE_DEFAULT_IDLE1:
-			return sequence;
-		default:
-			return sequence + 2;
-		}
-	}
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_survival_bowie.mdl" ) ):
-	{
-		switch( sequence ) {
-		case SEQUENCE_DEFAULT_DRAW:
-		case SEQUENCE_DEFAULT_IDLE1:
-			return sequence;
-		case SEQUENCE_DEFAULT_IDLE2:
-			return SEQUENCE_BOWIE_IDLE1;
-		default:
-			return sequence - 1;
-		}
-	}
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_ursus.mdl" ) ):
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_skeleton.mdl" ) ):
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_outdoor.mdl" ) ):
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_canis.mdl" ) ):
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_cord.mdl" ) ):
-	{
-		switch( sequence ) {
-		case SEQUENCE_DEFAULT_DRAW:
-			return random_sequence( SEQUENCE_BUTTERFLY_DRAW, SEQUENCE_BUTTERFLY_DRAW2 );
-		case SEQUENCE_DEFAULT_LOOKAT01:
-			return random_sequence( SEQUENCE_BUTTERFLY_LOOKAT01, 14 );
-		default:
-			return sequence + 1;
-		}
-	}
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_stiletto.mdl" ) ):
-	{
-		switch( sequence ) {
-		case SEQUENCE_DEFAULT_LOOKAT01:
-			return random_sequence( 12, 13 );
-		}
-	}
-	case hash_32_fnv1a_const( ( "models/weapons/v_knife_widowmaker.mdl" ) ):
-	{
-		switch( sequence ) {
-		case SEQUENCE_DEFAULT_LOOKAT01:
-			return random_sequence( 14, 15 );
-		}
-	}
-
-	default:
-		return sequence;
-	}
-}
-
-CVariables::skin_changer_data* CSkinChanger::GetDataFromIndex( int idx ) {
-	auto& skin_data = g_Vars.m_skin_changer;
-	for( size_t i = 0u; i < skin_data.Size( ); ++i ) {
-		auto skin = skin_data[ i ];
-		if( skin->m_definition_index == idx )
-			return skin;
-	}
-	return nullptr;
-}
-
-void CSkinChanger::ForceItemUpdate( C_CSPlayer* local ) {
-	if( !local || local->IsDead( ) )
-		return;
-
-	auto ForceUpdate = [ ] ( C_BaseCombatWeapon* item ) {
-		C_EconItemView* view = &item->m_Item( );
-
-		if( !view )
-			return;
-
-		if( !item->GetClientNetworkable( ) )
-			return;
-
-		auto clearRefCountedVector = [ ] ( CUtlVector< IRefCounted* >& vec ) {
-			for( int i = 0; i < vec.m_Size; ++i ) {
-				auto& elem = vec.m_Memory.m_pMemory[ i ];
-				if( elem ) {
-					elem->unreference( );
-					elem = nullptr;
-				}
-			}
-			vec.m_Size = 0;
-		};
-
-		auto clearCustomMaterials = [ ] ( CUtlVector< IRefCounted* >& vec ) {
-			for( int i = 0; i < vec.m_Size; ++i ) {
-				auto& element = vec.m_Memory.m_pMemory[ i ];
-				// actually makes no sense
-				*( int* )( ( ( uintptr_t )element ) + 0x10 ) = 0;
-				*( int* )( ( ( uintptr_t )element ) + 0x18 ) = 0;
-				*( int* )( ( ( uintptr_t )element ) + 0x20 ) = 0;
-				*( int* )( ( ( uintptr_t )element ) + 0x24 ) = 0;
-				vec.m_Memory.m_pMemory[ i ] = nullptr;
-			}
-
-			vec.m_Size = 0;
-		};
-
-		item->m_bCustomMaterialInitialized( ) = false;
-		clearCustomMaterials( item->m_CustomMaterials( ) );
-		clearCustomMaterials( view->m_CustomMaterials( ) );
-		clearRefCountedVector( view->m_VisualsDataProcessors( ) );
-
-		item->GetClientNetworkable( )->PostDataUpdate( 0 );
-		item->GetClientNetworkable( )->OnDataChanged( 0 );
-	};
-
-	auto& global = g_Vars.m_global_skin_changer;
-	auto weapons = local->m_hMyWeapons( );
-	for( size_t i = 0; i < 48; ++i ) {
-		auto weapon_handle = weapons[ i ];
-		if( !weapon_handle.IsValid( ) )
-			break;
-
-		auto weapon = ( C_BaseCombatWeapon* )weapon_handle.Get( );
-		if( !weapon )
+	// store knife index.
+	KnifeData* knife = &m_knife_data[g_menu.main.skins.knife.get()];
+
+	for (int i{ 1 }; i <= Interfaces::m_pEntList->GetHighestEntityIndex(); ++i) {
+		C_CSPlayer* ent = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
+		if (!ent)
 			continue;
 
-		auto definition_index = weapon->m_Item( ).m_iItemDefinitionIndex( );
-		if( const auto active_conf = GetDataFromIndex( is_knife( definition_index ) ? global.m_knife_idx : definition_index ) ) {
-			UpdateHud( );
-			ForceUpdate( weapon );
+		// run knifechanger.
+		if (/* this needs to be the menu shit exon*/ g_Vars.misc.placeholder /*> 0*/ && ent->is("CPredictedViewModel")) {
+			// get weapon entity from predicted viewmodel.
+			auto weapon = (C_WeaponCSBaseGun*)ent->m_hActiveWeapon().Get();
+			if (!weapon) {
+				continue;
+			}
+
+			auto weaponInfo = weapon->GetCSWeaponData();
+			if (!weaponInfo.IsValid()) {
+				continue;
+			}
+
+			auto weapon2 = (C_BaseAttributableItem*)ent->m_hActiveWeapon().Get();
+			if (!weapon2)
+				continue;
+			//auto weaponWorldModel = weapon2 ? (C_CSPlayer*)(weapon2)->m_hWeaponWorldModel().Get() : nullptr;
+
+			if ((weapon->m_iItemDefinitionIndex() >= WEAPON_KNIFE_BAYONET && weapon->m_iItemDefinitionIndex() < GLOVE_STUDDED_BLOODHOUND) ||
+				weapon->m_iItemDefinitionIndex() == WEAPON_KNIFE_T || weapon->m_iItemDefinitionIndex() == WEAPON_KNIFE_CT)
+				continue;
+
+
+			// this weapon does not belong to us, we are done here.
+			// should barely happen unless you pick up someones knife.
+			// possible on servers with 'mp_drop_knife_enable 1'.
+			if (info.xuid_low != weapon2->m_OriginalOwnerXuidLow() || info.xuid_high != weapon2->m_OriginalOwnerXuidHigh())
+				continue;
+
+			// get and validate world model handle from the weapon
+			//Weapon* weapon_world_model = weapon->GetWeaponWorldModel();
+			auto weapon_world_model = weapon2 ? (C_CSPlayer*)(weapon2)->m_hWeaponWorldModel().Get() : nullptr;
+			if (!weapon_world_model)
+				continue;
+
+			// set model index of the predicted viewmodel.
+			ent->m_nModelIndex() = knife->m_model_index;
+
+			// set the world model index.
+			// do this to have knifechanger in third person. verry p.
+			weapon_world_model->m_nModelIndex() = knife->m_world_model_index;
+
+			// correct m_nSequence and m_flCycle.
+			UpdateAnimations(ent);
 		}
+
+		else if (ent->IsBaseCombatWeapon()) {
+			// cast to weapon class.
+			auto weapon = (C_WeaponCSBaseGun*)ent->m_hActiveWeapon().Get();
+			if (!weapon) {
+				continue;
+			}
+
+			auto weaponInfo = weapon->GetCSWeaponData();
+			if (!weaponInfo.IsValid()) {
+				continue;
+			}
+
+			auto weapon2 = (C_BaseAttributableItem*)ent->m_hActiveWeapon().Get();
+			if (!weapon2)
+				continue;
+
+			// this is not our gun.
+			if (info.xuid_low != weapon2->m_OriginalOwnerXuidLow() || info.xuid_high != weapon2->m_OriginalOwnerXuidHigh())
+				continue;
+
+			// we found a weapon that we own.
+			weapons.push_back(weapon);
+
+			if ((weapon->m_iItemDefinitionIndex() >= WEAPON_KNIFE_BAYONET && weapon->m_iItemDefinitionIndex() < GLOVE_STUDDED_BLOODHOUND) ||
+				weapon->m_iItemDefinitionIndex() == WEAPON_KNIFE_T || weapon->m_iItemDefinitionIndex() == WEAPON_KNIFE_CT) {
+				// if this weapon is a knife, set some additional stuff.
+				if (g_Vars.misc.placeholder/* > 0*/) {
+					// set the item id, this is for the hud.
+					weapon->m_iItemDefinitionIndex() = knife->m_id;
+
+					// not needed. but everyone does this, try without.
+					weapon->m_nModelIndex() = knife->m_model_index;
+
+					// not needed. but everyone does this, try without.
+					weapon->m_iViewModelIndex() = knife->m_model_index;
+
+					// not needed. but everyone does this, try without.
+					weapon->m_iWorldModelIndex() = knife->m_world_model_index;
+
+					// set the little star thing.
+					weapon->m_Item().m_iEntityQuality() = 3;
+				}
+
+				else if (g_menu.main.skins.knife.get() == 0) {
+					// fix definition.
+					if (local->m_iTeamNum() == 2)
+						weapon->m_iItemDefinitionIndex() = KNIFE_T;
+
+					else if (local->m_iTeamNum() == 3)
+						weapon->m_iItemDefinitionIndex() = KNIFE_CT;
+
+					// reset.
+					weapon->m_Item().m_iEntityQuality() = 0;
+					weapon->m_Item().m_nFallbackPaintKit() = -1;
+					weapon->m_Item().m_nFallbackStatTrak() = -1;
+				}
+			}
+
+			switch (weapon->m_iItemDefinitionIndex()) {
+			case DEAGLE:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_deagle.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_deagle.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_deagle.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_deagle.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case ELITE:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_elite.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_elite.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_elite.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_elite.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case FIVESEVEN:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_fiveseven.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_fiveseven.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_fiveseven.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_fiveseven.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case GLOCK:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_glock.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_glock.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_glock.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_glock.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case AK47:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_ak47.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_ak47.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_ak47.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_ak47.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case AUG:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_aug.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_aug.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_aug.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_aug.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case AWP:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_awp.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_awp.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_awp.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_awp.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case FAMAS:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_famas.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_famas.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_famas.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_famas.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case G3SG1:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_g3sg1.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_g3sg1.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_g3sg1.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_g3sg1.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case GALIL:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_galil.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_galil.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_galil.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_galil.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case M249:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_m249.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_m249.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_m249.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_m249.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case M4A4:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_m4a4.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_m4a4.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_m4a4.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_m4a4.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case MAC10:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_mac10.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_mac10.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_mac10.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_mac10.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case P90:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_p90.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_p90.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_p90.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_p90.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case UMP45:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_ump45.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_ump45.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_ump45.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_ump45.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case XM1014:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_xm1014.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_xm1014.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_xm1014.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_xm1014.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case BIZON:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_bizon.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_bizon.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_bizon.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_bizon.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case MAG7:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_mag7.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_mag7.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_mag7.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_mag7.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case NEGEV:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_negev.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_negev.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_negev.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_negev.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case SAWEDOFF:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_sawedoff.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_sawedoff.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_sawedoff.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_sawedoff.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case TEC9:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_tec9.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_tec9.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_tec9.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_tec9.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case P2000:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_p2000.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_p2000.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_p2000.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_p2000.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case MP7:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_mp7.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_mp7.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_mp7.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_mp7.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case MP9:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_mp9.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_mp9.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_mp9.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_mp9.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case NOVA:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_nova.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_nova.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_nova.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_nova.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case P250:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_p250.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_p250.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_p250.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_p250.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case SCAR20:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_scar20.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_scar20.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_scar20.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_scar20.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case SG553:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_sg553.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_sg553.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_sg553.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_sg553.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case SSG08:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_ssg08.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_ssg08.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_ssg08.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_ssg08.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case M4A1S:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_m4a1s.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_m4a1s.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_m4a1s.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_m4a1s.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case USPS:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_usps.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_usps.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_usps.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_usps.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case CZ75A:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_cz75a.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_cz75a.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_cz75a.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_cz75a.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case REVOLVER:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_revolver.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_revolver.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_revolver.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_revolver.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_BAYONET:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_bayonet.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_bayonet.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_bayonet.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_bayonet.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_FLIP:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_flip.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_flip.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_flip.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_flip.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_GUT:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_gut.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_gut.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_gut.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_gut.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_KARAMBIT:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_karambit.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_karambit.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_karambit.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_karambit.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_M9_BAYONET:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_m9.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_m9.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_m9.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_m9.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_HUNTSMAN:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_huntsman.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_huntsman.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_huntsman.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_huntsman.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_FALCHION:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_falchion.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_falchion.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_falchion.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_falchion.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_BOWIE:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_bowie.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_bowie.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_bowie.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_bowie.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_BUTTERFLY:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_butterfly.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_butterfly.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_butterfly.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_butterfly.get()) / 100.f) + FLT_EPSILON;
+				break;
+			case KNIFE_SHADOW_DAGGERS:
+				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_daggers.get();
+				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_daggers.get() ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_daggers.get();
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_daggers.get()) / 100.f) + FLT_EPSILON;
+				break;
+
+			default:
+				break;
+			}
+
+			// fix stattrak ownership.
+			weapon->m_Item().m_iAccountID() = info.xuid_low;
+
+			// fix stattrak in hud.
+			if (weapon->m_Item().m_nFallbackStatTrak() >= 0)
+				weapon->m_Item().m_iEntityQuality() = 9;
+
+			// force use fallback values.
+			weapon->m_Item().m_iItemIDHigh() = -1;
+		}
+	}
+
+	if (g_menu.main.skins.glove.get() > 0) {
+		CBaseHandle* wearables = local->m_hMyWearables();
+
+		// get pointer to entity from wearable handle 0.
+		// glove is at wearable 0, valve will likely add more wearables like hats and boots. thats why.
+		Weapon* glove = g_csgo.m_entlist->GetClientEntityFromHandle< Weapon* >(wearables[0]);
+
+		// there is no glove entity yet.
+		if (!glove) {
+			// attempt to get our old glove.
+			Weapon* old = g_csgo.m_entlist->GetClientEntityFromHandle< Weapon* >(m_glove_handle);
+
+			// this glove is still valid.
+			if (old) {
+
+				// write back handle to wearables.
+				wearables[0] = m_glove_handle;
+
+				// set glove pointer.
+				glove = old;
+			}
+		}
+
+		// if we at this point still not have a glove entity.
+		// we should create one.
+		if (!glove) {
+			ClientClass* list{ g_csgo.m_client->GetAllClasses() };
+
+			// iterate list.
+			for (; list != nullptr; list = list->m_pNext) {
+
+				// break if we found wearable
+				if (list->m_ClassID == g_netvars.GetClientID(HASH("CEconWearable")))
+					break;
+			}
+
+			// create an ent index and serial no for the new glove entity.
+			int index = g_csgo.m_entlist->GetHighestEntityIndex() + 1;
+			int serial = g_csgo.RandomInt(0xA00, 0xFFF);
+
+			// call ctor on CEconWearable entity.
+			Address networkable = list->m_pCreate(index, serial);
+
+			// get entity ptr via index.
+			glove = g_csgo.m_entlist->GetClientEntity< Weapon* >(index);
+
+			static Address offset = g_netvars.get(HASH("DT_EconEntity"), HASH("m_iItemIDLow"));
+
+			// m_bInitialized?
+			networkable.add(offset.add(0x8)).set< bool >(true);
+
+			// no idea what this is.
+			networkable.add(offset.sub(0xC)).set< bool >(true);
+
+			// set the wearable handle.
+			wearables[0] = index | (serial << 16);
+
+			// use this for later on.
+			m_glove_handle = wearables[0];
+		}
+
+		// store glove data.
+		GloveData* data = &m_glove_data[g_menu.main.skins.glove.get()];
+
+		// set default data,
+		glove->m_nFallbackSeed() = 0;
+		glove->m_nFallbackStatTrak() = -1;
+		glove->m_iItemIDHigh() = -1;
+		glove->m_iEntityQuality() = 4;
+		glove->m_iAccountID() = info.m_xuid_low;
+
+		// set custom data.
+		glove->m_nFallbackPaintKit() = 10000 + g_menu.main.skins.glove_id.get();
+		glove->m_iItemDefinitionIndex() = data->m_id;
+		glove->SetGloveModelIndex(data->m_model_index);
+
+		// update the glove.
+		glove->PreDataUpdate(DATA_UPDATE_CREATED);
+	}
+
+	// only force update every 1s.
+	if (m_update && g_csgo.m_globals->m_curtime >= m_update_time) {
+		for (auto& w : weapons)
+			UpdateItem(w);
+
+		m_update = false;
+		m_update_time = g_csgo.m_globals->m_curtime + 1.f;
 	}
 }
 
-void CSkinChanger::UpdateHud( ) {
-	/*if( Engine::Displacement.Function.m_uClearHudWeaponIcon ) {
-		static auto clear_hud_weapon_icon_fn =
-			reinterpret_cast< std::int32_t( __thiscall* )( void*, std::int32_t ) >( ( Engine::Displacement.Function.m_uClearHudWeaponIcon ) );
-		auto element = FindHudElement<std::uintptr_t*>( ( XorStr( "CCSGO_HudWeaponSelection" ) ) );
+void Skins::UpdateItem(C_WeaponCSBaseGun* item) {
+	if (!item || !item->IsBaseCombatWeapon())
+		return;
 
-		if( element && clear_hud_weapon_icon_fn ) {
-			auto hud_weapons = reinterpret_cast< hud_weapons_t* >( std::uintptr_t( element ) - 0xA0 );
-			if( hud_weapons == nullptr )
-				return;
+	if (g_csgo.m_cl->m_delta_tick == -1)
+		return;
 
-			if( !*hud_weapons->get_weapon_count( ) )
-				return;
+	//  if ( sub_106E32D0(v4, "round_start") )
+	//		SFWeaponSelection::ShowAndUpdateSelection( v2, 2, 0, v10 );
 
-			for( std::int32_t i = 0; i < *hud_weapons->get_weapon_count( ) - 1; i++ )
-				i = clear_hud_weapon_icon_fn( hud_weapons, i );
+	// v1 = CHud::FindElement(&g_HUD, "SFWeaponSelection");
+	// if( v1 )
+	//		SFWeaponSelection::ShowAndUpdateSelection( ( int * )v1, 2, 0, this );
+
+	item->m_bCustomMaterialInitialized() = item->m_nFallbackPaintKit() <= 0;
+
+	item->m_CustomMaterials().RemoveAll();
+	item->m_CustomMaterials2().RemoveAll();
+
+	size_t count = item->m_VisualsDataProcessors().Count();
+	for (size_t i{}; i < count; ++i) {
+		auto& elem = item->m_VisualsDataProcessors()[i];
+		if (elem) {
+			elem->unreference();
+			elem = nullptr;
 		}
-	}*/
+	}
 
+	item->m_VisualsDataProcessors().RemoveAll();
+
+	item->PostDataUpdate(DATA_UPDATE_CREATED);
+	item->OnDataChanged(DATA_UPDATE_CREATED);
+
+	CHudElement* SFWeaponSelection = g_csgo.m_hud->FindElement(HASH("SFWeaponSelection"));
+	g_csgo.ShowAndUpdateSelection(SFWeaponSelection, 0, item, false);
+}
+
+void Skins::UpdateAnimations(C_CSPlayer* ent) {
+	int knife = g_menu.main.skins.knife.get();
+
+	int seq = ent->m_nSequence();
+
+	// check if this knife needs extra fixing.
+	if (knife == knives_t::BUTTERFLY || knife == knives_t::FALCHION || knife == knives_t::DAGGER || knife == knives_t::BOWIE) {
+
+		// fix the idle sequences.
+		if (seq == sequence_default_idle1 || seq == sequence_default_idle2) {
+			// set the animation to be completed.
+			ent->m_flCycle() = 0.999f;
+
+			// cycle change, re-render.
+			ent->InvalidatePhysicsRecursive(ANIMATION_CHANGED);
+		}
+	}
+
+	// fix sequences.
+	if (m_last_seq != seq) {
+		if (knife == knives_t::BUTTERFLY) {
+			switch (seq) {
+			case sequence_default_draw:
+				seq = g_csgo.RandomInt(sequence_butterfly_draw, sequence_butterfly_draw2);
+				break;
+
+			case sequence_default_lookat01:
+				seq = g_csgo.RandomInt(sequence_butterfly_lookat01, sequence_butterfly_lookat03);
+				break;
+
+			default:
+				seq++;
+				break;
+			}
+		}
+
+		else if (knife == knives_t::FALCHION) {
+			switch (seq) {
+			case sequence_default_draw:
+			case sequence_default_idle1:
+				break;
+
+			case sequence_default_idle2:
+				seq = sequence_falchion_idle1;
+				break;
+
+			case sequence_default_heavy_miss1:
+				seq = g_csgo.RandomInt(sequence_falchion_heavy_miss1, sequence_falchion_heavy_miss1_noflip);
+				break;
+
+			case sequence_default_lookat01:
+				seq = g_csgo.RandomInt(sequence_falchion_lookat01, sequence_falchion_lookat02);
+				break;
+			}
+		}
+
+		else if (knife == knives_t::DAGGER) {
+			switch (seq) {
+			case sequence_default_idle2:
+				seq = sequence_push_idle1;
+				break;
+
+			case sequence_default_heavy_hit1:
+			case sequence_default_heavy_backstab:
+			case sequence_default_lookat01:
+				seq += 3;
+				break;
+
+			case sequence_default_heavy_miss1:
+				seq = sequence_push_heavy_miss2;
+				break;
+			}
+
+		}
+
+		else if (knife == knives_t::BOWIE) {
+			if (seq > sequence_default_idle1)
+				seq--;
+		}
+
+		m_last_seq = seq;
+	}
+
+	// write back fixed sequence.
+	ent->m_nSequence() = seq;
 }

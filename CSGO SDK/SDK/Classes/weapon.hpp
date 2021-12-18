@@ -98,6 +98,7 @@ public:
 
   float GetMaxSpeed( );
   float GetSpread( );
+  C_WeaponCSBaseGun* GetWeapon();
   float GetInaccuracy( );
   void UpdateAccuracyPenalty( );
 

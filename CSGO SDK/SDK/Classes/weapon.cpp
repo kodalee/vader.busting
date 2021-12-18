@@ -8,6 +8,8 @@ float& C_BaseCombatWeapon::m_flNextPrimaryAttack( ) {
    return *( float* ) ( ( uintptr_t ) this + Engine::Displacement.DT_BaseCombatWeapon.m_flNextPrimaryAttack );
 }
 
+
+
 float& C_BaseCombatWeapon::m_flNextSecondaryAttack( ) {
    return *( float* ) ( ( uintptr_t ) this + Engine::Displacement.DT_BaseCombatWeapon.m_flNextSecondaryAttack );
 }
@@ -244,6 +246,14 @@ void C_BaseViewModel::SendViewModelMatchingSequence( int sequence ) {
 
 int& C_BaseEntity::m_nModelIndex( ) {
    return *( int* ) ( ( int32_t ) this + Engine::Displacement.DT_BaseEntity.m_nModelIndex );
+}
+
+int& C_BaseEntity::m_iViewModelIndex() {
+	return *( int* ) ( ( int32_t ) this + Engine::Displacement.DT_BaseCombatWeapon.m_iViewModelIndex);
+}
+
+int& C_BaseEntity::m_iWorldModelIndex() {
+	return *( int* ) ( ( int32_t ) this + Engine::Displacement.DT_BaseCombatWeapon.m_iWorldModelIndex);
 }
 
 int& C_BaseEntity::m_nPrecipType( ) {

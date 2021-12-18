@@ -462,6 +462,12 @@ bool C_CSPlayer::is( std::string networkname )
 	return propmanager.GetClientID( networkname ) == clientClass->m_ClassID;
 }
 
+template< typename t >
+t C_CSPlayer::as() {
+	return (t)this;
+}
+
+
 bool C_CSPlayer::IsTeammate( C_CSPlayer* player ) {
 	if( !player || !this )
 		return false;
@@ -591,27 +597,42 @@ void CCSGOPlayerAnimState::ModifyEyePosition( CCSGOPlayerAnimState *pState, Vect
 	// https://i.imgur.com/zGnqd3y.png
 	static auto C_BaseAnimating__LookupBone = *reinterpret_cast< int( __thiscall * )( void *, const char * ) >( Memory::Scan( XorStr( "client.dll" ), XorStr( "55 8B EC 53 56 8B F1 57 83 BE ?? ?? ?? ?? ?? 75 14" ) ) );
 
-	if( pState->m_Player && pState->m_bHitground || pState->m_fDuckAmount != 0.f ) {
+	if( pState->m_Player && pState->m_bHitground || pState->m_fDuckAmount != 0.f) {
 		// this returns 8 but i'd rather grab it dynamically in the rare event of it changing
 		auto v5 = C_BaseAnimating__LookupBone( pState->m_Player, XorStr( "head_0" ) );
 
 		if( v5 != -1 ) {
 			auto v12 = ( reinterpret_cast< C_CSPlayer * >( pState->m_Player ) )->GetBonePos( v5 );
-			auto v7 = v12.z + 1.7;
+			v12.z += 1.7f;
 
-			auto v8 = pos->z;
-			if( v8 > v7 ) // if (v8 > (v12 + 1.7))
+			if ((*pos).z > v12.z)
 			{
-				float v13 = 0.f;
-				float v3 = ( *pos ).z - v7;
+				float some_factor = 0.f;
 
-				// changed this from float division to float multiplication cos its faster
-				float v4 = ( v3 - 4.f ) * 0.16666667;
-				if( v4 >= 0.f )
-					v13 = std::fminf( v4, 1.f );
+				float delta = (*pos).z - v12.z;
 
-				( *pos ).z += ( ( v7 - ( *pos ).z ) * ( ( ( v13 * v13 ) * 3.f ) - ( ( ( v13 * v13 ) * 2.f ) * v13 ) ) );
+				float some_offset = (delta - 4.f) / 6.f;
+				if (some_offset >= 0.f)
+					some_factor = std::fminf(some_offset, 1.f);
+
+				(*pos).z += ((v12.z - (*pos).z) * (((some_factor * some_factor) * 3.f) - (((some_factor * some_factor) * 2.f) * some_factor)));
 			}
+
+			//auto v7 = v12.z + 1.7;
+
+			//auto v8 = pos->z;
+			//if( v8 > v7 ) // if (v8 > (v12 + 1.7))
+			//{
+			//	float v13 = 0.f;
+			//	float v3 = ( *pos ).z - v7;
+
+			//	// changed this from float division to float multiplication cos its faster
+			//	float v4 = ( v3 - 4.f ) * 0.16666667;
+			//	if( v4 >= 0.f )
+			//		v13 = std::fminf( v4, 1.f );
+
+			//	( *pos ).z += ( ( v7 - ( *pos ).z ) * ( ( ( v13 * v13 ) * 3.f ) - ( ( ( v13 * v13 ) * 2.f ) * v13 ) ) );
+			//}
 		}
 
 		// ( *( *g_MdlCache + 136 ) )( g_MdlCache );
@@ -634,14 +655,23 @@ Vector C_CSPlayer::GetEyePosition( ) {
 
 	pos = C_BasePlayer::GetEyePosition( );
 
-	if( *reinterpret_cast < int32_t * > ( uintptr_t( this ) + 0x39E1 ) ) {
-		auto v3 = m_PlayerAnimState( );
-		if( v3 ) {
-			CCSGOPlayerAnimState::ModifyEyePosition( v3, &pos );
-		}
+	if (*reinterpret_cast<int32_t*>(uintptr_t(this) + 0x3AB0))
+	{
+		auto anim_state = *reinterpret_cast<CCSGOPlayerAnimState**>(uintptr_t(this) + 0x3900);
+		if (anim_state)
+			CCSGOPlayerAnimState::ModifyEyePosition(anim_state, &pos);
 	}
 
 	return pos;
+
+	//if( *reinterpret_cast < int32_t * > ( uintptr_t( this ) + 0x39E1 ) ) {
+	//	auto v3 = m_PlayerAnimState( );
+	//	if( v3 ) {
+	//		CCSGOPlayerAnimState::ModifyEyePosition( v3, &pos );
+	//	}
+	//}
+
+	//return pos;
 }
 
 #include "../../Features/Rage/AnimationSystem.hpp"
