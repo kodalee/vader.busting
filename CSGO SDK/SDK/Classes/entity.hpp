@@ -59,7 +59,6 @@ namespace Index
 		enum {
 			IsPlayer = 152,
 			IsWeapon = 160,
-			ISBASECOMBATWEAPON = 160,
 		};
 	}
 	namespace C_BaseAnimating
@@ -235,7 +234,6 @@ public:
 public:
 	bool ComputeHitboxSurroundingBox( Vector* mins, Vector* maxs );
 	bool IsPlayer( );
-	bool IsBaseCombatWeapon();
 	bool IsWeapon( );
 	bool IsPlantedC4( );
 
@@ -273,8 +271,6 @@ public:
 	CBaseHandle& moveparent( );
 	CBaseHandle& m_hCombatWeaponParent( );
 	int& m_nModelIndex( );
-	int& m_iViewModelIndex();
-	int& m_iWorldModelIndex();
 	int& m_nPrecipType( );
 
 };

@@ -1336,7 +1336,6 @@ public:
 
 	config_option( bool, active, false );
 	config_option( bool, autojump, false );
-	config_option( bool, placeholder, false );
 	config_option( bool, autostrafer, false );
 	config_option( bool, autostrafer_wasd, false );
 	config_option( bool, move_exploit, false );

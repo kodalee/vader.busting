@@ -250,18 +250,6 @@ namespace jm {
 
 } // namespace jm
 
-using hash32_t = uint32_t;
-
-// compile-time hash.
-#define HASH( str )                                     \
-    []() {                                              \
-        constexpr hash32_t out{ FNV1a::get( str ) };    \
-                                                        \
-        return out;                                     \
-    }()
-
-
-
 #define XorStr xorstr_
 #define XorStr_ xorstr
 
