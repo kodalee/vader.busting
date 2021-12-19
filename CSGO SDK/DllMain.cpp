@@ -19,6 +19,7 @@
 #include <iomanip> 
 #include "Utils/syscall.hpp"
 #include "Loader/Security/Security.hpp"
+#include "ShittierMenu/menu.hpp"
 
 static Semaphore dispatchSem;
 static SharedMutex smtx;
@@ -122,10 +123,7 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 	// b1g alpha.
 	static bool bDownloaded = false;
 	if( !bDownloaded ) {
-		// XDDXD
-		g_Vars.menu.key.key = VK_INSERT;
-		// xd v2 :D
-		g_Vars.rage.key.cond = 2;
+		g_IMGUIMenu.Opened = true;
 		bDownloaded = true;
 	}
 
