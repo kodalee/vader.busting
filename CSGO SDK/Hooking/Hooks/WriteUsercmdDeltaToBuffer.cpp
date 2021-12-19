@@ -15,7 +15,7 @@ void WriteUsercmdD(bf_write* buf, CUserCmd* incmd, CUserCmd* outcmd) {
 }
 
 bool __fastcall Hooked::WriteUsercmdDeltaToBuffer(void* ECX, void* EDX, int nSlot, bf_write* buffer, int o_from, int o_to, bool isnewcommand) {
-
+	g_Vars.globals.szLastHookCalled = XorStr("50");
 	auto LocalPlayer = C_CSPlayer::GetLocalPlayer();
 
 	if (!LocalPlayer
