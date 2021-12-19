@@ -1327,6 +1327,7 @@ public:
 	config_option(float, footsteps_thickness, 1.0f);
 	config_option(float, footsteps_radius, 200.f);
 
+	config_option(bool, zeropitch, false);
 
 	group_end( );
 #pragma endregion

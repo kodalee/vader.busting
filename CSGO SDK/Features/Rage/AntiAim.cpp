@@ -331,12 +331,12 @@ namespace Interfaces
 		if (g_Vars.misc.move_exploit && g_Vars.misc.move_exploit_key.enabled) {
 			auto prevCommandNumber = cmd->command_number;
 
-			if (swap) {
-				g_Vars.fakelag.choke = 14;
-			}
-			else {
-				g_Vars.fakelag.choke = 16;
-			}
+			//if (swap) {
+			//	g_Vars.fakelag.choke = 14;
+			//}
+			//else {
+			//	g_Vars.fakelag.choke = 16;
+			//}
 
 			if (*bSendPacket == false) {
 				cmd->tick_count = tickAmount;

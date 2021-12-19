@@ -1091,6 +1091,8 @@ void Misc()
 				ColorPicker(XorStr("auto peek color"), g_Vars.misc.autopeek_color, false, false);
 			}
 
+			InsertCheckbox(ZeroPitch, XorStr("Zero Pitch on Land"), &g_Vars.esp.zeropitch);
+
 			InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
 			InsertCheckbox(FastStop, XorStr("Fast Stop"), &g_Vars.misc.quickstop);
 			ImGui::NextColumn();

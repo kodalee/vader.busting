@@ -173,8 +173,8 @@ namespace Hooked
 		g_Vars.globals.RegularAngles = cmd->viewangles;
 
 		// fix landing anim.
-		//if( state->m_bHitground && g_Vars.globals.m_fFlags & FL_ONGROUND && local->m_fFlags( ) & FL_ONGROUND )
-		//	g_Vars.globals.RegularAngles.x = -12.f;
+		if( state->m_bHitground && g_Vars.globals.m_fFlags & FL_ONGROUND && local->m_fFlags( ) & FL_ONGROUND  && g_Vars.esp.zeropitch)
+			g_Vars.globals.RegularAngles.x = -12.f;
 
 		Math::Clamp( g_Vars.globals.RegularAngles.x, -90.f, 90.f );
 		g_Vars.globals.RegularAngles.Normalize( );

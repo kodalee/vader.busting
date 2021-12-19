@@ -231,11 +231,11 @@ namespace Engine
 
 	void Prediction::RunGamePrediction( ) {
 		// force game to repredict data
-		//if( g_Vars.globals.LastVelocityModifier < 1.0f ) {
-		//	// https://github.com/pmrowla/hl2sdk-csgo/blob/49e950f3eb820d88825f75e40f56b3e64790920a/game/client/prediction.cpp#L1533
-		//	*( uint8_t* )( uintptr_t( Interfaces::m_pPrediction.Xor( ) ) + 0x24 ) = 1; // m_bPreviousAckHadErrors 
-		//	*( uint32_t* )( uintptr_t( Interfaces::m_pPrediction.Xor( ) ) + 0x1C ) = 0; // m_nCommandsPredicted 
-		//}
+		if( g_Vars.globals.LastVelocityModifier < 1.0f ) {
+			// https://github.com/pmrowla/hl2sdk-csgo/blob/49e950f3eb820d88825f75e40f56b3e64790920a/game/client/prediction.cpp#L1533
+			*( uint8_t* )( uintptr_t( Interfaces::m_pPrediction.Xor( ) ) + 0x24 ) = 1; // m_bPreviousAckHadErrors 
+			*( uint32_t* )( uintptr_t( Interfaces::m_pPrediction.Xor( ) ) + 0x1C ) = 0; // m_nCommandsPredicted 
+		}
 
 		if( Interfaces::m_pClientState->m_nDeltaTick( ) > 0 ) {
 			Interfaces::m_pPrediction->Update( Interfaces::m_pClientState->m_nDeltaTick( ), Interfaces::m_pClientState->m_nDeltaTick( ) > 0,
@@ -315,9 +315,9 @@ namespace Engine
 			local->m_vecViewOffset( ) = data->m_vecViewOffset;
 		}
 
-		//if( fabs( local->m_flVelocityModifier( ) - data->m_flVelocityModifier ) < 0.03125f ) {
-		//	local->m_flVelocityModifier( ) = data->m_flVelocityModifier;
-		//}
+		if( fabs( local->m_flVelocityModifier( ) - data->m_flVelocityModifier ) < 0.03125f ) {
+			local->m_flVelocityModifier( ) = data->m_flVelocityModifier;
+		}
 	}
 
 	void Prediction::OnRunCommand( C_CSPlayer* player, CUserCmd* cmd ) {
@@ -360,23 +360,23 @@ namespace Engine
 			if( correct != predictionData->m_CorrectionData.begin( ) && correct != predictionData->m_CorrectionData.end( ) ) {
 				// GEICO FROM FUTURE
 
-				//if( g_Vars.globals.LastVelocityModifier > ( local->m_flVelocityModifier( ) + ( TIME_TO_TICKS( Interfaces::m_pClientState->m_nChokedCommands( ) ) * 0.4f ) ) ) {
-				//	auto weapon = ( C_WeaponCSBaseGun* )local->m_hActiveWeapon( ).Get( );
-				//	if( !weapon || ( weapon && weapon->m_iItemDefinitionIndex( ) != WEAPON_REVOLVER && weapon->GetCSWeaponData( )->m_iWeaponType != WEAPONTYPE_GRENADE ) ) {
-				//		for( auto nr : predictionData->m_ChokedNr ) {
-				//			auto cmd = &Interfaces::m_pInput->m_pCommands[ nr % 150 ];
-				//			auto verified = &Interfaces::m_pInput->m_pVerifiedCommands[ nr % 150 ];
-				//
-				//			if( cmd->buttons & ( IN_ATTACK2 | IN_ATTACK ) ) {
-				//				cmd->buttons &= ~IN_ATTACK;
-				//				verified->m_cmd = *cmd;
-				//				verified->m_crc = cmd->GetChecksum( );
-				//			}
-				//		}
-				//	}
-				//}
-				//
-				//g_Vars.globals.LastVelocityModifier = local->m_flVelocityModifier( );
+				if( g_Vars.globals.LastVelocityModifier > ( local->m_flVelocityModifier( ) + ( TIME_TO_TICKS( Interfaces::m_pClientState->m_nChokedCommands( ) ) * 0.4f ) ) ) {
+					auto weapon = ( C_WeaponCSBaseGun* )local->m_hActiveWeapon( ).Get( );
+					if( !weapon || ( weapon && weapon->m_iItemDefinitionIndex( ) != WEAPON_REVOLVER && weapon->GetCSWeaponData( )->m_iWeaponType != WEAPONTYPE_GRENADE ) ) {
+						for( auto nr : predictionData->m_ChokedNr ) {
+							auto cmd = &Interfaces::m_pInput->m_pCommands[ nr % 150 ];
+							auto verified = &Interfaces::m_pInput->m_pVerifiedCommands[ nr % 150 ];
+				
+							if( cmd->buttons & ( IN_ATTACK2 | IN_ATTACK ) ) {
+								cmd->buttons &= ~IN_ATTACK;
+								verified->m_cmd = *cmd;
+								verified->m_crc = cmd->GetChecksum( );
+							}
+						}
+					}
+				}
+				
+				g_Vars.globals.LastVelocityModifier = local->m_flVelocityModifier( );
 			}
 		}
 	}
@@ -415,7 +415,7 @@ namespace Engine
 		data->m_aimPunchAngle = local->m_aimPunchAngle( );
 		data->m_aimPunchAngleVel = local->m_aimPunchAngleVel( );
 		data->m_vecViewOffset = local->m_vecViewOffset( );
-		//data->m_flVelocityModifier = local->m_flVelocityModifier( );
+		data->m_flVelocityModifier = local->m_flVelocityModifier( );
 		m_bGetNetvarCompressionData = true;
 	}
 
@@ -433,7 +433,7 @@ namespace Engine
 			local->m_aimPunchAngle( ) = data.m_aimPunchAngle;
 			local->m_aimPunchAngleVel( ) = data.m_aimPunchAngleVel;
 			local->m_vecViewOffset( ) = data.m_vecViewOffset;
-			//local->m_flVelocityModifier( ) = data.m_flVelocityModifier;
+			local->m_flVelocityModifier( ) = data.m_flVelocityModifier;
 
 			m_bGetNetvarCompressionData = false;
 		}
@@ -457,7 +457,7 @@ namespace Engine
 		this->m_vecOrigin = player->m_vecOrigin( );
 
 		this->m_flFallVelocity = player->m_flFallVelocity( );
-		//this->m_flVelocityModifier = player->m_flVelocityModifier( );
+		this->m_flVelocityModifier = player->m_flVelocityModifier( );
 		this->m_flDuckAmount = player->m_flDuckAmount( );
 		this->m_flDuckSpeed = player->m_flDuckSpeed( );
 
@@ -500,7 +500,7 @@ namespace Engine
 		player->m_vecOrigin( ) = this->m_vecOrigin;
 
 		player->m_flFallVelocity( ) = this->m_flFallVelocity;
-		//player->m_flVelocityModifier( ) = this->m_flVelocityModifier;
+		player->m_flVelocityModifier( ) = this->m_flVelocityModifier;
 		player->m_flDuckAmount( ) = this->m_flDuckAmount;
 		player->m_flDuckSpeed( ) = this->m_flDuckSpeed;
 

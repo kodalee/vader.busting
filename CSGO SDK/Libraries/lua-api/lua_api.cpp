@@ -761,7 +761,7 @@ bool c_lua::initialize() {
 	this->lua["event"] = events;
 	this->lua["config"] = config;
 	this->lua["cheat"] = cheat;
-	this->lua["math"] = math;
+	this->lua["math2"] = math;
 	this->lua["surface"] = surface;
 	this->lua["debugoverlay"] = debugoverlay;
 	this->lua["engine"] = engine;
