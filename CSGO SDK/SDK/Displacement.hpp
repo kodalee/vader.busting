@@ -231,6 +231,7 @@ struct DllInitializeData {
 	  DWORD32 m_hOwner;
 	  DWORD32 m_hWeapon;
 	  DWORD32 m_nSequence;
+	  DWORD32 m_flCycle;
    } DT_BaseViewModel;
 
    // DT_SmokeGrenadeProjectile

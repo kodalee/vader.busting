@@ -235,6 +235,14 @@ CHandle<C_BaseEntity> C_BaseViewModel::m_hOwner( ) {
    return *( CHandle<C_BaseEntity>* )( ( int32_t ) this + Engine::Displacement.DT_BaseViewModel.m_hOwner );
 }
 
+int C_BaseViewModel::m_nSequence( ) {
+	return *(int*)((int32_t)this + Engine::Displacement.DT_BaseViewModel.m_nSequence);
+}
+
+float C_BaseViewModel::m_flCycle( ) {
+	return *(float*)((int32_t)this + Engine::Displacement.DT_BaseViewModel.m_flCycle);
+}
+
 CHandle<C_BaseCombatWeapon> C_BaseViewModel::m_hWeapon( ) {
    return *( CHandle<C_BaseCombatWeapon>* )( ( int32_t ) this + Engine::Displacement.DT_BaseViewModel.m_hWeapon );
 }

@@ -51,6 +51,14 @@ int& C_BasePlayer::m_iHealth( ) {
 	return *( int* )( ( uintptr_t )this + Engine::Displacement.DT_BasePlayer.m_iHealth );
 }
 
+int C_BasePlayer::m_nSequence() {
+	return *(int*)((int32_t)this + Engine::Displacement.DT_BaseViewModel.m_nSequence);
+}
+
+float C_BasePlayer::m_flCycle() {
+	return *(float*)((int32_t)this + Engine::Displacement.DT_BaseViewModel.m_flCycle);
+}
+
 bool C_BasePlayer::IsTeammate(C_BasePlayer* player) {
 	if (!player || !this)
 		return false;

@@ -135,6 +135,9 @@ class C_BaseViewModel : public C_BaseAttributableItem {
 public:
   CHandle< C_BaseEntity > m_hOwner( ); //"DT_BaseViewModel", "m_hOwner");
   CHandle< C_BaseCombatWeapon > m_hWeapon( ); //"DT_BaseViewModel", "m_hWeapon");
+  int m_nSequence( ); //"DT_BaseViewModel", "m_nSequence");
+  float m_flCycle( ); //"DT_BaseViewModel", "m_flCycle");
+
   void SendViewModelMatchingSequence( int sequence );
 };
 

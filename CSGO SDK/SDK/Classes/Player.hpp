@@ -61,6 +61,8 @@ public:
    char& m_lifeState( );
    int& m_nTickBase( );
    int& m_iHealth( );
+   int m_nSequence( );
+   float m_flCycle( );
    bool IsTeammate(C_BasePlayer* player);
    int& m_fFlags( );
    int& m_iDefaultFOV( );

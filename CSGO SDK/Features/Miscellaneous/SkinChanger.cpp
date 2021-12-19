@@ -104,7 +104,7 @@ void Skins::think() {
 	if (!local || !local->IsAlive())
 		return;
 
-	if (!g_Vars.misc.placeholder)
+	if (!g_Vars.m_global_skin_changer.enable)
 		return;
 
 	if (!Interfaces::m_pEngine->IsInGame())
@@ -115,7 +115,7 @@ void Skins::think() {
 		return;
 
 	// store knife index.
-	KnifeData* knife = &m_knife_data[g_menu.main.skins.knife.get()];
+	KnifeData* knife = &m_knife_data[g_Vars.m_global_skin_changer.knife];
 
 	for (int i{ 1 }; i <= Interfaces::m_pEntList->GetHighestEntityIndex(); ++i) {
 		C_CSPlayer* ent = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
@@ -123,7 +123,7 @@ void Skins::think() {
 			continue;
 
 		// run knifechanger.
-		if (/* this needs to be the menu shit exon*/ g_Vars.misc.placeholder /*> 0*/ && ent->is("CPredictedViewModel")) {
+		if (g_Vars.m_global_skin_changer.knife > 0 && ent->is("CPredictedViewModel")) {
 			// get weapon entity from predicted viewmodel.
 			auto weapon = (C_WeaponCSBaseGun*)ent->m_hActiveWeapon().Get();
 			if (!weapon) {
@@ -194,7 +194,7 @@ void Skins::think() {
 			if ((weapon->m_iItemDefinitionIndex() >= WEAPON_KNIFE_BAYONET && weapon->m_iItemDefinitionIndex() < GLOVE_STUDDED_BLOODHOUND) ||
 				weapon->m_iItemDefinitionIndex() == WEAPON_KNIFE_T || weapon->m_iItemDefinitionIndex() == WEAPON_KNIFE_CT) {
 				// if this weapon is a knife, set some additional stuff.
-				if (g_Vars.misc.placeholder/* > 0*/) {
+				if (g_Vars.m_global_skin_changer.knife > 0) {
 					// set the item id, this is for the hud.
 					weapon->m_iItemDefinitionIndex() = knife->m_id;
 
@@ -211,7 +211,7 @@ void Skins::think() {
 					weapon->m_Item().m_iEntityQuality() = 3;
 				}
 
-				else if (g_menu.main.skins.knife.get() == 0) {
+				else if (g_Vars.m_global_skin_changer.knife == 0) {
 					// fix definition.
 					if (local->m_iTeamNum() == 2)
 						weapon->m_iItemDefinitionIndex() = KNIFE_T;
@@ -228,262 +228,262 @@ void Skins::think() {
 
 			switch (weapon->m_iItemDefinitionIndex()) {
 			case DEAGLE:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_deagle.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_deagle.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_deagle.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_deagle.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_deagle;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_deagle ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_deagle;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_deagle) / 100.f) + FLT_EPSILON;
 				break;
 			case ELITE:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_elite.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_elite.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_elite.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_elite.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_elite;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_elite ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_elite;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_elite) / 100.f) + FLT_EPSILON;
 				break;
 			case FIVESEVEN:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_fiveseven.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_fiveseven.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_fiveseven.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_fiveseven.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_fiveseven;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_fiveseven ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_fiveseven;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_fiveseven) / 100.f) + FLT_EPSILON;
 				break;
 			case GLOCK:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_glock.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_glock.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_glock.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_glock.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_glock;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_glock ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_glock;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_glock) / 100.f) + FLT_EPSILON;
 				break;
 			case AK47:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_ak47.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_ak47.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_ak47.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_ak47.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_ak47;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_ak47 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_ak47;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_ak47) / 100.f) + FLT_EPSILON;
 				break;
 			case AUG:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_aug.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_aug.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_aug.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_aug.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_aug;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_aug ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_aug;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_aug) / 100.f) + FLT_EPSILON;
 				break;
 			case AWP:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_awp.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_awp.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_awp.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_awp.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_awp;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_awp ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_awp;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_awp) / 100.f) + FLT_EPSILON;
 				break;
 			case FAMAS:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_famas.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_famas.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_famas.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_famas.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_famas;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_famas ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_famas;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_famas) / 100.f) + FLT_EPSILON;
 				break;
 			case G3SG1:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_g3sg1.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_g3sg1.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_g3sg1.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_g3sg1.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_g3sg1;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_g3sg1 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_g3sg1;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_g3sg1) / 100.f) + FLT_EPSILON;
 				break;
 			case GALIL:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_galil.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_galil.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_galil.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_galil.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_galil;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_galil ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_galil;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_galil) / 100.f) + FLT_EPSILON;
 				break;
 			case M249:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_m249.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_m249.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_m249.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_m249.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_m249;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_m249 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_m249;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_m249) / 100.f) + FLT_EPSILON;
 				break;
 			case M4A4:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_m4a4.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_m4a4.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_m4a4.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_m4a4.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_m4a4;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_m4a4 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_m4a4;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_m4a4) / 100.f) + FLT_EPSILON;
 				break;
 			case MAC10:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_mac10.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_mac10.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_mac10.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_mac10.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_mac10;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_mac10 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_mac10;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_mac10) / 100.f) + FLT_EPSILON;
 				break;
 			case P90:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_p90.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_p90.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_p90.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_p90.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_p90;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_p90 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_p90;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_p90) / 100.f) + FLT_EPSILON;
 				break;
 			case UMP45:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_ump45.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_ump45.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_ump45.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_ump45.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_ump45;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_ump45 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_ump45;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_ump45) / 100.f) + FLT_EPSILON;
 				break;
 			case XM1014:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_xm1014.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_xm1014.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_xm1014.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_xm1014.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_xm1014;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_xm1014 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_xm1014;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_xm1014) / 100.f) + FLT_EPSILON;
 				break;
 			case BIZON:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_bizon.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_bizon.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_bizon.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_bizon.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_bizon;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_bizon ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_bizon;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_bizon) / 100.f) + FLT_EPSILON;
 				break;
 			case MAG7:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_mag7.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_mag7.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_mag7.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_mag7.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_mag7;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_mag7 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_mag7;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_mag7) / 100.f) + FLT_EPSILON;
 				break;
 			case NEGEV:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_negev.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_negev.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_negev.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_negev.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_negev;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_negev ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_negev;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_negev) / 100.f) + FLT_EPSILON;
 				break;
 			case SAWEDOFF:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_sawedoff.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_sawedoff.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_sawedoff.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_sawedoff.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_sawedoff;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_sawedoff ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_sawedoff;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_sawedoff) / 100.f) + FLT_EPSILON;
 				break;
 			case TEC9:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_tec9.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_tec9.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_tec9.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_tec9.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_tec9;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_tec9 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_tec9;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_tec9) / 100.f) + FLT_EPSILON;
 				break;
 			case P2000:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_p2000.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_p2000.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_p2000.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_p2000.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_p2000;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_p2000 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_p2000;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_p2000) / 100.f) + FLT_EPSILON;
 				break;
 			case MP7:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_mp7.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_mp7.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_mp7.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_mp7.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_mp7;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_mp7 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_mp7;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_mp7) / 100.f) + FLT_EPSILON;
 				break;
 			case MP9:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_mp9.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_mp9.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_mp9.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_mp9.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_mp9;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_mp9 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_mp9;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_mp9) / 100.f) + FLT_EPSILON;
 				break;
 			case NOVA:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_nova.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_nova.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_nova.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_nova.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_nova;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_nova ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_nova;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_nova) / 100.f) + FLT_EPSILON;
 				break;
 			case P250:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_p250.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_p250.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_p250.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_p250.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_p250;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_p250 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_p250;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_p250) / 100.f) + FLT_EPSILON;
 				break;
 			case SCAR20:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_scar20.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_scar20.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_scar20.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_scar20.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_scar20;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_scar20 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_scar20;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_scar20) / 100.f) + FLT_EPSILON;
 				break;
 			case SG553:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_sg553.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_sg553.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_sg553.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_sg553.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_sg553;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_sg553 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_sg553;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_sg553) / 100.f) + FLT_EPSILON;
 				break;
 			case SSG08:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_ssg08.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_ssg08.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_ssg08.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_ssg08.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_ssg08;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_ssg08 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_ssg08;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_ssg08) / 100.f) + FLT_EPSILON;
 				break;
 			case M4A1S:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_m4a1s.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_m4a1s.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_m4a1s.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_m4a1s.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_m4a1s;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_m4a1s ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_m4a1s;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_m4a1s) / 100.f) + FLT_EPSILON;
 				break;
 			case USPS:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_usps.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_usps.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_usps.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_usps.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_usps;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_usps ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_usps;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_usps) / 100.f) + FLT_EPSILON;
 				break;
 			case CZ75A:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_cz75a.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_cz75a.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_cz75a.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_cz75a.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_cz75a;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_cz75a ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_cz75a;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_cz75a) / 100.f) + FLT_EPSILON;
 				break;
 			case REVOLVER:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_revolver.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_revolver.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_revolver.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_revolver.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_revolver;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_revolver ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_revolver;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_revolver) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_BAYONET:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_bayonet.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_bayonet.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_bayonet.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_bayonet.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_bayonet;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_bayonet ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_bayonet;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_bayonet) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_FLIP:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_flip.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_flip.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_flip.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_flip.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_flip;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_flip ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_flip;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_flip) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_GUT:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_gut.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_gut.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_gut.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_gut.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_gut;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_gut ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_gut;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_gut) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_KARAMBIT:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_karambit.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_karambit.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_karambit.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_karambit.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_karambit;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_karambit ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_karambit;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_karambit) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_M9_BAYONET:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_m9.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_m9.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_m9.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_m9.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_m9;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_m9 ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_m9;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_m9) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_HUNTSMAN:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_huntsman.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_huntsman.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_huntsman.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_huntsman.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_huntsman;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_huntsman ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_huntsman;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_huntsman) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_FALCHION:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_falchion.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_falchion.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_falchion.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_falchion.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_falchion;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_falchion ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_falchion;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_falchion) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_BOWIE:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_bowie.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_bowie.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_bowie.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_bowie.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_bowie;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_bowie ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_bowie;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_bowie) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_BUTTERFLY:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_butterfly.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_butterfly.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_butterfly.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_butterfly.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_butterfly;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_butterfly ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_butterfly;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_butterfly) / 100.f) + FLT_EPSILON;
 				break;
 			case KNIFE_SHADOW_DAGGERS:
-				weapon->m_Item().m_nFallbackPaintKit() = g_menu.main.skins.id_daggers.get();
-				weapon->m_Item().m_nFallbackStatTrak() = g_menu.main.skins.stattrak_daggers.get() ? 1337 : -1;
-				weapon->m_Item().m_nFallbackSeed() = g_menu.main.skins.seed_daggers.get();
-				weapon->m_Item().m_flFallbackWear() = ((100.f - g_menu.main.skins.quality_daggers.get()) / 100.f) + FLT_EPSILON;
+				weapon->m_Item().m_nFallbackPaintKit() = g_Vars.m_global_skin_changer.id_daggers;
+				weapon->m_Item().m_nFallbackStatTrak() = g_Vars.m_global_skin_changer.stattrak_daggers ? 1337 : -1;
+				weapon->m_Item().m_nFallbackSeed() = g_Vars.m_global_skin_changer.seed_daggers;
+				weapon->m_Item().m_flFallbackWear() = ((100.f - g_Vars.m_global_skin_changer.quality_daggers) / 100.f) + FLT_EPSILON;
 				break;
 
 			default:
@@ -561,7 +561,7 @@ void Skins::UpdateItem(C_WeaponCSBaseGun* item) {
 }
 
 void Skins::UpdateAnimations(C_CSPlayer* ent) {
-	int knife = g_menu.main.skins.knife.get();
+	int knife = g_Vars.m_global_skin_changer.knife;
 
 	int seq = ent->m_nSequence();
 
@@ -571,23 +571,27 @@ void Skins::UpdateAnimations(C_CSPlayer* ent) {
 		// fix the idle sequences.
 		if (seq == sequence_default_idle1 || seq == sequence_default_idle2) {
 			// set the animation to be completed.
-			ent->m_flCycle() = 0.999f;
+			ent->m_flCycle() == 0.999f;
 
 			// cycle change, re-render.
-			ent->InvalidatePhysicsRecursive(ANIMATION_CHANGED);
+			ent->InvalidatePhysicsRecursive(0);
 		}
 	}
+
+	auto random_sequence = [](const int low, const int high) -> int {
+		return rand() % (high - low + 1) + low;
+	};
 
 	// fix sequences.
 	if (m_last_seq != seq) {
 		if (knife == knives_t::BUTTERFLY) {
 			switch (seq) {
 			case sequence_default_draw:
-				seq = g_csgo.RandomInt(sequence_butterfly_draw, sequence_butterfly_draw2);
+				seq = random_sequence(sequence_butterfly_draw, sequence_butterfly_draw2);
 				break;
 
 			case sequence_default_lookat01:
-				seq = g_csgo.RandomInt(sequence_butterfly_lookat01, sequence_butterfly_lookat03);
+				seq = random_sequence(sequence_butterfly_lookat01, sequence_butterfly_lookat03);
 				break;
 
 			default:
@@ -607,11 +611,11 @@ void Skins::UpdateAnimations(C_CSPlayer* ent) {
 				break;
 
 			case sequence_default_heavy_miss1:
-				seq = g_csgo.RandomInt(sequence_falchion_heavy_miss1, sequence_falchion_heavy_miss1_noflip);
+				seq = random_sequence(sequence_falchion_heavy_miss1, sequence_falchion_heavy_miss1_noflip);
 				break;
 
 			case sequence_default_lookat01:
-				seq = g_csgo.RandomInt(sequence_falchion_lookat01, sequence_falchion_lookat02);
+				seq = random_sequence(sequence_falchion_lookat01, sequence_falchion_lookat02);
 				break;
 			}
 		}
@@ -644,5 +648,5 @@ void Skins::UpdateAnimations(C_CSPlayer* ent) {
 	}
 
 	// write back fixed sequence.
-	ent->m_nSequence() = seq;
+	ent->m_nSequence() == seq;
 }
