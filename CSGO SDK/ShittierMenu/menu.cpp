@@ -917,7 +917,7 @@ void Visuals()
 				InsertMultiCombo(std::string(XorStr("Dropped Weapons")).c_str(), droppedWeapons);
 				ColorPicker(XorStr("##DropperWeaponsColor"), g_Vars.esp.dropped_weapons_color, false, true);
 
-				const char* shot_visualization_options[] = { "Off", "Hitboxes", "Chams", "Skeleton" };
+				const char* shot_visualization_options[] = { "Off", "Hitboxes", "Chams" };
 
 				InsertCombo(XorStr("Shot Visualization"), &g_Vars.esp.shot_visualization, shot_visualization_options);
 				switch (g_Vars.esp.shot_visualization) {
@@ -939,12 +939,12 @@ void Visuals()
 					InsertSliderFloat(XorStr("Expire time ##chams"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
 					break;
 				}
-				case 3:
-				{
-					ColorPicker_w_name(XorStr("Shot Skeleton color"), g_Vars.esp.hitskeleton_color, true, false);
-					InsertSliderFloat(XorStr("Expire time ##skeleton"), &g_Vars.esp.hitskeleton_time, 1.f, 10.f, XorStr("%0.0f seconds"));
-					break;
-				}
+				//case 3:
+				//{
+				//	ColorPicker_w_name(XorStr("Shot Skeleton color"), g_Vars.esp.hitskeleton_color, true, false);
+				//	InsertSliderFloat(XorStr("Expire time ##skeleton"), &g_Vars.esp.hitskeleton_time, 1.f, 10.f, XorStr("%0.0f seconds"));
+				//	break;
+				//}
 
 
 				}

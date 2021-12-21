@@ -1299,8 +1299,8 @@ void CEsp::Main( ) {
 	Vector2D center;
 
 
-	if( g_Vars.esp.shot_visualization == 3 )
-		DrawHitSkeleton( );
+	//if( g_Vars.esp.shot_visualization == 3 )
+		//DrawHitSkeleton( );
 
 	for( int i = 0; i <= Interfaces::m_pEntList->GetHighestEntityIndex( ); ++i ) {
 		auto entity = ( C_BaseEntity* )Interfaces::m_pEntList->GetClientEntity( i );

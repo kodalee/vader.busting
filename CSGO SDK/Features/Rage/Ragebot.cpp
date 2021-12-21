@@ -1814,8 +1814,8 @@ namespace Interfaces
 							if (g_Vars.esp.shot_visualization == 2)
 								IChams::Get()->AddHitmatrix(bestPoint->target->player, bestPoint->target->record->GetBoneMatrix());
 
-							if(g_Vars.esp.shot_visualization == 3)
-								IEsp::Get( )->AddSkeletonMatrix( bestPoint->target->player, bestPoint->target->record->GetBoneMatrix( ) );
+							//if(g_Vars.esp.shot_visualization == 3)
+								//IEsp::Get( )->AddSkeletonMatrix( bestPoint->target->player, bestPoint->target->record->GetBoneMatrix( ) );
 						}
 
 						if (g_Vars.esp.shot_visualization == 1) {

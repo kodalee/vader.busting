@@ -149,8 +149,8 @@ namespace Interfaces {
 						if (g_Vars.esp.shot_visualization == 2)
 							IChams::Get()->AddHitmatrix(pPlayer, record->GetBoneMatrix());
 
-						if (g_Vars.esp.shot_visualization == 3)
-							IEsp::Get()->AddSkeletonMatrix(pPlayer, record->GetBoneMatrix());
+						//if (g_Vars.esp.shot_visualization == 3)
+							//IEsp::Get()->AddSkeletonMatrix(pPlayer, record->GetBoneMatrix());
 					}
 					
 					zeusBotData->m_pCmd->viewangles = vecDirection.ToEulerAngles( );
