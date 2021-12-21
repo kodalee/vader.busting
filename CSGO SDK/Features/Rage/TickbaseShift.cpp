@@ -51,18 +51,8 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 	}
 
 
-	auto weapon = (C_WeaponCSBaseGun*)C_CSPlayer::GetLocalPlayer()->m_hActiveWeapon().Get();
-	if (!weapon) {
-		return;
-	}
-
-	auto weaponInfo = weapon->GetCSWeaponData();
-	if (!weaponInfo.IsValid()) {
-		return;
-	}
-
 	const bool bStart = s_bBuilding;
-	s_bBuilding = /*m_didFakeFlick || */(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !GetAsyncKeyState(VK_LBUTTON) && !weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE
+	s_bBuilding = /*m_didFakeFlick || */(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !GetAsyncKeyState(VK_LBUTTON)
 #ifndef STANDALONE_CSGO
 			&& s_nTicksSinceUse >= s_nTicksRequired
 		&& !m_bSupressRecharge)
