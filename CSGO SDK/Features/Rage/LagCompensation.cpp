@@ -117,11 +117,11 @@ namespace Engine
 	bool C_LagCompensation::IsRecordOutOfBounds( const Engine::C_LagRecord& record, float flTargetTime, int nTickbaseShiftTicks, bool bDeadTimeCheck ) const {
 		Encrypted_t<INetChannel> pNetChannel = Encrypted_t<INetChannel>( Interfaces::m_pEngine->GetNetChannelInfo( ) );
 		if( !pNetChannel.IsValid( ) )
-			return true;
+			return false;
 
 		C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer( );
 		if( !pLocal )
-			return true;
+			return false;
 
 		auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
 		
@@ -129,7 +129,7 @@ namespace Engine
 			+ pNetChannel->GetLatency(FLOW_OUTGOING)
 			+ lerp, 0.f, g_Vars.sv_maxunlag->GetFloat());
 
-		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase()/* - g_TickbaseController.s_nExtraProcessingTicks*/);
 
 		//if (fabsf(flCorrect - (curtime - record.m_flSimulationTime)) <= flTargetTime) 
 		//	printf("LESS THAN TARGET TIME\n");
@@ -138,7 +138,7 @@ namespace Engine
 
 		Math::Clamp(flCorrect, 0.f, 1.0f);
 
-		return fabsf(flCorrect - (curtime - record.m_flSimulationTime)) > flTargetTime;
+		return std::abs(flCorrect - (curtime - record.m_flSimulationTime)) /*was >*/ < 0.19f /*TargetTime*/;
 
 		//// use prediction curtime for this.
 		//float curtime = TICKS_TO_TIME( pLocal->m_nTickBase( ) - g_TickbaseController.s_nExtraProcessingTicks );

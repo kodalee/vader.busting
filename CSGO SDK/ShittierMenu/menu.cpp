@@ -365,7 +365,7 @@ void HvH()
 			InsertCheckbox(Distortion, XorStr("Distortion###sse"), &g_Vars.antiaim.distort)
 			if (g_Vars.antiaim.distort) {
 				// manual aa is on, show this.
-				InsertCheckbox(AAManualOverride, XorStr("Manual override"), &g_Vars.antiaim.distort_manual_aa);
+				InsertCheckbox(AAManualOverride, XorStr("Override Manual Distortion"), &g_Vars.antiaim.distort_manual_aa);
 				InsertCheckbox(Twist, XorStr("Twist"), &g_Vars.antiaim.distort_twist);
 				if (g_Vars.antiaim.distort_twist) {
 					InsertSliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1fs"));

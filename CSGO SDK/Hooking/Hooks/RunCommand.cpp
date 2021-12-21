@@ -95,11 +95,11 @@ namespace Hooked
 		//if( g_Vars.globals.m_bInCreateMove && ucmd->command_number == Interfaces::m_pClientState->m_nLastCommandAck( ) + 1 )
 		//	local->m_flVelocityModifier( ) = g_Vars.globals.LastVelocityModifier;
 
-		Engine::Prediction::Instance()->StoreNetvarCompression(ucmd);
+		//Engine::Prediction::Instance()->StoreNetvarCompression(ucmd);
 
 		oRunCommand( ecx, player, ucmd, moveHelper );
 
-		Engine::Prediction::Instance()->RestoreNetvarCompression(ucmd);
+		//Engine::Prediction::Instance()->RestoreNetvarCompression(ucmd);
 
 		FixPostponeTime( ucmd->command_number );
 

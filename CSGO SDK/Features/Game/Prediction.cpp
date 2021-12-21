@@ -472,7 +472,7 @@ namespace Engine
 		this->m_hGroundEntity = playerhGroundEntity;
 		this->m_nMoveType = player->m_MoveType( );
 		this->m_nFlags = player->m_fFlags( );
-		//this->m_nTickBase = player->m_nTickBase( );
+		this->m_nTickBase = player->m_nTickBase( );
 
 		auto weapon = ( C_WeaponCSBaseGun* )player->m_hActiveWeapon( ).Get( );
 		if( weapon ) {
@@ -513,7 +513,7 @@ namespace Engine
 
 		player->m_MoveType( ) = this->m_nMoveType;
 		player->m_fFlags( ) = this->m_nFlags;
-		//player->m_nTickBase( ) = this->m_nTickBase;
+		player->m_nTickBase( ) = this->m_nTickBase;
 
 		auto weapon = ( C_WeaponCSBaseGun* )player->m_hActiveWeapon( ).Get( );
 		if( weapon ) {
