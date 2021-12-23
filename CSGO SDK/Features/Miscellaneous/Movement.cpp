@@ -694,6 +694,9 @@ namespace Interfaces
 		if( m_movement_data->m_pLocal->m_MoveType( ) != MOVETYPE_WALK )
 			return;
 
+		if (GetAsyncKeyState(VK_SHIFT))
+			return;
+
 		static auto side = 1.0f;
 		side = -side;
 
