@@ -1817,7 +1817,7 @@ namespace Interfaces
 					break;
 
 				std::pair< Engine::C_LagRecord*, Engine::C_LagRecord* > last;
-				if( !Engine::LagCompensation::Get( )->IsRecordOutOfBounds( *it, 0.2f, -1, false ) && it + 1 != data->m_History.end( ) && Engine::LagCompensation::Get( )->IsRecordOutOfBounds( *( it + 1 ), 0.2f, -1, false ) )
+				if( Engine::LagCompensation::Get( )->IsRecordOutOfBounds( *it, 0.2f, -1, false ) && it + 1 != data->m_History.end( ) && Engine::LagCompensation::Get( )->IsRecordOutOfBounds( *( it + 1 ), 0.2f, -1, false ) )
 					last = std::make_pair( &*( it + 1 ), &*it );
 
 				if( !last.first || !last.second )
