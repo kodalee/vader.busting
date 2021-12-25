@@ -70,39 +70,37 @@ namespace Interfaces
 
 
 
-	//void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
-	//{
-	//	if (!g_Vars.misc.mind_trick || !g_Vars.misc.mind_trick_bind.enabled)
-	//		return;
+	void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
+	{
+		if (!g_Vars.misc.mind_trick || !g_Vars.misc.mind_trick_bind.enabled)
+			return;
 
-	//	auto localPlayer = C_CSPlayer::GetLocalPlayer();
+		auto localPlayer = C_CSPlayer::GetLocalPlayer();
 
-	//	if (!localPlayer->m_iHealth() > 0)
-	//		return;
+		if (localPlayer->IsDead())
+			return;
 
-	//	if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
-	//		if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
-	//			printf("choked true\n");
-	//			if (Interfaces::m_pGlobalVars->curtime < g_Vars.globals.m_flBodyPred) {
-	//				printf("curtime true\n");
-	//				if (g_TickbaseController.lastShiftedCmdNr != Interfaces::m_pClientState->m_nLastOutgoingCommand()) {
-	//					printf("doesn't equal true\n");
-	//					//static bool switcher2 = false;
-	//					//g_cl.m_cmd->m_view_angles.x -= 180.f;
-	//					//g_cl.m_cmd->m_view_angles.y += switcher2 ? g_menu.main.antiaim.angleflick.get() : -(g_menu.main.antiaim.angleflick.get());
-	//					//switcher2 = !switcher2;
-	//					cmd->viewangles.y += 135.f;
-	//					//g_cl.ticksToShift = 0;
-	//					if (/*g_cl.m_cmd->m_side_move == 0 && g_cl.m_cmd->m_forward_move == 0 && */localPlayer->m_vecVelocity().Length2D() < 11.f) {
-	//						static bool switcher = false;
-	//						cmd->sidemove = switcher ? -13.37f : 13.37f;
-	//						switcher = !switcher;
-	//					}
-	//					g_TickbaseController.m_didFakeFlick = true;
-	//				}
-	//			}
-	//		}
-	//	}
+		if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+			if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
+				if (g_Vars.globals.m_flAnimTime < g_Vars.globals.m_flBodyPred) {
+					if (Interfaces::m_pGlobalVars->tickcount % 2) {
+						cmd->viewangles.y += 135.f;
+					}
+					if (localPlayer->m_vecVelocity().Length2D() < 11.f) {
+						static bool switcher = false;
+						cmd->sidemove = switcher ? -13.37f : 13.37f;
+						switcher = !switcher;
+					}
+					g_TickbaseController.m_didFakeFlick = true;
+
+					if (g_TickbaseController.m_didFakeFlick) {
+						g_Vars.globals.shift_amount = 14;
+						g_TickbaseController.m_didFakeFlick = false;
+					}
+				}
+			}
+		}
+	}
 
 	//	////if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
 	//	////	if (cmd->sidemove == 0 && cmd->forwardmove == 0 /*&& localPlayer->m_vecVelocity().Length2D() < 10.f*/) {
@@ -369,8 +367,6 @@ namespace Interfaces
 			cmd->viewangles.y = flYaw;
 
 			Distort(cmd);
-
-			//fake_flick(cmd);
 		}
 		else {
 			//*bSendPacket = true;
@@ -420,6 +416,8 @@ namespace Interfaces
 		if (DoEdgeAntiAim(LocalPlayer, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1 && g_Vars.antiaim.freestand && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // run edge aa
 			cmd->viewangles.y += Math::AngleNormalize(ang.y);
 		}
+
+		fake_flick(cmd);
 
 
 		/*if ( g_Vars.antiaim.imposta ) {
