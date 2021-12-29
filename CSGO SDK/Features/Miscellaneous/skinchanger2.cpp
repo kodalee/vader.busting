@@ -458,7 +458,9 @@ void skins_speedy::Skinchanger()
 
 	if (g_Vars.misc.enable_skins) {
 		auto active_weapon = local_player->m_hActiveWeapon().Get();
-		if (!active_weapon) {
+		C_WeaponCSBaseGun* pWeapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
+
+		if (!active_weapon || !pWeapon || pWeapon->m_iItemDefinitionIndex() == WEAPON_ZEUS) {
 			return;
 		}
 		auto my_weapons = local_player->m_hMyWeapons();
