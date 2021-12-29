@@ -21,6 +21,7 @@ namespace Interfaces
 {
 	class C_AntiAimbot : public AntiAimbot {
 	public:
+		void fake_duck(bool* bSendPacket, Encrypted_t<CUserCmd> cmd) override;
 		void Main(bool* bSendPacket, bool* bFinalPacket, Encrypted_t<CUserCmd> cmd, bool ragebot) override;
 		void PrePrediction(bool* bSendPacket, Encrypted_t<CUserCmd> cmd) override;
 		void ImposterBreaker(bool* bSendPacket, Encrypted_t<CUserCmd> cmd) override;
@@ -43,6 +44,7 @@ namespace Interfaces
 		void SendFakeFlick();
 
 		bool airstuck();
+
 
 		void fake_flick(Encrypted_t<CUserCmd> cmd);
 
@@ -69,33 +71,61 @@ namespace Interfaces
 	//}
 
 
-
 	void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
 	{
-		if (!g_Vars.misc.mind_trick || !g_Vars.misc.mind_trick_bind.enabled)
-			return;
+		static bool balls = false;
+		static bool balls2 = false;
 
-		auto localPlayer = C_CSPlayer::GetLocalPlayer();
+		static auto curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
 
-		if (localPlayer->IsDead())
-			return;
+		if (!balls) {
+			curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
+			balls = true;
+		}
 
-		if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
-			if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
-				if (g_Vars.globals.m_flAnimTime < g_Vars.globals.m_flBodyPred) {
-					if (Interfaces::m_pGlobalVars->tickcount % 2) {
-						cmd->viewangles.y += 135.f;
-					}
-					if (localPlayer->m_vecVelocity().Length2D() < 11.f) {
-						static bool switcher = false;
-						cmd->sidemove = switcher ? -13.37f : 13.37f;
-						switcher = !switcher;
-					}
-					g_TickbaseController.m_didFakeFlick = true;
+		if (g_Vars.misc.mind_trick_bind.enabled) {
+			if (!balls2) {
+				balls = false;
+				balls2 = true;
+			}
+		}
+		else {
+			balls2 = false;
+		}
 
-					if (g_TickbaseController.m_didFakeFlick) {
-						g_Vars.globals.shift_amount = 14;
-						g_TickbaseController.m_didFakeFlick = false;
+		if (g_Vars.misc.mind_trick_bind.enabled) {
+
+			auto localPlayer = C_CSPlayer::GetLocalPlayer();
+
+			if (localPlayer->IsDead())
+				return;
+
+
+			if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+				if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
+					if (g_Vars.globals.m_flAnimTime < g_Vars.globals.m_flBodyPred) {
+						if (Interfaces::m_pGlobalVars->curtime >= curtime) {
+							//g_Vars.globals.shift_amount = 14;
+							//g_TickbaseController.m_didFakeFlick = true;
+							static bool switcher = false;
+							cmd->viewangles.y += 135.f;
+							switcher = !switcher;
+							//g_Vars.globals.shift_amount = 0;
+							//g_TickbaseController.m_didFakeFlick = false;
+							curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
+							printf("flicking\n");
+						}
+						if (localPlayer->m_vecVelocity().Length2D() < 11.f) {
+							static bool switcher = false;
+							cmd->sidemove = switcher ? -13.37f : 13.37f;
+							switcher = !switcher;
+						}
+						//g_TickbaseController.m_didFakeFlick = true;
+
+						//if (g_TickbaseController.m_didFakeFlick) {
+						//	g_Vars.globals.shift_amount = 0;
+						//	g_TickbaseController.m_didFakeFlick = false;
+						//}
 					}
 				}
 			}
@@ -222,6 +252,21 @@ namespace Interfaces
 
 	std::random_device random;
 	std::mt19937 generator(random());
+
+	void C_AntiAimbot::fake_duck(bool* bSendPacket, Encrypted_t<CUserCmd> cmd)
+	{
+		int fakelag_limit = 16;
+		int choked_goal = fakelag_limit / 2;
+		bool should_crouch = Interfaces::m_pClientState->m_nChokedCommands() >= choked_goal;
+
+		if (should_crouch)
+			cmd->buttons |= IN_DUCK;
+		else
+			cmd->buttons &= ~IN_DUCK;
+
+		*bSendPacket = Interfaces::m_pClientState->m_nChokedCommands() >= fakelag_limit;
+	}
+
 	void C_AntiAimbot::Main(bool* bSendPacket, bool* bFinalPacket, Encrypted_t<CUserCmd> cmd, bool ragebot) {
 		C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
 
@@ -366,7 +411,12 @@ namespace Interfaces
 
 			cmd->viewangles.y = flYaw;
 
-			Distort(cmd);
+			if (!g_Vars.misc.mind_trick_bind.enabled) {
+				Distort(cmd);
+			}
+		
+			fake_flick(cmd);
+
 		}
 		else {
 			//*bSendPacket = true;
@@ -416,8 +466,6 @@ namespace Interfaces
 		if (DoEdgeAntiAim(LocalPlayer, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1 && g_Vars.antiaim.freestand && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // run edge aa
 			cmd->viewangles.y += Math::AngleNormalize(ang.y);
 		}
-
-		fake_flick(cmd);
 
 
 		/*if ( g_Vars.antiaim.imposta ) {

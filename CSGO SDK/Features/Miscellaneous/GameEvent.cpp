@@ -77,7 +77,7 @@ void C_GameEvent::Register( ) {
 	ADD_GAMEEVENT( bomb_beep );
 	ADD_GAMEEVENT( bomb_defused );
 	ADD_GAMEEVENT( bomb_exploded );
-	ADD_GAMEEVENT( player_say );
+	//ADD_GAMEEVENT( player_say );
 }
 
 void C_GameEvent::Shutdown( ) {

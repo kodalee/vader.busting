@@ -450,6 +450,7 @@ public:
 
 		int shift_amount;
 
+		float curtimeLog;
 
 		cheat_header_t user_info;
 		std::string c_login, c_password, server_adress;

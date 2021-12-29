@@ -766,6 +766,10 @@ void CEsp::Keybinds() {
 			AddBind(XorStr("Double tap"), g_Vars.rage.key_dt);
 		}
 
+		if (g_Vars.misc.fakeduck) {
+			AddBind(XorStr("Fake-Duck"), g_Vars.misc.fakeduck_bind);
+		}
+
 		if (g_Vars.misc.move_exploit) {
 			AddBind(XorStr("Move Exploit"), g_Vars.misc.move_exploit_key);
 		}

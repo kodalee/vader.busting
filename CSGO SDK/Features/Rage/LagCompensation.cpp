@@ -123,6 +123,14 @@ namespace Engine
 		if( !pLocal )
 			return false;
 
+		//C_WeaponCSBaseGun* pWeapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
+
+		//if (pWeapon) {
+		//	if (pWeapon->m_iItemDefinitionIndex() == WEAPON_ZEUS) {
+		//		return true;
+		//	}
+		//}
+
 		auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
 		
 		const auto flCorrect = std::clamp(pNetChannel->GetLatency(FLOW_INCOMING)

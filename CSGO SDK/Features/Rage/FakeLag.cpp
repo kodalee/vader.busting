@@ -11,6 +11,8 @@
 
 #include "../../source.hpp"
 
+#include "AntiAim.hpp"
+
 #include "../../SDK/Displacement.hpp"
 #include "../Miscellaneous/Movement.hpp"
 
@@ -113,6 +115,10 @@ namespace Interfaces
 
 		if( g_Vars.fakelag.iLagLimit <= 0 )
 			return;
+
+		if (g_Vars.misc.fakeduck && g_Vars.misc.fakeduck_bind.enabled) {
+			Interfaces::AntiAimbot::Get()->fake_duck(bSendPacket, cmd);
+		}
 
 		if( g_Vars.fakelag.trigger_land && !( Engine::Prediction::Instance( ).GetFlags( ) & FL_ONGROUND ) && LocalPlayer->m_fFlags( ) & FL_ONGROUND ) {
 			fakelagData->m_bLanding = true;

@@ -1142,6 +1142,14 @@ void Misc()
 
 #if defined(BETA_MODE) || defined(DEV)
 			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log);
+
+			InsertCheckbox(fakeDuck, XorStr("Fake-Duck"), &g_Vars.misc.fakeduck);
+			if (g_Vars.misc.fakeduck) {
+				ImGui::SameLine();
+				biggestMeme2();
+				ImGui::Hotkey("##FDkey", &g_Vars.misc.fakeduck_bind.key, &g_Vars.misc.fakeduck_bind.cond, ImVec2{ 40,20 });
+			}
+
 #endif
 			break;
 		}

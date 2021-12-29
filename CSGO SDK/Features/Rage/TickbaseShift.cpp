@@ -55,8 +55,9 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 	s_bBuilding = /*m_didFakeFlick || */(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !GetAsyncKeyState(VK_LBUTTON)
 #ifndef STANDALONE_CSGO
 			&& s_nTicksSinceUse >= s_nTicksRequired
-		&& !m_bSupressRecharge)
+		&& !m_bSupressRecharge) ||
 #endif
+		(m_didFakeFlick && s_nTicksSinceUse >= s_nTicksRequired)
 		;
 
 	if (bStart && !s_bBuilding && ((s_nExtraProcessingTicks > 0 && !s_bAckedBuild) || (int)s_nExtraProcessingTicks < s_iClockCorrectionTicks))

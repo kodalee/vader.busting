@@ -1469,6 +1469,11 @@ namespace Interfaces
 		for (auto& target : m_rage_data->m_targets)
 			target.backup.Apply(target.player);
 
+		bool fakeducking = g_Vars.misc.fakeduck_bind.enabled;
+
+		if (fakeducking && C_CSPlayer::GetLocalPlayer()->m_flDuckAmount() != 0.f)
+			return false;
+
 		return false;
 	}
 
@@ -1564,6 +1569,11 @@ namespace Interfaces
 		//for( auto& p : m_rage_data->m_aim_points ) {
 		//	Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
 		//}
+
+		//bool fakeDucking = g_Vars.misc.fakeduck_bind.enabled;
+
+		//if (fakeDucking && C_CSPlayer::GetLocalPlayer()->m_flDuckAmount() != 0)
+		//	return { false, C_AimPoint() };
 
 		C_AimPoint* bestPoint = nullptr;
 		bool doubleTap = /*( g_TickbaseController.bExploiting || g_TickbaseController.bUseDoubletapHitchance ) && */g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit;
@@ -2198,6 +2208,16 @@ namespace Interfaces
 
 		m_rage_data->m_iChokedCommands = -1;
 		m_rage_data->m_bFailedHitchance = false;
+
+		bool can_scope = !(C_CSPlayer::GetLocalPlayer()->m_bIsScoped()) && m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && (m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE);
+
+		if (can_scope) {
+			if (m_rage_data->rbot->autoscope) {
+				m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+				//m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
+				m_rage_data->m_bRePredict = true;
+			}
+		}
 
 		if (g_Vars.rage.auto_fire) {
 			//if (!g_Vars.globals.Fakewalking)
