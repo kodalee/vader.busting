@@ -111,13 +111,13 @@ namespace Hooked
 
 		auto local = C_CSPlayer::GetLocalPlayer( );
 
-		if( local == entity )
-			ISkinChanger::Get( )->OnNetworkUpdate( true );
+		//if( local == entity )
+			//ISkinChanger::Get( )->OnNetworkUpdate( true );
 
 		orig( ecx, updateType );
 
-		if( local == entity )
-			ISkinChanger::Get( )->OnNetworkUpdate( false );
+		//if( local == entity )
+		//	ISkinChanger::Get( )->OnNetworkUpdate( false );
 	}
 
 	IClientNetworkable* hkCreateCCSPlayer( int entnum, int serialNum ) {

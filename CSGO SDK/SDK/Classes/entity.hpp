@@ -235,6 +235,7 @@ public:
 	bool ComputeHitboxSurroundingBox( Vector* mins, Vector* maxs );
 	bool IsPlayer( );
 	bool IsWeapon( );
+	bool IsKnife( );
 	bool IsPlantedC4( );
 
 	void SetAbsVelocity( const Vector& velocity );

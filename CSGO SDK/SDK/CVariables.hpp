@@ -1451,6 +1451,44 @@ public:
 	config_option( bool, ingame_radar, false );
 	config_option( bool, watermark, true );
 
+	config_option(bool, enable_skins, false);
+	config_option(int, knife_model, 0);
+	config_option(int, knife_skin, 0);
+	config_option(int, usp_skin, 0);
+	config_option(int, p2k_skin, 0);
+	config_option(int, glock_skin, 0);
+	config_option(int, p250_skin, 0);
+	config_option(int, fiveseven_skin, 0);
+	config_option(int, tec9_skin, 0);
+	config_option(int, cz75a_skin, 0);
+	config_option(int, elite_skin, 0);
+	config_option(int, deagle_skin, 0);
+	config_option(int, revolver_skin, 0);
+	config_option(int, famas_skin, 0);
+	config_option(int, galilar_skin, 0);
+	config_option(int, m4a1_skin, 0);
+	config_option(int, m4a1s_skin, 0);
+	config_option(int, ak47_skin, 0);
+	config_option(int, sg556_skin, 0);
+	config_option(int, aug_skin, 0);
+	config_option(int, ssg08_skin, 0);
+	config_option(int, awp_skin, 0);
+	config_option(int, scar20_skin, 0);
+	config_option(int, g3sg1_skin, 0);
+	config_option(int, sawedoff_skin, 0);
+	config_option(int, m249_skin, 0);
+	config_option(int, negev_skin, 0);
+	config_option(int, mag7_skin, 0);
+	config_option(int, xm1014_skin, 0);
+	config_option(int, nova_skin, 0);
+	config_option(int, bizon_skin, 0);
+	config_option(int, mp7_skin, 0);
+	config_option(int, mp9_skin, 0);
+	config_option(int, mac10_skin, 0);
+	config_option(int, p90_skin, 0);
+	config_option(int, ump45_skin, 0);
+
+
 
 #if defined(BETA_MODE) || defined(DEV)
 	config_option( bool, undercover_log, false );

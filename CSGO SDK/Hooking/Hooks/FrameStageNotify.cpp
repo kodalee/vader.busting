@@ -24,6 +24,7 @@
 #include "../../Features/Rage/TickbaseShift.hpp"
 #include "../../Features/Visuals/CChams.hpp"
 #include "../../Features/Miscellaneous/WeatherController.hpp"
+#include "../../Features/Miscellaneous/skinchanger2.h"
 
 #ifdef DEV
 //#define SERVER_HITBOXES
@@ -338,6 +339,13 @@ namespace Hooked
 
 				networkedCycle = *( float* )( uintptr_t( viewModel.Get( ) ) + Engine::Displacement.DT_BaseAnimating.m_flCycle );
 				animationTime = *( float* )( uintptr_t( viewModel.Get( ) ) + Engine::Displacement.DT_BaseEntity.m_flAnimTime );
+			}
+
+			if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START) {
+				if (Interfaces::m_pEngine->IsConnected() && Interfaces::m_pEngine->IsInGame()) {
+					skins_speedy::Skinchanger();
+				}
+
 			}
 
 			if( stage == FRAME_RENDER_START && Interfaces::m_pEngine->IsConnected( ) ) {

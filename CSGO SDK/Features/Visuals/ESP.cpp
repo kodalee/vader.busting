@@ -1955,6 +1955,10 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 235, 82, 82, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "DEFUSER" ) );
 	}
 
+	if (g_Vars.misc.ingame_radar) {
+		player->m_bSpotted() = true;
+	}
+
 #ifdef DEV 
 
 	if (anim_data && lag_data.IsValid()) {

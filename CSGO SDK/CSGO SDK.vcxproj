@@ -201,6 +201,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Features\Miscellaneous\skinchanger2.cpp" />
     <ClCompile Include="Features\Miscellaneous\WeatherController.cpp" />
     <ClCompile Include="Features\Rage\AnimationSystem.cpp" />
     <ClCompile Include="Features\Rage\AntiAim.cpp" />
@@ -386,6 +387,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Features\Game\SimulationContext.hpp" />
+    <ClInclude Include="Features\Miscellaneous\skinchanger2.h" />
     <ClInclude Include="Features\Miscellaneous\WeatherController.hpp" />
     <ClInclude Include="Features\Rage\AnimationSystem.hpp" />
     <ClInclude Include="Features\Rage\AntiAim.hpp" />

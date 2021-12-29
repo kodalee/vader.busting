@@ -237,6 +237,12 @@ bool C_BaseEntity::IsWeapon( ) {
 	return Memory::VCall<Fn>( this, Index::C_BaseEntity::IsWeapon )( this );
 }
 
+bool C_BaseEntity::IsKnife() {
+	const auto& classId = GetClientClass();
+	if (!classId)
+		return false;
+	return classId->m_ClassID == CKnife || classId->m_ClassID == CKnifeGG;
+}
 void C_BaseEntity::SetAbsVelocity( const Vector& velocity ) {
 	static auto m_vecAbsVelocity = SDK::Memory::FindInDataMap( this->GetPredDescMap( ), XorStr( "m_vecAbsVelocity" ) );
 	*( Vector* )( ( uintptr_t )this + m_vecAbsVelocity ) = velocity;

@@ -164,6 +164,10 @@ bool C_BasePlayer::IsAlive() {
 	return (this->m_lifeState() == LIFE_ALIVE);
 }
 
+bool& C_BasePlayer::m_bSpotted() {
+	return *(bool*)((uintptr_t)this + Engine::Displacement.DT_BaseEntity.m_bSpotted);
+}
+
 VarMapping_t* C_BasePlayer::VarMapping()
 {
 	return reinterpret_cast<VarMapping_t*>((DWORD)this + 0x24);

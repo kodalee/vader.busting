@@ -27,6 +27,7 @@ struct DllInitializeData {
 	  DWORD32 m_nForceBone;
 	  DWORD32 InvalidateBoneCache;
 	  DWORD32 m_flAnimTime;
+	  DWORD32 m_bSpotted;
    } DT_BaseEntity;  
    
    // DT_BaseWeaponWorldModel

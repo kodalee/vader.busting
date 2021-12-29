@@ -79,6 +79,7 @@ public:
    void* Renderable();
    void DrawModel(int flags = STUDIO_RENDER, const RenderableInstance_t& instance = {});
    bool IsAlive();
+   bool& m_bSpotted();
    VarMapping_t* VarMapping();
    bool IsDead( );
    void SetCurrentCommand( CUserCmd* cmd );

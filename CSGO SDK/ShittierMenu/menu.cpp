@@ -9,6 +9,7 @@
 #include "IMGAY/imgui_stdlib.h"
 #include "../Utils/logo.h"
 #include "../Utils/Config.hpp"
+#include "../source.hpp"
 
 //lua
 
@@ -16,7 +17,7 @@
 
 IDirect3DTexture9* logo_nuts;
  
-int tab = 0, aimbotTab = 1, rageTab = 0, legitTab = 0, visualsSubTab = 0, miscSubtabs = 0;
+int tab = 0, aimbotTab = 1, rageTab = 0, legitTab = 0, visualsSubTab = 0, miscSubtabs = 0, skinsSubtabs = 0;
 
 void ColorPicker(const char* name, float* color, bool alpha, bool combo) {
 
@@ -1267,6 +1268,110 @@ void Misc()
 	ImGui::EndColumns();
 }
 
+void Skins()
+{
+	ImGuiStyle* style = &ImGui::GetStyle();
+	float group_w = ImGui::GetCurrentWindow()->Size.x - style->WindowPadding.x * 2;
+	ImGui::Columns(3, nullptr, false);
+	ImGui::SetColumnOffset(1, group_w / 3.0f);
+	ImGui::SetColumnOffset(2, 2 * group_w / 2.9f);
+	ImGui::SetColumnOffset(3, group_w);
+
+	ImGui::NewLine();
+	{
+		const char* knife_models[]{ "Bayonet", "Bowie", "Butterfly", "Falchion", "Flip", "Gut", "Tactical", "Karambit", "M9 Bayonet", "Shadow Daggers" };
+
+
+		switch (skinsSubtabs)
+		{
+		case 0:
+		{
+			InsertCheckbox(enableskins, XorStr("Enable"), &g_Vars.misc.enable_skins);
+			if (g_Vars.misc.enable_skins) {
+				InsertCombo(XorStr("Knife Model"), &g_Vars.misc.knife_model, knife_models, []() {return vars.skins.enable; });
+				ImGui::InputInt("Knife Skin", &g_Vars.misc.knife_skin);
+			}
+			break;
+		}
+		case 1:
+		{
+			ImGui::NewLine();
+			{
+				ImGui::InputInt("Usp Skin", &g_Vars.misc.usp_skin);
+				ImGui::InputInt("P2000 Skin", &g_Vars.misc.p2k_skin);
+				ImGui::InputInt("Glock Skin", &g_Vars.misc.glock_skin);
+				ImGui::InputInt("P250 Skin", &g_Vars.misc.p250_skin);
+				ImGui::InputInt("FiveSeven Skin", &g_Vars.misc.fiveseven_skin);
+				ImGui::InputInt("Tec9 Skin", &g_Vars.misc.tec9_skin);
+				ImGui::InputInt("CZ75A Skin", &g_Vars.misc.cz75a_skin);
+				ImGui::InputInt("Elite Skin", &g_Vars.misc.elite_skin);
+				ImGui::InputInt("Deagle Skin", &g_Vars.misc.deagle_skin);
+				ImGui::InputInt("Revolver Skin", &g_Vars.misc.revolver_skin);
+				ImGui::InputInt("Famas Skin", &g_Vars.misc.famas_skin);
+				ImGui::InputInt("Galil Skin", &g_Vars.misc.galilar_skin);
+				ImGui::InputInt("M4a1 Skin", &g_Vars.misc.m4a1_skin);
+				ImGui::InputInt("M4a1-S Skin", &g_Vars.misc.m4a1s_skin);
+				ImGui::InputInt("Ak47 Skin", &g_Vars.misc.ak47_skin);
+				ImGui::InputInt("Sg556 Skin", &g_Vars.misc.sg556_skin);
+				ImGui::InputInt("Aug Skin", &g_Vars.misc.aug_skin);
+				ImGui::InputInt("Ssg08 Skin", &g_Vars.misc.ssg08_skin);
+				ImGui::InputInt("Awp Skin", &g_Vars.misc.awp_skin);
+				ImGui::NextColumn();
+				ImGui::NewLine();
+				ImGui::InputInt("Scar20 Skin", &g_Vars.misc.scar20_skin);
+				ImGui::InputInt("G3sg1 Skin", &g_Vars.misc.g3sg1_skin);
+				ImGui::InputInt("Sawedoff Skin", &g_Vars.misc.sawedoff_skin);
+				ImGui::InputInt("M249 Skin", &g_Vars.misc.m249_skin);
+				ImGui::InputInt("Negev Skin", &g_Vars.misc.negev_skin);
+				ImGui::InputInt("Mag7 Skin", &g_Vars.misc.mag7_skin);
+				ImGui::InputInt("Xm1014 Skin", &g_Vars.misc.xm1014_skin);
+				ImGui::InputInt("Nova Skin", &g_Vars.misc.nova_skin);
+				ImGui::InputInt("Bizon Skin", &g_Vars.misc.bizon_skin);
+				ImGui::InputInt("Mp7 Skin", &g_Vars.misc.mp7_skin);
+				ImGui::InputInt("Mp9 Skin", &g_Vars.misc.mp9_skin);
+				ImGui::InputInt("Mac10 Skin", &g_Vars.misc.mac10_skin);
+				ImGui::InputInt("P90 Skin", &g_Vars.misc.p90_skin);
+				ImGui::InputInt("Ump45 Skin", &g_Vars.misc.ump45_skin);
+			}
+
+
+
+		}
+
+		//std::string base_string = XorStr("skins_");
+
+		//std::string paintkit_string = base_string.append(XorStr("_kit"));
+		//static ImGuiTextFilter filter;
+
+		//if (!skin_kits.empty()) {
+		//	static ImGuiTextFilter filter;
+		//	ImGui::SetCursorPosY(ImGui::GetCursorPosY() - 15);
+		//	filter.Draw(XorStr("##searchbar"), 400.f);
+		//	ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 15);
+
+		//	for (int i = 0; i < skin_kits.size(); i++) {
+		//		auto paintkit = skin_kits.at(i);
+		//		if (filter.PassFilter(paintkit.name.c_str())) {
+		//			if (paintkit == XorStr("-"))
+		//				paintkit = XorStr("Default");
+
+		//			std::string label = paintkit + XorStr("##") + std::to_string(i);
+
+		//			if (ImGui::Selectable(label.c_str(), g_cfg[paintkit_string].get<int>() == i))
+		//				g_cfg[paintkit_string].set<int>(i);
+
+		//		}
+		//	}
+		//}
+		}
+
+
+
+		
+	}
+	ImGui::EndColumns();
+}
+
 bool IMGUIMenu::Initialize(IDirect3DDevice9* pDevice)
 {
 	if (!Initialized)
@@ -1415,6 +1520,12 @@ void IMGUIMenu::Render()
 				ImGui::TrueSubTab("  Configs  ", miscSubtabs, 1, ImVec2(0.f, 25.f));
 				break;
 			}
+			case 4:
+			{
+				ImGui::TrueSubTab("  Main  ", skinsSubtabs, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab("  Weapons  ", skinsSubtabs, 1, ImVec2(0.f, 25.f));
+				break;
+			}
 		}
 
 		ImGui::EndChild();
@@ -1438,6 +1549,9 @@ void IMGUIMenu::Render()
 			break;
 		case 3:
 			Misc();
+			break;
+		case 4:
+			Skins();
 		default:
 			break;
 	}

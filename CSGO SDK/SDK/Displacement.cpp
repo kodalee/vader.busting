@@ -34,6 +34,8 @@ namespace Engine
 		Displacement.DT_BaseEntity.m_Collision = pPropManager->GetOffset( XorStr( "DT_BaseEntity" ), XorStr( "m_Collision" ) );
 		Displacement.DT_BaseEntity.m_CollisionGroup = pPropManager->GetOffset( XorStr( "DT_BaseEntity" ), XorStr( "m_CollisionGroup" ) );
 		Displacement.DT_BaseEntity.m_flAnimTime = pPropManager->GetOffset( XorStr( "DT_BaseEntity" ), XorStr( "m_flAnimTime" ) );
+		Displacement.DT_BaseEntity.m_bSpotted = pPropManager->GetOffset( XorStr( "DT_BaseEntity" ), XorStr( "m_bSpotted" ) );
+
 
 		Displacement.DT_BaseWeaponWorldModel.m_hCombatWeaponParent = pPropManager->GetOffset( XorStr( "DT_BaseWeaponWorldModel" ), XorStr( "m_hCombatWeaponParent" ) );
 
