@@ -93,7 +93,7 @@ namespace Interfaces
 			balls2 = false;
 		}
 
-		if (g_Vars.misc.mind_trick_bind.enabled) {
+		if (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick) {
 
 			auto localPlayer = C_CSPlayer::GetLocalPlayer();
 
