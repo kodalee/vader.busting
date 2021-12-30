@@ -255,6 +255,7 @@ void Ragebot()
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
 			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
 			InsertCheckbox(DoubletapBreakLC, XorStr("Break Lag Compensation"), &g_Vars.rage.break_lagcomp);
+			//InsertCheckbox(DoubletapDisableLC, XorStr("Disable BT on DT"), &g_Vars.rage.disableLConDT);
 		}
 
 		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
@@ -1167,14 +1168,15 @@ void Misc()
 #if defined(BETA_MODE) || defined(DEV)
 			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log);
 
+#endif
 			InsertCheckbox(fakeDuck, XorStr("Fake-Duck"), &g_Vars.misc.fakeduck);
 			if (g_Vars.misc.fakeduck) {
 				ImGui::SameLine();
 				biggestMeme2();
 				ImGui::Hotkey("##FDkey", &g_Vars.misc.fakeduck_bind.key, &g_Vars.misc.fakeduck_bind.cond, ImVec2{ 40,20 });
-			}
+		}
 
-#endif
+
 			break;
 		}
 

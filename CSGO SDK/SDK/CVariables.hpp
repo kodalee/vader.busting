@@ -643,6 +643,7 @@ public:
 	config_option( bool, silent_aim, false );
 	config_option( bool, auto_fire, false );
 	config_option( bool, exploit, false );
+	config_option( bool, disableLConDT, false );
 	config_option( bool, double_tap_teleport, false );
 	config_option( bool, double_tap_recharge_threat, false );
 	config_option( bool, double_tap_adaptive, false );

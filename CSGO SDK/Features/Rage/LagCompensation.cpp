@@ -46,6 +46,7 @@ namespace Engine
 	class C_LagCompensation : public Engine::LagCompensation {
 	public:
 		virtual void Update( );
+		virtual bool is_breaking_lagcomp(C_CSPlayer* player, const float& simtime);
 		virtual bool IsRecordOutOfBounds( const Engine::C_LagRecord& record, float target_time = 0.2f, int tickbase_shift = -1, bool bDeadTimeCheck = true ) const;
 
 		virtual Encrypted_t<C_EntityLagData> GetLagData( int entindex ) {
@@ -112,6 +113,43 @@ namespace Engine
 			auto lag_data = Encrypted_t<C_EntityLagData>( &lagData->m_PlayerHistory[ player->m_entIndex ] );
 			lag_data->UpdateRecordData( lag_data, player, player_info, updateReason );
 		}
+	}
+
+	bool C_LagCompensation::is_breaking_lagcomp(C_CSPlayer* player, const float& simtime)
+	{
+		static constexpr auto m_flTeleportDistanceSqr = 64 * 64;
+
+		auto lag_data = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+		if (!lag_data.IsValid() || lag_data->m_History.empty())
+			return false;
+
+		if (lag_data->m_History.size() < 2)
+			return false;
+
+		auto prev_org = lag_data->m_History[0].m_vecOrigin;
+		auto skip_first = true;
+
+		for (auto& record : lag_data->m_History)
+		{
+			if (skip_first)
+			{
+				skip_first = false;
+				continue;
+			}
+
+			auto delta = record.m_vecOrigin - prev_org;
+			if (delta.Length2DSquared() > m_flTeleportDistanceSqr)
+			{
+				return true;
+			}
+
+			if (record.m_flSimulationTime <= simtime)
+				break;
+
+			prev_org = record.m_vecOrigin;
+		}
+
+		return false;
 	}
 
 	bool C_LagCompensation::IsRecordOutOfBounds( const Engine::C_LagRecord& record, float flTargetTime, int nTickbaseShiftTicks, bool bDeadTimeCheck ) const {

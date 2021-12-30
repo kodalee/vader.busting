@@ -2172,7 +2172,11 @@ namespace Interfaces
 	}
 
 	bool C_Ragebot::IsRecordValid(C_CSPlayer* player, Engine::C_LagRecord* record) {
-		return Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
+		if (Engine::LagCompensation::Get()->is_breaking_lagcomp(player, record->m_flSimulationTime) || g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
+			return true;
+		}
+		else
+			return Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
 	}
 
 	bool C_Ragebot::AimAtPoint(C_AimPoint* bestPoint) {
