@@ -105,12 +105,12 @@ namespace Interfaces
 				if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
 					if (g_Vars.globals.m_flAnimTime < g_Vars.globals.m_flBodyPred) {
 						if (Interfaces::m_pGlobalVars->curtime >= curtime) {
-							//g_Vars.globals.shift_amount = 14;
+							g_Vars.globals.shift_amount = 16;
 							//g_TickbaseController.m_didFakeFlick = true;
 							static bool switcher = false;
-							cmd->viewangles.y += 135.f;
+							cmd->viewangles.y += g_Vars.misc.mind_trick_factor;
 							switcher = !switcher;
-							//g_Vars.globals.shift_amount = 0;
+							g_Vars.globals.shift_amount = 0;
 							//g_TickbaseController.m_didFakeFlick = false;
 							curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
 							printf("flicking\n");
@@ -296,6 +296,13 @@ namespace Interfaces
 
 		m_auto_time = 4.f;
 
+		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.break_lagcomp && g_Vars.misc.mind_trick_test && g_Vars.misc.mind_trick_bind.enabled) {
+			g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 ? 16 : 0;
+		}
+		else if (g_Vars.rage.key_dt.enabled && g_Vars.rage.break_lagcomp) {
+			g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 > 0 ? 16 : 0;
+		}
+
 		if (LocalPlayer->m_MoveType() == MOVETYPE_LADDER) {
 			auto eye_pos = LocalPlayer->GetEyePosition();
 
@@ -438,7 +445,7 @@ namespace Interfaces
 			// fake yaw.
 			switch (settings->yaw) {
 			case 1: // static
-				cmd->viewangles.y += g_Vars.antiaim.break_lby;
+				g_Vars.misc.mind_trick_bind.enabled ? cmd->viewangles.y += g_Vars.misc.mind_trick_lby : cmd->viewangles.y += g_Vars.antiaim.break_lby;
 				break;
 			case 2: // twist
 				negative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
