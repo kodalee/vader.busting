@@ -2026,11 +2026,21 @@ namespace Interfaces
 		backup.Setup(player);
 
 		auto record = GetBestLagRecord(player, &backup);
-		if (!record || !IsRecordValid(player, record)) {
-			backup.Apply(player);
-			return 0;
-		}
 
+		if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+			record = GetBestLagRecord(player, &lagData->m_History.front());
+			if (!record || !IsRecordValid(player, record)) {
+				backup.Apply(player);
+				return 0;
+			}
+		}
+		else {
+			record = GetBestLagRecord(player, &backup);
+			if (!record || !IsRecordValid(player, record)) {
+				backup.Apply(player);
+				return 0;
+			}
+		}
 		backup.Apply(player);
 
 		auto hitboxSet = hdr->pHitboxSet(player->m_nHitboxSet());
@@ -2172,11 +2182,7 @@ namespace Interfaces
 	}
 
 	bool C_Ragebot::IsRecordValid(C_CSPlayer* player, Engine::C_LagRecord* record) {
-		if (Engine::LagCompensation::Get()->is_breaking_lagcomp(player, record->m_flSimulationTime) || g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
-			return true;
-		}
-		else
-			return Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
+		return Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
 	}
 
 	bool C_Ragebot::AimAtPoint(C_AimPoint* bestPoint) {

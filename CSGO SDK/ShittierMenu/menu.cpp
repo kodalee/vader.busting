@@ -255,7 +255,7 @@ void Ragebot()
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
 			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
 			InsertCheckbox(DoubletapBreakLC, XorStr("Break Lag Compensation"), &g_Vars.rage.break_lagcomp);
-			//InsertCheckbox(DoubletapDisableLC, XorStr("Disable BT on DT"), &g_Vars.rage.disableLConDT);
+			InsertCheckbox(DoubletapDisableLC, XorStr("Break Lag Compensation Test"), &g_Vars.rage.disableLConDT);
 		}
 
 		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
