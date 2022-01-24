@@ -546,7 +546,10 @@ namespace Interfaces
 			return false;
 
 		if (moving) {
-			fakelagData->m_iMaxChoke = (int)g_Vars.fakelag.choke;
+			if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)
+				fakelagData->m_iMaxChoke = 0;
+			else
+				fakelagData->m_iMaxChoke = (int)g_Vars.fakelag.choke;
 		}
 		else {
 			fakelagData->m_iMaxChoke = 0;
