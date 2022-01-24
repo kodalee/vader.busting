@@ -467,7 +467,7 @@ void CEsp::Indicators() {
 	if (auto pLocal = C_CSPlayer::GetLocalPlayer(); pLocal) {
 		if (pLocal->m_vecVelocity().Length2D() > 270.f || g_Vars.globals.bBrokeLC) {
 			Indicator_t ind{ };
-			if (g_Vars.rage.dt_exploits && g_Vars.rage.exploit_lagcomp) {
+			if (g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit_lagcomp) {
 				ind.color = Color(100, 255, 25);
 			}
 			else

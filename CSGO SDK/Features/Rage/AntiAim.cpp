@@ -303,7 +303,7 @@ namespace Interfaces
 
 		static bool restoreFakelag = false;
 
-        if (g_Vars.rage.dt_exploits && *bSendPacket) {
+        if (g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled && *bSendPacket) {
 
 			if (g_Vars.rage.exploit_lag) {
 				g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 > 0 ? 16 : 0;

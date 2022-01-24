@@ -254,7 +254,7 @@ void Ragebot()
 		if (g_Vars.rage.exploit) {
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
 			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
-			InsertCheckbox(exploits_enable, XorStr("Enable Exploits"), &g_Vars.rage.dt_exploits);
+			InsertCheckbox(exploits_enable, XorStr("DT Exploits"), &g_Vars.rage.dt_exploits);
 
 			if (g_Vars.rage.dt_exploits) {
 				std::vector<MultiItem_t> exploits = {
