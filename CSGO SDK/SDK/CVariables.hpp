@@ -643,7 +643,9 @@ public:
 	config_option( bool, silent_aim, false );
 	config_option( bool, auto_fire, false );
 	config_option( bool, exploit, false );
-	config_option( bool, disableLConDT, false );
+	config_option( bool, exploit_lag, false );
+	config_option(bool, exploit_lag_peek, false);
+	config_option(bool, exploit_lagcomp, false);
 	config_option( bool, double_tap_teleport, false );
 	config_option( bool, double_tap_recharge_threat, false );
 	config_option( bool, double_tap_adaptive, false );
@@ -652,7 +654,7 @@ public:
 	config_option( int, double_tap_type, 0 );
 
 	config_keybind( double_tap_bind );
-	config_option( bool, break_lagcomp, false );
+	config_option( bool, dt_exploits, false );
 //	config_keybind( hide_shots_bind );
 //	config_option( bool, break_lagcomp, false );
 

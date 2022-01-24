@@ -16,6 +16,9 @@
 #include <random>
 #include "Resolver.hpp"
 #include "Ragebot.hpp"
+#include "FakeLag.hpp"
+
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 
 namespace Interfaces
 {
@@ -300,63 +303,54 @@ namespace Interfaces
 
 		static bool restoreFakelag = false;
 
+        if (g_Vars.rage.dt_exploits && *bSendPacket) {
 
+			if (g_Vars.rage.exploit_lag) {
+				g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 > 0 ? 16 : 0;
+			}
 
-		if (g_Vars.rage.disableLConDT) {
-			static auto lastTick = 0;
-			if (Interfaces::m_pGlobalVars->tickcount % 16 != 14)
-				g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16;
-			else
+			if (g_Vars.rage.exploit_lag_peek) {
+
 				g_Vars.globals.shift_amount = 14;
 
-			if (Interfaces::m_pGlobalVars->tickcount % 16 == 0)
-				g_Vars.fakelag.choke = 8;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 1)
-				g_Vars.fakelag.choke = 8;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 2)
-				g_Vars.fakelag.choke = 8;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 3)
-				g_Vars.fakelag.choke = 8;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 4)
-				g_Vars.fakelag.choke = 8;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 5)
-				g_Vars.fakelag.choke = 8;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 6)
-				g_Vars.fakelag.choke = 8;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 7)
-				g_Vars.fakelag.choke = 8;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 8)
-				g_Vars.fakelag.choke = 7;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 9)
-				g_Vars.fakelag.choke = 6;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 10)
-				g_Vars.fakelag.choke = 5;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 11)
-				g_Vars.fakelag.choke = 4;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 12)
-				g_Vars.fakelag.choke = 3;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 13)
-				g_Vars.fakelag.choke = 2;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 14)
-				g_Vars.fakelag.choke = 2;
-			else if(Interfaces::m_pGlobalVars->tickcount % 16 == 15)
-				g_Vars.fakelag.choke = 1;
+				if (FakeLag::Get()->IsPeeking(cmd))
+				{
+					g_Vars.globals.shift_amount++;
+					g_Vars.globals.shift_amount = min(g_Vars.globals.shift_amount, 16);
+				}
+				else
+					g_Vars.globals.shift_amount = 0;
+			}
 
-			restoreFakelag = true;
+			if (g_Vars.rage.exploit_lagcomp) {
 
-			printf(std::to_string(Interfaces::m_pGlobalVars->tickcount % 16).c_str());
-			printf("\n");
-		}
+				auto iChoked = Interfaces::m_pClientState->m_nChokedCommands();
+				auto Speed2D = LocalPlayer->m_vecVelocity().Length2D();
+				int shift_time = 0;
+				bool bOnGround = LocalPlayer->m_fFlags() & FL_ONGROUND;
 
-		if(restoreFakelag && !g_Vars.rage.disableLConDT) {
-			g_Vars.fakelag.choke = fakelagTrack;
-			restoreFakelag = false;
-		}
-		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.break_lagcomp && g_Vars.misc.mind_trick_test && g_Vars.misc.mind_trick_bind.enabled) {
-			g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 ? 16 : 0;
-		}
-		else if (g_Vars.rage.key_dt.enabled && g_Vars.rage.break_lagcomp) {
-			g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 > 0 ? 16 : 0;
+
+				if (Speed2D > 72)
+					shift_time = bOnGround ? 1 : 5;
+
+				if (++shift_time > 16)
+					shift_time = 0;
+
+				if (shift_time > iChoked)
+					std::clamp(shift_time, 1, 4);
+
+				if (shift_time > 0)
+				{
+					*bSendPacket = true;
+					g_Vars.globals.shift_amount = shift_time > 0 ? 16 : 0;
+				}
+
+				g_Vars.globals.shift_amount = 16;
+
+				//*bSendPacket = false;
+
+				++shift_time = 14;
+			}
 		}
 
 		if (LocalPlayer->m_MoveType() == MOVETYPE_LADDER) {

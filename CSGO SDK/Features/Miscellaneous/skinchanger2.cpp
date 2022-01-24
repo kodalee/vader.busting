@@ -47,6 +47,10 @@ inline int RandomSequence(int low, int high) {
 	return (rand() % (high - low + 1) + low);
 }
 
+static auto is_knife(const int i) -> bool {
+	return (i >= WEAPON_KNIFE_BAYONET && i < GLOVE_STUDDED_BLOODHOUND) || i == WEAPON_KNIFE_T || i == WEAPON_KNIFE_CT;
+}
+
 #define	LIFE_ALIVE 0
 
 #define RandomInt(nMin, nMax) (rand() % (nMax - nMin + 1) + nMin);
@@ -474,7 +478,7 @@ void skins_speedy::Skinchanger()
 
 			auto wear = 0.001f;
 
-			if (weapon->IsKnife()) {
+			if (is_knife(weapon->m_Item().m_iItemDefinitionIndex())) {
 				switch (g_Vars.misc.knife_model) {
 				case 0:
 					apply_skin(local, weapon, model_bayonet, WEAPON_KNIFE_BAYONET, g_Vars.misc.knife_skin, GET_INDEX(model_bayonet), 3, wear);

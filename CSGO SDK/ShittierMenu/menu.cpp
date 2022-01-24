@@ -254,8 +254,17 @@ void Ragebot()
 		if (g_Vars.rage.exploit) {
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
 			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
-			InsertCheckbox(DoubletapBreakLC, XorStr("Break Lag Compensation"), &g_Vars.rage.break_lagcomp);
-			InsertCheckbox(DoubletapDisableLC, XorStr("Break Lag Compensation Test"), &g_Vars.rage.disableLConDT);
+			InsertCheckbox(exploits_enable, XorStr("Enable Exploits"), &g_Vars.rage.dt_exploits);
+
+			if (g_Vars.rage.dt_exploits) {
+				std::vector<MultiItem_t> exploits = {
+					{ XorStr("Lag exploit"), &g_Vars.rage.exploit_lag },
+					{ XorStr("Lag peek"), &g_Vars.rage.exploit_lag_peek },
+					{ XorStr("Break Lag Compensation"), &g_Vars.rage.exploit_lagcomp },
+				};
+
+				InsertMultiCombo(XorStr("Exploits"), exploits);
+			}
 		}
 
 		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
@@ -422,7 +431,6 @@ void HvH()
 				const char* FakelagType[] = { XorStr("Maximum"), XorStr("Dynamic"), XorStr("Fluctuate") };
 				InsertCombo(XorStr("Type"), &g_Vars.fakelag.choke_type, FakelagType);
 				InsertSliderInt(XorStr("Limit"), &g_Vars.fakelag.choke, 0, 16, "%d");
-				InsertSliderInt(XorStr("Double-tap Limit"), &g_Vars.fakelag.dt_choke, 0, 16, "%d");
 
 				g_Vars.fakelag.trigger_duck = g_Vars.fakelag.trigger_weapon_activity = g_Vars.fakelag.trigger_shooting = false;
 				g_Vars.fakelag.trigger_land = true;
