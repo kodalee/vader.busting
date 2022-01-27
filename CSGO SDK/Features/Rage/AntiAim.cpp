@@ -529,6 +529,88 @@ namespace Interfaces
 		}
 
 
+		if (GetAsyncKeyState(VK_UP)) {
+			//store our magic variables
+			float backup_tickcount = Interfaces::m_pGlobalVars->tickcount;
+			float backup_curtime = Interfaces::m_pGlobalVars->curtime;
+
+			Interfaces::m_pGlobalVars->tickcount = INT_MAX;
+			Interfaces::m_pGlobalVars->curtime = TICKS_TO_TIME(TIME_TO_TICKS(Interfaces::m_pGlobalVars->tickcount / INT_MAX) / Interfaces::m_pGlobalVars->interval_per_tick * TIME_TO_TICKS(LocalPlayer->m_flSimulationTime()));;
+
+			if (!*bSendPacket) {
+
+				g_Vars.globals.shift_amount = 0;
+				cmd->viewangles.y += 360.f;
+
+				if (LocalPlayer->m_vecVelocity().Length2D() < 11.f) {
+					static bool switcher = false;
+					cmd->sidemove = switcher ? -1.15f : 1.15f;
+					switcher = !switcher;
+				}
+
+				int ticks = cmd->tick_count % 5;
+				switch (ticks)
+				{
+				case 0:
+					cmd->viewangles.y -= 360.f;
+					g_Vars.globals.shift_amount = 14;
+					break;
+				case 1:
+					cmd->tick_count = INT_MAX;
+					cmd->viewangles.y += 110.f;
+					break;
+				case 3:
+				{
+					if (Interfaces::m_pClientState->m_nChokedCommands() < 63)
+						*bSendPacket = false;
+				}
+				break;
+				case 4:
+					cmd->viewangles.y -= 110.f;
+					g_Vars.globals.shift_amount = 14;
+					break;
+				case 5:
+				{
+					cmd->tick_count = INT_MAX;
+					if (Interfaces::m_pClientState->m_nChokedCommands() > 0)
+						*bSendPacket = true;
+				}
+				break;
+				}
+
+			}
+			else
+			{
+
+				int ultra_retardation_maxima = cmd->tick_count % 11; //very important.
+
+				if (ultra_retardation_maxima >= 8)
+					g_Vars.globals.shift_amount = 14; //shift to fuck their resolver down.
+				else if (ultra_retardation_maxima == 10)
+				{
+					cmd->tick_count = INT_MAX; //ghecharge, or ghetto recharge as i say.
+					g_Vars.globals.shift_amount = 0; //suck that shit back up
+				}
+
+				std::uniform_int_distribution random(-50, 420);
+
+				switch (ultra_retardation_maxima)
+				{
+				case 9: //change our yaw after we shifted tickbase
+					cmd->viewangles.yaw = std::fabsf((4.f - (random(generator))));
+					break;
+				case 10:
+					cmd->buttons &= ~(IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT); //stop moving.
+					break;
+				}
+
+			}
+
+			//restore out magic variables
+			Interfaces::m_pGlobalVars->tickcount = backup_tickcount;
+			Interfaces::m_pGlobalVars->curtime = backup_curtime;
+		}
+
 		/*if ( g_Vars.antiaim.imposta ) {
 			Interfaces::AntiAimbot::Get( )->ImposterBreaker( bSendPacket, cmd );
 		}*/
