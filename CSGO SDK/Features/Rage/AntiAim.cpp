@@ -544,7 +544,7 @@ namespace Interfaces
 
 				if (LocalPlayer->m_vecVelocity().Length2D() < 11.f) {
 					static bool switcher = false;
-					cmd->sidemove = switcher ? -1.15f : 1.15f;
+					cmd->forwardmove = switcher ? -1.15f : 1.15f;
 					switcher = !switcher;
 				}
 
@@ -592,17 +592,17 @@ namespace Interfaces
 					g_Vars.globals.shift_amount = 0; //suck that shit back up
 				}
 
-				std::uniform_int_distribution random(-50, 420);
+				//std::uniform_int_distribution random(-50, 420);
 
-				switch (ultra_retardation_maxima)
-				{
-				case 9: //change our yaw after we shifted tickbase
-					cmd->viewangles.yaw = std::fabsf((4.f - (random(generator))));
-					break;
-				case 10:
-					cmd->buttons &= ~(IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT); //stop moving.
-					break;
-				}
+				//switch (ultra_retardation_maxima)
+				//{
+				//case 9: //change our yaw after we shifted tickbase
+				//	cmd->viewangles.yaw = std::fabsf((4.f - (random(generator))));
+				//	break;
+				//case 10:
+				//	cmd->buttons &= ~(IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT); //stop moving.
+				//	break;
+				//}
 
 			}
 
