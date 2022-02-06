@@ -1067,6 +1067,12 @@ void Visuals()
 
 				InsertCheckbox(SkipOcclusion, XorStr("Skip Occlusion"), &g_Vars.esp.skip_occulusion);
 
+				InsertCheckbox(HaloAboveHead, XorStr("Halo"), &g_Vars.esp.halo_above_head);
+				if (g_Vars.esp.halo_above_head) {
+					ColorPicker(XorStr("Halo Color"), g_Vars.esp.halo_above_head_color, true, false);
+				}
+
+
 				InsertCheckbox(DrawAAAngles, XorStr("Draw Antiaim Angles"), &g_Vars.esp.draw_antiaim_angles);
 				if (g_Vars.esp.draw_antiaim_angles) {
 					ColorPicker_w_name(XorStr("Real Color"), g_Vars.esp.draw_antiaim_angles_real, false, false);

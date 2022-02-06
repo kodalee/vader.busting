@@ -125,7 +125,7 @@ namespace Engine
 		while (it != this->m_Shapshots.end()) {
 			if (it->correctSequence && Interfaces::m_pClientState->m_nLastCommandAck() >= it->outSequence + latency) {
 #if defined(DEBUG_MODE) || defined(DEV)
-				//ILoggerEvent::Get()->PushEvent(XorStr("Missed shot due to prediction error"), FloatColor(0.5f, 0.5f, 0.5f), false);
+				ILoggerEvent::Get()->PushEvent(XorStr("Missed shot due to prediction error"), FloatColor(0.5f, 0.5f, 0.5f), false);
 #endif
 
 				it = this->m_Shapshots.erase(it);

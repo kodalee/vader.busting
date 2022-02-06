@@ -271,6 +271,23 @@ void DrawWatermark() {
 	Render::Engine::tahoma_sexy.string(text_pos.x, text_pos.y, col_text, text); // Text
 }
 
+void circle_above_head(C_CSPlayer* e)
+{
+	if (!g_Vars.esp.halo_above_head)
+		return;
+
+	auto bone_pos = e->GetHitboxPosition(HITBOX_HEAD);
+	Vector2D angle;
+	if (Render::Engine::WorldToScreen(bone_pos, angle))
+	{
+		bone_pos.z = bone_pos.z + 10;
+		Render::Engine::WorldCircle(bone_pos, 5, g_Vars.esp.halo_above_head_color.ToRegularColor(), Color(0, 0, 0, 0));
+	}
+
+
+}
+
+
 bool CEsp::Begin( C_CSPlayer* player ) {
 	m_Data.player = player;
 	m_Data.bEnemy = player->m_iTeamNum( ) != m_LocalPlayer->m_iTeamNum( );
@@ -1252,6 +1269,8 @@ void CEsp::Main( ) {
 
 	if( !g_Vars.esp.esp_enable )
 		return;
+
+	circle_above_head(m_LocalPlayer);
 
 	//static float auto_peek_radius = 0.f;
 	bool condition = g_Vars.misc.autopeek && g_Vars.misc.autopeek_visualise && !AutoPeekPos.IsZero( ) && g_Vars.misc.autopeek_bind.enabled;

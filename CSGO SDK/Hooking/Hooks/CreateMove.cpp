@@ -310,8 +310,8 @@ namespace Hooked
 		if( g_Vars.globals.WasShootingInChokeCycle )
 			cmd->viewangles = lockedAngles;
 
-		if( g_Vars.rage.enabled )
-			cmd->tick_count += TIME_TO_TICKS( Engine::LagCompensation::Get( )->GetLerp( ) );
+		//if( g_Vars.rage.enabled )
+			//cmd->tick_count += TIME_TO_TICKS( Engine::LagCompensation::Get( )->GetLerp( ) );
 
 		auto movement = Interfaces::Movement::Get( );
 

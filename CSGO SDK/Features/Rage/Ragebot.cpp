@@ -28,6 +28,9 @@
 
 #include <sstream>
 
+#define min2(a, b) (((a) < (b)) ? (a) : (b))
+
+
 extern int LastShotTime;
 
 // TODO: 
@@ -478,6 +481,25 @@ namespace Interfaces
 		}
 		else {
 			g_TickbaseController.s_nSpeed = 14;
+		}
+
+		if (g_Vars.rage.exploit_lag_peek && g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled) {
+
+			int AppliedShift = 13;//13
+			static int DefensiveCounter; //peek check
+
+
+			if (g_Vars.globals.m_bAimbotShot || g_Vars.globals.WasShootingInPeek) {
+				DefensiveCounter++;
+				AppliedShift = min2(DefensiveCounter, 13);//14
+#if defined(DEBUG_MODE) || defined(DEV)
+				printf("shot\n");
+#endif
+			}
+			else
+				DefensiveCounter = 2;
+
+			g_Vars.globals.shift_amount = AppliedShift;
 		}
 
 
@@ -2182,7 +2204,7 @@ namespace Interfaces
 	}
 
 	bool C_Ragebot::IsRecordValid(C_CSPlayer* player, Engine::C_LagRecord* record) {
-		return Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
+		return !Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
 	}
 
 	bool C_Ragebot::AimAtPoint(C_AimPoint* bestPoint) {

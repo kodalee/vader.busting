@@ -313,19 +313,6 @@ namespace Interfaces
 				g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 > 0 ? 16 : 0;
 			}
 
-			if (g_Vars.rage.exploit_lag_peek) {
-
-				g_Vars.globals.shift_amount = 14;
-
-				if (FakeLag::Get()->IsPeeking(cmd))
-				{
-					g_Vars.globals.shift_amount++;
-					g_Vars.globals.shift_amount = min(g_Vars.globals.shift_amount, 16);
-				}
-				else
-					g_Vars.globals.shift_amount = 0;
-			}
-
 			if (g_Vars.rage.exploit_lagcomp) {
 
 				auto iChoked = Interfaces::m_pClientState->m_nChokedCommands();

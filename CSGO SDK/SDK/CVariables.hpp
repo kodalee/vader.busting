@@ -1197,6 +1197,10 @@ public:
 
 	config_option( bool, skip_occulusion, false );
 
+	config_option(bool, halo_above_head, false);
+	config_option(FloatColor, halo_above_head_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+
+
 	config_option( bool, nades, false );
 	config_option( FloatColor, nades_text_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
