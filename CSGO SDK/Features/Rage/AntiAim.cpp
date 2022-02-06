@@ -116,7 +116,7 @@ namespace Interfaces
 							g_Vars.globals.shift_amount = 0;
 							//g_TickbaseController.m_didFakeFlick = false;
 							curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
-							printf("flicking\n");
+							//printf("flicking\n");
 						}
 						if (localPlayer->m_vecVelocity().Length2D() < 11.f) {
 							static bool switcher = false;
