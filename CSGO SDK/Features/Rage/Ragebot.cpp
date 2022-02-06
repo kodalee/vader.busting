@@ -492,9 +492,7 @@ namespace Interfaces
 			if (g_Vars.globals.m_bAimbotShot || g_Vars.globals.WasShootingInPeek) {
 				DefensiveCounter++;
 				AppliedShift = min2(DefensiveCounter, 13);//14
-#if defined(DEBUG_MODE) || defined(DEV)
 				printf("shot\n");
-#endif
 			}
 			else
 				DefensiveCounter = 2;
