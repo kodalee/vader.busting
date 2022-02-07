@@ -121,6 +121,66 @@ namespace lua_config {
 	void set_int(std::string key, int value) {
 		LuaConfigSystem::C_INT[key] = value;
 	}
+
+	bool watermark_enabled() {
+		return g_Vars.misc.watermark;
+	}
+
+	bool autopeek_enabled() {
+		return g_Vars.misc.autopeek_bind.enabled;
+	}
+
+	bool pingspike_enabled() {
+		return g_Vars.misc.extended_backtrack_key.enabled;
+	}
+
+	float pingspike_value() {
+		return g_Vars.misc.extended_backtrack_time;
+	}
+
+	bool move_exploit_enabled() {
+		return g_Vars.misc.move_exploit_key.enabled;
+	}
+
+	bool fakeduck_enabled() {
+		return g_Vars.misc.fakeduck_bind.enabled;
+	}
+
+	bool doubletap_enabled() {
+		return g_Vars.rage.key_dt.enabled;
+	}
+
+	bool antiaim_manual_left_enabled() {
+		return g_Vars.antiaim.manual_left_bind.enabled;
+	}
+
+	bool antiaim_manual_right_enabled() {
+		return g_Vars.antiaim.manual_right_bind.enabled;
+	}
+
+	bool antiaim_manual_back_enabled() {
+		return g_Vars.antiaim.manual_back_bind.enabled;
+	}
+
+	int antiaim_base_yaw() {
+		return g_Vars.antiaim_stand.base_yaw;
+	}
+
+	int antiaim_base_yaw_set(int value) {
+		g_Vars.antiaim_stand.base_yaw = value;
+	}
+
+	int antiaim_jitter_value() {
+		return g_Vars.antiaim.Jitter_range;
+	}
+
+	int antiaim_jitter_set(int value) {
+		g_Vars.antiaim.Jitter_range = value;
+	}
+
+	int antiaim_fakewalk_enabled() {
+		return g_Vars.misc.slow_walk_bind.enabled;
+	}
 }
 
 namespace lua_cheat {
@@ -666,6 +726,22 @@ bool c_lua::initialize() {
 	auto config = this->lua.create_table();
 	config["get"] = lua_config::get;
 	config["set"] = sol::overload(lua_config::set_bool, lua_config::set_color, lua_config::set_float, lua_config::set_multiselect, lua_config::set_int);
+	config["watermark_enabled"] = lua_config::watermark_enabled;
+	config["autopeek_enabled"] = lua_config::autopeek_enabled;
+	config["pingspike_enabled"] = lua_config::pingspike_enabled;
+	config["pingspike_value"] = lua_config::pingspike_value;
+	config["move_exploit_enabled"] = lua_config::move_exploit_enabled;
+	config["fakeduck_enabled"] = lua_config::fakeduck_enabled;
+	config["doubletap_enabled"] = lua_config::doubletap_enabled;
+	config["antiaim_manual_left_enabled"] = lua_config::antiaim_manual_left_enabled;
+	config["antiaim_manual_right_enabled"] = lua_config::antiaim_manual_right_enabled;
+	config["antiaim_manual_back_enabled"] = lua_config::antiaim_manual_back_enabled;
+	config["antiaim_base_yaw"] = lua_config::antiaim_base_yaw;
+	config["antiaim_base_yaw_set"] = lua_config::antiaim_base_yaw_set;
+	config["antiaim_jitter_value"] = lua_config::antiaim_jitter_value;
+	config["antiaim_jitter_set"] = lua_config::antiaim_jitter_set;
+	config["antiaim_fakewalk_enabled"] = lua_config::antiaim_fakewalk_enabled;
+
 
 	auto cheat = this->lua.create_table();
 	cheat["set_event_callback"] = lua_cheat::set_event_callback;
