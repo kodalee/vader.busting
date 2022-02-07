@@ -181,6 +181,10 @@ namespace lua_config {
 	int antiaim_fakewalk_enabled() {
 		return g_Vars.misc.slow_walk_bind.enabled;
 	}
+
+	bool forcebaim_enabled() {
+		return g_Vars.rage.prefer_body.enabled;
+	}
 }
 
 namespace lua_cheat {
@@ -743,6 +747,7 @@ bool c_lua::initialize() {
 	config["antiaim_jitter_value"] = lua_config::antiaim_jitter_value;
 	config["antiaim_jitter_set"] = lua_config::antiaim_jitter_set;
 	config["antiaim_fakewalk_enabled"] = lua_config::antiaim_fakewalk_enabled;
+	config["forcebaim_enabled"] = lua_config::forcebaim_enabled;
 
 
 	auto cheat = this->lua.create_table();
