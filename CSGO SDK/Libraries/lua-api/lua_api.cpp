@@ -166,7 +166,7 @@ namespace lua_config {
 		return g_Vars.antiaim_stand.base_yaw;
 	}
 
-	int antiaim_base_yaw_set(int value) {
+	void antiaim_base_yaw_set(int value) {
 		g_Vars.antiaim_stand.base_yaw = value;
 	}
 
@@ -174,7 +174,7 @@ namespace lua_config {
 		return g_Vars.antiaim.Jitter_range;
 	}
 
-	int antiaim_jitter_set(int value) {
+	void antiaim_jitter_set(int value) {
 		g_Vars.antiaim.Jitter_range = value;
 	}
 
