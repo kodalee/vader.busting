@@ -380,7 +380,7 @@ namespace lua_utils {
 
 		auto local = C_CSPlayer::GetLocalPlayer();
 
-		if (local->m_vecVelocity().Length2D() < 30.f && !g_Vars.misc.slow_walk_bind.enabled) // bad fix for localplayer walking
+		if (local->m_vecVelocity().Length2D() > 30.f && !g_Vars.misc.slow_walk_bind.enabled) // bad fix for localplayer walking
 			return 0.f;
 
 		return std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
