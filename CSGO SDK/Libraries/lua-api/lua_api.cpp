@@ -273,11 +273,11 @@ namespace lua_debugoverlay {
 	}
 }
 namespace lua_engine {
-	Vector2D get_screen_width() {
+	float get_screen_width() {
 		return Render::GetScreenSize().x;
 	}
 
-	Vector2D get_screen_height() {
+	float get_screen_height() {
 		return Render::GetScreenSize().y;
 	}
 
