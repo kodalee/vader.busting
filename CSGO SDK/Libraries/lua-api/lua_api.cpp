@@ -269,10 +269,12 @@ namespace lua_debugoverlay {
 	}
 }
 namespace lua_engine {
-	Vector2D get_screen_size() {
-		int w, h;
-		Interfaces::m_pEngine->GetScreenSize(w, h);
-		return Vector2D(w, h);
+	Vector2D get_screen_width() {
+		return Render::GetScreenSize().x;
+	}
+
+	Vector2D get_screen_height() {
+		return Render::GetScreenSize().y;
 	}
 
 	int get_player_for_user_id(int userid) {
@@ -779,7 +781,8 @@ bool c_lua::initialize() {
 	engine["get_local_player_index"] = lua_engine::get_local_player_index;
 	engine["get_max_clients"] = lua_engine::get_max_clients;
 	engine["get_net_channel_info"] = lua_engine::get_net_channel_info;
-	engine["get_screen_size"] = lua_engine::get_screen_size;
+	engine["get_screen_width"] = lua_engine::get_screen_width;
+	engine["get_screen_height"] = lua_engine::get_screen_height;
 	engine["get_view_angles"] = lua_engine::get_view_angles;
 	engine["set_view_angles"] = lua_engine::set_view_angles;
 	engine["is_connected"] = lua_engine::is_connected;
