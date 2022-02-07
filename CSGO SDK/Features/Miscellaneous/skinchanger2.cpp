@@ -462,9 +462,8 @@ void skins_speedy::Skinchanger()
 
 	if (g_Vars.misc.enable_skins) {
 		auto active_weapon = local_player->m_hActiveWeapon().Get();
-		C_WeaponCSBaseGun* pWeapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
 
-		if (!active_weapon || !pWeapon || pWeapon->m_iItemDefinitionIndex() == WEAPON_ZEUS) {
+		if (!active_weapon) {
 			return;
 		}
 		auto my_weapons = local_player->m_hMyWeapons();
@@ -478,7 +477,13 @@ void skins_speedy::Skinchanger()
 
 			auto wear = 0.001f;
 
-			if (is_knife(weapon->m_Item().m_iItemDefinitionIndex())) {
+			if (weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_CT || weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_T 
+				|| weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_BAYONET 
+				|| weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_BOWIE || weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_BUTTERFLY 
+				|| weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_FALCHION || weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_FLIP 
+				|| weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_GUT || weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_M9_BAYONET ||
+				weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_HUNTSMAN || weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_KARAMBIT 
+				|| weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_KNIFE_SHADOW_DAGGERS) {
 				switch (g_Vars.misc.knife_model) {
 				case 0:
 					apply_skin(local, weapon, model_bayonet, WEAPON_KNIFE_BAYONET, g_Vars.misc.knife_skin, GET_INDEX(model_bayonet), 3, wear);
