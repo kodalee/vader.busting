@@ -376,6 +376,16 @@ namespace lua_utils {
 		return Color::HSBtoRGB(rainbow, 1.0f, 1.0f, alpha);
 	}
 
+	float lowerbody_yaw() {
+
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (local->m_vecVelocity().Length2D() < 30.f && !g_Vars.misc.slow_walk_bind.enabled) // bad fix for localplayer walking
+			return 0.f;
+
+		return std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+	}
+
 }
 
 namespace lua_globals {
@@ -805,6 +815,7 @@ bool c_lua::initialize() {
 	utils["color"] = lua_utils::create_color;
 	utils["floatcolor"] = lua_utils::create_floatcolor;
 	utils["color_rainbow"] = lua_utils::create_color_rainbow; // i couldn't make rainbow work in lua idk why so i just put this in - remove if you dont want to make lua api look bad ( lol )
+	utils["lowerbody_yaw"] = lua_utils::lowerbody_yaw;
 
 	auto globals = this->lua.create_table();
 	globals["realtime"] = lua_globals::realtime;
