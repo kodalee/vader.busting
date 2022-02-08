@@ -5,6 +5,11 @@
 #include "../../SDK/Valve/CBaseHandle.hpp"
 #include "../../Features/Rage/LagCompensation.hpp"
 #include "../../Features/Rage/Resolver.hpp"
+#include "../../Utils/address.h"
+#include "../../Utils/stack.h"
+#include "../../Utils/modules.h"
+#include "../../Utils/pattern.h"
+
 
 struct StackFrame
 {
@@ -119,5 +124,25 @@ namespace Hooked
 				lag_data->m_bRateCheck = true;
 			}
 		}
+	}
+
+	void Body_proxy(CRecvProxyData* pData, void* pStruct, void* pOut) {
+		g_Vars.globals.szLastHookCalled = XorStr("51");
+
+			static DWORD RecvTable_Decode{ pattern::find(PE::GetModule(HASH("engine.dll")), XorStr("EB 0D FF 77 10")) };
+
+			const auto player = reinterpret_cast<C_CSPlayer*>(pStruct);
+
+			// call from entity going into pvs.
+	        if (RecvTable_Decode != GetReturnAddress(2)) {
+				printf("faggot\n");
+
+				// store data about the update.
+				//g_resolver.OnBodyUpdate(player, pData->m_Value.m_Float);
+			}
+
+			// call original proxy.
+			Interfaces::m_pFlAbsYawSwap->GetOriginalFunction()(pData, pStruct, pOut);
+
 	}
 }

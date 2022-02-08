@@ -570,7 +570,7 @@ namespace Interfaces
 	RecvPropHook::Shared m_pFlAbsYawSwap = nullptr;
 	RecvPropHook::Shared m_pPlaybackRateSwap = nullptr;
 	RecvPropHook::Shared m_bClientSideAnimationSwap = nullptr;
-	//RecvPropHook::Shared m_Body_original = nullptr;
+	RecvPropHook::Shared m_Body_proxy_swap = nullptr;
 
 	void m_bDidSmokeEffect( CRecvProxyData* pData, void* pStruct, void* pOut ) {
 		Interfaces::m_pDidSmokeEffectSwap->GetOriginalFunction( )( pData, pStruct, pOut );
@@ -866,6 +866,9 @@ namespace Interfaces
 
 		pPropManager->GetProp( XorStr( "DT_BaseAnimating" ), XorStr( "bClientSideAnimation" ), &prop );
 		m_bClientSideAnimationSwap = std::make_shared<RecvPropHook>( prop, &Hooked::m_bClientSideAnimation );
+
+		pPropManager->GetProp(XorStr("DT_CSPlayer"), XorStr("m_flLowerBodyYawTarget"), &prop);
+		m_Body_proxy_swap = std::make_shared<RecvPropHook>(prop, &Hooked::Body_proxy);
 
 		//pPropManager->GetProp(XorStr("DT_CSPlayer"), XorStr("m_flLowerBodyYawTarget"), &prop);
 		//m_Body_original = std::make_shared<RecvPropHook>(prop, &Hooked::RecvProxy_m_flLowerBodyYawTarget);

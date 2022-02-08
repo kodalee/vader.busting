@@ -936,6 +936,13 @@
     <ClInclude Include="Utils\fnv.h" />
     <ClInclude Include="SDK\CLuaConfigs.h" />
     <ClInclude Include="Features\Miscellaneous\skinchanger2.h" />
+    <ClInclude Include="Utils\address.h" />
+    <ClInclude Include="Utils\stack.h" />
+    <ClInclude Include="Utils\winapir.h" />
+    <ClInclude Include="Utils\modules.h" />
+    <ClInclude Include="Utils\pe.h" />
+    <ClInclude Include="Utils\hash.h" />
+    <ClInclude Include="Utils\pattern.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

@@ -456,6 +456,7 @@
     <ClInclude Include="ShittierMenu\IMGAY\imstb_textedit.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_truetype.h" />
     <ClInclude Include="ShittierMenu\menu.hpp" />
+    <ClInclude Include="Utils\address.h" />
     <ClInclude Include="Utils\Config.hpp" />
     <ClInclude Include="SDK\core.hpp" />
     <ClInclude Include="SDK\Classes\CPlayerResource.hpp" />
@@ -594,6 +595,7 @@
     <ClInclude Include="SDK\Classes\IMoveHelper.hpp" />
     <ClInclude Include="SDK\Classes\INetChannel.hpp" />
     <ClInclude Include="SDK\Classes\INetMessage.hpp" />
+    <ClInclude Include="Utils\hash.h" />
     <ClInclude Include="Utils\InputSys.hpp" />
     <ClInclude Include="SDK\Classes\IPanel.hpp" />
     <ClInclude Include="SDK\Classes\IPhysics.hpp" />
@@ -660,6 +662,10 @@
     <ClInclude Include="SDK\Utils\singleton.hpp" />
     <ClInclude Include="SDK\Utils\Print.hpp" />
     <ClInclude Include="Features\Miscellaneous\SkinChanger.hpp" />
+    <ClInclude Include="Utils\modules.h" />
+    <ClInclude Include="Utils\pattern.h" />
+    <ClInclude Include="Utils\pe.h" />
+    <ClInclude Include="Utils\stack.h" />
     <ClInclude Include="Utils\Threading\packed_heap.h" />
     <ClInclude Include="Utils\syscall.hpp" />
     <ClInclude Include="Features\Rage\TickbaseShift.hpp" />
@@ -685,6 +691,7 @@
     <ClInclude Include="SDK\Classes\weapon.hpp" />
     <ClInclude Include="SDK\Classes\WeaponInfo.hpp" />
     <ClInclude Include="Utils\tinyformat.h" />
+    <ClInclude Include="Utils\winapir.h" />
     <ClInclude Include="Utils\XorStr.hpp" />
   </ItemGroup>
   <ItemGroup>
