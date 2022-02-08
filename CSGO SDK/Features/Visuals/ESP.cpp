@@ -273,7 +273,7 @@ void DrawWatermark() {
 
 void circle_above_head(C_CSPlayer* e)
 {
-	if (!g_Vars.esp.halo_above_head || !e || !e->IsAlive() || !g_Vars.misc.third_person_bind.enabled)
+	if (!g_Vars.esp.halo_above_head || !e || !e->IsAlive() || !g_Vars.misc.third_person_bind.enabled || !g_Vars.misc.third_person)
 		return;
 
 	auto bone_pos = e->GetHitboxPosition(HITBOX_HEAD);
