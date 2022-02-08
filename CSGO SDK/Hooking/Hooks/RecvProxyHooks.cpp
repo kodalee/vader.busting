@@ -138,7 +138,7 @@ namespace Hooked
 				printf("faggot\n");
 
 				// store data about the update.
-				//g_resolver.OnBodyUpdate(player, pData->m_Value.m_Float);
+				Engine::g_Resolver.OnBodyUpdate(player, pData->m_Value.m_Float);
 			}
 
 			// call original proxy.

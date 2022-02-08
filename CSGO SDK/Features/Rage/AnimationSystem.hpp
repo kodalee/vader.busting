@@ -67,6 +67,9 @@ namespace Engine
 		float m_flLowerBodyYawTarget;
 		float m_flAbsRotation;
 
+		float m_body;
+		float m_old_body;
+
 		float m_flFeetYawRate;
 		float m_flFeetCycle;
 

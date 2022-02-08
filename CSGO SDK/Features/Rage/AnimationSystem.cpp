@@ -299,6 +299,7 @@ namespace Engine
 		record->m_flSimulationTime = pThis->m_flSimulationTime;
 		record->m_anim_time = pThis->m_flOldSimulationTime + Interfaces::m_pGlobalVars->interval_per_tick;
 		record->m_flLowerBodyYawTarget = pThis->player->m_flLowerBodyYawTarget( );
+		record->m_body = pThis->player->m_flLowerBodyYawTarget();
 
 		auto weapon = ( C_WeaponCSBaseGun* )( player->m_hActiveWeapon( ).Get( ) );
 
@@ -633,7 +634,8 @@ namespace Engine
 				player->m_vecVelocity( ) = simData.m_vecVelocity;
 				player->SetAbsVelocity( simData.m_vecVelocity );
 				player->SetAbsOrigin( simData.m_vecOrigin );
-				player->m_flLowerBodyYawTarget( ) = simData.m_flLowerBodyYawTarget;
+				//player->m_flLowerBodyYawTarget( ) = simData.m_flLowerBodyYawTarget;
+				player->m_flLowerBodyYawTarget() = current->m_body;
 
 				UpdateAnimations( player, player->m_flOldSimulationTime( ) + Interfaces::m_pGlobalVars->interval_per_tick );
 
@@ -644,7 +646,7 @@ namespace Engine
 			m_bForceVelocity = true;
 			this->player->SetAbsVelocity( current->m_vecAnimationVelocity );
 			this->player->SetAbsOrigin( current->m_vecOrigin );
-			this->player->m_flLowerBodyYawTarget( ) = current->m_flLowerBodyYawTarget;
+			this->player->m_flLowerBodyYawTarget( ) = current->m_body;
 
 			UpdateAnimations( player, player->m_flOldSimulationTime( ) + Interfaces::m_pGlobalVars->interval_per_tick );
 

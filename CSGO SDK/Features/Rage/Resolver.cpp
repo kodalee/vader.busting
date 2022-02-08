@@ -317,6 +317,16 @@ namespace Engine {
 		player->m_angEyeAngles() = record->m_angEyeAngles;
 	}
 
+	void CResolver::OnBodyUpdate(C_CSPlayer* player, float value) {
+		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+		if (!pLagData.IsValid())
+			return;
+
+		// set data.
+		pLagData->m_old_body = pLagData->m_body;
+		pLagData->m_body = value;
+	}
+
 	void CResolver::ResolveWalk(C_CSPlayer* data, C_AnimationRecord* record) {
 		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(data->m_entIndex);
 		if (!pLagData.IsValid())
@@ -324,7 +334,7 @@ namespace Engine {
 
 		record->m_iResolverText = "MOVING";
 		// apply lby to eyeangles.
-		record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
+		record->m_angEyeAngles.y = record->m_body;
 
 		// delay body update.
 		//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 0.22f;
@@ -483,7 +493,7 @@ namespace Engine {
 		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
 		int act = player->GetSequenceActivity(curr->m_nSequence);
 
-		float diff = Math::AngleNormalize(record->m_flLowerBodyYawTarget - move->m_flLowerBodyYawTarget);
+		float diff = Math::AngleNormalize(record->m_body - move->m_body);
 		float delta = record->m_anim_time - move->m_anim_time;
 
 		//if (diff < -35.f || diff > 35.f)
@@ -526,6 +536,13 @@ namespace Engine {
 			}
 			else
 				is_flicking[player->EntIndex()] = false;
+
+			if (pLagData->m_body != pLagData->m_old_body) {
+				is_flicking[player->EntIndex()] = true;
+				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+				NextLBYUpdate[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
 
 			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
@@ -584,7 +601,7 @@ namespace Engine {
 				if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
 				{
 					//m_iMode = 0;
-					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
+					record->m_angEyeAngles.y = record->m_body;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 
@@ -607,11 +624,11 @@ namespace Engine {
 						m_iMode = 0;
 						break;
 					case 2:
-						record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget + 70.f;
+						record->m_angEyeAngles.y = record->m_body + 70.f;
 						m_iMode = 0;
 						break;
 					case 3:
-						record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget - 70.f;
+						record->m_angEyeAngles.y = record->m_body - 70.f;
 						m_iMode = 0;
 						break;
 					}
@@ -627,7 +644,7 @@ namespace Engine {
 
 			}
 			else if (record->m_moved) {
-				float diff = Math::AngleNormalize(record->m_flLowerBodyYawTarget - move->m_flLowerBodyYawTarget);
+				float diff = Math::AngleNormalize(record->m_body - move->m_body);
 				float delta = record->m_anim_time - move->m_anim_time;
 
 
@@ -638,7 +655,7 @@ namespace Engine {
 
 				if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
 				{
-					record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
+					record->m_angEyeAngles.y = record->m_body;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 					record->m_iResolverMode = RESOLVE_BODY;
@@ -647,7 +664,7 @@ namespace Engine {
 				else {
 					switch (pLagData->m_last_move % 5) {
 					case 0:
-						record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
+						record->m_angEyeAngles.y = move->m_body;
 						break;
 					case 1:
 						if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
@@ -663,11 +680,11 @@ namespace Engine {
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;
 						break;
 					case 3:
-						record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget + 70.f;
+						record->m_angEyeAngles.y = record->m_body + 70.f;
 						m_iMode = 0;
 						break;
 					case 4:
-						record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget - 70.f;
+						record->m_angEyeAngles.y = record->m_body - 70.f;
 						m_iMode = 0;
 						break;
 					}

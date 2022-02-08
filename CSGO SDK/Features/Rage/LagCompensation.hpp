@@ -100,6 +100,9 @@ namespace Engine
 		int m_unknown_move = 0;
 		int m_delta_index = 0;
 
+		float m_old_body = 0.f;
+		float m_body = 0.f;
+
 		bool m_bHitLastMove = false;
 		std::deque< float > m_flLastMoveYaw;
 		C_AnimationRecord m_walk_record;

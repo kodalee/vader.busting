@@ -140,6 +140,7 @@ public:
    void PostThink( );
 
    bool	is( std::string networkname );
+
 };
 
 FORCEINLINE C_CSPlayer* ToCSPlayer( C_BaseEntity* pEnt ) {
