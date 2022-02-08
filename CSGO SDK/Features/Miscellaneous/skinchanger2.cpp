@@ -47,10 +47,6 @@ inline int RandomSequence(int low, int high) {
 	return (rand() % (high - low + 1) + low);
 }
 
-static auto is_knife(const int i) -> bool {
-	return (i >= WEAPON_KNIFE_BAYONET && i < GLOVE_STUDDED_BLOODHOUND) || i == WEAPON_KNIFE_T || i == WEAPON_KNIFE_CT;
-}
-
 #define	LIFE_ALIVE 0
 
 #define RandomInt(nMin, nMax) (rand() % (nMax - nMin + 1) + nMin);
@@ -292,8 +288,6 @@ struct knifes {
 	}*/
 //}
 
-C_BaseEntity* pWeapon;
-C_BaseEntity* worldmodel;
 std::unordered_map<const char*, const char*> killIcons = {};
 
 int item_def_knifes()
@@ -404,14 +398,7 @@ bool apply_skin(C_CSPlayer* local, C_BaseAttributableItem* skin, const char* mod
 	skin->m_Item().m_iEntityQuality() = entity_quality;
 	skin->m_Item().m_flFallbackWear() = FallbackWear;
 	skin->m_nModelIndex() = model_index;
-	//skin->ViewModelIndex() = model_index;
-	HANDLE worldmodel_handle2 = skin->m_hWeaponWorldModel().Get();
-	if (worldmodel_handle2) {
-		worldmodel = (C_BaseAttributableItem*)Interfaces::m_pEntList->GetClientEntityFromHandle(skin->m_hWeaponWorldModel());
-	}
-	if (worldmodel) {
-		worldmodel->m_nModelIndex() = model_index + 1;
-	}
+
 	auto local_player = reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(Interfaces::m_pEngine->GetLocalPlayer()));
 	if (!local_player) {
 		return false;
@@ -430,7 +417,15 @@ bool apply_skin(C_CSPlayer* local, C_BaseAttributableItem* skin, const char* mod
 	if (view_model_weapon != skin)
 		return false;
 
+	auto GetWorldModel = (C_BaseAttributableItem*)Interfaces::m_pEntList->GetClientEntityFromHandle(skin->m_hWeaponWorldModel());
+
+	if (!GetWorldModel)
+		return false;
+
 	viewmodel->m_nModelIndex() = Interfaces::m_pModelInfo->GetModelIndex(model);
+
+	GetWorldModel->m_nModelIndex() = Interfaces::m_pModelInfo->GetModelIndex(model) + 1;
+
 	return true;
 }
 
@@ -462,9 +457,8 @@ void skins_speedy::Skinchanger()
 
 	if (g_Vars.misc.enable_skins) {
 		auto active_weapon = local_player->m_hActiveWeapon().Get();
-		C_WeaponCSBaseGun* pWeapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
 
-		if (!active_weapon || !pWeapon || pWeapon->m_iItemDefinitionIndex() == WEAPON_ZEUS) {
+		if (!active_weapon) {
 			return;
 		}
 		auto my_weapons = local_player->m_hMyWeapons();
@@ -478,7 +472,7 @@ void skins_speedy::Skinchanger()
 
 			auto wear = 0.001f;
 
-			if (is_knife(weapon->m_Item().m_iItemDefinitionIndex())) {
+			if (weapon->IsKnife()) {
 				switch (g_Vars.misc.knife_model) {
 				case 0:
 					apply_skin(local, weapon, model_bayonet, WEAPON_KNIFE_BAYONET, g_Vars.misc.knife_skin, GET_INDEX(model_bayonet), 3, wear);
