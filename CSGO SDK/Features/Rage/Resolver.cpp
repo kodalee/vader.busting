@@ -312,7 +312,7 @@ namespace Engine {
 			record->m_moved = false;
 
 		// normalize the eye angles, doesn't really matter but its clean.
-		Math::AngleNormalize(record->m_angEyeAngles.y);
+		Math::NormalizeAngle(record->m_angEyeAngles.y);
 
 		player->m_angEyeAngles() = record->m_angEyeAngles;
 	}
