@@ -135,7 +135,7 @@ namespace Hooked
 
 			// call from entity going into pvs.
 	        if (RecvTable_Decode != GetReturnAddress(2)) {
-				printf("faggot\n");
+				//printf("faggot\n");
 
 				// store data about the update.
 				Engine::g_Resolver.OnBodyUpdate(player, pData->m_Value.m_Float);

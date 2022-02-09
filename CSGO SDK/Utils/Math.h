@@ -42,6 +42,8 @@ namespace Math
 
 	float AngleNormalize(float angle);
 
+	void NormalizeAngle(float& angle);
+
 	float ApproachAngle(float target, float value, float speed);
 
 	void VectorTransform(const Vector& in1, const matrix3x4_t& in2, Vector& out);
@@ -52,6 +54,12 @@ namespace Math
 
 	QAngle CalcAngle(Vector src, Vector dst, bool bruh = false);
 	Vector VecCalcAngle(const Vector& src, const Vector& dest);
+
+	__forceinline float NormalizedAngle(float angle) {
+		NormalizeAngle(angle);
+		return angle;
+	}
+
 
 	inline void Vecanglevectors(const Vector& angles, Vector* forward)
 	{

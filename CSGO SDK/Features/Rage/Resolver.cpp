@@ -363,7 +363,7 @@ namespace Engine {
 
 	float CResolver::GetLBYRotatedYaw(float lby, float yaw)
 	{
-		float delta = Math::AngleNormalize(yaw - lby);
+		float delta = Math::NormalizedAngle(yaw - lby);
 		if (fabs(delta) < 25.f)
 			return lby;
 
@@ -493,7 +493,7 @@ namespace Engine {
 		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
 		int act = player->GetSequenceActivity(curr->m_nSequence);
 
-		float diff = Math::AngleNormalize(record->m_body - move->m_body);
+		float diff = Math::NormalizedAngle(record->m_body - move->m_body);
 		float delta = record->m_anim_time - move->m_anim_time;
 
 		//if (diff < -35.f || diff > 35.f)
@@ -644,7 +644,7 @@ namespace Engine {
 
 			}
 			else if (record->m_moved) {
-				float diff = Math::AngleNormalize(record->m_body - move->m_body);
+				float diff = Math::NormalizedAngle(record->m_body - move->m_body);
 				float delta = record->m_anim_time - move->m_anim_time;
 
 
