@@ -513,7 +513,7 @@ namespace Engine {
 		if (move->m_flSimulationTime > 0.f) {
 			if (!record->m_moved) {
 				Vector delta = move->m_vecOrigin - record->m_vecOrigin;
-				if (delta.Length() <= 128.f)
+				if (delta.Length() <= 128.f && record->m_fFlags & FL_ONGROUND)
 					record->m_moved = true;
 			}
 		}
