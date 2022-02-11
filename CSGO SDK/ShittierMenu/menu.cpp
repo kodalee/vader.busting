@@ -211,7 +211,7 @@ void Ragebot()
 		};
 
 		if (rbot->prefer_body) {
-			GUI::Controls::MultiDropdown(XorStr("Prefer body-aim disablers##PreferBody") + std::string(XorStr("##") + std::to_string(rage_current_group)), prefer_body_cond);
+			InsertMultiCombo(XorStr("Prefer body-aim disablers##PreferBody"), prefer_body_cond);
 		}
 
 		InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->accry_boost_on_shot);
@@ -897,7 +897,7 @@ void Visuals()
 			}
 			case 1:
 			{
-				const char* skyboxes[]{ "Default","cs_baggage_skybox","cs_tibet","embassy","italy","jungle","nukeblank","office","sky_csgo_cloudy01","sky_csgo_night02","sky_csgo_night02b","sky_dust","sky_venice","vertigo","vietnamsky_descent" };
+				const char* skyboxes[]{ "Default","cs_baggage_skybox","cs_tibet","embassy","italy","jungle","nukeblank","office","sky_csgo_cloudy01","sky_csgo_night02","sky_csgo_night02b","sky_dust","sky_venice","vertigo","vietnamsky_descent", "Custom"};
 
 				std::vector<MultiItem_t> worldAdjustment = {
 					{ XorStr("Nightmode"), &g_Vars.esp.night_mode },
@@ -926,10 +926,41 @@ void Visuals()
 				InsertCheckbox(Enablemolotovcolor, XorStr("Molotov Color"), &g_Vars.esp.molotov_color_enable);
 				ColorPicker(XorStr("##MolotovColor"), g_Vars.esp.molotov_color, false, false);
 
+				InsertCheckbox(EnableDlight, XorStr("Dlight Players"), &g_Vars.esp.dlight_players_enable);
+				if (g_Vars.esp.dlight_players_enable) {
+					InsertCheckbox(EnableDlightlocal, XorStr("Dlight local"), &g_Vars.esp.dlight_local_enable);
+					if (g_Vars.esp.dlight_local_enable) {
+						ColorPicker(XorStr("Local Dlight"), g_Vars.esp.dlight_local_color, true, false);
+						InsertSliderInt(XorStr("Local Dlight radius"), &g_Vars.esp.dlight_local_radius, 0, 275, "%d");
+					}
+					InsertCheckbox(EnableDlightenemy, XorStr("Dlight enemy"), &g_Vars.esp.dlight_enemy_enable);
+					if (g_Vars.esp.dlight_enemy_enable) {
+						ColorPicker(XorStr("Enemy Dlight"), g_Vars.esp.dlight_enemy_color, true, false);
+						InsertSliderInt(XorStr("Enemy Dlight radius"), &g_Vars.esp.dlight_enemy_radius, 0, 275, "%d");
+					}
+				}
+
+
 				ImGui::NextColumn();
 				ImGui::NewLine();
 
 				InsertCombo(XorStr("Skybox Changer"), &g_Vars.esp.sky_changer, skyboxes);
+				if (g_Vars.esp.sky_changer == 15) {
+
+					static char sky_custom[64] = "\0";
+
+					if (!g_Vars.esp.custom_skybox.empty())
+						strcpy_s(sky_custom, sizeof(sky_custom), g_Vars.esp.custom_skybox.c_str());
+
+					ImGui::Text(XorStr("Name"));
+					ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+
+					if (ImGui::InputText(XorStr("##customsky"), sky_custom, sizeof(sky_custom)))
+						g_Vars.esp.custom_skybox = sky_custom;
+
+					ImGui::PopStyleVar();
+
+				}
 
 				InsertCheckbox(bomb_bar, XorStr("Bomb Timer"), &g_Vars.esp.draw_c4_bar);
 				if (g_Vars.esp.draw_c4_bar) {

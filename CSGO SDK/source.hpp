@@ -5,6 +5,7 @@
 #include "SDK/Valve/UtlMemory.hpp"
 #include "SDK/Valve/UtlVector.hpp"
 #include "SDK/Classes/INetworkStringTable.h"
+#include "Features/Visuals/IVEffects.h"
 
 #include "SDK/sdk.hpp"
 #include "SDK/Valve/recv_swap.hpp"
@@ -83,6 +84,7 @@ namespace Interfaces
    extern Encrypted_t<CHud> m_pHud;
    extern Encrypted_t<SFHudDeathNoticeAndBotStatus> g_pDeathNotices;
    extern Encrypted_t<CNetworkStringTableContainer> g_pClientStringTableContainer;
+   extern Encrypted_t<IVEffects> g_IVEffects;
    extern WNDPROC oldWindowProc;
    extern HWND hWindow;
 

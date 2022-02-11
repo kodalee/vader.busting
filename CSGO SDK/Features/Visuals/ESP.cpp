@@ -27,6 +27,7 @@
 //#include "../Rage/AnimationSystem.hpp"
 
 #include "../Miscellaneous/Movement.hpp"
+#include "IVEffects.h"
 
 #include <iomanip>
 
@@ -157,6 +158,11 @@ private:
 	std::vector<C_HitMatrixEntry> m_Hitmatrix;
 };
 
+struct dlight_p {
+	dlight_t* light;
+};
+
+
 void CEsp::AddSkeletonMatrix( C_CSPlayer* player, matrix3x4_t* bones ) {
 	if( !player || !bones )
 		return;
@@ -285,6 +291,64 @@ void circle_above_head(C_CSPlayer* e)
 	}
 
 
+}
+
+void dlight_players()
+{
+	C_CSPlayer* local = C_CSPlayer::GetLocalPlayer();
+
+	if (!local || !g_Vars.esp.dlight_players_enable)
+		return;
+
+	if (local->IsAlive() && g_Vars.esp.dlight_local_enable) {
+		static auto DLight_local = Interfaces::g_IVEffects->CL_AllocDlight(local->EntIndex());
+		if (DLight_local) {
+
+			DLight_local->origin = local->m_vecOrigin();
+			DLight_local->flags = 0x2;
+			DLight_local->style = 5;
+			DLight_local->key = local->EntIndex();
+			DLight_local->die = Interfaces::m_pGlobalVars->curtime + 60.f;
+			ColorRGBExp32 color;
+			color.r = g_Vars.esp.dlight_local_color.ToRegularColor().r();
+			color.g = g_Vars.esp.dlight_local_color.ToRegularColor().g();
+			color.b = g_Vars.esp.dlight_local_color.ToRegularColor().b();
+			color.exponent = (g_Vars.esp.dlight_local_color.ToRegularColor().a() / 255) * 5;
+			DLight_local->radius = g_Vars.esp.dlight_local_radius;
+			DLight_local->decay = 300;
+			DLight_local->m_Direction = local->m_vecOrigin();
+			DLight_local->color = color;
+
+		}
+
+	}
+
+	if (g_Vars.esp.dlight_enemy_enable) {
+		static dlight_p DLights[65];
+		for (int i = 0; i < Interfaces::m_pEngine->GetMaxClients(); i++) {
+			C_CSPlayer* cplayer = (C_CSPlayer *)Interfaces::m_pEntList->GetClientEntity(i);
+			if (!cplayer || !cplayer->IsAlive() || cplayer->IsDormant() || cplayer == local || cplayer->m_iTeamNum() == local->m_iTeamNum())
+				continue;
+
+			if (!DLights[i].light)
+				DLights[i].light = Interfaces::g_IVEffects->CL_AllocDlight(i);
+
+			DLights[i].light->origin = cplayer->m_vecOrigin();
+			DLights[i].light->flags = 0x2;
+			DLights[i].light->style = 5;
+			DLights[i].light->key = cplayer->EntIndex();
+			DLights[i].light->die = Interfaces::m_pGlobalVars->curtime + 60.f;
+			ColorRGBExp32 color;
+			color.r = g_Vars.esp.dlight_enemy_color.ToRegularColor().r();
+			color.g = g_Vars.esp.dlight_enemy_color.ToRegularColor().g();
+			color.b = g_Vars.esp.dlight_enemy_color.ToRegularColor().b();
+			color.exponent = (g_Vars.esp.dlight_enemy_color.ToRegularColor().a() / 255) * 5;
+			DLights[i].light->radius = g_Vars.esp.dlight_enemy_radius;
+			DLights[i].light->decay = 300;
+			DLights[i].light->m_Direction = cplayer->m_vecOrigin();
+			DLights[i].light->color = color;
+		}
+	}
 }
 
 
@@ -1271,6 +1335,8 @@ void CEsp::Main( ) {
 		return;
 
 	circle_above_head(m_LocalPlayer);
+
+	dlight_players();
 
 	//static float auto_peek_radius = 0.f;
 	bool condition = g_Vars.misc.autopeek && g_Vars.misc.autopeek_visualise && !AutoPeekPos.IsZero( ) && g_Vars.misc.autopeek_bind.enabled;

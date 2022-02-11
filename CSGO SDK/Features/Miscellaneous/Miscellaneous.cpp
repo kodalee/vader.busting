@@ -224,9 +224,15 @@ namespace Interfaces
 		static ConVar* default_skyname = Interfaces::m_pCvar->FindVar( XorStr( "sv_skyname" ) );
 		if( default_skyname ) {
 			if( iOldSky != g_Vars.esp.sky_changer ) {
-				const char* sky_name = g_Vars.esp.sky_changer != 0 ? skynames[ g_Vars.esp.sky_changer ] : default_skyname->GetString( );
-				fnLoadNamedSkys( sky_name );
-				iOldSky = g_Vars.esp.sky_changer;
+				if (g_Vars.esp.sky_changer != 15) {
+					const char* sky_name = g_Vars.esp.sky_changer != 0 ? skynames[g_Vars.esp.sky_changer] : default_skyname->GetString();
+					fnLoadNamedSkys(sky_name);
+					iOldSky = g_Vars.esp.sky_changer;
+				}
+				else {
+					fnLoadNamedSkys(g_Vars.esp.custom_skybox.c_str());
+					iOldSky = g_Vars.esp.sky_changer;
+				}
 			}
 		}
 	}

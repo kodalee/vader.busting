@@ -562,6 +562,8 @@ namespace Interfaces
 	Encrypted_t<CHud> m_pHud = nullptr;
 	Encrypted_t<SFHudDeathNoticeAndBotStatus> g_pDeathNotices = nullptr;
 	Encrypted_t<CNetworkStringTableContainer> g_pClientStringTableContainer = nullptr;
+	Encrypted_t<IVEffects> g_IVEffects = nullptr;
+
 
 	WNDPROC oldWindowProc;
 	HWND hWindow = nullptr;
@@ -589,6 +591,11 @@ namespace Interfaces
 			
 		g_pClientStringTableContainer = ( CNetworkStringTableContainer* )CreateInterface( XorStr( "engine.dll" ), XorStr( "VEngineClientStringTable001" ) );
 		if( !g_pClientStringTableContainer.IsValid( ) ) {
+			return false;
+		}
+
+		g_IVEffects = (IVEffects*)CreateInterface(XorStr("engine.dll"), XorStr("VEngineEffects001"));
+		if (!g_IVEffects.IsValid()) {
 			return false;
 		}
 

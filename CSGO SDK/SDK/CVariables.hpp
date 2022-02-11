@@ -1214,6 +1214,7 @@ public:
 	config_option( FloatColor, skeleton_history_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
 	config_option( int, sky_changer, 0 );
+	config_option(std::string, custom_skybox, "skybox name");
 
 	config_option( bool, extended_esp, false );
 
@@ -1300,6 +1301,17 @@ public:
 
 	config_option(bool, molotov_color_enable, false);
 	config_option(FloatColor, molotov_color, FloatColor(0.0f, 1.0f, 0.8f, 1.0f));
+
+	config_option(bool, dlight_players_enable, false);
+	config_option(FloatColor, dlight_local_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(bool, dlight_local_enable, false);
+	config_option(int, dlight_local_radius, 100);
+	config_option(bool, dlight_enemy_enable, false);
+	config_option(FloatColor, dlight_enemy_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(int, dlight_enemy_radius, 100);
+
+
+
 
 	config_option( bool, indicator_side, false );
 	config_option( bool, indicator_exploits, false );
