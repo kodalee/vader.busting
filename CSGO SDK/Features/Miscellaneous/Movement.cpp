@@ -454,7 +454,7 @@ namespace Interfaces
 
 		bool bDontFakelag = g_Vars.misc.move_exploit_key.enabled && g_Vars.misc.move_exploit && g_Vars.globals.bMoveExploiting;
 
-		MoveExploit( );
+		//MoveExploit( );
 
 		if( g_TickbaseController.Using( ) ) {
 			bool bShouldLag = g_TickbaseController.s_nExtraProcessingTicks > 1;
