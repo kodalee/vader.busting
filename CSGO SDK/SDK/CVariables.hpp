@@ -1361,6 +1361,8 @@ public:
 	config_option( bool, autostrafer_wasd, false );
 	config_option( bool, move_exploit, false );
 	config_keybind( move_exploit_key );
+	config_option(int, move_exploit_intensity, 8);
+
 
 	config_option( bool, instant_stop, false );
 	config_keybind( instant_stop_key );

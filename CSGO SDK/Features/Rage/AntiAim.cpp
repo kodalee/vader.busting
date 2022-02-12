@@ -411,23 +411,12 @@ namespace Interfaces
 		if (*bSendPacket && g_Vars.globals.m_bOldPacket)
 			*bSendPacket = false;
 
-
-		static bool swap = false;
-		swap = !swap;
-
 		auto prevTickCount = cmd->tick_count;
 
-		auto tickAmount = INT_MAX / 8;
+		auto tickAmount = INT_MAX / g_Vars.misc.move_exploit_intensity;
 
 		if (g_Vars.misc.move_exploit && g_Vars.misc.move_exploit_key.enabled) {
 			auto prevCommandNumber = cmd->command_number;
-
-			//if (swap) {
-			//	g_Vars.fakelag.choke = 14;
-			//}
-			//else {
-			//	g_Vars.fakelag.choke = 16;
-			//}
 
 			if (*bSendPacket == false) {
 				cmd->tick_count = tickAmount;

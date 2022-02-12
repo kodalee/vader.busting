@@ -411,6 +411,10 @@ void HvH()
 				ImGui::SameLine();
 				biggestMeme2();
 				ImGui::Hotkey("##Move Exploit key", &g_Vars.misc.move_exploit_key.key, &g_Vars.misc.move_exploit_key.cond, ImVec2{ 40,20 });
+				if (g_Vars.misc.move_exploit) {
+					InsertSliderInt(XorStr("Move Exploit intensity"), &g_Vars.misc.move_exploit_intensity, 1, 16, "%d");
+				}
+				
 
 				InsertCheckbox(FakeWalk, XorStr("Fake-walk"), &g_Vars.misc.slow_walk);
 				ImGui::SameLine();
