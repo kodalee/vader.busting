@@ -10,7 +10,7 @@
 
 static float NextLBYUpdate[65];
 static float Add[65];
-bool is_flicking[65];
+bool is_flicking;
 
 C_CSPlayer* get_entity(const int index) { return reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(index)); }
 
@@ -529,16 +529,16 @@ namespace Engine {
 			// lby wont update on this tick but after.
 			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()])
 			{
-				is_flicking[player->EntIndex()] = true;
+				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
 				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			else
-				is_flicking[player->EntIndex()] = false;
+				is_flicking = false;
 
 			if (pLagData->m_body != pLagData->m_old_body) {
-				is_flicking[player->EntIndex()] = true;
+				is_flicking = true;
 				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
 				NextLBYUpdate[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
@@ -598,7 +598,7 @@ namespace Engine {
 
 				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
+				if (is_flicking && pLagData->m_iMissedShotsLBY < 3/* && !record->m_bFakeWalking*/)
 				{
 					//m_iMode = 0;
 					record->m_angEyeAngles.y = record->m_body;
@@ -653,8 +653,10 @@ namespace Engine {
 
 				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if (is_flicking[player->EntIndex()] && pLagData->m_iMissedShotsLBY < 2 && !record->m_bFakeWalking)
+				if (is_flicking && pLagData->m_iMissedShotsLBY < 3/* && !record->m_bFakeWalking*/)
 				{
+					printf("break detection\n");
+					printf("1\n");
 					record->m_angEyeAngles.y = record->m_body;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
