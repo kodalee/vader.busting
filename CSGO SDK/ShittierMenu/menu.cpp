@@ -1019,6 +1019,10 @@ void Visuals()
 				if (g_Vars.esp.NadePred) {
 					ColorPicker(XorStr("##GrenadeColor"), g_Vars.esp.nade_pred_color, false, false);
 				}
+				InsertCheckbox(GrenadesTracer, XorStr("Grenade Tracer"), &g_Vars.esp.NadeTracer);
+				if (g_Vars.esp.NadeTracer) {
+					ColorPicker(XorStr("##GrenadeTracerColor"), g_Vars.esp.nade_tracer_color, true, false);
+				}
 				InsertSliderFloat(XorStr("Override FOV"), &g_Vars.esp.world_fov, 0.f, 200.f, XorStr("%.0f degress"));
 				InsertSliderFloat(XorStr("Viewmodel FOV"), &g_Vars.misc.viewmodel_fov, 0.f, 200.f, XorStr("%.0f degress"));
 				InsertCheckbox(AspectRatio, XorStr("Aspect Ratio"), &g_Vars.esp.aspect_ratio);

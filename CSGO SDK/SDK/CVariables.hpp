@@ -1146,6 +1146,9 @@ public:
 	config_option( bool, NadePred, false );
 	config_option( FloatColor, nade_pred_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
+	config_option(bool, NadeTracer, false);
+	config_option(FloatColor, nade_tracer_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+
 	config_option( bool, walls, false );
 	config_option( bool, props, false );
 	config_option( bool, skybox, false );
