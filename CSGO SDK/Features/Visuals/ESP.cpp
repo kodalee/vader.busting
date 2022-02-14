@@ -432,13 +432,19 @@ void Grenade_Tracer() {
 		if (!pBaseEntity)
 			continue;
 
-		const auto client_class = pBaseEntity->GetClientClass();
-
-		if (!client_class
-			|| client_class->m_ClassID != CBaseCSGrenadeProjectile)
+		C_CSPlayer* player = (C_CSPlayer*)pBaseEntity->m_hOwnerEntity().Get();
+		if(!player)
 			continue;
 
-		if (client_class->m_ClassID == CBaseCSGrenadeProjectile) {
+		if (player->EntIndex() != pLocal->EntIndex())
+			continue;
+
+		const auto client_class = pBaseEntity->GetClientClass();
+
+		if (!client_class)
+			continue;
+
+		if (client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CMolotovProjectile) {
 			const auto model = pBaseEntity->GetModel();
 			if (!model)
 				continue;
@@ -449,7 +455,7 @@ void Grenade_Tracer() {
 				continue;
 
 			if (std::string_view(studio_model->szName).find(XorStr("thrown")) != std::string::npos ||
-				client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CDecoyProjectile || client_class->m_ClassID == CMolotovProjectile)
+				client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CMolotovProjectile)
 			{
 
 				if (GrenadeClass.checkGrenades(pBaseEntity)) {
