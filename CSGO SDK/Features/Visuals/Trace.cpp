@@ -31,10 +31,11 @@ void CGrenade::updatePosition(C_BaseEntity* ent, Vector position)
 
 void CGrenade::draw()
 {
+	//bool bInit = false; // incase of fps drops uncomment this, untested - exon
+
+
 	for (size_t i = 0; i < grenades.size(); i++)
 	{
-		//if (grenades.at(i).addTime + 20.f < m_globals()->m_realtime)
-		//	continue; // removing the grenade_t was causing crashes
 
 		if (grenades.at(i).addTime + 2.5f < Interfaces::m_pGlobalVars->realtime)
 		{
@@ -49,9 +50,15 @@ void CGrenade::draw()
 				Vector2D sLastPosition;
 				Vector ToDo = grenades.at(i).positions.at(j);
 				if (Render::Engine::WorldToScreen(ToDo, sPosition) && Render::Engine::WorldToScreen(grenades.at(i).positions.at(j - 1), sLastPosition))
+				{
+					//if (bInit)
 					Render::Engine::Line(sPosition.x, sPosition.y, sLastPosition.x, sLastPosition.y, g_Vars.esp.nade_tracer_color.ToRegularColor());
-			//bullettracers::get().draw_grenade_beam(grenades.at(i).positions.at(j), grenades.at(i).positions.at(j - 1), Color(g_cfg.esp.grenadetrace));
+
+					//bInit = true;
+				}
 		}
+		//bInit = false;
+
 	}
 }
 

@@ -438,8 +438,6 @@ void Grenade_Tracer() {
 			|| client_class->m_ClassID != CBaseCSGrenadeProjectile)
 			continue;
 
-		static int cycle = 0;
-
 		if (client_class->m_ClassID == CBaseCSGrenadeProjectile) {
 			const auto model = pBaseEntity->GetModel();
 			if (!model)
@@ -454,8 +452,6 @@ void Grenade_Tracer() {
 				client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CDecoyProjectile || client_class->m_ClassID == CMolotovProjectile)
 			{
 
-				cycle++;
-
 				if (GrenadeClass.checkGrenades(pBaseEntity)) {
 					Grenade_t grenade;
 					grenade.entity = pBaseEntity;
@@ -464,8 +460,9 @@ void Grenade_Tracer() {
 					GrenadeClass.addGrenade(grenade);
 				}
 				else
-					if ((cycle % 12) == 0)
-						GrenadeClass.updatePosition(pBaseEntity, pBaseEntity->m_vecOrigin());
+				{
+					GrenadeClass.updatePosition(pBaseEntity, pBaseEntity->m_vecOrigin());
+				}
 
 
 			}
@@ -1318,6 +1315,10 @@ void CEsp::Main( ) {
 
 	Grenade_Tracer();
 
+	if (g_Vars.esp.NadeTracer) {
+		GrenadeClass.draw();
+	}
+
 	//static float auto_peek_radius = 0.f;
 	bool condition = g_Vars.misc.autopeek && g_Vars.misc.autopeek_visualise && !AutoPeekPos.IsZero( ) && g_Vars.misc.autopeek_bind.enabled;
 	//float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
@@ -1379,10 +1380,6 @@ void CEsp::Main( ) {
 
 		if( !entity->GetClientClass( ) /*|| !entity->GetClientClass( )->m_ClassID*/ )
 			continue;
-
-		if (g_Vars.esp.NadeTracer) {
-			GrenadeClass.draw();
-		}
 
 		if (g_Vars.esp.nades) {
 			if (entity->GetClientClass()->m_ClassID == CInferno) {
