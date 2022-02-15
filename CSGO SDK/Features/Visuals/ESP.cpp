@@ -445,17 +445,8 @@ void Grenade_Tracer() {
 			continue;
 
 		if (client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CMolotovProjectile) {
-			const auto model = pBaseEntity->GetModel();
-			if (!model)
-				continue;
 
-			const auto studio_model = Interfaces::m_pModelInfo->GetStudiomodel(model);
-			if (!studio_model
-				/*|| std::string_view( studio_model->szName ).find( "fraggrenade" ) == std::string::npos */)
-				continue;
-
-			if (std::string_view(studio_model->szName).find(XorStr("thrown")) != std::string::npos ||
-				client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CMolotovProjectile)
+			if (client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CMolotovProjectile)
 			{
 
 				if (GrenadeClass.checkGrenades(pBaseEntity)) {
