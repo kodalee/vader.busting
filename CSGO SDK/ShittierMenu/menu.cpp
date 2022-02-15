@@ -10,6 +10,7 @@
 #include "../Utils/logo.h"
 #include "../Utils/Config.hpp"
 #include "../source.hpp"
+#include "../Features/Miscellaneous/walkbot.h"
 
 //lua
 
@@ -1227,7 +1228,37 @@ void Misc()
 				ImGui::SameLine();
 				biggestMeme2();
 				ImGui::Hotkey("##FDkey", &g_Vars.misc.fakeduck_bind.key, &g_Vars.misc.fakeduck_bind.cond, ImVec2{ 40,20 });
-		}
+		    }
+
+			std::vector<MultiItem_t> walkbot_s = {
+				{ XorStr("Enable"), &g_Vars.misc.walkbot_enable },
+				{ XorStr("Cycle walk"), &g_Vars.misc.walkbot_cyclewalk },
+				{ XorStr("Sound alert"), &g_Vars.misc.walkbot_soundalert },
+				{ XorStr("Developer mode"), &g_Vars.misc.walkbot_developermode },
+			};
+
+			InsertMultiCombo(std::string(XorStr("Walkbot")).c_str(), walkbot_s);
+
+			InsertCheckbox(randomasschekbox, XorStr("Create Point"), &g_Vars.misc.undercover_watermark);
+			ImGui::SameLine();
+			biggestMeme2();
+			ImGui::Hotkey("##createpoint", &g_Vars.misc.walkbot_bind.key, &g_Vars.misc.walkbot_bind.cond, ImVec2{ 40,20 });
+
+			static char addictname[64] = "\0";
+
+			ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+			ImGui::InputText(XorStr("##addictname"), addictname, sizeof(addictname));
+			ImGui::PopStyleVar();
+
+			if (ImGui::Button(XorStr("Save path"), ImVec2(100, 0)))
+				walkbot::Instance().file(addictname, file_overwrite);
+
+			if (ImGui::Button(XorStr("Load path"), ImVec2(100, 0)))
+				walkbot::Instance().file(addictname, file_load);
+
+			if (ImGui::Button(XorStr("Clear path"), ImVec2(100, 0)))
+				walkbot::Instance().clear_dots();
+
 
 
 			break;

@@ -395,6 +395,7 @@
     <ClCompile Include="Libraries\lua-api\lua_gameevents.cpp" />
     <ClCompile Include="Features\Miscellaneous\skinchanger2.cpp" />
     <ClCompile Include="Features\Visuals\Trace.cpp" />
+    <ClCompile Include="Features\Miscellaneous\walkbot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -945,6 +946,7 @@
     <ClInclude Include="Utils\hash.h" />
     <ClInclude Include="Utils\pattern.h" />
     <ClInclude Include="Features\Visuals\Trace.h" />
+    <ClInclude Include="Features\Miscellaneous\walkbot.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

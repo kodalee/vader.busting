@@ -29,6 +29,7 @@
 #include "../Miscellaneous/Movement.hpp"
 #include "IVEffects.h"
 #include "Trace.h"
+#include "../Miscellaneous/walkbot.h"
 
 #include <iomanip>
 
@@ -1311,6 +1312,8 @@ void CEsp::Main( ) {
 	dlight_players();
 
 	Grenade_Tracer();
+
+	walkbot::Instance().update(false);
 
 	if (g_Vars.esp.NadeTracer) {
 		GrenadeClass.draw();

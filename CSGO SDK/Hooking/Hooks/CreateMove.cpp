@@ -22,6 +22,7 @@
 #include "../../Features/Rage/AntiAim.hpp"
 #include "../../Features/Rage/Resolver.hpp"
 #include "../../ShittierMenu/menu.hpp"
+#include "../../Features/Miscellaneous/walkbot.h"
 
 extern float fl_Override;
 extern bool g_Override;
@@ -435,6 +436,8 @@ namespace Hooked
 			Engine::C_ShotInformation::Get( )->CorrectSnapshots( *bSendPacket );
 
 			UpdateInformation( cmd.Xor( ) );
+
+			walkbot::Instance().move( cmd.Xor( ) );
 
 			g_Vars.globals.m_bOldShot = g_Vars.globals.m_bAimbotShot;
 			g_Vars.globals.m_bOldPacket = *bSendPacket;

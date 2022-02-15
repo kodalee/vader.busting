@@ -420,6 +420,8 @@ public:
 		int manual_aa = -1; // left, back, right
 		int nOverrideEnemy = -1;
 
+		bool RageBotTargetting = false;
+
 		// real bones animation 
 		float m_flPoseParams[ 24 ] = { };
 		Vector   m_RealBonesPositions[ 256 ];
@@ -1454,6 +1456,14 @@ public:
 	config_keybind( extended_backtrack_key );
 
 	config_option( bool, anti_untrusted, true );
+
+	config_option(bool, walkbot_enable, false);
+	config_option(bool, walkbot_cyclewalk, false);
+	config_option(bool, walkbot_soundalert, false);
+	config_option(bool, walkbot_developermode, false);
+
+	config_keybind(walkbot_bind);
+
 
 	config_option( bool, autopeek, false );
 	config_option( bool, autopeek_visualise, false );
