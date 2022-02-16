@@ -420,6 +420,8 @@ public:
 		int manual_aa = -1; // left, back, right
 		int nOverrideEnemy = -1;
 
+		bool RageBotTargetting = false;
+
 		// real bones animation 
 		float m_flPoseParams[ 24 ] = { };
 		Vector   m_RealBonesPositions[ 256 ];
@@ -1146,6 +1148,9 @@ public:
 	config_option( bool, NadePred, false );
 	config_option( FloatColor, nade_pred_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
+	config_option(bool, NadeTracer, false);
+	config_option(FloatColor, nade_tracer_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+
 	config_option( bool, walls, false );
 	config_option( bool, props, false );
 	config_option( bool, skybox, false );
@@ -1451,6 +1456,14 @@ public:
 	config_keybind( extended_backtrack_key );
 
 	config_option( bool, anti_untrusted, true );
+
+	config_option(bool, walkbot_enable, false);
+	config_option(bool, walkbot_cyclewalk, false);
+	config_option(bool, walkbot_soundalert, false);
+	config_option(bool, walkbot_developermode, false);
+
+	config_keybind(walkbot_bind);
+
 
 	config_option( bool, autopeek, false );
 	config_option( bool, autopeek_visualise, false );

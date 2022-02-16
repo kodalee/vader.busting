@@ -655,8 +655,8 @@ namespace Engine {
 
 				if (is_flicking && pLagData->m_iMissedShotsLBY < 3/* && !record->m_bFakeWalking*/)
 				{
-					printf("break detection\n");
-					printf("1\n");
+					//printf("break detection\n");
+					//printf("1\n");
 					record->m_angEyeAngles.y = record->m_body;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;

@@ -1578,10 +1578,14 @@ namespace Interfaces
 
 		//g_TickbaseController.m_bSupressRecharge = false;
 
+		g_Vars.globals.RageBotTargetting = false;
+
 		if (!SetupTargets())
 			return { false, C_AimPoint() };
 
 		//g_TickbaseController.m_bSupressRecharge = true;
+
+		g_Vars.globals.RageBotTargetting = true;
 
 		//for( auto& p : m_rage_data->m_aim_points ) {
 		//	Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );

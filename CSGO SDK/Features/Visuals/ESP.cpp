@@ -28,6 +28,8 @@
 
 #include "../Miscellaneous/Movement.hpp"
 #include "IVEffects.h"
+#include "Trace.h"
+#include "../Miscellaneous/walkbot.h"
 
 #include <iomanip>
 
@@ -417,86 +419,57 @@ int fps( ) {
 	return ( int )( 1.0f / m_Framerate );
 }
 
-	void spotify() {
+CGrenade GrenadeClass;
 
-		std::string song_title = "";
+void Grenade_Tracer() {
+	C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer();
 
-		static HWND spotify_hwnd = nullptr;
-		static float last_hwnd_time = 0.f;
-		int text_width = 0;
+	if (!pLocal || !g_Vars.esp.NadeTracer)
+		return;
 
-		if ((!spotify_hwnd || spotify_hwnd == INVALID_HANDLE_VALUE) && last_hwnd_time < Interfaces::m_pGlobalVars->realtime + 2.f) {
-			for (HWND hwnd = GetTopWindow(0); hwnd; hwnd = GetWindow(hwnd, GW_HWNDNEXT)) {
+	for (int i = 1; i < Interfaces::m_pEntList->GetHighestEntityIndex(); i++)
+	{
+		C_BaseEntity* pBaseEntity = static_cast<C_BaseEntity*>(Interfaces::m_pEntList->GetClientEntity(i));
+		if (!pBaseEntity)
+			continue;
 
-				last_hwnd_time = Interfaces::m_pGlobalVars->realtime;
+		C_CSPlayer* player = (C_CSPlayer*)pBaseEntity->m_hOwnerEntity().Get();
+		if(!player)
+			continue;
 
-				if (!(IsWindowVisible)(hwnd))
-					continue;
+		if (player->EntIndex() != pLocal->EntIndex())
+			continue;
 
-				int length = (GetWindowTextLengthW)(hwnd);
-				if (length == 0)
-					continue;
+		const auto client_class = pBaseEntity->GetClientClass();
 
-				WCHAR filename[300];
-				DWORD pid;
-				(GetWindowThreadProcessId)(hwnd, &pid);
+		if (!client_class)
+			continue;
 
-				const auto spotify_handle = (OpenProcess)(PROCESS_QUERY_INFORMATION, FALSE, pid);
-				(K32GetModuleFileNameExW)(spotify_handle, nullptr, filename, 300);
+		if (client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CMolotovProjectile) {
 
-				std::wstring sane_filename{ filename };
+			if (client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CMolotovProjectile)
+			{
 
-				(CloseHandle)(spotify_handle);
+				if (GrenadeClass.checkGrenades(pBaseEntity)) {
+					Grenade_t grenade;
+					grenade.entity = pBaseEntity;
+					grenade.addTime = Interfaces::m_pGlobalVars->realtime;
 
-				if (sane_filename.find((L"Spotify.exe")) != std::string::npos)
-					spotify_hwnd = hwnd;
-			}
-		}
-		else if (spotify_hwnd && spotify_hwnd != INVALID_HANDLE_VALUE) {
-			WCHAR title[300];
-
-			if (!(GetWindowTextW)(spotify_hwnd, title, 300)) {
-				spotify_hwnd = nullptr;
-			}
-			else {
-				std::wstring sane_title{ title };
-				std::string Title = " ";
-				std::string Song(sane_title.begin(), sane_title.end());
-				Title += Song;
-				if (sane_title.find((L"-")) != std::string::npos) {
-
-					const auto margin = 10; // Padding between screen edges and watermark
-					const auto padding = 4; // Padding between watermark elements
-
-					auto text_size = Render::Engine::esp.size(Title);
-					auto text_pos = Vector2D(Render::GetScreenSize().x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
-						margin + padding); // Top align
-
-					Render::Engine::esp.string(text_pos.x, text_pos.y + 17, Color(255, 255, 255), Title.c_str());
-					song_title = Title;
+					GrenadeClass.addGrenade(grenade);
 				}
-				else if (sane_title.find((L"Advertisment")) != std::string::npos) {
-					song_title = "advertisment";
+				else
+				{
+					GrenadeClass.updatePosition(pBaseEntity, pBaseEntity->m_vecOrigin());
 				}
-				else if (sane_title.find((L"Spotify")) != std::string::npos) {
-					song_title = "stopped / not playing";
-				}
-				else {
-					song_title = "advertisment";
-				}
+
 
 			}
+
 		}
 
-		const auto margin = 10; // Padding between screen edges and watermark
-		const auto padding = 4; // Padding between watermark elements
-
-		auto text_size = Render::Engine::esp.size(song_title);
-		auto text_pos = Vector2D(Render::GetScreenSize().x - margin - padding - text_size.m_width, // Right align + margin + padding + text_size
-			margin + padding); // Top align
-
-		Render::Engine::esp.string(text_pos.x, text_pos.y + 17, Color(255, 255, 255), song_title);
 	}
+
+}
 
 void CEsp::Indicators() {
 	struct Indicator_t { Color color; std::string text; };
@@ -1337,6 +1310,14 @@ void CEsp::Main( ) {
 	circle_above_head(m_LocalPlayer);
 
 	dlight_players();
+
+	Grenade_Tracer();
+
+	walkbot::Instance().update(false);
+
+	if (g_Vars.esp.NadeTracer) {
+		GrenadeClass.draw();
+	}
 
 	//static float auto_peek_radius = 0.f;
 	bool condition = g_Vars.misc.autopeek && g_Vars.misc.autopeek_visualise && !AutoPeekPos.IsZero( ) && g_Vars.misc.autopeek_bind.enabled;

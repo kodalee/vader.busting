@@ -202,6 +202,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Features\Miscellaneous\skinchanger2.cpp" />
+    <ClCompile Include="Features\Miscellaneous\walkbot.cpp" />
     <ClCompile Include="Features\Miscellaneous\WeatherController.cpp" />
     <ClCompile Include="Features\Rage\AnimationSystem.cpp" />
     <ClCompile Include="Features\Rage\AntiAim.cpp" />
@@ -209,6 +210,7 @@
     <ClCompile Include="Features\Rage\Autowall.cpp" />
     <ClCompile Include="Features\Rage\Resolver.cpp" />
     <ClCompile Include="Features\Rage\ZeusBot.cpp" />
+    <ClCompile Include="Features\Visuals\Trace.cpp" />
     <ClCompile Include="Hooking\Hooks\BeginFrame.cpp" />
     <ClCompile Include="Features\Miscellaneous\BulletBeamTracer.cpp" />
     <ClCompile Include="Features\Visuals\CChams.cpp" />
@@ -388,12 +390,14 @@
   <ItemGroup>
     <ClInclude Include="Features\Game\SimulationContext.hpp" />
     <ClInclude Include="Features\Miscellaneous\skinchanger2.h" />
+    <ClInclude Include="Features\Miscellaneous\walkbot.h" />
     <ClInclude Include="Features\Miscellaneous\WeatherController.hpp" />
     <ClInclude Include="Features\Rage\AnimationSystem.hpp" />
     <ClInclude Include="Features\Rage\AntiAim.hpp" />
     <ClInclude Include="Features\Rage\Resolver.hpp" />
     <ClInclude Include="Features\Rage\ZeusBot.hpp" />
     <ClInclude Include="Features\Visuals\IVEffects.h" />
+    <ClInclude Include="Features\Visuals\Trace.h" />
     <ClInclude Include="Libraries\lua-api\lua_api.h" />
     <ClInclude Include="Libraries\lua-api\lua_gameevents.h" />
     <ClInclude Include="Libraries\lua-api\lua_hooks.h" />
