@@ -1454,6 +1454,7 @@ public:
 
 	config_option( bool, autopeek, false );
 	config_option( bool, autopeek_visualise, false );
+	config_option(bool, disablebtondt, false);
 	config_keybind( autopeek_bind );
 	config_option( FloatColor, autopeek_color, FloatColor( 1.0f, 1.0f, 1.0f, 0.5f ) );
 

@@ -266,6 +266,7 @@ void Ragebot()
 				InsertMultiCombo(XorStr("Exploits"), exploits);
 			}
 		}
+		InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.misc.disablebtondt);
 
 		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
 		ImGui::SameLine();
