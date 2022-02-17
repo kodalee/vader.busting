@@ -313,7 +313,7 @@ namespace Engine
 							msg << XorStr("hitgroup: ") << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" | ");
 							msg << XorStr("player: ") << FixedStrLength(info.szName).data();
 
-							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), true, XorStr(""));
+							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), false, XorStr(""));
 #endif
 						}
 					};
