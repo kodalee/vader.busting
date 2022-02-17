@@ -2051,10 +2051,13 @@ namespace Interfaces
 
 		auto record = GetBestLagRecord(player, &backup);
 
-		if (!record || !IsRecordValid(player, record)) {
-			backup.Apply(player);
+		if (!record)
 			return 0;
-		}
+
+		//if (!record || !IsRecordValid(player, record)) {
+		//	backup.Apply(player);
+		//	return 0;
+		//}
 
 		backup.Apply(player);
 
