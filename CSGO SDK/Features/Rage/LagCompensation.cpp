@@ -153,54 +153,29 @@ namespace Engine
 	}
 
 	bool C_LagCompensation::IsRecordOutOfBounds( const Engine::C_LagRecord& record, float flTargetTime, int nTickbaseShiftTicks, bool bDeadTimeCheck ) const {
-		Encrypted_t<INetChannel> pNetChannel = Encrypted_t<INetChannel>( Interfaces::m_pEngine->GetNetChannelInfo( ) );
-		if( !pNetChannel.IsValid( ) )
-			return false;
+		Encrypted_t<INetChannel> pNetChannel = Encrypted_t<INetChannel>(Interfaces::m_pEngine->GetNetChannelInfo());
+		if (!pNetChannel.IsValid())
+			return true;
 
-		C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer( );
-		if( !pLocal )
-			return false;
+		C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer();
+		if (!pLocal)
+			return true;
 
-		//C_WeaponCSBaseGun* pWeapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
+		static auto cvar_maxunlag = g_Vars.sv_maxunlag;
 
-		//if (pWeapon) {
-		//	if (pWeapon->m_iItemDefinitionIndex() == WEAPON_ZEUS) {
-		//		return true;
-		//	}
-		//}
+		auto time_lerp = lagData.Xor()->m_flLerpTime;
+		auto time_outgoing = lagData.Xor()->m_flOutLatency;
+		auto time_incoming = lagData.Xor()->m_flServerLatency;
 
-		auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
-		
-		const auto flCorrect = std::clamp(pNetChannel->GetLatency(FLOW_INCOMING)
-			+ pNetChannel->GetLatency(FLOW_OUTGOING)
-			+ lerp, 0.f, g_Vars.sv_maxunlag->GetFloat());
+		auto time_correct = (time_outgoing + time_incoming + time_lerp);
+		time_correct = std::clamp(time_correct, 0.f, cvar_maxunlag->GetFloat());
 
-		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase()/* - g_TickbaseController.s_nExtraProcessingTicks*/);
+		auto time_distance = time_correct - (Interfaces::m_pGlobalVars->curtime - record.m_flSimulationTime);
 
-		//if (fabsf(flCorrect - (curtime - record.m_flSimulationTime)) <= flTargetTime) 
-		//	printf("LESS THAN TARGET TIME\n");
-		//else
-		//	printf("MORE THAN\n");
+		if (g_Vars.misc.disablebtondt) // we dont need g_Vars.rage.key_dt.enabled check because s_nExtraProcessingTicks only applied if we shift tickbase ( have dt enabled )
+			time_distance -= g_TickbaseController.s_nExtraProcessingTicks;
 
-		Math::Clamp(flCorrect, 0.f, 1.0f);
-
-		return std::abs(flCorrect - (curtime - record.m_flSimulationTime)) /*was >*/ < 0.19f /*TargetTime*/;
-
-		//// use prediction curtime for this.
-		//float curtime = TICKS_TO_TIME( pLocal->m_nTickBase( ) - g_TickbaseController.s_nExtraProcessingTicks );
-
-		//// correct is the amount of time we have to correct game time,
-		//float correct = lagData.Xor()->m_flLerpTime + lagData.Xor( )->m_flServerLatency;
-
-		//// stupid fake latency goes into the incoming latency.
-		////correct += lagData.Xor( )->m_flServerLatency;
-
-		//// check bounds [ 0, sv_maxunlag ]
-		//Math::Clamp( correct, 0.f, 1.0f );
-
-		//// calculate difference between tick sent by player and our latency based tick.
-		//// ensure this record isn't too old.
-		//return std::fabsf( correct - ( curtime - record.m_flSimulationTime ) ) <= flTargetTime;
+		return (std::abs(time_distance) > flTargetTime);
 	}
 
 	void C_LagCompensation::SetupLerpTime( ) {

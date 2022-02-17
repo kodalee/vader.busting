@@ -1827,8 +1827,8 @@ namespace Interfaces
 								msg << XorStr( "bt: " ) << TIME_TO_TICKS( m_lag_data->m_History.front( ).m_flSimulationTime - bestPoint->target->record->m_flSimulationTime ) << XorStr( " | " );
 								msg << XorStr("clientside: ") << int(*m_rage_data->m_pSendPacket) << XorStr(" | ");
 								msg << XorStr("hitchance: ") << int(bestPoint->hitchance) << XorStr(" | ");
-								//msg << XorStr( "miss: " ) << m_lag_data->m_iMissedShots << XorStr( ":" ) << m_lag_data->m_iMissedShotsLBY << XorStr( ":" ) << bestPoint->target->record->m_iResolverMode << XorStr( " | " );
-								//msg << XorStr( "flag: " ) << buffer.data( ) << XorStr( " | " );
+								msg << XorStr( "miss: " ) << m_lag_data->m_iMissedShots << XorStr( ":" ) << m_lag_data->m_iMissedShotsLBY << XorStr( ":" ) << bestPoint->target->record->m_iResolverMode << XorStr( " | " );
+								msg << XorStr( "flag: " ) << buffer.data( ) << XorStr( " | " );
 								msg << FixedStrLength(info.szName).data() << XorStr(" | ");
 
 								ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(0.f, 0.518f, 1.f), !g_Vars.misc.undercover_log, XorStr("shot packet sent "));
@@ -2051,20 +2051,11 @@ namespace Interfaces
 
 		auto record = GetBestLagRecord(player, &backup);
 
-		if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
-			record = GetBestLagRecord(player, &lagData->m_History.front());
-			if (!record || !IsRecordValid(player, record)) {
-				backup.Apply(player);
-				return 0;
-			}
+		if (!record || !IsRecordValid(player, record)) {
+			backup.Apply(player);
+			return 0;
 		}
-		else {
-			record = GetBestLagRecord(player, &backup);
-			if (!record || !IsRecordValid(player, record)) {
-				backup.Apply(player);
-				return 0;
-			}
-		}
+
 		backup.Apply(player);
 
 		auto hitboxSet = hdr->pHitboxSet(player->m_nHitboxSet());
@@ -2206,12 +2197,7 @@ namespace Interfaces
 	}
 
 	bool C_Ragebot::IsRecordValid(C_CSPlayer* player, Engine::C_LagRecord* record) {
-		if (g_Vars.misc.disablebtondt && g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
-			return true;
-		}
-		else {
-			return Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
-		}
+		return !Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
 	}
 
 	bool C_Ragebot::AimAtPoint(C_AimPoint* bestPoint) {

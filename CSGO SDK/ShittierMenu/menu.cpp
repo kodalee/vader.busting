@@ -255,6 +255,7 @@ void Ragebot()
 		if (g_Vars.rage.exploit) {
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
 			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
+			InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.misc.disablebtondt);
 			InsertCheckbox(exploits_enable, XorStr("DT Exploits"), &g_Vars.rage.dt_exploits);
 
 			if (g_Vars.rage.dt_exploits) {
@@ -267,7 +268,6 @@ void Ragebot()
 				InsertMultiCombo(XorStr("Exploits"), exploits);
 			}
 		}
-		InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.misc.disablebtondt);
 
 		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
 		ImGui::SameLine();
