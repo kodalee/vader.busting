@@ -1527,6 +1527,8 @@ public:
 	config_option(int, ump45_skin, 0);
 
 
+	config_option(bool, balls, false);
+
 
 #if defined(BETA_MODE) || defined(DEV)
 	config_option( bool, undercover_log, false );
