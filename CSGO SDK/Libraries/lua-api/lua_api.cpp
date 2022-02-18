@@ -185,6 +185,10 @@ namespace lua_config {
 	bool forcebaim_enabled() {
 		return g_Vars.rage.prefer_body.enabled;
 	}
+
+	bool slide_walk_set(bool value) {
+		return g_Vars.misc.slide_walk = value;
+	}
 }
 
 namespace lua_cheat {
@@ -285,7 +289,7 @@ namespace lua_engine {
 		return Interfaces::m_pEngine->GetPlayerForUserID(userid);
 	}
 
-	int get_local_player_index() {
+	int get_local_player() {
 		return Interfaces::m_pEngine->GetLocalPlayer();
 	}
 
@@ -758,6 +762,7 @@ bool c_lua::initialize() {
 	config["antiaim_jitter_set"] = lua_config::antiaim_jitter_set;
 	config["antiaim_fakewalk_enabled"] = lua_config::antiaim_fakewalk_enabled;
 	config["forcebaim_enabled"] = lua_config::forcebaim_enabled;
+	config["slide_walk_set"] = lua_config::slide_walk_set;
 
 
 	auto cheat = this->lua.create_table();
@@ -793,7 +798,7 @@ bool c_lua::initialize() {
 	auto engine = this->lua.create_table();
 	engine["execute_client_cmd"] = lua_engine::execute_client_cmd;
 	engine["get_player_for_user_id"] = lua_engine::get_player_for_user_id;
-	engine["get_local_player_index"] = lua_engine::get_local_player_index;
+	engine["get_local_player_index"] = lua_engine::get_local_player;
 	engine["get_max_clients"] = lua_engine::get_max_clients;
 	engine["get_net_channel_info"] = lua_engine::get_net_channel_info;
 	engine["get_screen_width"] = lua_engine::get_screen_width;
