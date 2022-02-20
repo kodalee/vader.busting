@@ -327,56 +327,53 @@ void HvH()
 				CVariables::ANTIAIM_STATE* settings = &g_Vars.antiaim_stand;
 				// enable AA.
 				InsertCheckbox(AntiAim, "Anti-Aim", &g_Vars.antiaim.enabled)
-						// yaw / pitch / fake.
 
-						InsertCombo(XorStr("Pitch"), &settings->pitch, pitches);
+				InsertCombo(XorStr("Pitch"), &settings->pitch, pitches);
 
-						InsertCombo(XorStr("Real yaw"), &settings->base_yaw, real_yaw);
+				InsertCombo(XorStr("Real yaw"), &settings->base_yaw, real_yaw);
 
-						if (settings->base_yaw == 2) {
-							InsertSliderInt(XorStr("Jitter range"), &g_Vars.antiaim.Jitter_range, -100, 100, "%d");
-						}
+				if (settings->base_yaw == 2) {
+					InsertSliderInt(XorStr("Jitter range"), &g_Vars.antiaim.Jitter_range, -100, 100, "%d");
+				}
 
-						InsertCombo(XorStr("Fake yaw"), &settings->yaw, fake_yaw);
+				InsertCombo(XorStr("Fake yaw"), &settings->yaw, fake_yaw);
 
-						// static lets choose our own vaule.
-						if (settings->yaw == 1) {
-							InsertSliderInt(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -145, 145, "%d");
-						}
+				// static lets choose our own vaule.
+				if (settings->yaw == 1) {
+					InsertSliderInt(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -145, 145, "%d");
+				}
 
-						//if (settings->base_yaw == 0) {} why??
+				//InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
 
+				ImGui::NextColumn();
+				ImGui::NewLine();
 
-						//InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
+				InsertCheckbox(BackwardsInAir, XorStr("Backwards in air"), &g_Vars.antiaim.backwards_in_air);
 
-						ImGui::NextColumn();
-						ImGui::NewLine();
+				InsertCheckbox(AntiAimFreestand, XorStr("Freestand yaw"), &g_Vars.antiaim.freestand);
+				if (g_Vars.antiaim.freestand) {
+					InsertCombo(XorStr("Freestand mode"), &g_Vars.antiaim.freestand_mode, freestand_mode);
+				}
 
-						InsertCheckbox(AntiAimFreestand, XorStr("Freestand yaw"), &g_Vars.antiaim.freestand);
+				// distortion.
+				InsertCheckbox(Distortion, XorStr("Distortion###sse"), &g_Vars.antiaim.distort)
+				if (g_Vars.antiaim.distort) {
+					InsertCheckbox(AAManualOverride, XorStr("Override Manual Distortion"), &g_Vars.antiaim.distort_manual_aa);
+					InsertCheckbox(Twist, XorStr("Twist"), &g_Vars.antiaim.distort_twist);
+					if (g_Vars.antiaim.distort_twist) {
+						InsertSliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1fs"));
+					}
+					InsertSliderFloat(XorStr("Max time"), &g_Vars.antiaim.distort_max_time, 0.f, 10.f, "%.f");
+					InsertSliderFloat(XorStr("Range"), &g_Vars.antiaim.distort_range, -360.f, 360.f, "%.f");
 
-						InsertCombo(XorStr("Freestand mode"), &g_Vars.antiaim.freestand_mode, freestand_mode);
+					std::vector<MultiItem_t> distort_disablers = {
+						{ XorStr("Fakewalking"), &g_Vars.antiaim.distort_disable_fakewalk },
+						{ XorStr("Running"), &g_Vars.antiaim.distort_disable_run },
+						{ XorStr("Airborne"), &g_Vars.antiaim.distort_disable_air },
+					};
 
-						// distortion.
-						InsertCheckbox(Distortion, XorStr("Distortion###sse"), &g_Vars.antiaim.distort)
-
-						InsertCheckbox(AAManualOverride, XorStr("Override Manual Distortion"), &g_Vars.antiaim.distort_manual_aa);
-						InsertCheckbox(Twist, XorStr("Twist"), &g_Vars.antiaim.distort_twist);
-						if (g_Vars.antiaim.distort_twist) {
-								InsertSliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1fs"));
-						}
-						InsertSliderFloat(XorStr("Max time"), &g_Vars.antiaim.distort_max_time, 0.f, 10.f, "%.f");
-						InsertSliderFloat(XorStr("Range"), &g_Vars.antiaim.distort_range, -360.f, 360.f, "%.f");
-
-						std::vector<MultiItem_t> distort_disablers = {
-							{ XorStr("Fakewalking"), &g_Vars.antiaim.distort_disable_fakewalk },
-							{ XorStr("Running"), &g_Vars.antiaim.distort_disable_run },
-							{ XorStr("Airborne"), &g_Vars.antiaim.distort_disable_air },
-						};
-
-						InsertMultiCombo(XorStr("Distortion disablers"), distort_disablers);
-				//GUI::Controls::Label( XorStr( "Invert LBY" ) );
-				//GUI::Controls::Hotkey( XorStr( "LBY Flip" ), &g_Vars.antiaim.desync_flip_bind );
-				//InsertCheckbox( XorStr( "Imposter breaker" ), &g_Vars.antiaim.imposta );
+					InsertMultiCombo(XorStr("Distortion disablers"), distort_disablers);
+				}
 
 				ImGui::NextColumn();
 				ImGui::NewLine();
@@ -406,9 +403,12 @@ void HvH()
 				ImGui::SameLine();
 				biggestMeme2();
 				ImGui::Hotkey("##Mind-Trick key", &g_Vars.misc.mind_trick_bind.key, &g_Vars.misc.mind_trick_bind.cond, ImVec2{ 40,20 });
-				InsertSliderFloat(XorStr("Mind-Trick Factor"), &g_Vars.misc.mind_trick_factor, 1.f, 180.f, XorStr("%.0f %%"));
-				InsertSliderFloat(XorStr("Mind-Trick LBY"), &g_Vars.misc.mind_trick_lby, 1.f, 180.f, XorStr("%.0f %%"));
-				InsertCheckbox(MindTrickExp, XorStr("Mind-Trick Experimental"), &g_Vars.misc.mind_trick_test);
+				if (g_Vars.misc.mind_trick) {
+					InsertSliderFloat(XorStr("Mind-Trick Factor"), &g_Vars.misc.mind_trick_factor, 1.f, 180.f, XorStr("%.0f %%"));
+					InsertSliderFloat(XorStr("Mind-Trick LBY"), &g_Vars.misc.mind_trick_lby, 1.f, 180.f, XorStr("%.0f %%"));
+					InsertCheckbox(MindTrickExp, XorStr("Mind-Trick Experimental"), &g_Vars.misc.mind_trick_test);
+				}
+
 				InsertCheckbox(MoveExploit, XorStr("Move Exploit"), &g_Vars.misc.move_exploit);
 				ImGui::SameLine();
 				biggestMeme2();
@@ -416,13 +416,15 @@ void HvH()
 				if (g_Vars.misc.move_exploit) {
 					InsertSliderInt(XorStr("Move Exploit intensity"), &g_Vars.misc.move_exploit_intensity, 1, 16, "%d");
 				}
-				
+
 
 				InsertCheckbox(FakeWalk, XorStr("Fake-walk"), &g_Vars.misc.slow_walk);
 				ImGui::SameLine();
 				biggestMeme2();
 				ImGui::Hotkey("##Fake-walk key", &g_Vars.misc.slow_walk_bind.key, &g_Vars.misc.slow_walk_bind.cond, ImVec2{ 40,20 });
-				InsertSliderInt(XorStr("Fake-walk speed"), &g_Vars.misc.slow_walk_speed, 4, 16, "%d");
+				if (g_Vars.misc.slow_walk) {
+					InsertSliderInt(XorStr("Fake-walk speed"), &g_Vars.misc.slow_walk_speed, 4, 16, "%d");
+				}
 
 				break;
 

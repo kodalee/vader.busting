@@ -852,6 +852,8 @@ public:
 	config_option( bool, distort_randomize, false );
 	config_option( bool, distort_lby_update, false );
 
+	config_option(bool, backwards_in_air, true);
+
 	config_option( bool, freestand, false );
 	config_option( int, freestand_mode, 0);
 	config_option( bool, freestand_invert, false );
