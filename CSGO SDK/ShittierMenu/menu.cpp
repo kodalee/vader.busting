@@ -553,6 +553,8 @@ void Visuals()
 
 						if (ImGui::InputText(XorStr("##Custom Hitsound"), custom_hitsound, sizeof(custom_hitsound)))
 							g_Vars.misc.custom_hitsound = custom_hitsound;
+
+						InsertSliderFloat(XorStr("Sound volume"), &g_Vars.misc.hitsound_volume, 1.f, 100.f, XorStr("%.f"));
 					}
 				}
 				InsertCheckbox(FootSteps, XorStr("Footsteps"), &g_Vars.esp.footsteps);

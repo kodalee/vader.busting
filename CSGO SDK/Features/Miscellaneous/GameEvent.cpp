@@ -19,6 +19,8 @@
 #include "walkbot.h"
 
 #include <fstream>
+#include <Shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
 
 
 #define ADD_GAMEEVENT(n)  Interfaces::m_pGameEvent->AddListener(this, XorStr(#n), false)
@@ -330,7 +332,66 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 					if( g_Vars.misc.hitsound_type == 1 ) {
 						if (g_Vars.misc.custom_hitsound.c_str() != XorStr(""))
 						{
-							PlaySoundA(g_Vars.misc.custom_hitsound.c_str(), NULL, SND_ASYNC);
+							if (PathFileExists(g_Vars.misc.custom_hitsound.c_str())) {
+								auto ReadWavFileIntoMemory = [&](std::string fname, BYTE** pb, DWORD* fsize) {
+									std::ifstream f(fname, std::ios::binary);
+
+									f.seekg(0, std::ios::end);
+									int lim = f.tellg();
+									*fsize = lim;
+
+									*pb = new BYTE[lim];
+									f.seekg(0, std::ios::beg);
+
+									f.read((char*)*pb, lim);
+
+									f.close();
+								};
+
+								DWORD dwFileSize;
+								BYTE* pFileBytes;
+								ReadWavFileIntoMemory(g_Vars.misc.custom_hitsound.c_str(), &pFileBytes, &dwFileSize);
+
+								// danke anarh1st47, ich liebe dich
+								// dieses code snippet hat mir so sehr geholfen https://i.imgur.com/ybWTY2o.png
+								// thanks anarh1st47, you are the greatest
+								// loveeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+								// kochamy anarh1st47
+								auto modify_volume = [&](BYTE* bytes) {
+									int offset = 0;
+									for (int i = 0; i < dwFileSize / 2; i++) {
+										if (bytes[i] == 'd' && bytes[i + 1] == 'a'
+											&& bytes[i + 2] == 't' && bytes[i + 3] == 'a')
+										{
+											offset = i;
+											break;
+										}
+									}
+
+									if (!offset)
+										return;
+
+									BYTE* pDataOffset = (bytes + offset);
+									DWORD dwNumSampleBytes = *(DWORD*)(pDataOffset + 4);
+									DWORD dwNumSamples = dwNumSampleBytes / 2;
+
+									SHORT* pSample = (SHORT*)(pDataOffset + 8);
+									for (DWORD dwIndex = 0; dwIndex < dwNumSamples; dwIndex++)
+									{
+										SHORT shSample = *pSample;
+										shSample = (SHORT)(shSample * (g_Vars.misc.hitsound_volume / 100.f));
+										*pSample = shSample;
+										pSample++;
+										if (((BYTE*)pSample) >= (bytes + dwFileSize - 1))
+											break;
+									}
+								};
+
+								if (pFileBytes) {
+									modify_volume(pFileBytes);
+									PlaySoundA((LPCSTR)pFileBytes, NULL, SND_MEMORY | SND_ASYNC);
+								}
+							}
 						}
 					}
 					else {
