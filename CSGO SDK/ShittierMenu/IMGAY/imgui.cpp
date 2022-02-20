@@ -3670,18 +3670,18 @@ void ImGui::NewFrame()
 	UpdateMouseWheel();
 
 	// Pressing TAB activate widget focus
-	g.FocusTabPressed = (g.NavWindow && g.NavWindow->Active && !(g.NavWindow->Flags & ImGuiWindowFlags_NoNavInputs) && !g.IO.KeyCtrl && IsKeyPressedMap(ImGuiKey_Tab));
-	if (g.ActiveId == 0 && g.FocusTabPressed)
-	{
-		// Note that SetKeyboardFocusHere() sets the Next fields mid-frame. To be consistent we also
-		// manipulate the Next fields even, even though they will be turned into Curr fields by the code below.
-		g.FocusRequestNextWindow = g.NavWindow;
-		g.FocusRequestNextCounterAll = INT_MAX;
-		if (g.NavId != 0 && g.NavIdTabCounter != INT_MAX)
-			g.FocusRequestNextCounterTab = g.NavIdTabCounter + 1 + (g.IO.KeyShift ? -1 : 1);
-		else
-			g.FocusRequestNextCounterTab = g.IO.KeyShift ? -1 : 0;
-	}
+	//g.FocusTabPressed = (g.NavWindow && g.NavWindow->Active && !(g.NavWindow->Flags & ImGuiWindowFlags_NoNavInputs) && !g.IO.KeyCtrl && IsKeyPressedMap(ImGuiKey_Tab));
+	//if (g.ActiveId == 0 && g.FocusTabPressed)
+	//{
+	//	// Note that SetKeyboardFocusHere() sets the Next fields mid-frame. To be consistent we also
+	//	// manipulate the Next fields even, even though they will be turned into Curr fields by the code below.
+	//	g.FocusRequestNextWindow = g.NavWindow;
+	//	g.FocusRequestNextCounterAll = INT_MAX;
+	//	if (g.NavId != 0 && g.NavIdTabCounter != INT_MAX)
+	//		g.FocusRequestNextCounterTab = g.NavIdTabCounter + 1 + (g.IO.KeyShift ? -1 : 1);
+	//	else
+	//		g.FocusRequestNextCounterTab = g.IO.KeyShift ? -1 : 0;
+	//}
 
 	// Turn queued focus request into current one
 	g.FocusRequestCurrWindow = NULL;

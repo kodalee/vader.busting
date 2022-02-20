@@ -219,7 +219,7 @@ void walkbot::file(std::string addictive_name, int todo)
 	static char path[MAX_PATH];
 	std::string folder, file;
 
-	if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_DESKTOP, NULL, 0, path))) {
+	if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
 		char szCmd[256];
 		sprintf(szCmd, XorStr("\\walkbot\\%s.ini"), levelNameFixed);
 		folder = std::string(path) + XorStr("\\walkbot\\");
@@ -287,7 +287,7 @@ void walkbot::refresh(std::string levelName, std::vector<Vector> spots, bool sav
 
 	static char path[MAX_PATH];
 	std::string folder, file;
-	if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_DESKTOP, NULL, 0, path))) {
+	if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
 		char szCmd[256];
 		sprintf(szCmd, XorStr("\\walkbot\\%s.ini"), levelNameFixed);
 		folder = std::string(path) + XorStr("\\walkbot\\");

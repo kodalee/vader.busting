@@ -1413,6 +1413,7 @@ public:
 	config_option( int, hitsound_type, 0 );
 	config_option( int, hitsound_custom, 0 );
 	config_option( float, hitsound_volume, 100.f );
+	config_option(std::string, custom_hitsound, "hitsound name");
 
 	config_option( int, clantag_changer, 0 );
 	config_option( std::string, custom_clantag, "vader.tech" );

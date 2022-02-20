@@ -542,8 +542,18 @@ void Visuals()
 
 				InsertCheckbox(Hitsound, XorStr("Hitsound"), &g_Vars.misc.hitsound);
 				if (g_Vars.misc.hitsound) {
-					const char* hitsounds[] = { XorStr("Default") };
+					const char* hitsounds[] = { XorStr("Default"), XorStr("Custom") };
 					InsertCombo(XorStr("Type"), &g_Vars.misc.hitsound_type, hitsounds);
+
+					if (g_Vars.misc.hitsound_type == 1) {
+						static char custom_hitsound[64] = "\0";
+
+						if (!g_Vars.misc.custom_hitsound.empty())
+							strcpy_s(custom_hitsound, sizeof(custom_hitsound), g_Vars.misc.custom_hitsound.c_str());
+
+						if (ImGui::InputText(XorStr("##Custom Hitsound"), custom_hitsound, sizeof(custom_hitsound)))
+							g_Vars.misc.custom_hitsound = custom_hitsound;
+					}
 				}
 				InsertCheckbox(FootSteps, XorStr("Footsteps"), &g_Vars.esp.footsteps);
 				if (g_Vars.esp.footsteps) {
