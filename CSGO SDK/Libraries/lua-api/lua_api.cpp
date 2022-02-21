@@ -384,6 +384,9 @@ namespace lua_utils {
 
 		auto local = C_CSPlayer::GetLocalPlayer();
 
+		if (!local->IsAlive())
+			return 0.f;
+
 		if (local->m_vecVelocity().Length2D() > 30.f && !g_Vars.misc.slow_walk_bind.enabled) // bad fix for localplayer walking
 			return 0.f;
 
@@ -589,6 +592,14 @@ namespace lua_render {
 		Vector2D scr;
 		Render::Engine::WorldToScreen(pos, scr);
 		return Vector(scr.x, scr.y, 0);
+	}
+
+}
+
+namespace lua_clientstate
+{
+	int chokedcommands() {
+		return Interfaces::m_pClientState->m_nChokedCommands();
 	}
 
 }
@@ -857,6 +868,9 @@ bool c_lua::initialize() {
 	ui["keybinds_pos_x"] = lua_ui::keybinds_pos_x;
 	ui["keybinds_pos_y"] = lua_ui::keybinds_pos_y;
 
+	auto clientstate = this->lua.create_table();
+	clientstate["chokedcommands"] = lua_clientstate::chokedcommands;
+
 
 	this->lua["event"] = events;
 	this->lua["config"] = config;
@@ -871,6 +885,7 @@ bool c_lua::initialize() {
 	this->lua["cvar"] = cvar;
 	this->lua["render"] = render;
 	this->lua["ui"] = ui;
+	this->lua["clientstate"] = clientstate;
 
 	this->refresh_scripts();
 	//this->load_script(this->get_script_id("autorun.lua"));
