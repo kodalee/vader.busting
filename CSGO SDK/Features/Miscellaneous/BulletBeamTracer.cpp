@@ -68,7 +68,7 @@ void CBulletBeamTracer::DrawBeam( ) {
 				is_final_impact = true;
 
 			else
-				is_final_impact = false;
+				is_final_impact = false; 
 
 			if( !is_final_impact ) {
 				bulletImpactInfo.erase( bulletImpactInfo.begin( ) + i );
@@ -80,7 +80,7 @@ void CBulletBeamTracer::DrawBeam( ) {
 			bulletImpactInfo.erase( bulletImpactInfo.begin( ) + i );
 	}
 
-	if( !bulletImpactInfo.empty( ) ) {
+	if(g_Vars.esp.beam_color_rainbow ? !bulletImpactInfo.empty() : is_final_impact) {
 		for( auto& it : bulletImpactInfo ) {
 			float delta = time - it.m_flExpTime;
 
