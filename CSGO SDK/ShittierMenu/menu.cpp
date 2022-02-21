@@ -884,12 +884,12 @@ void Visuals()
 				}
 				case 1: //local
 				{
+					ImGui::NextColumn();
+					ImGui::NewLine();
+
 					InsertCheckbox(enable_local_chams, "Local chams", &g_Vars.esp.chams_local);
 
 					if (g_Vars.esp.chams_local) {
-
-						ImGui::NextColumn();
-						ImGui::NewLine();
 
 						InsertCombo("Local", &g_Vars.esp.new_chams_local, chams_mats_local);
 						ColorPicker("##local_color", g_Vars.esp.chams_local_color, true, true);
