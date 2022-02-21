@@ -886,10 +886,10 @@ void Visuals()
 				{
 					InsertCheckbox(enable_local_chams, "Local chams", &g_Vars.esp.chams_local);
 
-					ImGui::NextColumn();
-					ImGui::NewLine();
-
 					if (g_Vars.esp.chams_local) {
+
+						ImGui::NextColumn();
+						ImGui::NewLine();
 
 						InsertCombo("Local", &g_Vars.esp.new_chams_local, chams_mats_local);
 						ColorPicker("##local_color", g_Vars.esp.chams_local_color, true, true);
@@ -911,16 +911,16 @@ void Visuals()
 						}
 						InsertCheckbox(local_overlay_wireframe, "Local overlay wireframe", &g_Vars.esp.chams_local_outline_wireframe);
 						InsertCheckbox(chams_local_original_model, "Draw original model ##local", &g_Vars.esp.new_chams_local_original_model);
+
+						InsertCheckbox(chams_local_scoped_enabled, "Transparency when scoped", &g_Vars.esp.blur_in_scoped);
+
+						if (g_Vars.esp.blur_in_scoped) {
+							InsertSliderFloat("Scoped transparency", &g_Vars.esp.blur_in_scoped_value, 0.0f, 100.f, "%.f");
+						}
 					}
 
 					//ImGui::NextColumn();
 					//ImGui::NewLine();
-
-					InsertCheckbox(chams_local_scoped_enabled, "Transparency when scoped", &g_Vars.esp.blur_in_scoped);
-
-					if (g_Vars.esp.blur_in_scoped) {
-						InsertSliderFloat("Scoped transparency", &g_Vars.esp.blur_in_scoped_value, 0.0f, 100.f, "%.f");
-					}
 
 					ImGui::NextColumn();
 					ImGui::NewLine();
