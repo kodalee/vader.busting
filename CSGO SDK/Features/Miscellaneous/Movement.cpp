@@ -827,7 +827,7 @@ namespace Interfaces
 
 		// compensate for lost speed
 		int nTicksToStop = g_Vars.misc.slow_walk_speed * 25 / 100; // 25% of the choke limit
-		if( LocalPlayer->m_bIsScoped( ) && !g_Vars.misc.mind_trick_bind.enabled )
+		if( LocalPlayer->m_bIsScoped( ) /*&& !g_Vars.misc.mind_trick_bind.enabled*/ )
 			nTicksToStop = 2;
 
 		// stop when necessary
