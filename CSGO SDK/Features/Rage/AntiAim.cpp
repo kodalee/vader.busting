@@ -471,9 +471,7 @@ namespace Interfaces
 		if (!Interfaces::m_pClientState->m_nChokedCommands()
 			&& Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
 			&& LocalPlayer->m_fFlags() & FL_ONGROUND && !move) {
-			if (g_Vars.globals.Fakewalking) {
-				*bSendPacket = true;
-			}
+			*bSendPacket = true;
 			// fake yaw.
 			switch (settings->yaw) {
 			case 1: // static
