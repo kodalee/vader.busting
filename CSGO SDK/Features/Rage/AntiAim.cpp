@@ -49,7 +49,7 @@ namespace Interfaces
 		bool airstuck();
 
 
-		void fake_flick(Encrypted_t<CUserCmd> cmd);
+		//void fake_flick(Encrypted_t<CUserCmd> cmd);
 
 		virtual bool IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings);
 
@@ -74,66 +74,66 @@ namespace Interfaces
 	//}
 
 
-	void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
-	{
-		static bool balls = false;
-		static bool balls2 = false;
+	//void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
+	//{
+	//	static bool balls = false;
+	//	static bool balls2 = false;
 
-		static auto curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
+	//	static auto curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
 
-		if (!balls) {
-			curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
-			balls = true;
-		}
+	//	if (!balls) {
+	//		curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
+	//		balls = true;
+	//	}
 
-		if (g_Vars.misc.mind_trick_bind.enabled) {
-			if (!balls2) {
-				balls = false;
-				balls2 = true;
-			}
-		}
-		else {
-			balls2 = false;
-		}
+	//	if (g_Vars.misc.mind_trick_bind.enabled) {
+	//		if (!balls2) {
+	//			balls = false;
+	//			balls2 = true;
+	//		}
+	//	}
+	//	else {
+	//		balls2 = false;
+	//	}
 
-		if (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick) {
+	//	if (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick) {
 
-			auto localPlayer = C_CSPlayer::GetLocalPlayer();
+	//		auto localPlayer = C_CSPlayer::GetLocalPlayer();
 
-			if (localPlayer->IsDead())
-				return;
+	//		if (localPlayer->IsDead())
+	//			return;
 
 
-			if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
-				if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
-					if (g_Vars.globals.m_flAnimTime < g_Vars.globals.m_flBodyPred) {
-						if (Interfaces::m_pGlobalVars->curtime >= curtime) {
-							g_Vars.globals.shift_amount = 16;
-							//g_TickbaseController.m_didFakeFlick = true;
-							static bool switcher = false;
-							cmd->viewangles.y += g_Vars.misc.mind_trick_factor;
-							switcher = !switcher;
-							g_Vars.globals.shift_amount = 0;
-							//g_TickbaseController.m_didFakeFlick = false;
-							curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
-							//printf("flicking\n");
-						}
-						if (localPlayer->m_vecVelocity().Length2D() < 11.f) {
-							static bool switcher = false;
-							cmd->sidemove = switcher ? -13.37f : 13.37f;
-							switcher = !switcher;
-						}
-						//g_TickbaseController.m_didFakeFlick = true;
+	//		if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+	//			if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
+	//				if (g_Vars.globals.m_flAnimTime < g_Vars.globals.m_flBodyPred) {
+	//					if (Interfaces::m_pGlobalVars->curtime >= curtime) {
+	//						g_Vars.globals.shift_amount = 16;
+	//						//g_TickbaseController.m_didFakeFlick = true;
+	//						static bool switcher = false;
+	//						cmd->viewangles.y += g_Vars.misc.mind_trick_factor;
+	//						switcher = !switcher;
+	//						g_Vars.globals.shift_amount = 0;
+	//						//g_TickbaseController.m_didFakeFlick = false;
+	//						curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
+	//						//printf("flicking\n");
+	//					}
+	//					if (localPlayer->m_vecVelocity().Length2D() < 11.f) {
+	//						static bool switcher = false;
+	//						cmd->sidemove = switcher ? -13.37f : 13.37f;
+	//						switcher = !switcher;
+	//					}
+	//					//g_TickbaseController.m_didFakeFlick = true;
 
-						//if (g_TickbaseController.m_didFakeFlick) {
-						//	g_Vars.globals.shift_amount = 0;
-						//	g_TickbaseController.m_didFakeFlick = false;
-						//}
-					}
-				}
-			}
-		}
-	}
+	//					//if (g_TickbaseController.m_didFakeFlick) {
+	//					//	g_Vars.globals.shift_amount = 0;
+	//					//	g_TickbaseController.m_didFakeFlick = false;
+	//					//}
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
 	//	////if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
 	//	////	if (cmd->sidemove == 0 && cmd->forwardmove == 0 /*&& localPlayer->m_vecVelocity().Length2D() < 10.f*/) {
@@ -305,11 +305,11 @@ namespace Interfaces
 
         if (g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled) {
 
-			if (g_Vars.misc.mind_trick_test && g_Vars.misc.mind_trick_bind.enabled) {
-				g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 ? 16 : 0;
-			}
+			//if (g_Vars.misc.mind_trick_test && g_Vars.misc.mind_trick_bind.enabled) {
+			//	g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 ? 16 : 0;
+			//}
 
-			else if (g_Vars.rage.exploit_lag) {
+			/*else*/ if (g_Vars.rage.exploit_lag) {
 				g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 > 0 ? 16 : 0;
 			}
 
@@ -448,11 +448,11 @@ namespace Interfaces
 
 			cmd->viewangles.y = flYaw;
 
-			if (!g_Vars.misc.mind_trick_bind.enabled) {
+			//if (!g_Vars.misc.mind_trick_bind.enabled) {
 				Distort(cmd);
-			}
+			//}
 		
-			fake_flick(cmd);
+			//fake_flick(cmd);
 
 		}
 		else {
@@ -475,7 +475,7 @@ namespace Interfaces
 			// fake yaw.
 			switch (settings->yaw) {
 			case 1: // static
-				g_Vars.misc.mind_trick_bind.enabled ? cmd->viewangles.y += g_Vars.misc.mind_trick_lby : cmd->viewangles.y += g_Vars.antiaim.break_lby;
+				/*g_Vars.misc.mind_trick_bind.enabled ? cmd->viewangles.y += g_Vars.misc.mind_trick_lby :*/ cmd->viewangles.y += g_Vars.antiaim.break_lby;
 				break;
 			case 2: // twist
 				negative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;

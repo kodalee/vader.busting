@@ -399,15 +399,15 @@ void HvH()
 					ImGui::Hotkey(XorStr("##Back key"), &g_Vars.antiaim.manual_back_bind.key, &g_Vars.antiaim.manual_back_bind.cond, ImVec2{ 40,20 });
 				}
 
-				InsertCheckbox(JediMindTrick, XorStr("Jedi Mind-Trick"), &g_Vars.misc.mind_trick);
-				ImGui::SameLine();
-				biggestMeme2();
-				ImGui::Hotkey("##Mind-Trick key", &g_Vars.misc.mind_trick_bind.key, &g_Vars.misc.mind_trick_bind.cond, ImVec2{ 40,20 });
-				if (g_Vars.misc.mind_trick) {
-					InsertSliderFloat(XorStr("Mind-Trick Factor"), &g_Vars.misc.mind_trick_factor, 1.f, 180.f, XorStr("%.0f %%"));
-					InsertSliderFloat(XorStr("Mind-Trick LBY"), &g_Vars.misc.mind_trick_lby, 1.f, 180.f, XorStr("%.0f %%"));
-					InsertCheckbox(MindTrickExp, XorStr("Mind-Trick Experimental"), &g_Vars.misc.mind_trick_test);
-				}
+				//InsertCheckbox(JediMindTrick, XorStr("Jedi Mind-Trick"), &g_Vars.misc.mind_trick);
+				//ImGui::SameLine();
+				//biggestMeme2();
+				//ImGui::Hotkey("##Mind-Trick key", &g_Vars.misc.mind_trick_bind.key, &g_Vars.misc.mind_trick_bind.cond, ImVec2{ 40,20 });
+				//if (g_Vars.misc.mind_trick) {
+				//	InsertSliderFloat(XorStr("Mind-Trick Factor"), &g_Vars.misc.mind_trick_factor, 1.f, 180.f, XorStr("%.0f %%"));
+				//	InsertSliderFloat(XorStr("Mind-Trick LBY"), &g_Vars.misc.mind_trick_lby, 1.f, 180.f, XorStr("%.0f %%"));
+				//	InsertCheckbox(MindTrickExp, XorStr("Mind-Trick Experimental"), &g_Vars.misc.mind_trick_test);
+				//}
 
 				InsertCheckbox(MoveExploit, XorStr("Move Exploit"), &g_Vars.misc.move_exploit);
 				ImGui::SameLine();
