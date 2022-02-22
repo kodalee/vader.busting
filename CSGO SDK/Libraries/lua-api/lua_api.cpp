@@ -6,6 +6,7 @@
 #include "../../SDK/Displacement.hpp"
 #include "../../SDK/Classes/entity.hpp"
 #include "../../SDK/Classes/Player.hpp"
+#include "../../Features/Rage/TickbaseShift.hpp"
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
 void lua_panic(sol::optional<std::string> message) {
 
@@ -236,6 +237,13 @@ namespace lua_cheat {
 		return g_Vars.globals.user_info.username;
 	}
 
+	bool dt_charged() {
+		if (g_TickbaseController.s_nExtraProcessingTicks > 0 && g_Vars.rage.key_dt.enabled)
+			return true;
+
+		return false;
+	}
+
 }
 
 namespace lua_math {
@@ -391,6 +399,16 @@ namespace lua_utils {
 			return 0.f;
 
 		return std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+	}
+
+	bool local_alive() {
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (!local || !local->IsAlive())
+			return false;
+
+
+		return true;
 	}
 
 }
@@ -783,6 +801,7 @@ bool c_lua::initialize() {
 	cheat["get_button"] = lua_cheat::get_button;
 	cheat["set_button"] = lua_cheat::set_button;
 	cheat["username"] = lua_cheat::username;
+	cheat["dt_charged"] = lua_cheat::dt_charged;
 
 	auto math = this->lua.create_table();
 	math["calc_angle"] = lua_math::calc_angle;
@@ -832,6 +851,7 @@ bool c_lua::initialize() {
 	utils["floatcolor"] = lua_utils::create_floatcolor;
 	utils["color_rainbow"] = lua_utils::create_color_rainbow; // i couldn't make rainbow work in lua idk why so i just put this in - remove if you dont want to make lua api look bad ( lol )
 	utils["lowerbody_yaw"] = lua_utils::lowerbody_yaw;
+	utils["local_alive"] = lua_utils::local_alive;
 
 	auto globals = this->lua.create_table();
 	globals["realtime"] = lua_globals::realtime;
