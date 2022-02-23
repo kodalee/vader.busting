@@ -72,10 +72,10 @@ void Hitmarkers::RenderWorldHitmarkers( ) {
 						clr.OverrideAlpha( 255 * info.m_flAlpha, true ) );
 				};
 
-				DrawHitmarker( vecPos - Vector2D( 1, 0 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
-				DrawHitmarker( vecPos - Vector2D( 0, 1 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
-				DrawHitmarker( vecPos + Vector2D( 1, 0 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
-				DrawHitmarker( vecPos + Vector2D( 0, 1 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
+				//DrawHitmarker( vecPos - Vector2D( 1, 0 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
+				//DrawHitmarker( vecPos - Vector2D( 0, 1 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
+				//DrawHitmarker( vecPos + Vector2D( 1, 0 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
+				//DrawHitmarker( vecPos + Vector2D( 0, 1 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
 
 				DrawHitmarker( vecPos, Color::Palette_t::White( ) );
 			}
@@ -92,22 +92,22 @@ void Hitmarkers::RenderScreenHitmarkers( ) {
 	static Vector2D vCenter = Render::GetScreenSize( ) * 0.5f;
 	static Vector2D vDrawCenter = vCenter;
 	if( m_flMarkerAlpha == 255.f ) {
-		if( !m_bFirstMarker ) {
-			RandomSeed( Interfaces::m_pGlobalVars->framecount );
-			m_flRandomRotation = RandomFloat( -15.f, 15.f );
-			m_flRandomEnlargement = RandomFloat( -2.f, 2.f );
-			vDrawCenter.x += RandomFloat( -2.f, 2.f );
-			vDrawCenter.y += RandomFloat( -2.f, 2.f );
-		}
-		else {
+		//if( !m_bFirstMarker ) {
+		//	RandomSeed( Interfaces::m_pGlobalVars->framecount );
+		//	m_flRandomRotation = RandomFloat( -15.f, 15.f );
+		//	m_flRandomEnlargement = RandomFloat( -2.f, 2.f );
+		//	vDrawCenter.x += RandomFloat( -2.f, 2.f );
+		//	vDrawCenter.y += RandomFloat( -2.f, 2.f );
+		//}
+		//else {
 			m_flRandomRotation = 0.f;
 			m_flRandomEnlargement = 0.f;
 			vDrawCenter = vCenter;
 			m_bFirstMarker = false;
-		}
+		/*}*/
 	}
 
-	constexpr float flFadeFactor = 1.0f / 0.2f;
+	constexpr float flFadeFactor = 1.0f / 0.5f;
 	float flFadeIncrement = ( flFadeFactor * Interfaces::m_pGlobalVars->framecount );
 	m_flMarkerAlpha -= flFadeFactor;
 	m_flRandomEnlargement -= m_flMarkerAlpha / 1020;
@@ -130,10 +130,10 @@ void Hitmarkers::RenderScreenHitmarkers( ) {
 		DrawAngularLine(
 			vDrawCenter.x,
 			vDrawCenter.y,
-			45.f + m_flRandomRotation + ( 90.f * i ),
-			18.f + m_flRandomEnlargement,
-			24.f + m_flRandomEnlargement,
-			Color( m_uMarkerColor.r( ), m_uMarkerColor.g( ), m_uMarkerColor.b( ), m_flMarkerAlpha ) );
+			45.f + ( 90.f * i ),
+			15.f,
+			5.f,
+			Color( 200, 200, 200, m_flMarkerAlpha ) );
 	}
 }
 
