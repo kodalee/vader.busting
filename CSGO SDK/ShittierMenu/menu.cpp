@@ -789,6 +789,11 @@ void Visuals()
 					ColorPicker_w_name(XorStr("Lby Color"), g_Vars.esp.draw_antiaim_angles_lby, false, false);
 				}
 
+				InsertCheckbox(LocalSkeleton, XorStr("Local Skeleton"), &g_Vars.esp.local_skeleton);
+				if (g_Vars.esp.local_skeleton) {
+					ColorPicker(XorStr("Skeleton Color"), g_Vars.esp.local_skeleton_color, false, false);
+				}
+
 				InsertCheckbox(TeslaImpact, XorStr("Tesla on Impact"), &g_Vars.esp.tesla_impact);
 
 				InsertCheckbox(TeslaKill, XorStr("Tesla on Kill"), &g_Vars.esp.tesla_kill);

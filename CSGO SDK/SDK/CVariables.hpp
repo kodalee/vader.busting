@@ -1191,6 +1191,9 @@ public:
 	config_option(FloatColor, draw_antiaim_angles_lby, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 	config_option(FloatColor, draw_antiaim_angles_real, FloatColor(255.f / 255.f, 215.f / 255.f, 0.f));
 
+	config_option(bool, local_skeleton, false);
+	config_option(FloatColor, local_skeleton_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+
 
 	config_option( bool, preserve_killfeed, false );
 	config_option( float, preserve_killfeed_time, 1.0f );

@@ -110,6 +110,7 @@ private:
 	void DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info );
 	void DrawSkeleton( C_CSPlayer* player );
 	void DrawHitSkeleton( );
+	void DrawLocalSkeleton( );
 	bool GetBBox( C_BaseEntity* player, Vector2D screen_points[ ], BBox_t& outRect );
 	void Offscreen( );
 	void OverlayInfo( );
@@ -1307,6 +1308,8 @@ void CEsp::Main( ) {
 	if( !g_Vars.esp.esp_enable )
 		return;
 
+	DrawLocalSkeleton();
+
 	circle_above_head(m_LocalPlayer);
 
 	dlight_players();
@@ -2342,6 +2345,95 @@ void CEsp::DrawHitSkeleton( ) {
 		}
 	}
 }
+
+void CEsp::DrawLocalSkeleton() {
+	const model_t* model;
+	studiohdr_t* hdr;
+	mstudiobone_t* bone;
+	int           parent;
+	BoneArray     matrix[128];
+	Vector        bone_pos, parent_pos;
+	Vector2D        bone_pos_screen, parent_pos_screen;
+
+	auto pLocal = C_CSPlayer::GetLocalPlayer();
+
+	if (!pLocal->IsAlive())
+		return;
+
+	if (g_Vars.misc.third_person_bind.enabled && g_Vars.misc.third_person && g_Vars.esp.local_skeleton) {
+
+		// get player's model.
+		model = pLocal->GetModel();
+		if (!model)
+			return;
+
+		// get studio model.
+		hdr = Interfaces::m_pModelInfo->GetStudiomodel(model);
+		if (!hdr)
+			return;
+
+		// get bone matrix.
+		if (!pLocal->SetupBones(matrix, 128, BONE_USED_BY_ANYTHING, Interfaces::m_pGlobalVars->curtime))
+			return;
+
+		for (int i{ }; i < hdr->numbones; ++i) {
+			// get bone.
+			bone = hdr->pBone(i);
+			if (!bone || !(bone->flags & BONE_USED_BY_HITBOX))
+				continue;
+
+			// get parent bone.
+			parent = bone->parent;
+			if (parent == -1)
+				continue;
+
+			// resolve main bone and parent bone positions.
+			matrix->GetBone(bone_pos, i);
+			matrix->GetBone(parent_pos, parent);
+
+			Color clr = g_Vars.esp.local_skeleton_color.ToRegularColor();
+
+			// world to screen both the bone parent bone then draw.
+			if (Render::Engine::WorldToScreen(bone_pos, bone_pos_screen) && Render::Engine::WorldToScreen(parent_pos, parent_pos_screen))
+				Render::Engine::Line(bone_pos_screen.x, bone_pos_screen.y, parent_pos_screen.x, parent_pos_screen.y, clr);
+		}
+
+		//for (int j = 0; j < hdr->numbones; j++) // fixed shoulders but because of that breaks head bone.
+		//{
+		//	mstudiobone_t* pBone = hdr->pBone(j);
+
+		//	if (pBone && (pBone->flags & BONE_USED_BY_HITBOX) && (pBone->parent != -1))
+		//	{
+		//		bone_pos = pLocal->GetBonePos(j);
+		//		parent_pos = pLocal->GetBonePos(pBone->parent);
+
+		//		int iChestBone = 6;  // Parameter of relevant Bone number
+		//		Vector vBreastBone; // New reference Point for connecting many bones
+		//		Vector vUpperDirection = pLocal->GetBonePos(iChestBone + 1) - pLocal->GetBonePos(iChestBone); // direction vector from chest to neck
+		//		vBreastBone = pLocal->GetBonePos(iChestBone) + vUpperDirection / 2;
+		//		Vector vDeltaChild = bone_pos - vBreastBone; // Used to determine close bones to the reference point
+		//		Vector vDeltaParent = parent_pos - vBreastBone;
+
+		//		// Eliminating / Converting all disturbing bone positions in three steps.
+		//		if ((vDeltaParent.Length() < 9 && vDeltaChild.Length() < 9))
+		//			parent_pos = vBreastBone;
+
+		//		if (j == iChestBone - 1)
+		//			bone_pos = vBreastBone;
+
+		//		if (abs(vDeltaChild.z) < 5 && (vDeltaParent.Length() < 5 && vDeltaChild.Length() < 5) || j == iChestBone)
+		//			continue;
+
+		//		Color clr = g_Vars.esp.local_skeleton_color.ToRegularColor();
+
+		//		if (Render::Engine::WorldToScreen(bone_pos, bone_pos_screen) && Render::Engine::WorldToScreen(parent_pos, parent_pos_screen))
+		//			Render::Engine::Line(bone_pos_screen.x, bone_pos_screen.y, parent_pos_screen.x, parent_pos_screen.y, clr);
+		//	}
+		//}
+
+	}
+}
+
 
 void CEsp::Offscreen( ) {
 	C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer( );
