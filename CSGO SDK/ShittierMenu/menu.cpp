@@ -1222,10 +1222,50 @@ void Misc()
 				ImGui::NewLine();
 
 				if (!cfg_list.empty()) {
-					if (ImGui::Button(XorStr("Save"))) {
-						LuaConfigSystem::Save();
-						ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
+					static auto next_save = false;
+					static auto prenext_save = false;
+					static auto clicked_sure = false;
+					static auto save_time = Interfaces::m_pGlobalVars->realtime;
+					static auto save_alpha = 1.0f;
+
+					save_alpha = Math::Clamp(save_alpha + (4.f * ImGui::GetIO().DeltaTime * (!prenext_save ? 1.f : -1.f)), 0.01f, 1.f);
+
+					if (!next_save)
+					{
+						clicked_sure = false;
+
+						if (prenext_save && save_alpha <= 0.01f)
+							next_save = true;
+
+						if (ImGui::Button(XorStr("Save")))
+						{
+							save_time = Interfaces::m_pGlobalVars->realtime;
+							prenext_save = true;
+						}
 					}
+					else
+					{
+						if (prenext_save && save_alpha <= 0.01f)
+						{
+							prenext_save = false;
+							next_save = !clicked_sure;
+						}
+
+						if (ImGui::Button(XorStr("Are you sure?")))
+						{
+							LuaConfigSystem::Save();
+							ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
+							prenext_save = true;
+							clicked_sure = true;
+						}
+
+						if (!clicked_sure && Interfaces::m_pGlobalVars->realtime > save_time + 1.5f)
+						{
+							prenext_save = true;
+							clicked_sure = true;
+						}
+					}
+
 
 					ImGui::SameLine();
 
@@ -1260,6 +1300,10 @@ void Misc()
 				ImGui::SameLine();
 				if (ImGui::Button(XorStr("Reset"))) {
 					ConfigManager::ResetConfig();
+				}
+				if (ImGui::Button(XorStr("Open config folder")))
+				{
+					ConfigManager::OpenConfigFolder();
 				}
 			}
 
