@@ -409,16 +409,11 @@ namespace Engine
 			record->m_vecVelocity.z = 0.0f;
 
 		// detect fakewalking players
-		//if (record->m_vecVelocity.Length() > 0.1f
-		//	&& record->m_iChokeTicks >= 13
-		//	&& record->m_serverAnimOverlays[6].m_flWeight == 0.0f
-		//	&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.0001f
-		//	&& record->m_serverAnimOverlays[12].m_flWeight > 0.0f
-		//	&& (record->m_fFlags & FL_ONGROUND)) {
-		if (record->m_iChokeTicks >= 2
-			&& record->m_serverAnimOverlays[12].m_flWeight <= 0.035294f
-			&& record->m_serverAnimOverlays[6].m_flWeight <= 0.165f
-			&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.04f
+		if (record->m_vecVelocity.Length() > 0.1f
+			&& record->m_iChokeTicks >= 2
+			&& record->m_serverAnimOverlays[12].m_flWeight == 0.0f
+			&& record->m_serverAnimOverlays[6].m_flWeight == 0.0f
+			&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.0001f
 			&& (record->m_fFlags & FL_ONGROUND)) {
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
