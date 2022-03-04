@@ -2038,15 +2038,13 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		if (!anim_data->m_AnimationRecord.empty()) {
 			auto current = &anim_data->m_AnimationRecord.front();
 			if (current) {
-				//if (!current->m_bFakeWalking) {
 				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), current->m_iResolverText); // draw resolver mode
 				if (current->m_bFakeWalking) {
 					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 0, (int)(180 * m_flAlpha[player->EntIndex()])), "FAKEWALKING"); // draw fakewalk
 				}
-				//}
-				//else {
-				//	g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("Fakewalking")); // draw resolver mode
-				//}
+				if (current->m_bUnsafeVelocityTransition) {
+					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(0, 255, 0, (int)(180 * m_flAlpha[player->EntIndex()])), "MICROMOVE"); // draw micromove
+				}
 			}
 
 		}

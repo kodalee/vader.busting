@@ -434,12 +434,12 @@ namespace Engine
 		//}
 
 		// detect players abusing micromovements or other trickery
-		//if ( record->m_vecVelocity.Length( ) < 18.f 
-		//	&& record->m_serverAnimOverlays[ 6 ].m_flWeight != 1.0f 
-		//	&& record->m_serverAnimOverlays[ 6 ].m_flWeight != 0.0f
-		//	&& record->m_serverAnimOverlays[ 6 ].m_flWeight != previous_record->m_serverAnimOverlays[ 6 ].m_flWeight
-		//	&& ( record->m_fFlags & FL_ONGROUND ) )
-		//	record->m_bUnsafeVelocityTransition = true;
+		if ( record->m_vecVelocity.Length( ) < 18.f 
+			&& record->m_serverAnimOverlays[ 6 ].m_flWeight != 1.0f 
+			&& record->m_serverAnimOverlays[ 6 ].m_flWeight != 0.0f
+			&& record->m_serverAnimOverlays[ 6 ].m_flWeight != previous_record->m_serverAnimOverlays[ 6 ].m_flWeight
+			&& ( record->m_fFlags & FL_ONGROUND ) )
+			record->m_bUnsafeVelocityTransition = true;
 
 		record->m_vecAnimationVelocity = record->m_vecVelocity;
 
