@@ -332,7 +332,7 @@ namespace Engine {
 		if (!pLagData.IsValid())
 			return;
 
-		record->m_iResolverText = "MOVING";
+		record->m_iResolverText = XorStr("MOVING");
 		// apply lby to eyeangles.
 		record->m_angEyeAngles.y = record->m_body;
 
@@ -593,7 +593,7 @@ namespace Engine {
 			if (!record->m_moved) {
 
 				record->m_iResolverMode = RESOLVE_UNKNOWM;
-				record->m_iResolverText = "STAND";
+				record->m_iResolverText = XorStr("STAND");
 
 
 				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
@@ -606,12 +606,13 @@ namespace Engine {
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 
 					record->m_iResolverMode = RESOLVE_BODY;
-					record->m_iResolverText = "UPDATE";
+					record->m_iResolverText = XorStr("UPDATE");
 				}
 				else {
 					switch (pLagData->m_unknown_move % 4) {
 					case 0:
 						if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
+							record->m_iResolverText = XorStr("FREESTAND");
 							m_iMode = 1;
 						}
 						else {
@@ -649,7 +650,7 @@ namespace Engine {
 
 
 				record->m_iResolverMode = RESOLVE_LASTMOVE;
-				record->m_iResolverText = "LASTMOVE";
+				record->m_iResolverText = XorStr("LASTMOVE");
 
 				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
@@ -661,7 +662,7 @@ namespace Engine {
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 					record->m_iResolverMode = RESOLVE_BODY;
-					record->m_iResolverText = "UPDATE";
+					record->m_iResolverText = XorStr("UPDATE");
 				}
 				else {
 					switch (pLagData->m_last_move % 5) {
@@ -671,7 +672,7 @@ namespace Engine {
 					case 1:
 						if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
 							m_iMode = 1;
-							//g_notify.add(XOR("ANTIFREESTANDING\n"));
+							record->m_iResolverText = XorStr("FREESTAND");
 						}
 						else {
 							record->m_angEyeAngles.y = at_target_yaw + 180.f;
