@@ -200,7 +200,9 @@ void Ragebot()
 
 		};
 
-		InsertMultiCombo(XorStr("Automatic stop options"), stop_options);
+		if (rbot->autostop_check) {
+			InsertMultiCombo(XorStr("Automatic stop options"), stop_options);
+		}
 
 		InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->autoscope);
 		InsertCheckbox(prefer_body, XorStr("Prefer body-aim") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->prefer_body);
