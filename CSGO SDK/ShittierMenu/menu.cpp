@@ -278,7 +278,9 @@ void Ragebot()
 		biggestMeme2();
 		ImGui::Hotkey(XorStr("##MinDamageOverride"), &g_Vars.rage.key_dmg_override.key, &g_Vars.rage.key_dmg_override.cond, ImVec2{ 40,20 });
 		//ImGui::Keybind(std::string(XorStr("Minimum dmg override key#key") + std::string(XorStr("#") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.key_dmg_override.key);
-		InsertSliderInt(std::string(XorStr("Dmg override amount##slider") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
+		if (rbot->min_damage_override) {
+			InsertSliderInt(std::string(XorStr("Dmg override amount##slider") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
+		}
 
 		InsertCheckbox(OverrideHitscan, XorStr("Override hitscan") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->override_hitscan);
 		ImGui::SameLine();
@@ -1226,48 +1228,23 @@ void Misc()
 				ImGui::NewLine();
 
 				if (!cfg_list.empty()) {
-					static auto next_save = false;
-					static auto prenext_save = false;
-					static auto clicked_sure = false;
-					static auto save_time = Interfaces::m_pGlobalVars->realtime;
-					static auto save_alpha = 1.0f;
-
-					save_alpha = Math::Clamp(save_alpha + (4.f * ImGui::GetIO().DeltaTime * (!prenext_save ? 1.f : -1.f)), 0.01f, 1.f);
-
-					if (!next_save)
+					if (ImGui::Button(XorStr("Save")))
 					{
-						clicked_sure = false;
-
-						if (prenext_save && save_alpha <= 0.01f)
-							next_save = true;
-
-						if (ImGui::Button(XorStr("Save")))
-						{
-							save_time = Interfaces::m_pGlobalVars->realtime;
-							prenext_save = true;
-						}
+						ImGui::OpenPopup(XorStr("Confirmation"));
 					}
-					else
-					{
-						if (prenext_save && save_alpha <= 0.01f)
-						{
-							prenext_save = false;
-							next_save = !clicked_sure;
-						}
 
+					if (ImGui::BeginPopupModal(XorStr("Confirmation")))
+					{
 						if (ImGui::Button(XorStr("Are you sure?")))
 						{
 							LuaConfigSystem::Save();
 							ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
-							prenext_save = true;
-							clicked_sure = true;
 						}
-
-						if (!clicked_sure && Interfaces::m_pGlobalVars->realtime > save_time + 1.5f)
+						if (ImGui::IsMouseClicked(0))
 						{
-							prenext_save = true;
-							clicked_sure = true;
+							ImGui::CloseCurrentPopup();
 						}
+						ImGui::EndPopup();
 					}
 
 
