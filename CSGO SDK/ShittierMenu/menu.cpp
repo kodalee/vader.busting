@@ -354,7 +354,7 @@ void HvH()
 				ImGui::NextColumn();
 				ImGui::NewLine();
 
-				InsertCheckbox(BackwardsInAir, XorStr("Backwards in air"), &g_Vars.antiaim.backwards_in_air);
+				//InsertCheckbox(BackwardsInAir, XorStr("Backwards in air"), &g_Vars.antiaim.backwards_in_air);
 
 				InsertCheckbox(AntiAimFreestand, XorStr("Freestand yaw"), &g_Vars.antiaim.freestand);
 				if (g_Vars.antiaim.freestand) {

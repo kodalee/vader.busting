@@ -723,14 +723,14 @@ namespace Interfaces
 		//	}
 		//}
 
-		static int iUpdates;
-		if (iUpdates > pow(10, 10))
-			iUpdates = 1;
+		//static int iUpdates;
+		//if (iUpdates > pow(10, 10))
+		//	iUpdates = 1;
 
-		if (!g_Vars.globals.m_bGround && g_Vars.antiaim.backwards_in_air) {
-			flRetValue = flViewAnlge + (iUpdates % 2 ? -155.f : 155.f);
-			++iUpdates;
-		}
+		//if (!g_Vars.globals.m_bGround && g_Vars.antiaim.backwards_in_air) {
+		//	flRetValue = flViewAnlge + (iUpdates % 2 ? -155.f : 155.f);
+		//	++iUpdates;
+		//}
 
 		return flRetValue;
 	}
