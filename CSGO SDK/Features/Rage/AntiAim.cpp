@@ -465,13 +465,36 @@ namespace Interfaces
 			//SendFakeFlick();
 		}
 
+		// one tick before the update.
+		if (!Interfaces::m_pClientState->m_nChokedCommands() && LocalPlayer->m_fFlags() & FL_ONGROUND && !move && Interfaces::m_pGlobalVars->curtime >= (g_Vars.globals.m_flBodyPred - g_Vars.globals.m_flAnimFrame) && Interfaces::m_pGlobalVars->curtime < g_Vars.globals.m_flBodyPred) {
+			// z mode.
+			if (settings->yaw == 3)
+				cmd->viewangles.y -= 90.f;
+		}
+
+		if ((!g_Vars.globals.WasShootingInPeek && LocalPlayer->m_fFlags() & FL_ONGROUND && !(cmd->buttons & IN_JUMP) && LocalPlayer->m_vecVelocity().Length() >= 1.2f)) {
+			if ((!(cmd->buttons & IN_JUMP) && cmd->forwardmove == cmd->sidemove && cmd->sidemove == 0.0f)) {
+				g_Vars.globals.need_break_lastmove = true;
+			}
+		}
+
+		if (!Interfaces::m_pClientState->m_nChokedCommands() && g_Vars.antiaim.anti_lastmove && g_Vars.globals.need_break_lastmove && !g_Vars.globals.Fakewalking) { // not perfect and does not work alot of times but when it works its good.
+			//printf("fuck you kids\n");
+			cmd->forwardmove = 7.f;
+			*bSendPacket = true;
+			cmd->viewangles.y -= 110.f;
+			g_Vars.globals.need_break_lastmove = false;
+		}
+
 		static int negative = false;
 		auto bSwitch = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) < Interfaces::m_pGlobalVars->interval_per_tick;
 		auto bSwap = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) > 1.1 - (Interfaces::m_pGlobalVars->interval_per_tick * 5);
 		if (!Interfaces::m_pClientState->m_nChokedCommands()
 			&& Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
 			&& LocalPlayer->m_fFlags() & FL_ONGROUND && !move) {
-			*bSendPacket = true;
+			if (g_Vars.globals.Fakewalking) {
+				*bSendPacket = true;
+			}
 			// fake yaw.
 			switch (settings->yaw) {
 			case 1: // static
@@ -480,6 +503,9 @@ namespace Interfaces
 			case 2: // twist
 				negative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
 				negative = !negative;
+				break;
+			case 3: // z
+				cmd->viewangles.y += 90.f;
 				break;
 			default:
 				break;

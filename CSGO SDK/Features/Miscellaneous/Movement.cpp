@@ -335,8 +335,10 @@ namespace Interfaces
 		bool instant_stop = ( g_Vars.misc.instant_stop && g_Vars.misc.instant_stop_key.enabled );
 		if( instant_stop || ( g_Vars.misc.quickstop && !g_Vars.globals.WasShootingInPeek && m_movement_data->m_pLocal->m_fFlags( ) & FL_ONGROUND && !( m_movement_data->m_pCmd->buttons & IN_JUMP ) && m_movement_data->m_pLocal->m_vecVelocity( ).Length( ) >= 1.2f ) ) {
 			if( instant_stop || ( !( m_movement_data->m_pCmd->buttons & IN_JUMP ) && m_movement_data->m_pCmd->forwardmove == m_movement_data->m_pCmd->sidemove && m_movement_data->m_pCmd->sidemove == 0.0f ) ) {
-				m_movement_data->m_bStopPlayer = 1;
-				m_movement_data->m_bMinimalSpeed = false;
+				if (!g_Vars.globals.need_break_lastmove) {
+					m_movement_data->m_bStopPlayer = 1;
+					m_movement_data->m_bMinimalSpeed = false;
+				}
 			}
 		}
 

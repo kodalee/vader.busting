@@ -211,6 +211,102 @@ namespace Engine {
 		return true;
 	}
 
+	void CResolver::AntiFreestand(C_AnimationRecord* record, C_CSPlayer* entity) {
+
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return;
+
+		// constants
+		constexpr float STEP{ 4.f };
+		constexpr float RANGE{ 32.f };
+
+		// best target.
+		Vector enemypos = entity->GetShootPosition();
+		float away = GetAwayAngle(record);
+
+		// construct vector of angles to test.
+		std::vector< AdaptiveAngle > angles{ };
+		angles.emplace_back(away - 180.f);
+		angles.emplace_back(away + 90.f);
+		angles.emplace_back(away - 90.f);
+
+		// start the trace at the your shoot pos.
+		Vector start = local->GetShootPosition();
+
+		// see if we got any valid result.
+		// if this is false the path was not obstructed with anything.
+		bool valid{ false };
+
+		// iterate vector of angles.
+		for (auto it = angles.begin(); it != angles.end(); ++it) {
+
+			// compute the 'rough' estimation of where our head will be.
+			Vector end{ enemypos.x + std::cos(Math::deg_to_rad(it->m_yaw)) * RANGE,
+				enemypos.y + std::sin(Math::deg_to_rad(it->m_yaw)) * RANGE,
+				enemypos.z };
+
+			// draw a line for debugging purposes.
+			// g_csgo.m_debug_overlay->AddLineOverlay( start, end, 255, 0, 0, true, 0.1f );
+
+			// compute the direction.
+			Vector dir = end - start;
+			float len = dir.Normalize();
+
+			// should never happen.
+			if (len <= 0.f)
+				continue;
+
+			// step thru the total distance, 4 units per step.
+			for (float i{ 0.f }; i < len; i += STEP) {
+				// get the current step position.
+				Vector point = start + (dir * i);
+
+				// get the contents at this point.
+				int contents = Interfaces::m_pEngineTrace->GetPointContents(point, MASK_SHOT_HULL);
+
+				// contains nothing that can stop a bullet.
+				if (!(contents & MASK_SHOT_HULL))
+					continue;
+
+				float mult = 1.f;
+
+				// over 50% of the total length, prioritize this shit.
+				if (i > (len * 0.5f))
+					mult = 1.25f;
+
+				// over 90% of the total length, prioritize this shit.
+				if (i > (len * 0.75f))
+					mult = 1.25f;
+
+				// over 90% of the total length, prioritize this shit.
+				if (i > (len * 0.9f))
+					mult = 2.f;
+
+				// append 'penetrated distance'.
+				it->m_dist += (STEP * mult);
+
+				// mark that we found anything.
+				valid = true;
+			}
+		}
+
+		if (!valid) {
+			return;
+		}
+
+		// put the most distance at the front of the container.
+		std::sort(angles.begin(), angles.end(),
+			[](const AdaptiveAngle& a, const AdaptiveAngle& b) {
+				return a.m_dist > b.m_dist;
+			});
+
+		// the best angle should be at the front now.
+		AdaptiveAngle* best = &angles.front();
+
+		record->m_angEyeAngles.y = best->m_yaw;
+	}
+
 	void CResolver::MatchShot(C_CSPlayer* data, C_AnimationRecord* record) {
 		// do not attempt to do this in nospread mode.
 		//if (g_menu.main.config.mode.get() == 1)
@@ -611,14 +707,9 @@ namespace Engine {
 				else {
 					switch (pLagData->m_unknown_move % 4) {
 					case 0:
-						if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
-							record->m_iResolverText = XorStr("FREESTAND");
-							m_iMode = 1;
-						}
-						else {
-							record->m_angEyeAngles.y = at_target_yaw + 180.f;
-							m_iMode = 0;
-						}
+						AntiFreestand(record, player);
+						m_iMode = 1;
+						record->m_iResolverText = XorStr("FREESTAND");
 						break;
 					case 1:
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;
@@ -647,6 +738,8 @@ namespace Engine {
 			else if (record->m_moved) {
 				float diff = Math::NormalizedAngle(record->m_body - move->m_body);
 				float delta = record->m_anim_time - move->m_anim_time;
+				C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
+				const int activity = player->GetSequenceActivity(curr->m_nSequence);
 
 
 				record->m_iResolverMode = RESOLVE_LASTMOVE;
@@ -667,17 +760,17 @@ namespace Engine {
 				else {
 					switch (pLagData->m_last_move % 5) {
 					case 0:
-						record->m_angEyeAngles.y = move->m_body;
+						if (activity == 979 && curr->m_flWeight == 0 && delta > .22f) {
+							AntiFreestand(record, player);
+							record->m_iResolverText = XorStr("TEST_RESOLVER");
+						}
+						else
+							record->m_angEyeAngles.y = move->m_body;
 						break;
 					case 1:
-						if (AntiFreestanding(player, record->m_angEyeAngles.y)) {
-							m_iMode = 1;
-							record->m_iResolverText = XorStr("FREESTAND");
-						}
-						else {
-							record->m_angEyeAngles.y = at_target_yaw + 180.f;
-							m_iMode = 0;
-						}
+						AntiFreestand(record, player);
+						m_iMode = 1;
+						record->m_iResolverText = XorStr("FREESTAND");
 						break;
 					case 2:
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;

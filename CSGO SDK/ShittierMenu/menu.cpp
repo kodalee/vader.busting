@@ -11,6 +11,7 @@
 #include "../Utils/Config.hpp"
 #include "../source.hpp"
 #include "../Features/Miscellaneous/walkbot.h"
+#include "../Features/Visuals/EventLogger.hpp"
 
 //lua
 
@@ -316,7 +317,7 @@ void HvH()
 
 	const char* real_yaw[] = { XorStr("Off"), XorStr("180"), XorStr("Jitter"), XorStr("180z") };
 
-	const char* fake_yaw[] = { XorStr("Off"), XorStr("Static"), XorStr("Twist") };
+	const char* fake_yaw[] = { XorStr("Off"), XorStr("Static"), XorStr("Twist"), XorStr("Z") };
 
 	const char* freestand_mode[] = { XorStr("Crosshair"), XorStr("Edge") };
 
@@ -355,6 +356,8 @@ void HvH()
 				ImGui::NewLine();
 
 				//InsertCheckbox(BackwardsInAir, XorStr("Backwards in air"), &g_Vars.antiaim.backwards_in_air);
+
+				InsertCheckbox(AntiLastmove, XorStr("Anti lastmove"), &g_Vars.antiaim.anti_lastmove);
 
 				InsertCheckbox(AntiAimFreestand, XorStr("Freestand yaw"), &g_Vars.antiaim.freestand);
 				if (g_Vars.antiaim.freestand) {
@@ -1239,8 +1242,10 @@ void Misc()
 						{
 							LuaConfigSystem::Save();
 							ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
+							ILoggerEvent::Get()->PushEvent("Saved config", FloatColor(1.f, 1.f, 1.f), true, "");
+							ImGui::CloseCurrentPopup();
 						}
-						if (ImGui::IsMouseClicked(0))
+						if (ImGui::Button("Cancel", ImVec2(120, 0)))
 						{
 							ImGui::CloseCurrentPopup();
 						}

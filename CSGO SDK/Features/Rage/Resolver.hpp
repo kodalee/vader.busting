@@ -150,6 +150,7 @@ namespace Engine {
 		void on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw);
 		void collect_wall_detect(const ClientFrameStage_t stage);
 		bool wall_detect(C_CSPlayer* player, C_AnimationRecord* record, float& angle) const;
+		void AntiFreestand(C_AnimationRecord* record, C_CSPlayer* entity);
 		void FindBestAngle(C_CSPlayer* player);
 		bool AntiFreestanding(C_CSPlayer* entity, float& yaw);
 		//bool wall_detect(Engine::C_LagRecord* record, float& angle) const;

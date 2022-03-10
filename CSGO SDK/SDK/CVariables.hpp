@@ -515,6 +515,7 @@ public:
 		float m_flAnimTimeNoob;
 
 		bool m_rce_forceup;
+		bool need_break_lastmove;
 
 		std::vector<std::pair<FloatColor, std::string>> m_vecTextInfo[65];
 
@@ -871,6 +872,7 @@ public:
 	config_option( int, break_lby, 0 );
 	config_option( bool, imposta, false );
 	config_option( bool, preserve, false );
+	config_option(bool, anti_lastmove, false);
 
 	config_option( bool, hide_real_on_shot, false );
 	config_keybind( desync_jitter_key );
