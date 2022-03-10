@@ -472,7 +472,7 @@ namespace Interfaces
 				cmd->viewangles.y -= 90.f;
 		}
 
-		if ((!g_Vars.globals.WasShootingInPeek && LocalPlayer->m_fFlags() & FL_ONGROUND && !(cmd->buttons & IN_JUMP) && LocalPlayer->m_vecVelocity().Length() >= 1.2f)) {
+		if ((g_Vars.antiaim.anti_lastmove && !g_Vars.globals.WasShootingInPeek && LocalPlayer->m_fFlags() & FL_ONGROUND && !(cmd->buttons & IN_JUMP) && LocalPlayer->m_vecVelocity().Length() >= 1.2f)) {
 			if ((!(cmd->buttons & IN_JUMP) && cmd->forwardmove == cmd->sidemove && cmd->sidemove == 0.0f)) {
 				g_Vars.globals.need_break_lastmove = true;
 			}

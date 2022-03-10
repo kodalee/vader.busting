@@ -342,6 +342,9 @@ namespace Interfaces
 			}
 		}
 
+		if (!g_Vars.antiaim.anti_lastmove)
+			g_Vars.globals.need_break_lastmove = false; // we dont need to break lastmove if the option is not enabled.
+
 		if (g_TickbaseController.Using() && g_Vars.rage.double_tap_duck && (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
 			if (!(m_movement_data->m_pCmd->buttons & IN_BULLRUSH))
 				m_movement_data->m_pCmd->buttons |= IN_BULLRUSH;
