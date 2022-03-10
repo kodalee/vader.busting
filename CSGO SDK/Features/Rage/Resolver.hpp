@@ -69,6 +69,7 @@ namespace Engine {
 		void ResolveWalk(C_CSPlayer* data, C_AnimationRecord* record);
 		void ResolveStand(C_CSPlayer* player, C_AnimationRecord* record);
 		void ResolveAir(C_CSPlayer* player, C_AnimationRecord* record);
+		void ResolveOverride(C_CSPlayer* player, C_AnimationRecord* record);
 
 		Vector last_eye;
 

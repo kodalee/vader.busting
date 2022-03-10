@@ -7,11 +7,14 @@
 #include "../../Features/Miscellaneous/Miscellaneous.hpp"
 #include <deque>
 #include "../../Features/Rage/TickbaseShift.hpp"
+#include "../../Features/Game/netdata.h"
 
 #ifndef DEV
 #include "../../Utils/InputSys.hpp"
 #endif
 
+
+bool m_update;//for our velocity prediction
 
 void FixViewmodel( CUserCmd* cmd, bool restore ) {
 	static float cycleBackup = 0.0f;
@@ -92,8 +95,8 @@ namespace Hooked
 
 		FixPostponeTime( ucmd->command_number );
 
-		//if( g_Vars.globals.m_bInCreateMove && ucmd->command_number == Interfaces::m_pClientState->m_nLastCommandAck( ) + 1 )
-		//	local->m_flVelocityModifier( ) = g_Vars.globals.LastVelocityModifier;
+		if(m_update && g_Vars.globals.m_bInCreateMove && ucmd->command_number == Interfaces::m_pClientState->m_nLastCommandAck( ) + 1 )
+			local->m_flVelocityModifier( ) = g_Vars.globals.LastVelocityModifier;
 
 		//Engine::Prediction::Instance()->StoreNetvarCompression(ucmd);
 
@@ -118,5 +121,11 @@ namespace Hooked
 			auto& prediction = Engine::Prediction::Instance( );
 			prediction.OnRunCommand( local, ucmd );
 		}
+
+		if (!m_update)
+			player->m_flVelocityModifier() = flVelocityModifierBackup;
+
+		// store non compressed netvars.
+		g_netdata.store(ucmd);
 	}
 }

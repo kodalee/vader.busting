@@ -358,8 +358,8 @@ namespace Engine {
 		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking)
 			record->m_iResolverMode = RESOLVE_WALK;
 
-		//if (g_input.GetKeyState(g_menu.main.aimbot.override.get()) && record->m_fFlags & FL_ONGROUND && (speed <= 0.1f || record->m_bFakeWalking))
-		//	record->m_iResolverMode = RESOLVE_OVERRIDE;
+		if (g_Vars.rage.override_reoslver.enabled && record->m_fFlags & FL_ONGROUND && (speed <= 25.f || record->m_bFakeWalking))
+			record->m_iResolverMode = RESOLVE_OVERRIDE;
 
 		// if on ground, not moving or fakewalking.
 		else if ((record->m_fFlags & FL_ONGROUND) && (speed <= 0.1f || record->m_bFakeWalking))
@@ -395,8 +395,8 @@ namespace Engine {
 		if (record->m_iResolverMode == RESOLVE_WALK)
 			ResolveWalk(player, record);
 
-		//else if (record->m_iResolverMode == RESOLVE_OVERRIDE)
-		//	ResolveOverride(player, record, data);
+		else if (record->m_iResolverMode == RESOLVE_OVERRIDE || g_Vars.rage.override_reoslver.enabled)
+			ResolveOverride(player, record);
 
 		else if (record->m_iResolverMode == RESOLVE_LASTMOVE || record->m_iResolverMode == RESOLVE_UNKNOWM)
 			LastMoveLby(record, player);
@@ -640,7 +640,7 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 
-			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
+			if (record->m_vecVelocity.Length() > 0.1f) {
 				Add[player->EntIndex()] = 0.22f;
 				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
@@ -849,4 +849,44 @@ namespace Engine {
 		}
 	}
 
+	void CResolver::ResolveOverride(C_CSPlayer* player, C_AnimationRecord* record) {
+
+		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+		if (!pLagData.IsValid())
+			return;
+
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return;
+
+		auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
+		if (!anim_data)
+			return;
+
+		// get predicted away angle for the player.
+		float away = GetAwayAngle(record);
+
+		// pointer for easy access.
+		C_AnimationRecord* move = &pLagData->m_walk_record;
+
+		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
+		int act = player->GetSequenceActivity(curr->m_nSequence);
+
+		if (g_Vars.rage.override_reoslver.enabled) {
+			QAngle viewangles;
+			Interfaces::m_pEngine->GetViewAngles(viewangles);
+
+			//auto yaw = math::clamp (g_cl.m_local->GetAbsOrigin(), Player->origin()).y;
+			const float at_target_yaw = Math::VecCalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+
+			if (fabs(Math::NormalizedAngle(viewangles.y - at_target_yaw)) > 30.f)
+				return LastMoveLby(record, player);
+
+			record->m_angEyeAngles.y = (Math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f;
+
+			//return UTILS::GetLBYRotatedYaw(entity->m_flLowerBodyYawTarget(), (math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f);
+
+			record->m_iResolverMode = RESOLVE_OVERRIDE;
+		}
+	}
 }

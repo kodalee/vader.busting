@@ -396,6 +396,7 @@
     <ClCompile Include="Features\Miscellaneous\skinchanger2.cpp" />
     <ClCompile Include="Features\Visuals\Trace.cpp" />
     <ClCompile Include="Features\Miscellaneous\walkbot.cpp" />
+    <ClCompile Include="Features\Game\netdata.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -947,6 +948,7 @@
     <ClInclude Include="Utils\pattern.h" />
     <ClInclude Include="Features\Visuals\Trace.h" />
     <ClInclude Include="Features\Miscellaneous\walkbot.h" />
+    <ClInclude Include="Features\Game\netdata.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

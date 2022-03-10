@@ -25,6 +25,7 @@
 #include "../../Features/Visuals/CChams.hpp"
 #include "../../Features/Miscellaneous/WeatherController.hpp"
 #include "../../Features/Miscellaneous/skinchanger2.h"
+#include "../../Features/Game/netdata.h"
 
 #ifdef DEV
 //#define SERVER_HITBOXES
@@ -237,6 +238,27 @@ namespace Hooked
 			g_Vars.globals.RandomInit = true;
 		}
 
+		if (local) //it looks like it gets how much our velocity will be modified
+		{
+			static int m_iLastCmdAck = 0;
+
+			int framstage_minus2 = stage - 2;
+
+			if (!framstage_minus2)
+			{
+				if (m_iLastCmdAck != Interfaces::m_pClientState->m_nLastCommandAck())
+				{
+					if (g_Vars.globals.LastVelocityModifier != local->get< float >(0xA39C))
+					{
+						*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(Interfaces::m_pPrediction.Xor() + 0x24)) = 1;
+						g_Vars.globals.LastVelocityModifier = local->get< float >(0xA39C);
+					}
+
+					m_iLastCmdAck = Interfaces::m_pClientState->m_nLastCommandAck();
+				}
+			}
+		}
+
 		Engine::g_Resolver.collect_wall_detect(stage);
 
 		if( stage == FRAME_RENDER_START && Interfaces::m_pEngine->IsConnected( ) && local ) {
@@ -379,9 +401,9 @@ namespace Hooked
 
 
 			// fix netvar compression
-			auto& prediction = Engine::Prediction::Instance( );
-			if( Interfaces::m_pEngine->IsInGame( ) )
-				prediction.OnFrameStageNotify( stage );
+			//auto& prediction = Engine::Prediction::Instance( );
+			//if( Interfaces::m_pEngine->IsInGame( ) )
+				//prediction.OnFrameStageNotify( stage );
 		}
 		else {
 			g_Vars.globals.RenderIsReady = false;
@@ -504,6 +526,8 @@ namespace Hooked
 				Engine::AnimationSystem::Get( )->Update( );
 				Threading::FinishQueue( true );
 				Engine::LagCompensation::Get( )->Update( );
+
+				g_netdata.apply();
 
 				// fix issues when players we are spectating scope in
 				if( local && local->m_iObserverMode( ) == 5 ) { 

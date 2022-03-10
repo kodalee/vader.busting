@@ -103,10 +103,14 @@ namespace Engine
 		m_flSpread = predictionData->m_pWeapon->GetSpread( );
 		m_flInaccuracy = predictionData->m_pWeapon->GetInaccuracy( );
 		m_flWeaponRange = predictionData->m_pWeaponInfo->m_flWeaponRange;
+
+		StoreNetvarCompression(_cmd.Xor());
 	}
 
-	void Prediction::Repredict( ) {
+	void Prediction::Repredict(Encrypted_t<CUserCmd> _cmd) {
 		Engine::Prediction::Instance( )->RunGamePrediction( );
+
+		RestoreNetvarCompression(_cmd.Xor());
 
 		predictionData->m_RestoreData.Apply( predictionData->m_pPlayer );
 
@@ -231,11 +235,11 @@ namespace Engine
 
 	void Prediction::RunGamePrediction( ) {
 		// force game to repredict data
-		//if( g_Vars.globals.LastVelocityModifier < 1.0f ) {
-		//	// https://github.com/pmrowla/hl2sdk-csgo/blob/49e950f3eb820d88825f75e40f56b3e64790920a/game/client/prediction.cpp#L1533
-		//	*( uint8_t* )( uintptr_t( Interfaces::m_pPrediction.Xor( ) ) + 0x24 ) = 1; // m_bPreviousAckHadErrors 
-		//	*( uint32_t* )( uintptr_t( Interfaces::m_pPrediction.Xor( ) ) + 0x1C ) = 0; // m_nCommandsPredicted 
-		//}
+		if( g_Vars.globals.LastVelocityModifier < 1.0f ) {
+			// https://github.com/pmrowla/hl2sdk-csgo/blob/49e950f3eb820d88825f75e40f56b3e64790920a/game/client/prediction.cpp#L1533
+			*( uint8_t* )( uintptr_t( Interfaces::m_pPrediction.Xor( ) ) + 0x24 ) = 1; // m_bPreviousAckHadErrors 
+			*( uint32_t* )( uintptr_t( Interfaces::m_pPrediction.Xor( ) ) + 0x1C ) = 0; // m_nCommandsPredicted 
+		}
 
 		if( Interfaces::m_pClientState->m_nDeltaTick( ) > 0 ) {
 			Interfaces::m_pPrediction->Update( Interfaces::m_pClientState->m_nDeltaTick( ), Interfaces::m_pClientState->m_nDeltaTick( ) > 0,

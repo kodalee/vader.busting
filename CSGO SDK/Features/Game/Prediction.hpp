@@ -141,7 +141,7 @@ namespace Engine {
 	class Prediction : public Core::Singleton<Prediction> {
 	public:
 		void Begin( Encrypted_t<CUserCmd> cmd, bool* send_packet, int command_number);
-		void Repredict( );
+		void Repredict(Encrypted_t<CUserCmd> _cmd);
 		void End( );
 		void Invalidate( );
 		void RunGamePrediction( );

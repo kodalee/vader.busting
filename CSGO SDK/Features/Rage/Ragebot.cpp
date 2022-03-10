@@ -801,7 +801,7 @@ namespace Interfaces
 			}
 			else {
 				if (m_rage_data->m_bRePredict)
-					Engine::Prediction::Instance()->Repredict();
+					Engine::Prediction::Instance()->Repredict(m_rage_data->m_pCmd.Xor());
 			}
 		}
 

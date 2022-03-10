@@ -94,6 +94,11 @@ public:
 
 class C_CSPlayer : public C_BasePlayer {
 public:
+	template< typename t >
+	__forceinline t& get(size_t offset) {
+		return *(t*)((uintptr_t)this + offset);
+	}
+
 	bool valid(bool check_team, bool check_dormant);
 	static C_CSPlayer* GetLocalPlayer( );
    static C_CSPlayer* GetPlayerByIndex( int index );
