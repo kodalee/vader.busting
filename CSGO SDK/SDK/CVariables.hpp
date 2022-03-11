@@ -699,6 +699,7 @@ public:
 	config_option( int, min_damage_visible, 0 );
 	config_option( float, hitchance, 0.0f );
 	config_option( float, doubletap_hitchance, 0.0f );
+	config_option( int, doubletap_speed, 14);
 	config_option( int, doubletap_dmg, 50 );
 	config_option( int, max_misses, 5  );
 	config_option( float, hitchance_accuracy, 0.0f );

@@ -259,7 +259,8 @@ void Ragebot()
 		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
 		if (g_Vars.rage.exploit) {
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
-			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, "%d");
+			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, XorStr("%d"));
+			InsertSliderInt(XorStr("Doubletap Speed"), &rbot->doubletap_speed, 11, 18, XorStr("%d"));
 			InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.misc.disablebtondt);
 			InsertCheckbox(exploits_enable, XorStr("DT Exploits"), &g_Vars.rage.dt_exploits);
 

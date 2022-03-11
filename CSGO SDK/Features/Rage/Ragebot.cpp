@@ -476,13 +476,6 @@ namespace Interfaces
 			&& (weaponInfo->m_iWeaponType == WEAPONTYPE_KNIFE || weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE || weaponInfo->m_iWeaponType == WEAPONTYPE_C4))
 			return false;
 
-		if (weapon->m_iItemDefinitionIndex() == (WEAPON_SSG08 || WEAPON_AWP)) {
-			g_TickbaseController.s_nSpeed = 16;
-		}
-		else {
-			g_TickbaseController.s_nSpeed = 14;
-		}
-
 		if (g_Vars.rage.exploit_lag_peek && g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled) {
 
 			int AppliedShift = 13;//13
@@ -491,7 +484,7 @@ namespace Interfaces
 
 			if (g_Vars.globals.m_bAimbotShot || g_Vars.globals.WasShootingInPeek) {
 				DefensiveCounter++;
-				AppliedShift = min2(DefensiveCounter, 13);//14
+				AppliedShift = min2(DefensiveCounter, 14);//14
 				printf(XorStr("shot\n"));
 			}
 			else
@@ -499,7 +492,6 @@ namespace Interfaces
 
 			g_Vars.globals.shift_amount = AppliedShift;
 		}
-
 
 		bool revolver = weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER;
 
@@ -538,6 +530,8 @@ namespace Interfaces
 		m_rage_data->m_bEarlyStop = false;
 		g_Vars.globals.OverridingMinDmg = m_rage_data->rbot->min_damage_override && g_Vars.rage.key_dmg_override.enabled;
 		g_Vars.globals.OverridingHitscan = m_rage_data->rbot->override_hitscan && g_Vars.rage.override_key.enabled;
+
+		g_TickbaseController.s_nSpeed = m_rage_data->rbot->doubletap_speed;
 
 		if (m_rage_data->m_pCmd->buttons & (IN_ATTACK) || GetAsyncKeyState(VK_LBUTTON)) {
 			g_TickbaseController.m_bSupressRecharge = true;
@@ -1925,7 +1919,7 @@ namespace Interfaces
 
 		int hp = pPoint->target->player->m_iHealth();
 		float mindmg = (m_rage_data->rbot->min_damage > 100 ? hp + (m_rage_data->rbot->min_damage - 100) : m_rage_data->rbot->min_damage);
-		if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+		if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled && !g_Vars.globals.OverridingMinDmg) {
 			mindmg = m_rage_data->rbot->doubletap_dmg;
 		}
 		else if (m_rage_data->rbot->min_damage_override && g_Vars.rage.key_dmg_override.enabled) {
