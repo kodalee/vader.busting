@@ -292,6 +292,7 @@ namespace Engine {
 		}
 
 		if (!valid) {
+			record->m_angEyeAngles.y = away + 180.f;
 			return;
 		}
 
