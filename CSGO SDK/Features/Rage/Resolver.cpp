@@ -640,7 +640,7 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 
-			if (record->m_vecVelocity.Length() > 0.1f) {
+			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
 				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
