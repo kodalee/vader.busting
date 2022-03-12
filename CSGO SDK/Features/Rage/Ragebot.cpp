@@ -674,7 +674,7 @@ namespace Interfaces
 			if (m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && !bOnLand) {
 				if (m_rage_data->rbot->autostop_check && !g_Vars.globals.bMoveExploiting) {
 					if (!g_Vars.globals.Fakewalking) {
-						Interfaces::Movement::Get()->InstantStop();
+						Interfaces::Movement::Get()->StopPlayer();
 
 						auto RemoveButtons = [&](int key) { m_rage_data->m_pCmd->buttons &= ~key; };
 						RemoveButtons(IN_MOVERIGHT);
