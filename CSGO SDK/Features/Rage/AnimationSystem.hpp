@@ -38,6 +38,7 @@ namespace Engine
 
 	class C_AnimationRecord {
 	public:
+		bool m_dormant;
 		bool m_bIsInvalid;
 		bool m_bIsShoting;
 		bool m_bTeleportDistance;
@@ -80,6 +81,11 @@ namespace Engine
 		std::string m_iResolverText;
 
 		C_AnimationLayer m_serverAnimOverlays[ 13 ];
+	public:
+		__forceinline bool dormant() {
+			return m_dormant;
+		}
+
 	};
 
 	class C_AnimationData {

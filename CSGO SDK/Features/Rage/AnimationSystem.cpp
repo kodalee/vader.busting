@@ -190,6 +190,31 @@ namespace Engine
 		if( !animState )
 			return;
 
+		if (this->player->IsDormant()) {
+			bool insert = true;
+
+			if (!this->m_AnimationRecord.empty()) {
+				C_AnimationRecord front = this->m_AnimationRecord.front();
+
+				if (front.dormant())
+					insert = false;
+			}
+
+			if (insert) {
+				C_AnimationRecord current = this->m_AnimationRecord.front();
+
+				current.m_dormant = true;
+			}
+		}
+
+		bool update = (this->m_AnimationRecord.empty() || player->m_flSimulationTime() > this->m_AnimationRecord.front().m_flSimulationTime);
+
+		if (update) {
+			C_AnimationRecord current = this->m_AnimationRecord.front();
+
+			current.m_dormant = false;
+		}
+
 		// simulate animations
 		SimulateAnimations( pAnimationRecord, pPreviousAnimationRecord );
 

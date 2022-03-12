@@ -616,7 +616,7 @@ namespace Engine {
 		}
 
 		// predict LBY flicks.
-		if (!player->IsDormant()) {
+		if (!player->IsDormant() && !record->dormant()) {
 			// since we null velocity when they fakewalk, no need to check for it.
 			if (record->m_vecAnimationVelocity.Length() > 0.1f) {
 				Add[player->EntIndex()] = 0.22f;
@@ -624,7 +624,7 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			// lby wont update on this tick but after.
-			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()])
+			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && !player->IsDormant() && !record->dormant())
 			{
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
@@ -634,7 +634,7 @@ namespace Engine {
 			else
 				is_flicking = false;
 
-			if (pLagData->m_body != pLagData->m_old_body) {
+			if (pLagData->m_body != pLagData->m_old_body && !record->dormant()) {
 				is_flicking = true;
 				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
 				NextLBYUpdate[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + Add[player->EntIndex()];
@@ -647,7 +647,9 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 		}
-
+		else {
+			is_flicking = false;
+		}
 		//if (hitPlayer[index] && (player->m_vecVelocity().length_2d() < 1.f || player->m_vecVelocity().length_2d() > 1.f && record->m_bFakeWalking)) {
 		//	static bool repeat[64];
 		//	if (!repeat[index]) {
