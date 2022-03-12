@@ -94,6 +94,8 @@ namespace Interfaces
    extern RecvPropHook::Shared m_pPlaybackRateSwap;
    extern RecvPropHook::Shared m_bClientSideAnimationSwap;
    extern RecvPropHook::Shared m_Body_proxy_swap;
+   extern RecvPropHook::Shared m_sequence_proxy;
+
 
    bool Create( void* reserved );
    void Destroy( );

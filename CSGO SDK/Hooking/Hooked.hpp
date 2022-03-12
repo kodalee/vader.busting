@@ -203,4 +203,5 @@ namespace Hooked
    void RecvProxy_PlaybackRate( CRecvProxyData* pData, void* pStruct, void* pOut );
    void m_bClientSideAnimation( CRecvProxyData* pData, void* pStruct, void* pOut );
    void Body_proxy(CRecvProxyData* pData, void* pStruct, void* pOut);
+   void sequence_proxy(CRecvProxyData* pData, void* pStruct, void* pOut);
 }
