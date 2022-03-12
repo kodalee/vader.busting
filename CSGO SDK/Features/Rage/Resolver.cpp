@@ -217,6 +217,12 @@ namespace Engine {
 		if (!local)
 			return;
 
+		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(entity->m_entIndex);
+		if (!pLagData.IsValid())
+			return;
+
+		C_AnimationRecord* move = &pLagData->m_walk_record;
+
 		// constants
 		constexpr float STEP{ 4.f };
 		constexpr float RANGE{ 32.f };
@@ -292,7 +298,15 @@ namespace Engine {
 		}
 
 		if (!valid) {
-			record->m_angEyeAngles.y = away + 180.f;
+			if (record->m_moved) {
+				record->m_angEyeAngles.y = move->m_body;
+				record->m_iResolverText = XorStr("LASTMOVE");
+			}
+			else {
+				record->m_angEyeAngles.y = away + 180.f;
+				record->m_iResolverText = XorStr("BACKWARDS");
+
+			}
 			return;
 		}
 
@@ -391,6 +405,13 @@ namespace Engine {
 		// if we are in nospread mode, force all players pitches to down.
 		// TODO; we should check thei actual pitch and up too, since those are the other 2 possible angles.
 		// this should be somehow combined into some iteration that matches with the air angle iteration.
+
+		static float test = 0.f;
+
+		if (player->m_vecVelocity().Length2D() < 0.1f)
+			test = player->m_AnimOverlay()[3].m_flCycle;
+
+		printf(std::to_string(test).c_str());
 
 		// we arrived here we can do the acutal resolve.
 		if (record->m_iResolverMode == RESOLVE_WALK)
@@ -624,7 +645,7 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			// lby wont update on this tick but after.
-			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && !player->IsDormant() && !record->dormant())
+			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] /*&& !player->IsDormant() && !record->dormant()*/)
 			{
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
@@ -634,7 +655,7 @@ namespace Engine {
 			else
 				is_flicking = false;
 
-			if (pLagData->m_body != pLagData->m_old_body && !record->dormant()) {
+			if (pLagData->m_body != pLagData->m_old_body /*&& !record->dormant()*/) {
 				is_flicking = true;
 				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
 				NextLBYUpdate[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + Add[player->EntIndex()];
@@ -768,7 +789,7 @@ namespace Engine {
 							record->m_iResolverText = XorStr("TEST_RESOLVER");
 						}
 						else
-							record->m_angEyeAngles.y = move->m_body;
+							AntiFreestand(record, player);
 						break;
 					case 1:
 						AntiFreestand(record, player);

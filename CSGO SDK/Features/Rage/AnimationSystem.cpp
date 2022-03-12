@@ -356,7 +356,7 @@ namespace Engine
 
 		record->m_bIsShoting = false;
 		record->m_flShotTime = 0.0f;
-		record->m_bFakeWalking = false;
+		record->m_bFakeWalking;
 		Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
 
 		if( previous_record.IsValid( ) ) {
@@ -433,16 +433,29 @@ namespace Engine
 		else
 			record->m_vecVelocity.z = 0.0f;
 
-		// detect fakewalking players
-		if (record->m_vecVelocity.Length() > 0.1f
-			&& record->m_iChokeTicks >= 2
-			&& record->m_serverAnimOverlays[12].m_flWeight == 0.0f
-			&& record->m_serverAnimOverlays[6].m_flWeight == 0.0f
-			&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.0001f
-			&& (record->m_fFlags & FL_ONGROUND)) {
+		static float test = 0.f;
+
+		if (player->m_vecVelocity().Length2D() < 0.1f)
+			test = player->m_AnimOverlay()[3].m_flCycle;
+
+		if (record->m_vecVelocity.Length2D() > 0.1f && player->m_AnimOverlay()[6].m_flWeight == 0.f/*test != player->m_AnimOverlay()[3].m_flCycle && (player->m_AnimOverlay()[3].m_flPlaybackRate == 0.789474f || player->m_AnimOverlay()[3].m_flPlaybackRate == 1.f)*/ && (record->m_fFlags & FL_ONGROUND)) {
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
 		}
+		else if(record->m_vecVelocity.Length2D() > 0.1f && player->m_AnimOverlay()[6].m_flWeight != 0.f) {
+			record->m_bFakeWalking = false;
+		}
+
+		//// detect fakewalking players
+		//if (record->m_vecVelocity.Length() > 0.1f
+		//	&& record->m_iChokeTicks >= 2
+		//	&& record->m_serverAnimOverlays[12].m_flWeight == 0.0f
+		//	&& record->m_serverAnimOverlays[6].m_flWeight == 0.0f
+		//	&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.0001f
+		//	&& (record->m_fFlags & FL_ONGROUND)) {
+		//	record->m_bFakeWalking = true;
+		//	Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
+		//}
 		//else {
 		//	printf(std::to_string(record->m_serverAnimOverlays[12].m_flWeight).c_str());
 		//	printf("\n");
