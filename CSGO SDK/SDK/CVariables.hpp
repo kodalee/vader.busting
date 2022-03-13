@@ -1542,6 +1542,7 @@ public:
 #if defined(BETA_MODE) || defined(DEV)
 	config_option( bool, undercover_log, false );
 	config_option( bool, undercover_watermark, false );
+	config_option(bool, undercover_flags, false);
 
 #if defined(DEV)
 	config_option( int, what_developer_is_this, 0 );

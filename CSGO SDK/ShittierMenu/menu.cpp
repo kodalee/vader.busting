@@ -1137,6 +1137,7 @@ void Misc()
 
 #if defined(BETA_MODE) || defined(DEV)
 			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log);
+			InsertCheckbox(hideflags, XorStr("Hide Debug Flags"), &g_Vars.misc.undercover_flags);
 
 #endif
 			InsertCheckbox(fakeDuck, XorStr("Fake-Duck"), &g_Vars.misc.fakeduck);
