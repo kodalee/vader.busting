@@ -636,8 +636,12 @@ namespace Engine {
 			}
 		}
 
+		if (player->IsDormant()) {
+			is_flicking = false;
+		}
+
 		// predict LBY flicks.
-		if (!player->IsDormant() && !record->dormant()) {
+		if (!player->IsDormant() /*&& !record->dormant()*/) {
 			// since we null velocity when they fakewalk, no need to check for it.
 			if (record->m_vecAnimationVelocity.Length() > 0.1f) {
 				Add[player->EntIndex()] = 0.22f;
@@ -645,7 +649,7 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			// lby wont update on this tick but after.
-			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] /*&& !player->IsDormant() && !record->dormant()*/)
+			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] /*&& !player->IsDormant()*//* && !record->dormant()*/)
 			{
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
