@@ -649,7 +649,7 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			// lby wont update on this tick but after.
-			else if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] /*&& !player->IsDormant()*//* && !record->dormant()*/)
+			if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] /*&& !player->IsDormant()*//* && !record->dormant()*/)
 			{
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
@@ -788,11 +788,11 @@ namespace Engine {
 				else {
 					switch (pLagData->m_last_move % 5) {
 					case 0:
-						//if (activity == 979 && curr->m_flWeight == 0 && delta > .22f) {
-						//	AntiFreestand(record, player);
-						//	record->m_iResolverText = XorStr("TEST_RESOLVER");
-						//}
-						//else
+						if (activity == 979 && curr->m_flWeight == 0 && delta > .22f) {
+							AntiFreestand(record, player);
+							record->m_iResolverText = XorStr("TEST_RESOLVER");
+						}
+						else
 							AntiFreestand(record, player);
 						break;
 					case 1:
