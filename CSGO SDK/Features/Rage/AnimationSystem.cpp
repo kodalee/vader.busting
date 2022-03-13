@@ -451,7 +451,7 @@ namespace Engine
 			&& record->m_iChokeTicks >= 2
 			&& record->m_serverAnimOverlays[12].m_flWeight == 0.0f
 			&& record->m_serverAnimOverlays[6].m_flWeight == 0.0f
-			&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.0001f
+			&& record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.0002f // For a semi-accurate result you could use this being weight being about smaller than 0.0001 (maybe would need to scale it up against faster fakewalks, won't have too big of a impact though.)
 			&& (record->m_fFlags & FL_ONGROUND)) {
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
