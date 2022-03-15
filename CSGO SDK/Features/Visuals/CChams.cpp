@@ -1517,6 +1517,11 @@ namespace Interfaces
 				static auto g_GameRules = *( uintptr_t** )( Engine::Displacement.Data.m_GameRules );
 				bool invalid = g_GameRules && *( bool* )( *( uintptr_t* )g_GameRules + 0x20 ) || ( entity->m_fFlags( ) & ( 1 << 6 ) );
 
+				if (g_Vars.fakelag.vis_lag) {
+					OverrideMaterial(false, MATERIAL_FLAT, g_Vars.fakelag.vis_lag_color, 0.f, false);
+					Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, g_Vars.globals.LagPosition);
+				}
+
 				if (g_Vars.esp.chams_local) {
 
 					if (g_Vars.esp.new_chams_local_original_model)

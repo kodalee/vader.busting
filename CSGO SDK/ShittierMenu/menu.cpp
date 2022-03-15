@@ -455,6 +455,9 @@ void HvH()
 				g_Vars.fakelag.alternative_choke = 0;
 
 				InsertSliderFloat(XorStr("Variance"), &g_Vars.fakelag.variance, 0.0f, 100.0f, XorStr("%.0f %%"));
+
+				InsertCheckbox(Visuallizelag, XorStr("Visualize lag"), &g_Vars.fakelag.vis_lag);
+				ColorPicker(XorStr("##Visualizelagcolor"), g_Vars.fakelag.vis_lag_color, true, false);
 				break;
 
 			}

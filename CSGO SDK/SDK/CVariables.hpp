@@ -893,6 +893,8 @@ public:
 	config_option( bool, when_standing, false );
 	config_option( bool, when_moving, false );
 	config_option( bool, when_air, false );
+	config_option(bool, vis_lag, false);
+	config_option(FloatColor, vis_lag_color, FloatColor(1.0f, 1.0f, 1.0f, 0.4f));
 	//config_option( bool, when_exploits, false );
 
 	// alternative conditions

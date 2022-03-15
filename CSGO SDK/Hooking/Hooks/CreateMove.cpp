@@ -255,6 +255,8 @@ namespace Hooked
 			if( local->m_CachedBoneData( ).Base( ) != local->m_BoneAccessor( ).m_pBones ) {
 				std::memcpy( local->m_BoneAccessor( ).m_pBones, local->m_CachedBoneData( ).Base( ), local->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
 			}
+
+			local->SetupBones(g_Vars.globals.LagPosition, 128, BONE_USED_BY_ANYTHING, Interfaces::m_pGlobalVars->curtime);
 		}
 
 		// save updated data.
