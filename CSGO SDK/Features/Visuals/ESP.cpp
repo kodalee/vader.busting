@@ -1043,7 +1043,7 @@ void CEsp::PenetrateCrosshair( Vector2D center ) {
 }
 
 void CEsp::DrawAntiAimIndicator( ) {
-	if( !g_Vars.antiaim.manual || !Interfaces::m_pEngine->IsInGame( ) )
+	if( !g_Vars.antiaim.manual || !g_Vars.antiaim.manual_arrows || !Interfaces::m_pEngine->IsInGame( ) )
 		return;
 
 	C_CSPlayer* local = C_CSPlayer::GetLocalPlayer( );

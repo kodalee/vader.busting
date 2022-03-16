@@ -514,7 +514,7 @@ namespace Interfaces
 			m_flLowerBodyUpdateYaw = LocalPlayer->m_flLowerBodyYawTarget();
 		}
 
-		bool bUsingManualAA = g_Vars.globals.manual_aa != -1;
+		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
 
 		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // jitter
 			static auto j = false;
@@ -665,7 +665,7 @@ namespace Interfaces
 		float flViewAnlge = cmd->viewangles.y;
 		float flRetValue = flViewAnlge + 180.f;
 
-		bool bUsingManualAA = g_Vars.globals.manual_aa != -1;
+		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
 
 		if (bUsingManualAA) {
 			switch (g_Vars.globals.manual_aa) {

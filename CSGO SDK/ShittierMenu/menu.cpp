@@ -390,9 +390,9 @@ void HvH()
 
 				InsertCheckbox(AntiAimManual, XorStr("Manual"), &g_Vars.antiaim.manual);
 				if (g_Vars.antiaim.manual) {
+					InsertCheckbox(AntiAimManualarrows, XorStr("Manual arrows"), &g_Vars.antiaim.manual_arrows);
 					ColorPicker(XorStr("Manual color"), g_Vars.antiaim.manual_color, true, false);
-				}
-				if (g_Vars.antiaim.manual) {
+
 					ImGui::Text(XorStr("Left"));
 					ImGui::SameLine();
 					biggestMeme2();
