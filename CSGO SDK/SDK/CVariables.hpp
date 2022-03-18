@@ -836,6 +836,7 @@ public:
 
 	config_option( bool, enabled, false );
 	config_option( bool, manual, false );
+	config_option(bool, manual_arrows, false);
 	config_option( FloatColor, manual_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( bool, bomb_activity, false );
 
@@ -893,6 +894,8 @@ public:
 	config_option( bool, when_standing, false );
 	config_option( bool, when_moving, false );
 	config_option( bool, when_air, false );
+	config_option(bool, vis_lag, false);
+	config_option(FloatColor, vis_lag_color, FloatColor(1.0f, 1.0f, 1.0f, 0.4f));
 	//config_option( bool, when_exploits, false );
 
 	// alternative conditions
@@ -1542,6 +1545,7 @@ public:
 #if defined(BETA_MODE) || defined(DEV)
 	config_option( bool, undercover_log, false );
 	config_option( bool, undercover_watermark, false );
+	config_option(bool, undercover_flags, false);
 
 #if defined(DEV)
 	config_option( int, what_developer_is_this, 0 );

@@ -1043,7 +1043,7 @@ void CEsp::PenetrateCrosshair( Vector2D center ) {
 }
 
 void CEsp::DrawAntiAimIndicator( ) {
-	if( !g_Vars.antiaim.manual || !Interfaces::m_pEngine->IsInGame( ) )
+	if( !g_Vars.antiaim.manual || !g_Vars.antiaim.manual_arrows || !Interfaces::m_pEngine->IsInGame( ) )
 		return;
 
 	C_CSPlayer* local = C_CSPlayer::GetLocalPlayer( );
@@ -2050,15 +2050,17 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		}
 	}
 
-	g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[12].m_flWeight));
-	g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flWeight));
-	g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flCycle));
-	//g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flPrevCycle ) );
-	g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flPlaybackRate));
-	g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flPlaybackRate));
-	g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flWeight));
-	g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flCycle));
-	//g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flWeightDeltaRate ) );
+	if (!g_Vars.misc.undercover_flags) {
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[12].m_flWeight));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flWeight));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flCycle));
+		//g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flPrevCycle ) );
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flPlaybackRate));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flPlaybackRate));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flWeight));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flCycle));
+		//g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flWeightDeltaRate ) );
+	}
 
 #endif
 

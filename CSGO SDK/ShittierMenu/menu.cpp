@@ -390,9 +390,9 @@ void HvH()
 
 				InsertCheckbox(AntiAimManual, XorStr("Manual"), &g_Vars.antiaim.manual);
 				if (g_Vars.antiaim.manual) {
+					InsertCheckbox(AntiAimManualarrows, XorStr("Manual arrows"), &g_Vars.antiaim.manual_arrows);
 					ColorPicker(XorStr("Manual color"), g_Vars.antiaim.manual_color, true, false);
-				}
-				if (g_Vars.antiaim.manual) {
+
 					ImGui::Text(XorStr("Left"));
 					ImGui::SameLine();
 					biggestMeme2();
@@ -455,6 +455,9 @@ void HvH()
 				g_Vars.fakelag.alternative_choke = 0;
 
 				InsertSliderFloat(XorStr("Variance"), &g_Vars.fakelag.variance, 0.0f, 100.0f, XorStr("%.0f %%"));
+
+				InsertCheckbox(Visuallizelag, XorStr("Visualize lag"), &g_Vars.fakelag.vis_lag);
+				ColorPicker(XorStr("##Visualizelagcolor"), g_Vars.fakelag.vis_lag_color, true, false);
 				break;
 
 			}
@@ -837,10 +840,11 @@ void Visuals()
 				{
 
 					InsertCheckbox(chams_enemy, XorStr("Enemy chams"), &g_Vars.esp.chams_enemy);
+					InsertCheckbox(enemy_backtrack_chams, XorStr("Backtrack Chams"), &g_Vars.esp.chams_history);
+					ColorPicker(XorStr("##enemybacktrackcolor"), g_Vars.esp.chams_history_color, true, false);
+
 					if (g_Vars.esp.chams_enemy) {
 
-						InsertCheckbox(enemy_backtrack_chams, XorStr("Backtrack Chams"), &g_Vars.esp.chams_history);
-						ColorPicker(XorStr("##enemybacktrackcolor"), g_Vars.esp.chams_history_color, true, false);
 
 						ImGui::NextColumn();
 						ImGui::NewLine();
@@ -903,6 +907,11 @@ void Visuals()
 					ImGui::NewLine();
 
 					InsertCheckbox(enable_local_chams, XorStr("Local chams"), &g_Vars.esp.chams_local);
+					InsertCheckbox(chams_local_scoped_enabled, XorStr("Transparency when scoped"), &g_Vars.esp.blur_in_scoped);
+
+					if (g_Vars.esp.blur_in_scoped) {
+						InsertSliderFloat(XorStr("Scoped transparency"), &g_Vars.esp.blur_in_scoped_value, 0.0f, 100.f, XorStr("%.f"));
+					}
 
 					if (g_Vars.esp.chams_local) {
 
@@ -926,12 +935,6 @@ void Visuals()
 						}
 						InsertCheckbox(local_overlay_wireframe, XorStr("Local overlay wireframe"), &g_Vars.esp.chams_local_outline_wireframe);
 						InsertCheckbox(chams_local_original_model, XorStr("Draw original model ##local"), &g_Vars.esp.new_chams_local_original_model);
-
-						InsertCheckbox(chams_local_scoped_enabled, XorStr("Transparency when scoped"), &g_Vars.esp.blur_in_scoped);
-
-						if (g_Vars.esp.blur_in_scoped) {
-							InsertSliderFloat(XorStr("Scoped transparency"), &g_Vars.esp.blur_in_scoped_value, 0.0f, 100.f, XorStr("%.f"));
-						}
 					}
 
 					//ImGui::NextColumn();
@@ -1137,6 +1140,7 @@ void Misc()
 
 #if defined(BETA_MODE) || defined(DEV)
 			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log);
+			InsertCheckbox(hideflags, XorStr("Hide Debug Flags"), &g_Vars.misc.undercover_flags);
 
 #endif
 			InsertCheckbox(fakeDuck, XorStr("Fake-Duck"), &g_Vars.misc.fakeduck);

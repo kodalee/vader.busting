@@ -153,6 +153,8 @@ namespace Hooked
 		__forceinline NetPos( float time, Vector pos ) : m_time{ time }, m_pos{ pos } {};
 	};
 
+	C_AnimationLayer reallayers[13];
+
 	void UpdateInformation( CUserCmd* cmd ) {
 		auto local = C_CSPlayer::GetLocalPlayer( );
 		if( !local )
@@ -196,13 +198,11 @@ namespace Hooked
 
 		local->UpdateClientSideAnimationEx( );
 
+		std::memcpy(reallayers, local->m_AnimOverlay().m_Memory.m_pMemory, sizeof(reallayers));
+
 		auto flWeight12Backup = local->m_AnimOverlay( ).Element( 12 ).m_flWeight;
 
 		local->m_AnimOverlay( ).Element( 12 ).m_flWeight = 0.f;
-
-		if( local->m_flPoseParameter( ) ) {
-			local->m_flPoseParameter( )[ 6 ] = g_Vars.globals.m_flJumpFall;
-		}
 
 		// pull the lower body direction towards the eye direction, but only when the player is moving
 		if( state->m_bOnGround ) {
@@ -248,6 +248,9 @@ namespace Hooked
 			std::memcpy( g_Vars.globals.m_RealBonesRotations, local->m_quatBoneRot( ), boneCount * sizeof( Quaternion ) );
 
 			local->m_AnimOverlay( ).Element( 12 ).m_flWeight = flWeight12Backup;
+
+			std::memcpy(local->m_AnimOverlay().m_Memory.m_pMemory, reallayers, sizeof(reallayers));
+
 			if( g_Vars.globals.m_flPoseParams ) {
 				std::memcpy( local->m_flPoseParameter( ), g_Vars.globals.m_flPoseParams, sizeof( local->m_flPoseParameter( ) ) );
 			}
@@ -255,6 +258,8 @@ namespace Hooked
 			if( local->m_CachedBoneData( ).Base( ) != local->m_BoneAccessor( ).m_pBones ) {
 				std::memcpy( local->m_BoneAccessor( ).m_pBones, local->m_CachedBoneData( ).Base( ), local->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
 			}
+
+			local->SetupBones(g_Vars.globals.LagPosition, 128, BONE_USED_BY_ANYTHING, Interfaces::m_pGlobalVars->curtime);
 		}
 
 		// save updated data.
