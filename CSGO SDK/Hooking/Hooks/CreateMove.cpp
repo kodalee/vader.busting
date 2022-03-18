@@ -153,37 +153,6 @@ namespace Hooked
 		__forceinline NetPos( float time, Vector pos ) : m_time{ time }, m_pos{ pos } {};
 	};
 
-	float SmoothStepBounds(float edge0, float edge1, float x)
-	{
-		float v1 = std::clamp((x - edge0) / (edge1 - edge0), 0.f, 1.f);
-		return v1 * v1 * (3 - 2 * v1);
-	}
-
-	void FixJumpFall(C_CSPlayer* pEntity)
-	{
-		static float flAirTime[65] = { 0.f };
-		static float flLastAircheckTime[65] = { -1.f };
-
-		bool bOnGround = pEntity->m_fFlags() & FL_ONGROUND;
-
-		if (!bOnGround)
-		{
-			if (flLastAircheckTime[pEntity->EntIndex()] != -1.f)
-			{
-				flAirTime[pEntity->EntIndex()] += Interfaces::m_pGlobalVars->curtime - flLastAircheckTime[pEntity->EntIndex()];
-				pEntity->m_flPoseParameter()[6] = std::clamp(SmoothStepBounds(.72f, 1.52f, flAirTime[pEntity->EntIndex()]), 0.f, 1.f);
-			}
-
-			flLastAircheckTime[pEntity->EntIndex()] = Interfaces::m_pGlobalVars->curtime;
-		}
-		else
-		{
-			flAirTime[pEntity->EntIndex()] = 0.f;
-			flLastAircheckTime[pEntity->EntIndex()] = -1.f;
-			pEntity->m_flPoseParameter()[6] = 0.f;
-		}
-	}
-
 	C_AnimationLayer reallayers[13];
 
 	void UpdateInformation( CUserCmd* cmd ) {
@@ -234,8 +203,6 @@ namespace Hooked
 		auto flWeight12Backup = local->m_AnimOverlay( ).Element( 12 ).m_flWeight;
 
 		local->m_AnimOverlay( ).Element( 12 ).m_flWeight = 0.f;
-
-		FixJumpFall(local);
 
 		// pull the lower body direction towards the eye direction, but only when the player is moving
 		if( state->m_bOnGround ) {
