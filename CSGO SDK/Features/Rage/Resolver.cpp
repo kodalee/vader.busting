@@ -179,7 +179,7 @@ namespace Engine {
 		//if (player == local)
 		//	return false;
 
-		printf("BALLS\n");
+		//printf("BALLS\n");
 
 		const auto at_target_angle = Math::CalcAngle(record->m_vecOrigin, last_eye);
 
@@ -409,12 +409,12 @@ namespace Engine {
 		// TODO; we should check thei actual pitch and up too, since those are the other 2 possible angles.
 		// this should be somehow combined into some iteration that matches with the air angle iteration.
 
-		static float test = 0.f;
+		//static float test = 0.f;
 
-		if (player->m_vecVelocity().Length2D() < 0.1f)
-			test = player->m_AnimOverlay()[3].m_flCycle;
+		//if (player->m_vecVelocity().Length2D() < 0.1f)
+			//test = player->m_AnimOverlay()[3].m_flCycle;
 
-		printf(std::to_string(test).c_str());
+		//printf(std::to_string(test).c_str());
 
 		// we arrived here we can do the acutal resolve.
 		if (record->m_iResolverMode == RESOLVE_WALK)
