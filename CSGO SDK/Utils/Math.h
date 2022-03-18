@@ -44,6 +44,8 @@ namespace Math
 
 	void NormalizeAngle(float& angle);
 
+	float normalize_float(float angle);
+
 	float ApproachAngle(float target, float value, float speed);
 
 	void VectorTransform(const Vector& in1, const matrix3x4_t& in2, Vector& out);

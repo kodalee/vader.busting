@@ -52,13 +52,13 @@ namespace Engine {
 		float m_flBestDistance;
 		bool  m_bCollectedFreestandData;
 		bool fakewalking;
-		bool hasStoredLby;
-		bool hitPlayer;
+		bool hasStoredLby[65];
+		bool hitPlayer[65];
 
 		float m_flNextBodyUpdate;
 		float m_flLastLowerBodyYawTargetUpdateTime;
 		float m_flFinalResolverYaw;
-		float storedLbyDelta;
+		float storedLbyDelta[65];
 		float m_flOldLowerBodyYawTarget;
 		float m_flLowerBodyYawTarget;
 

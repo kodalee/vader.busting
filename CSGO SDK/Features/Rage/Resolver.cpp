@@ -117,17 +117,17 @@ namespace Engine {
 			const auto back_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_3 * 16.f);
 
 			//log.anti_freestanding_record.left_damage = penetration::get().get_damage(latency_based_eye_pos,
-			anti_freestanding_record.left_damage = Autowall::ScaleDamage(player, left_damage[i], 1.f, Hitgroup_Chest);
+			anti_freestanding_record.left_damage = Autowall::ScaleDamage(player, left_damage[i], 1.f, Hitgroup_Head);
 
 			//anti_freestanding_record.left_damage = penetration::scale(player, &left_damage[i],
 			//	HITGROUP_CHEST);
 			//data->anti_freestanding_record.right_damage = FEATURES::RAGEBOT::autowall.CalculateDamage(latency_based_eye_pos,
 			//	right_eye_pos, local_player, entity, 1).damage;
-			anti_freestanding_record.right_damage = Autowall::ScaleDamage(player, right_damage[i], 1.f, Hitgroup_Chest);
+			anti_freestanding_record.right_damage = Autowall::ScaleDamage(player, right_damage[i], 1.f, Hitgroup_Head);
 			//penetration::get().get_damage(g_cl.m_local, player, right_eye_pos, &right_damage[i],
 			//get_big_fucking_gun(), &latency_based_eye_pos);
 		//BACKWARDS
-			anti_freestanding_record.back_damage = Autowall::ScaleDamage(player, back_damage[i], 1.f, Hitgroup_Chest);
+			anti_freestanding_record.back_damage = Autowall::ScaleDamage(player, back_damage[i], 1.f, Hitgroup_Head);
 
 			Ray_t ray;
 			CGameTrace trace;
@@ -170,16 +170,16 @@ namespace Engine {
 
 	bool CResolver::wall_detect(C_CSPlayer* player, C_AnimationRecord* record, float& angle) const
 	{
-		record->m_iResolverText = XorStr("FREESTAND");
-
 
 		auto local = C_CSPlayer::GetLocalPlayer();
 
 		if (!local->IsAlive())
 			return false;
 
-		if (player == local)
-			return false;
+		//if (player == local)
+		//	return false;
+
+		printf("BALLS\n");
 
 		const auto at_target_angle = Math::CalcAngle(record->m_vecOrigin, last_eye);
 
@@ -193,19 +193,19 @@ namespace Engine {
 		if (left < max_dmg)
 		{
 			max_dmg = left;
-			angle = Math::AngleNormalize(at_target_angle.y + 90.f);
+			angle = Math::normalize_float(at_target_angle.y + 90.f);
 			set = true;
 		}
 		if (right < max_dmg)
 		{
 			max_dmg = right;
-			angle = Math::AngleNormalize(at_target_angle.y - 90.f);
+			angle = Math::normalize_float(at_target_angle.y - 90.f);
 			set = true;
 		}
 		if (back < max_dmg || !set)
 		{
 			max_dmg = back;
-			angle = Math::AngleNormalize(at_target_angle.y + 180.f);
+			angle = Math::normalize_float(at_target_angle.y + 180.f);
 		}
 
 		return true;
@@ -219,6 +219,9 @@ namespace Engine {
 
 		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(entity->m_entIndex);
 		if (!pLagData.IsValid())
+			return;
+
+		if (entity->EntIndex() == local->EntIndex())
 			return;
 
 		C_AnimationRecord* move = &pLagData->m_walk_record;
@@ -297,8 +300,8 @@ namespace Engine {
 			}
 		}
 
-		if (!valid) {
-			if (record->m_moved) {
+		if (!valid || !wall_detect(entity, record, record->m_angEyeAngles.y)) {
+			if (record->m_moved && pLagData->m_iMissedShots < 2) {
 				record->m_angEyeAngles.y = move->m_body;
 				record->m_iResolverText = XorStr("LASTMOVE");
 			}
@@ -491,8 +494,6 @@ namespace Engine {
 		return yaw;
 	}
 
-	bool hitPlayer[64];
-
 	float CResolver::GetAwayAngle(C_AnimationRecord* record) {
 		float  delta{ std::numeric_limits< float >::max() };
 		Vector pos;
@@ -659,7 +660,7 @@ namespace Engine {
 			else
 				is_flicking = false;
 
-			if (pLagData->m_body != pLagData->m_old_body /*&& !record->dormant()*/) {
+			if (pLagData->m_body != pLagData->m_old_body && record->m_moved/*&& !record->dormant()*/) {
 				is_flicking = true;
 				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
 				NextLBYUpdate[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + Add[player->EntIndex()];
@@ -735,20 +736,45 @@ namespace Engine {
 				else {
 					switch (pLagData->m_unknown_move % 4) {
 					case 0:
-						AntiFreestand(record, player);
-						m_iMode = 1;
-						record->m_iResolverText = XorStr("FREESTAND");
+						//AntiFreestand(record, player);
+						//m_iMode = 1;
+						//record->m_iResolverText = XorStr("FREESTAND");
+						//if (g_ResolverData->hitPlayer[index] && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking)) {
+						//	static bool repeat[64];
+						//	if (!repeat[index]) {
+						//		g_ResolverData->storedLbyDelta[index] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
+						//		g_ResolverData->hasStoredLby[index] = true;
+						//		repeat[index] = true;
+						//	}
+						//	if (repeat[index]) {
+						//		g_ResolverData->hasStoredLby[index] = true;
+						//	}
+						//}
+						//else {
+						//	g_ResolverData->hasStoredLby[index] = false;
+						//}
+
+						//if (g_ResolverData->hasStoredLby[index] && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
+						//	record->m_angEyeAngles.y = Math::normalize_float(record->m_body + g_ResolverData->storedLbyDelta[index]);
+						//	record->m_iResolverText = XorStr("LBY LOGGED");
+						//	g_ResolverData->m_iMode = 32;
+						//}
+						//else {
+							AntiFreestand(record, player);
+							g_ResolverData->m_iMode = 1;
+							record->m_iResolverText = XorStr("FREESTAND");
+						//}
 						break;
 					case 1:
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;
 						m_iMode = 0;
 						break;
 					case 2:
-						record->m_angEyeAngles.y = record->m_body + 70.f;
+						record->m_angEyeAngles.y = (at_target_yaw + 180.f) + 70.f;
 						m_iMode = 0;
 						break;
 					case 3:
-						record->m_angEyeAngles.y = record->m_body - 70.f;
+						record->m_angEyeAngles.y = (at_target_yaw + 180.f) - 70.f;
 						m_iMode = 0;
 						break;
 					}
@@ -788,12 +814,31 @@ namespace Engine {
 				else {
 					switch (pLagData->m_last_move % 5) {
 					case 0:
-						if (activity == 979 && curr->m_flWeight == 0 && delta > .22f) {
+						//if (g_ResolverData->hitPlayer[index] && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking)) {
+						//	static bool repeat[64];
+						//	if (!repeat[index]) {
+						//		g_ResolverData->storedLbyDelta[index] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
+						//		g_ResolverData->hasStoredLby[index] = true;
+						//		repeat[index] = true;
+						//	}
+						//	if (repeat[index]) {
+						//		g_ResolverData->hasStoredLby[index] = true;
+						//	}
+						//}
+						//else {
+						//	g_ResolverData->hasStoredLby[index] = false;
+						//}
+
+						//if (g_ResolverData->hasStoredLby[index] && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 5.f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
+						//	record->m_angEyeAngles.y = Math::normalize_float(record->m_body + g_ResolverData->storedLbyDelta[index]);
+						//	record->m_iResolverText = XorStr("LBY LOGGED");
+						//	g_ResolverData->m_iMode = 32;
+						//}
+						//else {
 							AntiFreestand(record, player);
-							record->m_iResolverText = XorStr("TEST_RESOLVER");
-						}
-						else
-							AntiFreestand(record, player);
+							g_ResolverData->m_iMode = 1;
+							record->m_iResolverText = XorStr("LAST FREESTAND");
+						//}
 						break;
 					case 1:
 						AntiFreestand(record, player);
@@ -804,11 +849,11 @@ namespace Engine {
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;
 						break;
 					case 3:
-						record->m_angEyeAngles.y = record->m_body + 70.f;
+						record->m_angEyeAngles.y = (at_target_yaw + 180.f) + 70.f;
 						m_iMode = 0;
 						break;
 					case 4:
-						record->m_angEyeAngles.y = record->m_body - 70.f;
+						record->m_angEyeAngles.y = (at_target_yaw + 180.f) - 70.f;
 						m_iMode = 0;
 						break;
 					}

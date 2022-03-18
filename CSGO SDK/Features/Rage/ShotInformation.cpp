@@ -319,7 +319,8 @@ namespace Engine
 					};
 
 					if (td->is_resolver_issue) {
-						g_ResolverData[player->EntIndex()].hitPlayer = false;
+						if(g_ResolverData->m_iMode == 32)
+							g_ResolverData->hitPlayer[player->EntIndex()] = false;
 
 						if (it->snapshot->ResolverType == EResolverModes::RESOLVE_BODY)
 							lag_data->m_iMissedShotsLBY++;

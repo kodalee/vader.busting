@@ -554,6 +554,22 @@ float Math::VecGetFov(const Vector& src, const Vector& dst)
 	return result;
 }
 
+float Math::normalize_float(float angle)
+{
+	auto revolutions = angle / 360.f;
+	if (angle > 180.f || angle < -180.f)
+	{
+		revolutions = round(abs(revolutions));
+		if (angle < 0.f)
+			angle = (angle + 360.f * revolutions);
+		else
+			angle = (angle - 360.f * revolutions);
+		return angle;
+	}
+	return angle;
+}
+
+
 void Math::NormalizeAngle(float& angle) {
 	float rot;
 

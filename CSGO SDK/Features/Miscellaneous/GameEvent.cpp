@@ -327,7 +327,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				}
 
 				if (hitgroup == Hitgroup_Head && entity->m_vecVelocity().Length2D() < 0.1f) {
-					Engine::g_ResolverData[entity->EntIndex()].hitPlayer = true;
+					Engine::g_ResolverData->hitPlayer[entity->EntIndex()] = true;
 				}
 
 				if( g_Vars.misc.hitsound ) {
