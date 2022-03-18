@@ -397,6 +397,11 @@ namespace Engine {
 		if (!pLagData.IsValid())
 			return;
 
+		if (pLagData->m_bRoundStart) {
+			record->m_moved = false;
+			printf("move reset\n");
+		}
+
 		C_AnimationRecord* move = &pLagData->m_walk_record;
 
 		// mark this record if it contains a shot.
@@ -467,8 +472,10 @@ namespace Engine {
 			pLagData->m_iMissedShotsLBY = 0;
 
 
-		if (record->m_fFlags & FL_ONGROUND && speed > 1.f && data->m_fFlags() & FL_ONGROUND && !record->m_bFakeWalking)
+		if (record->m_fFlags & FL_ONGROUND && speed > 1.f && data->m_fFlags() & FL_ONGROUND && !record->m_bFakeWalking) {
+			//printf("move true 1\n");
 			record->m_moved = true;
+		}
 
 		pLagData->m_iMissedShots = 0;
 		pLagData->m_stand_index2 = 0;
@@ -632,8 +639,10 @@ namespace Engine {
 		if (move->m_flSimulationTime > 0.f) {
 			if (!record->m_moved) {
 				Vector delta = move->m_vecOrigin - record->m_vecOrigin;
-				if (delta.Length() <= 128.f && record->m_fFlags & FL_ONGROUND)
+				if (delta.Length() <= 128.f && record->m_fFlags & FL_ONGROUND) {
 					record->m_moved = true;
+					//printf("move true 2\n");
+				}
 			}
 		}
 
@@ -650,7 +659,7 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			// lby wont update on this tick but after.
-			if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] /*&& !player->IsDormant()*//* && !record->dormant()*/)
+			if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && record->m_moved/*&& !player->IsDormant()*//* && !record->dormant()*/)
 			{
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
