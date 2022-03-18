@@ -501,7 +501,9 @@ namespace Engine
 					lagData->m_stand_index2 = 0;
 					lagData->m_unknown_move = 0;
 					lagData->m_lby_index = 0;
+					lagData->m_bRoundStart = true;
 					g_Vars.globals.m_iFiredShots = 0;
+					
 				}
 			}
 

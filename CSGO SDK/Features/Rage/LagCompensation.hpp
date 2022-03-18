@@ -111,6 +111,7 @@ namespace Engine
 		bool m_bGotAbsYawShot = false;
 		bool m_bNotResolveIfShooting = false;
 		bool m_bRateCheck = false;
+		bool m_bRoundStart = false;
 		float m_flAbsYawHandled = 0.f;
 
 		// ragebot scan data
