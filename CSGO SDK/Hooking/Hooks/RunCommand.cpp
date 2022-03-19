@@ -126,6 +126,6 @@ namespace Hooked
 		//	player->m_flVelocityModifier() = flVelocityModifierBackup;
 
 		// store non compressed netvars.
-		//g_netdata.store(ucmd);
+		g_netdata.store(ucmd);
 	}
 }
