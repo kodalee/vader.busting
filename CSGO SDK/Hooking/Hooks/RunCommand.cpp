@@ -95,8 +95,8 @@ namespace Hooked
 
 		FixPostponeTime( ucmd->command_number );
 
-		if(m_update && g_Vars.globals.m_bInCreateMove && ucmd->command_number == Interfaces::m_pClientState->m_nLastCommandAck( ) + 1 )
-			local->m_flVelocityModifier( ) = g_Vars.globals.LastVelocityModifier;
+		//if(m_update && g_Vars.globals.m_bInCreateMove && ucmd->command_number == Interfaces::m_pClientState->m_nLastCommandAck( ) + 1 )
+		//	local->m_flVelocityModifier( ) = g_Vars.globals.LastVelocityModifier;
 
 		//Engine::Prediction::Instance()->StoreNetvarCompression(ucmd);
 
@@ -122,8 +122,8 @@ namespace Hooked
 			prediction.OnRunCommand( local, ucmd );
 		}
 
-		if (!m_update)
-			player->m_flVelocityModifier() = flVelocityModifierBackup;
+		//if (!m_update)
+		//	player->m_flVelocityModifier() = flVelocityModifierBackup;
 
 		// store non compressed netvars.
 		//g_netdata.store(ucmd);

@@ -238,26 +238,26 @@ namespace Hooked
 			g_Vars.globals.RandomInit = true;
 		}
 
-		if (local) //it looks like it gets how much our velocity will be modified
-		{
-			static int m_iLastCmdAck = 0;
+		//if (local) //it looks like it gets how much our velocity will be modified
+		//{
+		//	static int m_iLastCmdAck = 0;
 
-			int framstage_minus2 = stage - 2;
+		//	int framstage_minus2 = stage - 2;
 
-			if (!framstage_minus2)
-			{
-				if (m_iLastCmdAck != Interfaces::m_pClientState->m_nLastCommandAck())
-				{
-					if (g_Vars.globals.LastVelocityModifier != local->get< float >(0xA39C))
-					{
-						*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(Interfaces::m_pPrediction.Xor() + 0x24)) = 1;
-						g_Vars.globals.LastVelocityModifier = local->get< float >(0xA39C);
-					}
+		//	if (!framstage_minus2)
+		//	{
+		//		if (m_iLastCmdAck != Interfaces::m_pClientState->m_nLastCommandAck())
+		//		{
+		//			if (g_Vars.globals.LastVelocityModifier != local->get< float >(0xA39C))
+		//			{
+		//				*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(Interfaces::m_pPrediction.Xor() + 0x24)) = 1;
+		//				g_Vars.globals.LastVelocityModifier = local->get< float >(0xA39C);
+		//			}
 
-					m_iLastCmdAck = Interfaces::m_pClientState->m_nLastCommandAck();
-				}
-			}
-		}
+		//			m_iLastCmdAck = Interfaces::m_pClientState->m_nLastCommandAck();
+		//		}
+		//	}
+		//}
 
 		Engine::g_Resolver.collect_wall_detect(stage);
 
