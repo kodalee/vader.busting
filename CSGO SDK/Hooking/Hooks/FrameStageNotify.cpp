@@ -527,7 +527,7 @@ namespace Hooked
 				Threading::FinishQueue( true );
 				Engine::LagCompensation::Get( )->Update( );
 
-				g_netdata.apply();
+				//g_netdata.apply();
 
 				// fix issues when players we are spectating scope in
 				if( local && local->m_iObserverMode( ) == 5 ) { 
