@@ -28,7 +28,7 @@ void NetData::store(CUserCmd* cmd) {
 	data->m_punch = local->m_aimPunchAngle();
 	data->m_punch_vel = local->m_aimPunchAngleVel();
 	data->m_view_offset = local->m_vecViewOffset();
-	data->m_velocity_modifier = local->m_flVelocityModifier();
+	//data->m_velocity_modifier = local->m_flVelocityModifier();
 }
 
 void NetData::apply() {
@@ -87,8 +87,8 @@ void NetData::apply() {
 
 
 	//modify deltas restoration
-	if (std::abs(modifier_delta) < 0.03125f)
-		local->m_flVelocityModifier() = data->m_velocity_modifier;
+	//if (std::abs(modifier_delta) < 0.03125f)
+	//	local->m_flVelocityModifier() = data->m_velocity_modifier;
 }
 
 void NetData::reset() {
