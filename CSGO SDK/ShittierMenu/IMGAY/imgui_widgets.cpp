@@ -1939,6 +1939,9 @@ static inline bool IsWindowContentHoverable2(ImGuiWindow* window) {
 
 	ImGuiContext& g = *GImGui;
 
+	if (!g.NavWindow)
+		return false;
+
 	if (ImGuiWindow* focused_window = g.NavWindow->RootWindow) {
 
 		if (ImGuiWindow* focused_root_window = focused_window->RootWindow) {
