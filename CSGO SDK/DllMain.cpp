@@ -176,6 +176,18 @@ LONG WINAPI CrashHandlerWrapper( struct _EXCEPTION_POINTERS* exception ) {
 	return ret;
 }
 
+DWORD WINAPI Security(LPVOID PARAMS) {
+	while (true) {
+		if (!g_protection.safety_check()) {
+			HWND null = NULL;
+			//LI_FN(MessageBoxA)(null, g_protection.error_string.c_str(), XorStr("vader.tech"), 0); // do not uncomment! this was used for debugging.
+			LI_FN(exit)(69);
+		}
+		std::this_thread::sleep_for(std::chrono::seconds(3));
+	}
+	return true;
+}
+
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 	if( dwReason == DLL_PROCESS_ATTACH ) {
 		DllArguments* args = new DllArguments( );
@@ -196,13 +208,8 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 			return TRUE;
 		}
 #else
-		//sif( !g_protection.initial_safety_check( ) ) {
-		//	HWND null = NULL;
-		//	LI_FN( MessageBoxA )( null, g_protection.error_string.c_str( ), XorStr( "hhhhhhhhhh" ), 0 );
-		//	LI_FN( exit )( 69 );
-		//}
-
-		//sg_protection.Run( );
+		//start security thread
+		CreateThread(0, 0, &Security, 0, 0, 0);
 
 //#ifdef BETA_MODE
 //		SetUnhandledExceptionFilter( CrashHandlerWrapper );
