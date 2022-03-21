@@ -1426,6 +1426,10 @@ public:
 	config_option( float, hitsound_volume, 100.f );
 	config_option(std::string, custom_hitsound, "hitsound name");
 
+	config_option(bool, killsound, false);
+	config_option(float, killsound_volume, 100.f);
+	config_option(std::string, custom_killsound, "killsound name");
+
 	config_option( int, clantag_changer, 0 );
 	config_option( std::string, custom_clantag, "vader.tech" );
 

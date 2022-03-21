@@ -569,8 +569,20 @@ void Visuals()
 						if (ImGui::InputText(XorStr("##Custom Hitsound"), custom_hitsound, sizeof(custom_hitsound)))
 							g_Vars.misc.custom_hitsound = custom_hitsound;
 
-						InsertSliderFloat(XorStr("Sound volume"), &g_Vars.misc.hitsound_volume, 1.f, 100.f, XorStr("%.f"));
+						InsertSliderFloat(XorStr("Hitsound volume"), &g_Vars.misc.hitsound_volume, 1.f, 100.f, XorStr("%.f"));
 					}
+				}
+				InsertCheckbox(killsound, XorStr("Killsound"), &g_Vars.misc.killsound);
+				if (g_Vars.misc.killsound) {
+					static char custom_killsound[64] = "\0";
+
+					if (!g_Vars.misc.custom_killsound.empty())
+						strcpy_s(custom_killsound, sizeof(custom_killsound), g_Vars.misc.custom_killsound.c_str());
+
+					if (ImGui::InputText(XorStr("##Custom Killsound"), custom_killsound, sizeof(custom_killsound)))
+						g_Vars.misc.custom_killsound = custom_killsound;
+
+					InsertSliderFloat(XorStr("Killsound volume"), &g_Vars.misc.killsound_volume, 1.f, 100.f, XorStr("%.f"));
 				}
 				InsertCheckbox(FootSteps, XorStr("Footsteps"), &g_Vars.esp.footsteps);
 				if (g_Vars.esp.footsteps) {
