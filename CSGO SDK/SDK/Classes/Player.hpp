@@ -114,6 +114,7 @@ public:
    void ForceAngleTo(QAngle angle);
 public:
    CCSGOPlayerAnimState*& m_PlayerAnimState( );
+   float& m_surfaceFriction( );
    QAngle& m_angEyeAngles( );
    int& m_nSurvivalTeam( );
    int& m_ArmorValue( );

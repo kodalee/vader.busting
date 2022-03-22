@@ -328,6 +328,11 @@ CCSGOPlayerAnimState*& C_CSPlayer::m_PlayerAnimState( ) {
 	return *( CCSGOPlayerAnimState** )( ( uintptr_t )this + Engine::Displacement.C_CSPlayer.m_PlayerAnimState );
 }
 
+float& C_CSPlayer::m_surfaceFriction() {
+	static int playerSurfaceFrictionOffset = SDK::Memory::FindInDataMap(GetPredDescMap(), XorStr("m_surfaceFriction"));
+	return *(float*)((uintptr_t)this + playerSurfaceFrictionOffset);
+}
+
 QAngle& C_CSPlayer::m_angEyeAngles( ) {
 	return *( QAngle* )( ( uintptr_t )this + Engine::Displacement.DT_CSPlayer.m_angEyeAngles );
 }

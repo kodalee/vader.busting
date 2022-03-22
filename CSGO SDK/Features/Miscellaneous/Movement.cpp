@@ -25,6 +25,18 @@ extern Vector AutoPeekPos;
 
 extern matrix3x4_t HeadBone;
 
+const int GetNextUpdate() {
+	C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
+
+	if (!LocalPlayer || LocalPlayer->IsDead())
+		return 0;
+
+	auto current_tick = TIME_TO_TICKS(LocalPlayer->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick);
+	auto update_tick = TIME_TO_TICKS(g_Vars.globals.m_flBodyPred);
+
+	return update_tick - current_tick;
+}
+
 void SimulateMovement( C_SimulationData& data ) {
 	if( !( data.m_iFlags & FL_ONGROUND ) ) {
 		data.m_vecVeloctity.z -= ( Interfaces::m_pGlobalVars->interval_per_tick * g_Vars.sv_gravity->GetFloat( ) * 0.5f );
@@ -814,68 +826,67 @@ namespace Interfaces
 		if( !LocalPlayer || LocalPlayer->IsDead( ) )
 			return;
 
+		Vector velocity{ LocalPlayer->m_vecVelocity() };
+		int    ticks{ }, max{ 16 };
+
+		auto sv_friction = Interfaces::m_pCvar->FindVar(XorStr("sv_friction"));
+		auto sv_stopspeed = Interfaces::m_pCvar->FindVar(XorStr("sv_stopspeed"));
+
 		//if( g_TickbaseController.s_nExtraProcessingTicks ) {
 		//	g_Vars.globals.Fakewalking = false;
 		//	return;
 		//}
 
-		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands( ) > g_Vars.misc.slow_walk_speed;
+	    // calculate friction.
+		float friction = sv_friction->GetFloat() * LocalPlayer->m_surfaceFriction();
+
+		// check for the amount of ticks when breaking LBY.
+		int pred_ticks = GetNextUpdate() - 1;
+
+		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed;
 
 		if (Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed) {
 			*m_movement_data->m_pSendPacket = true;
 			//printf("sent packet\n");
 		}
 
-		g_Vars.globals.Fakewalking = true;
-
 		m_movement_data->m_pCmd->buttons &= ~IN_SPEED;
 
-		// compensate for lost speed
-		int nTicksToStop = g_Vars.misc.slow_walk_speed * 25 / 100; // 25% of the choke limit
-		if( LocalPlayer->m_bIsScoped( ) /*&& !g_Vars.misc.mind_trick_bind.enabled*/ )
-			nTicksToStop = 2;
+		for (ticks; ticks < g_Vars.misc.slow_walk_speed; ++ticks) {
+			// calculate speed.
+			float speed = velocity.Length();
 
-		// stop when necessary
-		if((Interfaces::m_pClientState->m_nChokedCommands( ) > ( g_Vars.misc.slow_walk_speed - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) ||
-			Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
-			&& LocalPlayer->m_fFlags() & FL_ONGROUND) {
+			// if too slow return.
+			if (speed <= 0.1f)
+				break;
 
-			InstantStop( );
+			// bleed off some speed, but if we have less than the bleed, threshold, bleed the threshold amount.
+			float control = std::max(speed, sv_stopspeed->GetFloat());
+
+			// calculate the drop amount.
+			float drop = control * friction * Interfaces::m_pGlobalVars->interval_per_tick;
+
+			// scale the velocity.
+			float newspeed = std::max(0.f, speed - drop);
+
+			if (newspeed != speed) {
+				// determine proportion of old speed we are using.
+				newspeed /= speed;
+
+				// adjust velocity according to proportion.
+				velocity *= newspeed;
+			}
+		}
+
+		g_Vars.globals.Fakewalking = true;
+
+		// zero forwardmove and sidemove.
+		if (ticks > ((max - 1) - Interfaces::m_pClientState->m_nChokedCommands()) || !Interfaces::m_pClientState->m_nChokedCommands()) {
+			m_movement_data->m_pCmd->forwardmove = m_movement_data->m_pCmd->sidemove = 0.f;
 			g_Vars.globals.updatingPacket = true;
-
-			//g_Vars.globals.Fakewalking = false;
 		}
-		else {
+		else
 			g_Vars.globals.updatingPacket = false;
-		}
-		//else if( (Interfaces::m_pClientState->m_nChokedCommands( ) > ( 16 - nTicksToStop ) || !Interfaces::m_pClientState->m_nChokedCommands( ) || *m_movement_data->m_pSendPacket) ||
-		//	Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
-		//	&& LocalPlayer->m_fFlags() & FL_ONGROUND) {
-
-		//	InstantStop( );
-		//	//g_Vars.globals.updatingPacket = true;
-
-		//	//g_Vars.globals.Fakewalking = false;
-		//}
-		//else {
-		//	g_Vars.globals.updatingPacket = false;
-		//}
-
-		//if (*m_movement_data->m_pSendPacket || Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed/*|| m_movement_data->m_pCmd->sidemove == 0*/) {
-		//	//*m_movement_data->m_pSendPacket = true;
-		//	g_Vars.globals.updatingPacket = true;
-		//}
-		//else {
-		//	g_Vars.globals.updatingPacket = false;
-		//}
-			//g_Vars.globals.Fakewalking = true;
-
-		// fix event delay
-		g_Vars.globals.FakeWalkWillChoke = g_Vars.misc.slow_walk_speed - Interfaces::m_pClientState->m_nChokedCommands( );
-
-		if( !g_Vars.globals.Fakewalking ) {
-			g_Vars.globals.FakeWalkWillChoke = 0;
-		}
 	}
 
 	void C_Movement::ThirdPerson( ) {
