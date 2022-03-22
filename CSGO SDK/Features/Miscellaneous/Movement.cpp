@@ -826,8 +826,14 @@ namespace Interfaces
 		if( !LocalPlayer || LocalPlayer->IsDead( ) )
 			return;
 
+		// not on ground dont fakewalk.
+		if (!(m_movement_data->m_pLocal->m_fFlags() & FL_ONGROUND)) {
+			InstantStop();
+			return;
+		}
+
 		Vector velocity{ LocalPlayer->m_vecVelocity() };
-		int    ticks{ }, max{ 16 };
+		int    ticks{ };
 
 		auto sv_friction = Interfaces::m_pCvar->FindVar(XorStr("sv_friction"));
 		auto sv_stopspeed = Interfaces::m_pCvar->FindVar(XorStr("sv_stopspeed"));
@@ -881,7 +887,7 @@ namespace Interfaces
 		g_Vars.globals.Fakewalking = true;
 
 		// zero forwardmove and sidemove.
-		if (ticks > ((max - 1) - Interfaces::m_pClientState->m_nChokedCommands()) || !Interfaces::m_pClientState->m_nChokedCommands()) {
+		if (ticks > ((g_Vars.misc.slow_walk_speed - 1) - Interfaces::m_pClientState->m_nChokedCommands()) || !Interfaces::m_pClientState->m_nChokedCommands()) {
 			m_movement_data->m_pCmd->forwardmove = m_movement_data->m_pCmd->sidemove = 0.f;
 			g_Vars.globals.updatingPacket = true;
 		}
