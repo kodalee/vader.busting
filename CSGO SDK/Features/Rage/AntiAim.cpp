@@ -484,7 +484,7 @@ namespace Interfaces
 			//printf("fuck you kids\n");
 			cmd->forwardmove = 7.f;
 			*bSendPacket = true;
-			cmd->viewangles.y -= 110.f;
+			cmd->viewangles.y -= 90.f;
 			g_Vars.globals.need_break_lastmove = false;
 		}
 
