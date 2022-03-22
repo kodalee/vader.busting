@@ -489,6 +489,7 @@ namespace Interfaces
 		}
 
 		static int negative = false;
+		static bool breaker = false;
 		auto bSwitch = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) < Interfaces::m_pGlobalVars->interval_per_tick;
 		auto bSwap = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) > 1.1 - (Interfaces::m_pGlobalVars->interval_per_tick * 5);
 		if (!Interfaces::m_pClientState->m_nChokedCommands()
@@ -501,6 +502,13 @@ namespace Interfaces
 			switch (settings->yaw) {
 			case 1: // static
 				/*g_Vars.misc.mind_trick_bind.enabled ? cmd->viewangles.y += g_Vars.misc.mind_trick_lby :*/ cmd->viewangles.y += g_Vars.antiaim.break_lby;
+				//if (!breaker) {
+				if(g_Vars.antiaim.flickup)
+					cmd->viewangles.x -= g_Vars.antiaim.break_lby;
+				//	breaker = true;
+				//}
+				//else if (breaker)
+				//	breaker = false;
 				break;
 			case 2: // twist
 				negative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
