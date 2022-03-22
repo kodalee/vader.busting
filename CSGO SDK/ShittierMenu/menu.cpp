@@ -351,6 +351,8 @@ void HvH()
 					InsertSliderInt(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -145, 145, XorStr("%d"));
 				}
 
+				InsertCheckbox(FlickUp, XorStr("Flick LBY Up"), &g_Vars.antiaim.flickup);
+
 				//InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
 
 				ImGui::NextColumn();

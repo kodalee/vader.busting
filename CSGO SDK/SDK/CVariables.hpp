@@ -873,6 +873,7 @@ public:
 	config_option(int, Jitter_range, 0);
 	config_option( int, break_lby, 0 );
 	config_option( bool, imposta, false );
+	config_option( bool, flickup, false );
 	config_option( bool, preserve, false );
 	config_option(bool, anti_lastmove, false);
 
