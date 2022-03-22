@@ -44,6 +44,8 @@ namespace Interfaces
 
 		bool DoEdgeAntiAim(C_CSPlayer* player, QAngle& out);
 
+		void AutoDirection(Encrypted_t<CUserCmd> cmd);
+
 		void SendFakeFlick();
 
 		bool airstuck();
@@ -721,33 +723,39 @@ namespace Interfaces
 
 		if (g_Vars.antiaim.freestand) {
 			if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
-				C_AntiAimbot::Directions Direction = HandleDirection(cmd);
-				switch (Direction) {
-			case Directions::YAW_BACK:
-				// backwards yaw.
-				flRetValue = flViewAnlge + 180.f;
-				break;
-			case Directions::YAW_LEFT:
-				// left yaw.
-				flRetValue = flViewAnlge + 90.f;
-				break;
-			case Directions::YAW_RIGHT:
-				// right yaw.
-				flRetValue = flViewAnlge - 90.f;
-				break;
-			case Directions::YAW_NONE:
-				// 180.
-				flRetValue = flViewAnlge + 180.f;
-				break;
-				}
+				AutoDirection(cmd);
+				flRetValue = m_auto;
 			}
+
+
+			//if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
+			//	C_AntiAimbot::Directions Direction = HandleDirection(cmd);
+			//	switch (Direction) {
+			//case Directions::YAW_BACK:
+			//	// backwards yaw.
+			//	flRetValue = flViewAnlge + 180.f;
+			//	break;
+			//case Directions::YAW_LEFT:
+			//	// left yaw.
+			//	flRetValue = flViewAnlge + 90.f;
+			//	break;
+			//case Directions::YAW_RIGHT:
+			//	// right yaw.
+			//	flRetValue = flViewAnlge - 90.f;
+			//	break;
+			//case Directions::YAW_NONE:
+			//	// 180.
+			//	flRetValue = flViewAnlge + 180.f;
+			//	break;
+			//	}
+			//}
 		}
 
-		//if (!bUsingManualAA && g_Vars.antiaim.preserve) {
-		//	if (local->m_vecVelocity().Length2D() > 3.25f && local->m_vecVelocity().Length2D() < 20.f && !g_Vars.globals.Fakewalking) {
-		//		flRetValue = flViewAnlge + 180.f;
-		//	}
-		//}
+		if (!bUsingManualAA && g_Vars.antiaim.preserve) {
+			if (local->m_vecVelocity().Length2D() > 3.25f && local->m_vecVelocity().Length2D() < 20.f && !g_Vars.globals.Fakewalking) {
+				flRetValue = flViewAnlge + 180.f;
+			}
+		}
 
 		//static int iUpdates;
 		//if (iUpdates > pow(10, 10))
@@ -1096,5 +1104,147 @@ namespace Interfaces
 
 		return false;
 	}
+
+	void C_AntiAimbot::AutoDirection(Encrypted_t<CUserCmd> cmd) {
+		const auto pLocal = C_CSPlayer::GetLocalPlayer();
+		if (!pLocal) return;
+
+		// constants.
+		constexpr float STEP{ 4.f };
+		constexpr float RANGE{ 32.f };
+
+		// best target.
+		struct AutoTarget_t { float fov; C_CSPlayer* player; };
+		AutoTarget_t target{ 180.f + 1.f, nullptr };
+
+		// iterate players.
+		for (int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i) {
+			auto player = C_CSPlayer::GetPlayerByIndex(i);
+
+			//skip invalid or unwanted
+			if (!player || player->IsDormant() || player == pLocal || player->IsDead() || player->m_iTeamNum() == pLocal->m_iTeamNum())
+				continue;
+
+			// validate player.
+			auto lag_data = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+			if (!lag_data.IsValid())
+				continue;
+
+			// get best target based on fov.
+			float fov = Math::GetFov(cmd->viewangles, pLocal->GetShootPosition(), player->WorldSpaceCenter());
+
+			if (fov < target.fov) {
+				target.fov = fov;
+				target.player = player;
+			}
+		}
+
+		if (!target.player) {
+			// we have a timeout.
+			if (m_auto_last > 0.f && m_auto_time > 0.f && Interfaces::m_pGlobalVars->curtime < (m_auto_last + m_auto_time))
+				return;
+
+			// set angle to backwards.
+			m_auto = Math::NormalizedAngle(m_view - 180.f);
+			m_auto_dist = -1.f;
+			return;
+		}
+
+		/*
+		* data struct
+		* 68 74 74 70 73 3a 2f 2f 73 74 65 61 6d 63 6f 6d 6d 75 6e 69 74 79 2e 63 6f 6d 2f 69 64 2f 73 69 6d 70 6c 65 72 65 61 6c 69 73 74 69 63 2f
+		*/
+
+		// construct vector of angles to test.
+		std::vector< AdaptiveAngle > angles{ };
+		angles.emplace_back(m_view - 180.f);
+		angles.emplace_back(m_view + 90.f);
+		angles.emplace_back(m_view - 90.f);
+
+		// start the trace at the enemy shoot pos.
+		Vector start = target.player->GetShootPosition();
+
+		// see if we got any valid result.
+		// if this is false the path was not obstructed with anything.
+		bool valid{ false };
+
+		// iterate vector of angles.
+		for (auto it = angles.begin(); it != angles.end(); ++it) {
+
+			// compute the 'rough' estimation of where our head will be.
+			Vector end{ pLocal->GetShootPosition().x + std::cos(Math::deg_to_rad(it->m_yaw)) * RANGE,
+				pLocal->GetShootPosition().y + std::sin(Math::deg_to_rad(it->m_yaw)) * RANGE,
+				pLocal->GetShootPosition().z };
+
+			// draw a line for debugging purposes.
+			//g_csgo.m_debug_overlay->AddLineOverlay( start, end, 255, 0, 0, true, 0.1f );
+
+			// compute the direction.
+			Vector dir = end - start;
+			float len = dir.Normalize();
+
+			// should never happen.
+			if (len <= 0.f)
+				continue;
+
+			// step thru the total distance, 4 units per step.
+			for (float i{ 0.f }; i < len; i += STEP) {
+				// get the current step position.
+				Vector point = start + (dir * i);
+
+				// get the contents at this point.
+				int contents = Interfaces::m_pEngineTrace->GetPointContents(point, MASK_SHOT_HULL);
+
+				// contains nothing that can stop a bullet.
+				if (!(contents & MASK_SHOT_HULL))
+					continue;
+
+				float mult = 1.f;
+
+				// over 50% of the total length, prioritize this shit.
+				if (i > (len * 0.5f))
+					mult = 1.25f;
+
+				// over 75% of the total length, prioritize this shit.
+				if (i > (len * 0.75f))
+					mult = 1.25f;
+
+				// over 90% of the total length, prioritize this shit.
+				if (i > (len * 0.9f))
+					mult = 2.f;
+
+				// append 'penetrated distance'.
+				it->m_dist += (STEP * mult);
+
+				// mark that we found anything.
+				valid = true;
+			}
+		}
+
+		if (!valid) {
+			// set angle to backwards.
+			m_auto = Math::NormalizedAngle(m_view - 180.f);
+			m_auto_dist = -1.f;
+			return;
+		}
+
+		// put the most distance at the front of the container.
+		std::sort(angles.begin(), angles.end(),
+			[](const AdaptiveAngle& a, const AdaptiveAngle& b) {
+				return a.m_dist > b.m_dist;
+			});
+
+		// the best angle should be at the front now.
+		AdaptiveAngle* best = &angles.front();
+
+		// check if we are not doing a useless change.
+		if (best->m_dist != m_auto_dist) {
+			// set yaw to the best result.
+			m_auto = Math::NormalizedAngle(best->m_yaw);
+			m_auto_dist = best->m_dist;
+			m_auto_last = Interfaces::m_pGlobalVars->curtime;
+		}
+	}
+
 
 }

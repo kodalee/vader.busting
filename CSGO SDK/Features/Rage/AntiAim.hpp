@@ -16,6 +16,25 @@ private:
 	std::vector<C_CSPlayer*> players;
 };
 
+class AdaptiveAngle {
+public:
+	float m_yaw;
+	float m_dist;
+
+public:
+	// ctor.
+	__forceinline AdaptiveAngle(float yaw, float penalty = 0.f) {
+		// set yaw.
+		m_yaw = Math::NormalizedAngle(yaw);
+
+		// init distance.
+		m_dist = 0.f;
+
+		// remove penalty.
+		m_dist -= penalty;
+	}
+};
+
 namespace Interfaces
 {
 
