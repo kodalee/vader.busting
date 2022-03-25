@@ -462,7 +462,7 @@ namespace Interfaces
 		else {
 			//*bSendPacket = true;
 
-			std::uniform_int_distribution random(-90, 90);
+			std::uniform_int_distribution random(-110, 110);
 
 			cmd->viewangles.y = Math::AngleNormalize(flYaw + 180 + random(generator));
 
