@@ -840,7 +840,7 @@ void Visuals()
 
 				const char* chams_mats[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
 				const char* chams_mats_local[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
-				const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking") };
+				const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking"), XorStr("Animated") };
 				const char* chams_mats_overlay_misc[] = { XorStr("Disabled"), XorStr("Glow") };
 				const char* glow_types[] = { XorStr("Standard"), XorStr("Pulse"), XorStr("Inner") };
 				const char* chams_mats_overlay_viewmodel[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Animated") };
@@ -904,7 +904,6 @@ void Visuals()
 							if (g_Vars.esp.new_chams_enemy_xqz_overlay == 1) {
 
 								InsertSliderFloat(XorStr("Glow strength ##enemyxqz"), &g_Vars.esp.chams_enemy_xqz_outline_value, 0.f, 100.f, XorStr("%.f"));
-
 
 							}
 							InsertCheckbox(enemy_xqz_overlay_wireframe, XorStr("Enemy XQZ overlay wireframe"), &g_Vars.esp.chams_enemy_outline_xqz_wireframe);

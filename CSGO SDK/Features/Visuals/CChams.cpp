@@ -1374,11 +1374,11 @@ namespace Interfaces
 						material = 4;
 						break;
 					}
-					//case 2:
-					//{
-					//	material = 8;
-					//	break;
-					//}
+					case 2:
+					{
+						material = 6;
+						break;
+					}
 
 					}
 
@@ -1554,6 +1554,11 @@ namespace Interfaces
 						case 2:
 						{
 							material = 5;
+							break;
+						}
+						case 3:
+						{
+							material = 6;
 							break;
 						}
 
