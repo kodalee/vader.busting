@@ -818,7 +818,7 @@ void CEsp::Keybinds() {
 
 	if (g_Vars.rage.enabled) {
 		if (g_Vars.rage.exploit) {
-			AddBind(XorStr("Doubletap"), g_Vars.rage.key_dt);
+			AddBind(XorStr("Double tap"), g_Vars.rage.key_dt);
 		}
 
 		if (g_Vars.misc.fakeduck) {
