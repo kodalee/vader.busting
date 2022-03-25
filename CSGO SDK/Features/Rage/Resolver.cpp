@@ -300,15 +300,14 @@ namespace Engine {
 			}
 		}
 
-		if (!valid || !wall_detect(entity, record, record->m_angEyeAngles.y)) {
-			if (record->m_moved && pLagData->m_iMissedShots < 2) {
+		if (!valid) {
+			if (record->m_moved) {
 				record->m_angEyeAngles.y = move->m_body;
 				record->m_iResolverText = XorStr("LASTMOVE");
 			}
 			else {
 				record->m_angEyeAngles.y = away + 180.f;
 				record->m_iResolverText = XorStr("BACKWARDS");
-
 			}
 			return;
 		}
@@ -322,6 +321,15 @@ namespace Engine {
 		// the best angle should be at the front now.
 		AdaptiveAngle* best = &angles.front();
 
+		//wall_detect(entity, record, record->m_angEyeAngles.y)
+
+		// fix ppl breaking last move/freestand.
+		if (!record->m_bUnsafeVelocityTransition && best->m_yaw - record->m_body > 90.f || best->m_yaw - record->m_body < -90.f) {
+			record->m_angEyeAngles.y = record->m_body;
+			record->m_iResolverText = XorStr("WHATTTTT");
+		}
+
+		record->m_iResolverText = XorStr("FREESTAND");
 		record->m_angEyeAngles.y = best->m_yaw;
 	}
 
@@ -459,23 +467,14 @@ namespace Engine {
 			return;
 
 		record->m_iResolverText = XorStr("MOVING");
+
 		// apply lby to eyeangles.
 		record->m_angEyeAngles.y = record->m_body;
 
 		// delay body update.
-		//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 0.22f;
+		//record->m_body_update = record->m_anim_time + 0.22f;
 
-		float speed = record->m_vecVelocity.Length2D();
-
-		// reset stand and body index.
-		if (speed > 20.f && !record->m_bFakeWalking)
-			pLagData->m_iMissedShotsLBY = 0;
-
-
-		if (record->m_fFlags & FL_ONGROUND && speed > 1.f && data->m_fFlags() & FL_ONGROUND && !record->m_bFakeWalking) {
-			//printf("move true 1\n");
-			record->m_moved = true;
-		}
+		//record->m_moved = true;
 
 		pLagData->m_iMissedShots = 0;
 		pLagData->m_stand_index2 = 0;
@@ -651,15 +650,15 @@ namespace Engine {
 		}
 
 		// predict LBY flicks.
-		if (!player->IsDormant() /*&& !record->dormant()*/) {
+		if (!player->IsDormant() && !record->dormant()) {
 			// since we null velocity when they fakewalk, no need to check for it.
-			if (record->m_vecAnimationVelocity.Length() > 0.1f) {
-				Add[player->EntIndex()] = 0.22f;
-				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
+			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
+			//	Add[player->EntIndex()] = 0.22f;
+			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			//}
 			// lby wont update on this tick but after.
-			if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && record->m_moved/*&& !player->IsDormant()*//* && !record->dormant()*/)
+			if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && record->m_moved)
 			{
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
@@ -669,18 +668,22 @@ namespace Engine {
 			else
 				is_flicking = false;
 
-			if (pLagData->m_body != pLagData->m_old_body && record->m_moved/*&& !record->dormant()*/) {
+			// LBY updated via PROXY.
+			if (pLagData->m_body != pLagData->m_old_body && record->m_moved) {
 				is_flicking = true;
 				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
 				NextLBYUpdate[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
+			else
+				is_flicking = false;
 
 			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
 				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
+
 		}
 		else {
 			is_flicking = false;
@@ -727,15 +730,15 @@ namespace Engine {
 			if (!record->m_moved) {
 
 				record->m_iResolverMode = RESOLVE_UNKNOWM;
-				record->m_iResolverText = XorStr("STAND");
+				//record->m_iResolverText = XorStr("STAND");
 
 
 				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if (is_flicking && pLagData->m_iMissedShotsLBY < 3/* && !record->m_bFakeWalking*/)
+				if (is_flicking && pLagData->m_iMissedShotsLBY < 3 /* && !record->m_bFakeWalking*/)
 				{
 					//m_iMode = 0;
-					record->m_angEyeAngles.y = record->m_body;
+					record->m_angEyeAngles.y = pLagData->m_body;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 
@@ -769,21 +772,24 @@ namespace Engine {
 						//	g_ResolverData->m_iMode = 32;
 						//}
 						//else {
-							AntiFreestand(record, player);
-							g_ResolverData->m_iMode = 1;
-							record->m_iResolverText = XorStr("FREESTAND");
+						AntiFreestand(record, player);
+						m_iMode = 1;
+							//record->m_iResolverText = XorStr("FREESTAND");
 						//}
 						break;
 					case 1:
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;
+						record->m_iResolverText = XorStr("NMOVE +180");
 						m_iMode = 0;
 						break;
 					case 2:
 						record->m_angEyeAngles.y = (at_target_yaw + 180.f) + 70.f;
+						record->m_iResolverText = XorStr("NMOVE +70");
 						m_iMode = 0;
 						break;
 					case 3:
 						record->m_angEyeAngles.y = (at_target_yaw + 180.f) - 70.f;
+						record->m_iResolverText = XorStr("NMOVE -70");
 						m_iMode = 0;
 						break;
 					}
@@ -806,7 +812,7 @@ namespace Engine {
 
 
 				record->m_iResolverMode = RESOLVE_LASTMOVE;
-				record->m_iResolverText = XorStr("LASTMOVE");
+				//record->m_iResolverText = XorStr("LASTMOVE");
 
 				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
@@ -814,7 +820,7 @@ namespace Engine {
 				{
 					//printf("break detection\n");
 					//printf("1\n");
-					record->m_angEyeAngles.y = record->m_body;
+					record->m_angEyeAngles.y = pLagData->m_body;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 					record->m_iResolverMode = RESOLVE_BODY;
@@ -844,25 +850,34 @@ namespace Engine {
 						//	g_ResolverData->m_iMode = 32;
 						//}
 						//else {
-							AntiFreestand(record, player);
-							g_ResolverData->m_iMode = 1;
-							record->m_iResolverText = XorStr("LAST FREESTAND");
+						AntiFreestand(record, player);
+						m_iMode = 1;
 						//}
 						break;
 					case 1:
-						AntiFreestand(record, player);
-						m_iMode = 1;
-						record->m_iResolverText = XorStr("FREESTAND");
+						if (AntiFreestanding(player, record->m_angEyeAngles.y)) { // using same freestand twice might not be a good idea so i switched to fatal here
+							record->m_iResolverText = XorStr("FREESTAND_F");
+							m_iMode = 1;
+						}
+						else {
+							record->m_angEyeAngles.y = at_target_yaw + 180.f;
+							record->m_iResolverText = XorStr("BACKWARDS_F");
+							m_iMode = 0;
+						}
 						break;
 					case 2:
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;
+						record->m_iResolverText = XorStr("BACKWARDS");
+						m_iMode = 0;
 						break;
 					case 3:
 						record->m_angEyeAngles.y = (at_target_yaw + 180.f) + 70.f;
+						record->m_iResolverText = XorStr("+70");
 						m_iMode = 0;
 						break;
 					case 4:
 						record->m_angEyeAngles.y = (at_target_yaw + 180.f) - 70.f;
+						record->m_iResolverText = XorStr("-70");
 						m_iMode = 0;
 						break;
 					}
@@ -906,23 +921,25 @@ namespace Engine {
 			return;
 		}
 
+		float away = GetAwayAngle(record);
+
 		record->m_iResolverText = XorStr("AIR");
 
 		// try to predict the direction of the player based on his velocity direction.
 		// this should be a rough estimation of where he is looking.
 		float velyaw = RAD2DEG(std::atan2(record->m_vecAnimationVelocity.y, record->m_vecAnimationVelocity.x));
 
-		switch (pLagData->m_iMissedShots % 4) {
+		switch (pLagData->m_iMissedShots % 4) { // TODO: FIX THIS NOT WORKING AND MAKING THE RESOLVER IN AIR TURN COMPLETELY OFF!!!
 		case 0:
-			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = velyaw + 180.f;
+			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = away - 180.f;
 			break;
 
 		case 1:
-			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = velyaw - 135.f;
+			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = velyaw - 110.f;
 			break;
 
 		case 2:
-			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = velyaw + 135.f;
+			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = velyaw + 110.f;
 			break;
 
 		case 3:

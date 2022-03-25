@@ -46,6 +46,8 @@ namespace Interfaces
 
 		void AutoDirection(Encrypted_t<CUserCmd> cmd);
 
+		void do_at_target(Encrypted_t<CUserCmd> cmd);
+
 		void SendFakeFlick();
 
 		bool airstuck();
@@ -728,6 +730,7 @@ namespace Interfaces
 
 		}
 
+		//do_at_target(cmd);
 
 		if (g_Vars.antiaim.freestand) {
 			if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
@@ -1253,6 +1256,50 @@ namespace Interfaces
 			m_auto_last = Interfaces::m_pGlobalVars->curtime;
 		}
 	}
+
+	void C_AntiAimbot::do_at_target(Encrypted_t<CUserCmd> cmd)
+	{
+		const auto pLocal = C_CSPlayer::GetLocalPlayer();
+		if (!pLocal) return;
+
+		C_CSPlayer* target = nullptr;
+		QAngle target_angle;
+
+		QAngle original_viewangles;
+		Interfaces::m_pEngine->GetViewAngles(original_viewangles);
+
+		auto lowest_fov = 90.f;
+		for (auto i = 1; i < Interfaces::m_pGlobalVars->maxClients; i++)
+		{
+			auto player = C_CSPlayer::GetPlayerByIndex(i);
+
+			//skip invalid or unwanted
+			if (!player || player->IsDormant() || player == pLocal || player->IsDead() || player->m_iTeamNum() == pLocal->m_iTeamNum())
+				continue;
+
+			if (player->IsDormant() && (player->m_flSimulationTime() > Interfaces::m_pGlobalVars->curtime || player->m_flSimulationTime() + 5.f < Interfaces::m_pGlobalVars->curtime))
+				continue;
+
+			auto enemy_pos = player->m_vecOrigin();
+			enemy_pos.z += 64.f;
+
+			const auto angle = Math::CalcAngle(pLocal->GetEyePosition(), enemy_pos);
+			const auto fov = Math::get_fov(original_viewangles, angle);
+
+			if (fov < lowest_fov)
+			{
+				target = player;
+				lowest_fov = fov;
+				target_angle = angle;
+			}
+		}
+
+		if (!target)
+			return;
+
+		cmd->viewangles.y = target_angle.y;
+	}
+
 
 
 }
