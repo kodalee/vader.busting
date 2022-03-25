@@ -348,7 +348,7 @@ void HvH()
 
 				// static lets choose our own vaule.
 				if (settings->yaw == 1) {
-					InsertSliderInt(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -145, 145, XorStr("%d"));
+					InsertSliderInt(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -180, 180, XorStr("%d"));
 				}
 
 				InsertCheckbox(FlickUp, XorStr("Flick LBY Up"), &g_Vars.antiaim.flickup);
