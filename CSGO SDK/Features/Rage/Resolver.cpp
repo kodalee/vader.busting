@@ -301,7 +301,7 @@ namespace Engine {
 		}
 
 		if (!valid) {
-			if (record->m_moved) {
+			if (record->m_moved && pLagData->m_iMissedShots < 2) {
 				record->m_angEyeAngles.y = move->m_body;
 				record->m_iResolverText = XorStr("LASTMOVE");
 			}
@@ -472,7 +472,14 @@ namespace Engine {
 		record->m_angEyeAngles.y = record->m_body;
 
 		// delay body update.
-		//record->m_body_update = record->m_anim_time + 0.22f;
+		record->m_body_update = record->m_anim_time + 0.22f;
+
+		float speed = record->m_vecVelocity.Length2D();
+
+		if (record->m_fFlags & FL_ONGROUND && speed > 1.f && data->m_fFlags() & FL_ONGROUND && !record->m_bFakeWalking) {
+			//printf("move true 1\n");
+			record->m_moved = true;
+		}
 
 		//record->m_moved = true;
 
@@ -672,7 +679,7 @@ namespace Engine {
 			if (pLagData->m_body != pLagData->m_old_body && record->m_moved) {
 				is_flicking = true;
 				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-				NextLBYUpdate[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + Add[player->EntIndex()];
+				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			else
@@ -931,19 +938,19 @@ namespace Engine {
 
 		switch (pLagData->m_iMissedShots % 4) { // TODO: FIX THIS NOT WORKING AND MAKING THE RESOLVER IN AIR TURN COMPLETELY OFF!!!
 		case 0:
-			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = away - 180.f;
+			record->m_angEyeAngles.y = away - 180.f;
 			break;
 
 		case 1:
-			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = velyaw - 110.f;
+			record->m_angEyeAngles.y = velyaw - 110.f;
 			break;
 
 		case 2:
-			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = velyaw + 110.f;
+			record->m_angEyeAngles.y = velyaw + 110.f;
 			break;
 
 		case 3:
-			g_ResolverData[player->EntIndex()].m_flFinalResolverYaw = velyaw;
+			record->m_angEyeAngles.y = velyaw;
 			break;
 		}
 	}
