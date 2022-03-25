@@ -1,6 +1,12 @@
 #pragma once
 #include "IAppSystem.hpp"
-#include "Definitions.hpp"
+#include "../Definitions.hpp"
+#include "../../Utils/address.h"
+
+template < typename t = Address >
+__forceinline static t get_method(Address this_ptr, size_t index) {
+	return (t)this_ptr.to< t* >()[index];
+}
 
 typedef unsigned long HFont;
 typedef unsigned int VPANEL;
@@ -108,8 +114,12 @@ public:
 	virtual void          DrawTexturedSubRect(int x0, int y0, int x1, int y1, float texs0, float text0, float texs1, float text1) = 0;
 	virtual void          DrawTexturedPolygon(int n, Vertex_t *pVertice, bool bClipVertices = true) = 0;
 
-	__forceinline void DrawFilledRectFade( int x0, int y0, int x1, int y1, uint32_t alpha0, uint32_t alpha1, bool bSDKtal ) {
-		using Fn = void( __thiscall* )( decltype( this ), int, int, int, int, uint32_t, uint32_t, bool );
-		Memory::VCall<Fn>( this, 123 )( this, x0, y1, x1, y1, alpha0, alpha1, bSDKtal );
+	//__forceinline void DrawFilledRectFade( int x0, int y0, int x1, int y1, uint32_t alpha0, uint32_t alpha1, bool bSDKtal ) {
+	//	using Fn = void( __thiscall* )( decltype( this ), int, int, int, int, uint32_t, uint32_t, bool );
+	//	Memory::VCall<Fn>( this, 123 )( this, x0, y1, x1, y1, alpha0, alpha1, bSDKtal );
+	//}
+
+	__forceinline void DrawFilledRectFade(int x0, int y0, int x1, int y1, uint32_t alpha0, uint32_t alpha1, bool bHorizontal) {
+		return get_method< void(__thiscall*)(decltype(this), int, int, int, int, uint32_t, uint32_t, bool) >(this, 123)(this, x0, y0, x1, y1, alpha0, alpha1, bHorizontal);
 	}
 };

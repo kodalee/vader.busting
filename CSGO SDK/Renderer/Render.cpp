@@ -669,10 +669,10 @@ void Render::Engine::CircleFilled( int x, int y, float radius, int segments, Col
 void Render::Engine::Gradient( int x, int y, int w, int h, Color color, Color color2, bool horizontal )
 {
 	Interfaces::m_pSurface->DrawSetColor( color );
-	Interfaces::m_pSurface->DrawFilledRectFade( x, y, x + w, y + h, color.a( ), color.a( ), horizontal );
+	Interfaces::m_pSurface->DrawFilledRectFade( x, y, x + w, y + h, color.a( ), 0, horizontal );
 
 	Interfaces::m_pSurface->DrawSetColor( color2 );
-	Interfaces::m_pSurface->DrawFilledRectFade( x, y, x + w, y + h, color2.a( ), color2.a( ), horizontal );
+	Interfaces::m_pSurface->DrawFilledRectFade( x, y, x + w, y + h, 0, color2.a( ), horizontal );
 }
 
 #pragma endregion

@@ -226,7 +226,7 @@ void DrawWatermark() {
 
 	// Constants for colors
 	const auto col_background = Color(41, 32, 59, 175); // Watermark background color
-	const auto col_accent = Color(255, 215, 0); // Watermark line accent color
+	const auto col_accent = Color(255, 215, 0, 255); // Watermark line accent color
 	const auto col_text = Color(255, 255, 255); // Watermark text color
 
 	static auto framerate = 0.0f;
@@ -904,19 +904,19 @@ void CEsp::Keybinds() {
 	// the actual window
 	//Render::Engine::RectFilled( pos + Vector2D( 0, 20 + 2 ), Vector2D( this->m_KeyBinds.size.x, this->m_KeyBinds.size.y - 1 ), main );
 
-	auto hold_size = Render::Engine::tahoma_sexy.size(XorStr("[Hold]"));
-	auto toggle_size = Render::Engine::tahoma_sexy.size(XorStr("[Toggle]"));
-	auto always_size = Render::Engine::tahoma_sexy.size(XorStr("[Always]"));
+	auto hold_size = Render::Engine::esp.size(XorStr("[hold]"));
+	auto toggle_size = Render::Engine::esp.size(XorStr("[toggled]"));
+	auto always_size = Render::Engine::esp.size(XorStr("[always]"));
 
 	if (!vecNames.empty()) {
 		float offset = 15.0f;
 		for (auto name : vecNames) {
 			// hotkey name
-			Render::Engine::tahoma_sexy.string(pos.x + 2, pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha), name.first.c_str());
+			Render::Engine::esp.string(pos.x + 2, pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha), name.first.c_str());
 
 			// hotkey type
-			Render::Engine::tahoma_sexy.string(pos.x + (this->m_KeyBinds.size.x - (name.second == KeyBindType::HOLD ? hold_size.m_width : name.second == KeyBindType::TOGGLE ? toggle_size.m_width : always_size.m_width)), pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha),
-				name.second == KeyBindType::HOLD ? XorStr("[Hold]") : name.second == KeyBindType::TOGGLE ? XorStr("[Toggle]") : XorStr("[Always]"));
+			Render::Engine::esp.string(pos.x + (this->m_KeyBinds.size.x - (name.second == KeyBindType::HOLD ? hold_size.m_width : name.second == KeyBindType::TOGGLE ? toggle_size.m_width : always_size.m_width)), pos.y + 9 + offset, Color::White().OverrideAlpha(255 * alpha),
+				name.second == KeyBindType::HOLD ? XorStr("[hold]") : name.second == KeyBindType::TOGGLE ? XorStr("[toggled]") : XorStr("[always]"));
 
 			// add offset
 			offset += 14.0f;
