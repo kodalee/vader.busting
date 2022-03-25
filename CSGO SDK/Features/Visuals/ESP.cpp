@@ -818,7 +818,7 @@ void CEsp::Keybinds() {
 
 	if (g_Vars.rage.enabled) {
 		if (g_Vars.rage.exploit) {
-			AddBind(XorStr("Double tap"), g_Vars.rage.key_dt);
+			AddBind(XorStr("Doubletap"), g_Vars.rage.key_dt);
 		}
 
 		if (g_Vars.misc.fakeduck) {
@@ -848,7 +848,7 @@ void CEsp::Keybinds() {
 	}
 
 	if (g_Vars.misc.autopeek) {
-		AddBind(XorStr("Auto peek"), g_Vars.misc.autopeek_bind);
+		AddBind(XorStr("Auto-peek"), g_Vars.misc.autopeek_bind);
 	}
 
 	if (g_Vars.misc.slow_walk) {
