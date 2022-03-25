@@ -694,7 +694,12 @@ void Visuals()
 				}
 				case 2:
 				{
-					InsertSliderFloat(XorStr("Glow strength ##shot"), &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, XorStr("%.f"));
+					const char* shot_chams_mat[] = { XorStr("Glow"), XorStr("Flat") };
+
+					InsertCombo(XorStr("Shot Material"), &g_Vars.esp.new_chams_onshot_mat, shot_chams_mat); 
+					if(g_Vars.esp.new_chams_onshot_mat == 0) {
+						InsertSliderFloat(XorStr("Glow strength ##shot"), &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, XorStr("%.f"));
+					}
 					ColorPicker_w_name(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true, false);
 					InsertSliderFloat(XorStr("Expire time ##chams"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
 					break;

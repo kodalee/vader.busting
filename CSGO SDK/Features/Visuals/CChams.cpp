@@ -1102,7 +1102,23 @@ namespace Interfaces
 			auto color = g_Vars.esp.hitmatrix_color;
 			color.a *= alpha;
 
-			OverrideMaterial(true, MATERIAL_GLOW, color, std::clamp<float>((100.0f - g_Vars.esp.new_chams_onshot_mat_glow_value) * 0.2f, 1.f, 20.f));
+			int material; // la premium
+
+			switch (g_Vars.esp.new_chams_onshot_mat) {
+			case 0:
+			{
+				material = 4;
+				break;
+			}
+			case 1:
+			{
+				material = 1;
+				break;
+			}
+
+			}
+
+			OverrideMaterial(true, material, color, std::clamp<float>((100.0f - g_Vars.esp.new_chams_onshot_mat_glow_value) * 0.2f, 1.f, 20.f));
 
 			DrawModelRebuild(*it);
 
