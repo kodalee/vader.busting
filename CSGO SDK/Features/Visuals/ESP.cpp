@@ -848,7 +848,7 @@ void CEsp::Keybinds() {
 	}
 
 	if (g_Vars.misc.autopeek) {
-		AddBind(XorStr("Auto-peek"), g_Vars.misc.autopeek_bind);
+		AddBind(XorStr("Auto-Peek"), g_Vars.misc.autopeek_bind);
 	}
 
 	if (g_Vars.misc.slow_walk) {
