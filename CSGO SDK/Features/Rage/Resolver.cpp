@@ -986,11 +986,11 @@ namespace Engine {
 	//		const float at_target_yaw = Math::VecCalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 	//		if (fabs(Math::NormalizedAngle(viewangles.y - at_target_yaw)) > 30.f)
-	//			return LastMoveLby(record, player);
+	//			LastMoveLby(record, player);
 
 	//		record->m_angEyeAngles.y = (Math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f;
 
-	//		//return UTILS::GetLBYRotatedYaw(entity->m_flLowerBodyYawTarget(), (math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f);
+	//		//UTILS::GetLBYRotatedYaw(entity->m_flLowerBodyYawTarget(), (math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f);
 
 	//		record->m_iResolverMode = RESOLVE_OVERRIDE;
 	//	}
