@@ -1112,7 +1112,7 @@ namespace Interfaces
 			}
 			case 1:
 			{
-				material = 1;
+				material = 2;
 				break;
 			}
 
