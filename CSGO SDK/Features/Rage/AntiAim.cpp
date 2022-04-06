@@ -55,6 +55,12 @@ namespace Interfaces
 
 		//void fake_flick(Encrypted_t<CUserCmd> cmd);
 
+		void lby_prediction(Encrypted_t<CUserCmd> cmd, bool* bSendPacket);
+
+		bool lby_update(Encrypted_t<CUserCmd> cmd, bool* bSendPacket);
+
+		bool do_lby(Encrypted_t<CUserCmd> cmd, bool* bSendPacket);
+
 		virtual bool IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings);
 
 		bool m_bNegate = false;
@@ -67,7 +73,128 @@ namespace Interfaces
 		float  m_view;
 		float  m_auto_time;
 
+		bool broke_lby = false;
+		float next_lby_update = 0.f;
+		bool update_lby = false;
+		float initial_lby = 0.f;
+		float target_lby = 0.f;
+		bool firstupdate = true;
+		bool secondupdate = true;
 	};
+
+	static float next_lby_update_time = 0;
+
+	void C_AntiAimbot::lby_prediction(Encrypted_t<CUserCmd> cmd, bool* bSendPacket)
+	{
+		auto localPlayer = C_CSPlayer::GetLocalPlayer();
+
+		if (!localPlayer)
+			return;
+
+
+		const auto animstate = localPlayer->m_PlayerAnimState();
+		if (!animstate)
+			return;
+
+		static int negative = false;
+
+		if (Interfaces::m_pClientState->m_nChokedCommands())
+			return;
+
+		if (animstate->m_velocity > 0.1f)
+		{
+			g_Vars.globals.m_flBodyPred =+ 0.22f;
+			firstupdate = true;
+		}
+		else if (Interfaces::m_pGlobalVars->curtime > g_Vars.globals.m_flBodyPred)
+		{
+			update_lby = true;
+		}
+
+		const auto get_add_by_choke = [&]() -> float
+		{
+			static auto max = 137.f;
+			static auto min = 100.f;
+
+			auto mult = 1.f / 0.2f * TICKS_TO_TIME(Interfaces::m_pClientState->m_nChokedCommands());
+
+			return 100.f + (max - min) * mult;
+		};
+
+		Encrypted_t<CVariables::ANTIAIM_STATE> settings(&g_Vars.antiaim_stand);
+
+		if (firstupdate && animstate->m_velocity <= 0.1f || firstupdate && animstate->m_vecVelocity.Length() <= 0.1f && settings->yaw == 1)
+		{
+			initial_lby = cmd->viewangles.y + g_Vars.antiaim.break_lby_first;
+
+			if (g_Vars.globals.Fakewalking) {
+				*bSendPacket = true;
+			}
+			secondupdate = true;
+			firstupdate = false;
+		}
+
+		if (!firstupdate && Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(Interfaces::m_pClientState->m_nChokedCommands() + 1) > g_Vars.globals.m_flBodyPred
+			&& fabsf(Math::normalize_float(cmd->viewangles.y - initial_lby)) < get_add_by_choke() && settings->yaw == 1)
+		{
+			//cmd->viewangles.y = initial_lby + get_add_by_choke();
+
+			cmd->viewangles.y = initial_lby + get_add_by_choke();
+
+			if (g_Vars.globals.Fakewalking) {
+				*bSendPacket = true;
+			}
+
+		}
+
+	}
+
+
+	bool C_AntiAimbot::lby_update(Encrypted_t<CUserCmd> cmd, bool* bSendPacket)
+	{
+		auto localPlayer = C_CSPlayer::GetLocalPlayer();
+
+		if (!localPlayer)
+			return false;
+
+		if (Interfaces::m_pClientState->m_nChokedCommands() || !(localPlayer->m_fFlags() & FL_ONGROUND))
+			return false;
+
+		Encrypted_t<CVariables::ANTIAIM_STATE> settings(&g_Vars.antiaim_stand);
+
+		const auto updated = update_lby;
+
+		if (update_lby && settings->yaw == 1)
+		{
+
+			auto angles = cmd->viewangles.y;
+
+			target_lby = initial_lby;
+			cmd->viewangles.y = initial_lby;
+			cmd->viewangles.Clamp();
+			update_lby = false;
+
+			if (secondupdate)
+			{
+				if (g_Vars.globals.Fakewalking) {
+					*bSendPacket = true;
+				}
+
+				initial_lby = angles + g_Vars.antiaim.break_lby;
+
+				secondupdate = false;
+			}
+		}
+
+		return updated;
+	}
+
+	bool C_AntiAimbot::do_lby(Encrypted_t<CUserCmd> cmd, bool* bSendPacket)
+	{
+		lby_prediction(cmd, bSendPacket);
+
+		return lby_update(cmd, bSendPacket);
+	}
 
 	//void C_AntiAimbot::SendFakeFlick() {
 	//	if (g_TickbaseController.m_didFakeFlick) {
@@ -301,7 +428,7 @@ namespace Interfaces
 		if (!IsEnabled(cmd, settings))
 			return;
 
-		m_auto_time = 4.f;
+		m_auto_time = g_Vars.antiaim.timeout_time;
 
 		static auto fakelagTrack = (int)g_Vars.fakelag.choke;
 
@@ -470,11 +597,11 @@ namespace Interfaces
 		}
 
 		// one tick before the update.
-		if (!Interfaces::m_pClientState->m_nChokedCommands() && LocalPlayer->m_fFlags() & FL_ONGROUND && !move && Interfaces::m_pGlobalVars->curtime >= (g_Vars.globals.m_flBodyPred - g_Vars.globals.m_flAnimFrame) && Interfaces::m_pGlobalVars->curtime < g_Vars.globals.m_flBodyPred) {
-			// z mode.
-			if (settings->yaw == 3)
-				cmd->viewangles.y -= 90.f;
-		}
+		//if (!Interfaces::m_pClientState->m_nChokedCommands() && LocalPlayer->m_fFlags() & FL_ONGROUND && !move && Interfaces::m_pGlobalVars->curtime >= (g_Vars.globals.m_flBodyPred - g_Vars.globals.m_flAnimFrame) && Interfaces::m_pGlobalVars->curtime < g_Vars.globals.m_flBodyPred) {
+		//	// z mode.
+		//	if (settings->yaw == 3)
+		//		cmd->viewangles.y -= 90.f;
+		//}
 
 		if ((g_Vars.antiaim.anti_lastmove && !g_Vars.globals.WasShootingInPeek && LocalPlayer->m_fFlags() & FL_ONGROUND && !(cmd->buttons & IN_JUMP) && LocalPlayer->m_vecVelocity().Length() >= 1.2f)) {
 			if ((!(cmd->buttons & IN_JUMP) && cmd->forwardmove == cmd->sidemove && cmd->sidemove == 0.0f)) {
@@ -494,47 +621,54 @@ namespace Interfaces
 		static bool breaker = false;
 		auto bSwitch = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) < Interfaces::m_pGlobalVars->interval_per_tick;
 		auto bSwap = std::fabs(Interfaces::m_pGlobalVars->curtime - g_Vars.globals.m_flBodyPred) > 1.1 - (Interfaces::m_pGlobalVars->interval_per_tick * 5);
-		if (!Interfaces::m_pClientState->m_nChokedCommands()
-			&& Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
-			&& LocalPlayer->m_fFlags() & FL_ONGROUND && !move) {
-			if (g_Vars.globals.Fakewalking) {
-				*bSendPacket = true;
-			}
-			// fake yaw.
-			switch (settings->yaw) {
-			case 1: // static
-				/*g_Vars.misc.mind_trick_bind.enabled ? cmd->viewangles.y += g_Vars.misc.mind_trick_lby :*/ cmd->viewangles.y += g_Vars.antiaim.break_lby;
-				//if (!breaker) {
-				if(g_Vars.antiaim.flickup)
-					cmd->viewangles.x -= g_Vars.antiaim.break_lby;
-				//	breaker = true;
-				//}
-				//else if (breaker)
-				//	breaker = false;
-				break;
-			case 2: // twist
-				negative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
-				negative = !negative;
-				break;
-			case 3: // z
-				cmd->viewangles.y += 90.f;
-				break;
-			default:
-				break;
-			}
+		//if (!Interfaces::m_pClientState->m_nChokedCommands()
+		//	&& Interfaces::m_pGlobalVars->curtime >= g_Vars.globals.m_flBodyPred
+		//	&& LocalPlayer->m_fFlags() & FL_ONGROUND && !move) {
+		//	if (g_Vars.globals.Fakewalking) {
+		//		*bSendPacket = true;
+		//	}
+		//	// fake yaw.
+		//	switch (settings->yaw) {
+		//	case 1: // static
+		//		/*g_Vars.misc.mind_trick_bind.enabled ? cmd->viewangles.y += g_Vars.misc.mind_trick_lby :*/ cmd->viewangles.y += g_Vars.antiaim.break_lby;
+		//		//if (!breaker) {
+		//		if(g_Vars.antiaim.flickup)
+		//			cmd->viewangles.x -= g_Vars.antiaim.break_lby;
+		//		//	breaker = true;
+		//		//}
+		//		//else if (breaker)
+		//		//	breaker = false;
+		//		break;
+		//	case 2: // twist
+		//		negative ? cmd->viewangles.y += 110.f : cmd->viewangles.y -= 110.f;
+		//		negative = !negative;
+		//		break;
+		//	case 3: // z
+		//		cmd->viewangles.y += 90.f;
+		//		break;
+		//	default:
+		//		break;
+		//	}
 
-			m_flLowerBodyUpdateYaw = LocalPlayer->m_flLowerBodyYawTarget();
-		}
+		//	m_flLowerBodyUpdateYaw = LocalPlayer->m_flLowerBodyYawTarget();
+		//}
+
+		do_lby(cmd, bSendPacket);
 
 		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
 
-		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // jitter
+		if (settings->base_yaw == 3 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // jitter
 			static auto j = false;
 
 			cmd->viewangles.y += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
 			j = !j;
 
 		}
+
+		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // rotate
+			cmd->viewangles.y += std::fmod(Interfaces::m_pGlobalVars->curtime * (g_Vars.antiaim.rot_speed * 20.f), g_Vars.antiaim.rot_range);
+		}
+
 
 		QAngle ang;
 
@@ -702,20 +836,7 @@ namespace Interfaces
 			}
 			break;
 		}
-		case 2: { // jitter
-
-			//static auto last_yaw = 0.f;
-			//static auto st = NULL;
-			//static auto j = false;
-
-
-			//flRetValue += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
-			//j = !j;
-	
-
-			break;
-		}
-		case 3: { // 180z
+		case 4: { // 180z
 
 			if (!bUsingManualAA) {
 				flRetValue = (flViewAnlge - 180.f / 2.f);
@@ -730,12 +851,14 @@ namespace Interfaces
 
 		}
 
-		//do_at_target(cmd);
+		if (!bUsingManualAA && g_Vars.antiaim.at_targets) {
+			do_at_target(cmd);
+		}
 
 		if (g_Vars.antiaim.freestand) {
 			if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
 				AutoDirection(cmd);
-				flRetValue = m_auto;
+				flRetValue = m_auto + g_Vars.antiaim.add_yaw;
 			}
 
 
@@ -772,10 +895,9 @@ namespace Interfaces
 		//if (iUpdates > pow(10, 10))
 		//	iUpdates = 1;
 
-		//if (!g_Vars.globals.m_bGround && g_Vars.antiaim.backwards_in_air) {
-		//	flRetValue = flViewAnlge + (iUpdates % 2 ? -155.f : 155.f);
-		//	++iUpdates;
-		//}
+		if (!g_Vars.globals.m_bGround && g_Vars.antiaim.backwards_in_air) {
+			flRetValue = flViewAnlge + 180.f;
+		}
 
 		return flRetValue;
 	}

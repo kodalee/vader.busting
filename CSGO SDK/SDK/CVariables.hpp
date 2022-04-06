@@ -870,12 +870,19 @@ public:
 	config_option( bool, distort_disable_run, false );
 	config_option( bool, distort_disable_air, false );
 
-	config_option(int, Jitter_range, 0);
-	config_option( int, break_lby, 0 );
+	config_option( int, Jitter_range, 0);
+	config_option( int, break_lby, 90 );
+	config_option( int, break_lby_first, 90 );
+	config_option( bool, static_angle, false );
 	config_option( bool, imposta, false );
 	config_option( bool, flickup, false );
 	config_option( bool, preserve, false );
-	config_option(bool, anti_lastmove, false);
+	config_option( bool, anti_lastmove, false );
+	config_option( bool, at_targets, false );
+	config_option( int, rot_speed, 1 );
+	config_option( int, rot_range, 1 );
+	config_option( int, timeout_time, 4 );
+	config_option( int, add_yaw, 0 );
 
 	config_option( bool, hide_real_on_shot, false );
 	config_keybind( desync_jitter_key );
@@ -896,6 +903,7 @@ public:
 	config_option( bool, when_moving, false );
 	config_option( bool, when_air, false );
 	config_option(bool, vis_lag, false);
+	config_option(bool, fakelag_onshot, true);
 	config_option(FloatColor, vis_lag_color, FloatColor(1.0f, 1.0f, 1.0f, 0.4f));
 	//config_option( bool, when_exploits, false );
 

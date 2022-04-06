@@ -316,9 +316,9 @@ void HvH()
 
 	const char* pitches[] = { XorStr("Off"), XorStr("Down"), XorStr("Up"), XorStr("Zero") };
 
-	const char* real_yaw[] = { XorStr("Off"), XorStr("180"), XorStr("Jitter"), XorStr("180z") };
+	const char* real_yaw[] = { XorStr("Off"), XorStr("180"), XorStr("Rotate"), XorStr("Jitter"), XorStr("180z") };
 
-	const char* fake_yaw[] = { XorStr("Off"), XorStr("Static"), XorStr("Twist"), XorStr("Z") };
+	const char* fake_yaw[] = { XorStr("Off"), XorStr("Static") };
 
 	const char* freestand_mode[] = { XorStr("Crosshair"), XorStr("Edge") };
 
@@ -340,8 +340,13 @@ void HvH()
 
 				InsertCombo(XorStr("Real yaw"), &settings->base_yaw, real_yaw);
 
-				if (settings->base_yaw == 2) {
+				if (settings->base_yaw == 3) {
 					InsertSliderInt(XorStr("Jitter range"), &g_Vars.antiaim.Jitter_range, -100, 100, XorStr("%d"));
+				}
+
+				if (settings->base_yaw == 2) {
+					InsertSliderInt(XorStr("Rotation range"), &g_Vars.antiaim.rot_range, 1, 360, XorStr("%d"));
+					InsertSliderInt(XorStr("Rotation speed"), &g_Vars.antiaim.rot_speed, 1, 100, XorStr("%d"));
 				}
 
 				InsertCombo(XorStr("Fake yaw"), &settings->yaw, fake_yaw);
@@ -349,22 +354,31 @@ void HvH()
 				// static lets choose our own vaule.
 				if (settings->yaw == 1) {
 					InsertSliderInt(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -180, 180, XorStr("%d"));
+					InsertSliderInt(XorStr("First break angle"), &g_Vars.antiaim.break_lby_first, -180, 180, XorStr("%d"));
+					//InsertCheckbox(StaticAngle, XorStr("Static angle"), &g_Vars.antiaim.static_angle)
 				}
 
-				InsertCheckbox(FlickUp, XorStr("Flick LBY Up"), &g_Vars.antiaim.flickup);
+				//InsertCheckbox(FlickUp, XorStr("Flick LBY Up"), &g_Vars.antiaim.flickup);
 
 				//InsertCheckbox(AntiAimPreserve, XorStr("Preserve stand yaw"), &g_Vars.antiaim.preserve);
 
 				ImGui::NextColumn();
 				ImGui::NewLine();
 
-				//InsertCheckbox(BackwardsInAir, XorStr("Backwards in air"), &g_Vars.antiaim.backwards_in_air);
+				InsertCheckbox(BackwardsInAir, XorStr("Backwards in air"), &g_Vars.antiaim.backwards_in_air);
+
+				InsertCheckbox(AtTargets, XorStr("At targets"), &g_Vars.antiaim.at_targets);
 
 				InsertCheckbox(AntiLastmove, XorStr("Anti lastmove"), &g_Vars.antiaim.anti_lastmove);
 
 				InsertCheckbox(AntiAimFreestand, XorStr("Freestand yaw"), &g_Vars.antiaim.freestand);
 				if (g_Vars.antiaim.freestand) {
 					InsertCombo(XorStr("Freestand mode"), &g_Vars.antiaim.freestand_mode, freestand_mode);
+
+					if (g_Vars.antiaim.freestand_mode == 0) {
+						InsertSliderInt(XorStr("Timeout time"), &g_Vars.antiaim.timeout_time, 0, 10, XorStr("%d"));
+						InsertSliderInt(XorStr("Add yaw"), &g_Vars.antiaim.add_yaw, -180.f, 180.f, XorStr("%d"));
+					}
 				}
 
 				// distortion.
@@ -445,7 +459,7 @@ void HvH()
 			{
 				InsertCheckbox(Fakelag, XorStr("Fakelag##fakeKURWAlag"), &g_Vars.fakelag.enabled);
 
-				std::vector<MultiItem_t> fakelag_cond = { { XorStr("Moving"), &g_Vars.fakelag.when_moving }, { XorStr("In air"), &g_Vars.fakelag.when_air }, };
+				std::vector<MultiItem_t> fakelag_cond = { { XorStr("Moving"), &g_Vars.fakelag.when_moving }, { XorStr("In air"), &g_Vars.fakelag.when_air }, { XorStr("On peek"), &g_Vars.fakelag.trigger_on_peek } };
 				InsertMultiCombo(XorStr("Conditions"), fakelag_cond);
 
 				const char* FakelagType[] = { XorStr("Maximum"), XorStr("Dynamic"), XorStr("Fluctuate") };
@@ -457,6 +471,8 @@ void HvH()
 				g_Vars.fakelag.alternative_choke = 0;
 
 				InsertSliderFloat(XorStr("Variance"), &g_Vars.fakelag.variance, 0.0f, 100.0f, XorStr("%.0f %%"));
+
+				InsertCheckbox(Fakelagonshot, XorStr("Fakelag on shot"), &g_Vars.fakelag.fakelag_onshot);
 
 				InsertCheckbox(Visuallizelag, XorStr("Visualize lag"), &g_Vars.fakelag.vis_lag);
 				ColorPicker(XorStr("##Visualizelagcolor"), g_Vars.fakelag.vis_lag_color, true, false);

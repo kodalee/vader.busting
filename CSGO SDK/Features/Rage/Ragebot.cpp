@@ -497,7 +497,7 @@ namespace Interfaces
 
 		// we have a normal weapon or a non cocking revolver
 		// choke if its the processing tick.
-		if (g_Vars.globals.bCanWeaponFire && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.key_dt.enabled) {
+		if (g_Vars.globals.bCanWeaponFire && g_Vars.fakelag.fakelag_onshot && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.key_dt.enabled) {
 			*sendPacket = false;
 			StripAttack(cmd);
 			return false;
@@ -692,7 +692,7 @@ namespace Interfaces
 			m_rage_data->m_bNoNeededScope = false;
 		}
 
-		if (feet > 0.f) {
+		if (feet > 0.f && g_Vars.rage.key_dt.enabled) {
 			if (feet <= 60.f) {
 				m_rage_data->m_bNoNeededScope = true;
 			}
