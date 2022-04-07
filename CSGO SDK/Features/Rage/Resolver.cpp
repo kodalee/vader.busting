@@ -863,7 +863,6 @@ namespace Engine {
 						}
 						else {
 							record->m_angEyeAngles.y = move->m_body;
-							record->m_iResolverText = XorStr("LASTMOVE");
 						}
 						//}
 						break;
