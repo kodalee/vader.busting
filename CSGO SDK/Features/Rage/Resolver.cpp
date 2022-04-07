@@ -301,7 +301,7 @@ namespace Engine {
 		}
 
 		if (!valid) {
-			if (record->m_moved && pLagData->m_iMissedShots < 2 && g_Vars.rage.resolver_aggressive_fs) {
+			if (record->m_moved && pLagData->m_iMissedShots < 2) {
 				record->m_angEyeAngles.y = move->m_body;
 				record->m_iResolverText = XorStr("LASTMOVE");
 			}
@@ -857,30 +857,19 @@ namespace Engine {
 						//	g_ResolverData->m_iMode = 32;
 						//}
 						//else {
-						if (g_Vars.rage.resolver_aggressive_fs) {
-							AntiFreestand(record, player);
-							m_iMode = 1;
-						}
-						else {
-							record->m_angEyeAngles.y = move->m_body;
-						}
+						AntiFreestand(record, player);
+						m_iMode = 1;
 						//}
 						break;
 					case 1:
-						if (g_Vars.rage.resolver_aggressive_fs) {
-							if (AntiFreestanding(player, record->m_angEyeAngles.y)) { // using same freestand twice might not be a good idea so i switched to fatal here
-								record->m_iResolverText = XorStr("FREESTAND_F");
-								m_iMode = 1;
-							}
-							else {
-								record->m_angEyeAngles.y = at_target_yaw + 180.f;
-								record->m_iResolverText = XorStr("BACKWARDS_F");
-								m_iMode = 0;
-							}
+						if (AntiFreestanding(player, record->m_angEyeAngles.y)) { // using same freestand twice might not be a good idea so i switched to fatal here
+							record->m_iResolverText = XorStr("FREESTAND_F");
+							m_iMode = 1;
 						}
 						else {
-							AntiFreestand(record, player);
-							m_iMode = 1;
+							record->m_angEyeAngles.y = at_target_yaw + 180.f;
+							record->m_iResolverText = XorStr("BACKWARDS_F");
+							m_iMode = 0;
 						}
 						break;
 					case 2:

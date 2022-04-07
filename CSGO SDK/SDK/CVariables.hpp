@@ -658,24 +658,6 @@ public:
 
 	config_keybind( double_tap_bind );
 	config_option( bool, dt_exploits, false );
-
-	config_option(bool, resolver_aggressive_fs, false);
-	config_option(bool, resolver_delta, false);
-	config_option(bool, resolver_custom_brute, false);
-
-	config_option(int, resolver_case_1, 1);
-	config_option(int, resolver_case_1_custom, 90);
-
-	config_option(int, resolver_case_2, 3);
-	config_option(int, resolver_case_2_custom, -90);
-
-	config_option(int, resolver_case_3, 4);
-	config_option(int, resolver_case_3_custom, 90);
-
-	config_option(int, resolver_case_4, 4);
-	config_option(int, resolver_case_4_custom, -90);
-
-
 //	config_keybind( hide_shots_bind );
 //	config_option( bool, break_lagcomp, false );
 
