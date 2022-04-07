@@ -305,56 +305,56 @@ void Ragebot()
 		}
 
 		std::vector<MultiItem_t> resolver_extras = {
-	{ XorStr("Aggressive freestanding"), &g_Vars.rage.resolver_aggressive_fs },
-	{ XorStr("Delta"), &g_Vars.rage.resolver_delta },
-	{ XorStr("Custom bruteforce"), &g_Vars.rage.resolver_custom_brute },
+	       { XorStr("Aggressive freestanding"), &g_Vars.rage.resolver_aggressive_fs },
+		   { XorStr("Delta"), &g_Vars.rage.resolver_delta },
+		   { XorStr("Custom bruteforce"), &g_Vars.rage.resolver_custom_brute },
 		};
 
 		InsertMultiCombo(XorStr("Resolver extras"), resolver_extras);
-		if (g_Vars.rage.resolver_custom_brute) {
-			const char* resolver_options[] = { XorStr("Freestanding"), XorStr("Freestanding_f"), XorStr("LBY"), XorStr("Backwards"), XorStr("Custom") };
+		//if (g_Vars.rage.resolver_custom_brute) {
+		//	const char* resolver_options[] = { XorStr("Freestanding"), XorStr("Freestanding_f"), XorStr("LBY"), XorStr("Backwards"), XorStr("Custom") };
 
-			// case 1
+		//	// case 1
 
-			ImGui::Text(XorStr("case 1"));
-			InsertCombo(XorStr("##case1"), &g_Vars.rage.resolver_case_1, resolver_options);
+		//	ImGui::Text(XorStr("case 1"));
+		//	InsertCombo(XorStr("##case1"), &g_Vars.rage.resolver_case_1, resolver_options);
 
-			if (g_Vars.rage.resolver_case_1 == 4) {
-				ImGui::InputInt(XorStr("##case 1 custom"), &g_Vars.rage.resolver_case_1_custom);
-				std::clamp(g_Vars.rage.resolver_case_1_custom, -180, 180);
-			}
+		//	if (g_Vars.rage.resolver_case_1 == 4) {
+		//		ImGui::InputInt(XorStr("##case 1 custom"), &g_Vars.rage.resolver_case_1_custom);
+		//		std::clamp(g_Vars.rage.resolver_case_1_custom, -180, 180);
+		//	}
 
-			// case 2
+		//	// case 2
 
-			ImGui::Text(XorStr("case 2"));
-			InsertCombo(XorStr("##case2"), &g_Vars.rage.resolver_case_2, resolver_options);
+		//	ImGui::Text(XorStr("case 2"));
+		//	InsertCombo(XorStr("##case2"), &g_Vars.rage.resolver_case_2, resolver_options);
 
-			if (g_Vars.rage.resolver_case_2 == 4) {
-				ImGui::InputInt(XorStr("##case 2 custom"), &g_Vars.rage.resolver_case_2_custom);
-				std::clamp(g_Vars.rage.resolver_case_2_custom, -180, 180);
-			}
+		//	if (g_Vars.rage.resolver_case_2 == 4) {
+		//		ImGui::InputInt(XorStr("##case 2 custom"), &g_Vars.rage.resolver_case_2_custom);
+		//		std::clamp(g_Vars.rage.resolver_case_2_custom, -180, 180);
+		//	}
 
-			// case 3
+		//	// case 3
 
-			ImGui::Text(XorStr("case 3"));
-			InsertCombo(XorStr("##case3"), &g_Vars.rage.resolver_case_3, resolver_options);
+		//	ImGui::Text(XorStr("case 3"));
+		//	InsertCombo(XorStr("##case3"), &g_Vars.rage.resolver_case_3, resolver_options);
 
-			if (g_Vars.rage.resolver_case_3 == 4) {
-				ImGui::InputInt(XorStr("##case 3 custom"), &g_Vars.rage.resolver_case_3_custom);
-				std::clamp(g_Vars.rage.resolver_case_3_custom, -180, 180);
-			}
+		//	if (g_Vars.rage.resolver_case_3 == 4) {
+		//		ImGui::InputInt(XorStr("##case 3 custom"), &g_Vars.rage.resolver_case_3_custom);
+		//		std::clamp(g_Vars.rage.resolver_case_3_custom, -180, 180);
+		//	}
 
-			// case 4
+		//	// case 4
 
-			ImGui::Text(XorStr("case 4"));
-			InsertCombo(XorStr("##case4"), &g_Vars.rage.resolver_case_4, resolver_options);
+		//	ImGui::Text(XorStr("case 4"));
+		//	InsertCombo(XorStr("##case4"), &g_Vars.rage.resolver_case_4, resolver_options);
 
-			if (g_Vars.rage.resolver_case_4 == 4) {
-				ImGui::InputInt(XorStr("##case 4 custom"), &g_Vars.rage.resolver_case_4_custom);
-				std::clamp(g_Vars.rage.resolver_case_4_custom, -180, 180);
-			}
+		//	if (g_Vars.rage.resolver_case_4 == 4) {
+		//		ImGui::InputInt(XorStr("##case 4 custom"), &g_Vars.rage.resolver_case_4_custom);
+		//		std::clamp(g_Vars.rage.resolver_case_4_custom, -180, 180);
+		//	}
 
-		}
+		//}
 
 	}
 	ImGui::EndColumns();
