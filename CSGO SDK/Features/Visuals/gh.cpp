@@ -208,43 +208,43 @@ bool c_grenade_prediction::data_t::draw() const
     if (!pLocalPlayer->IsAlive())
         vLocalOrigin = Interfaces::m_pInput->m_vecCameraOffset;
 
-    if (!is_on_screen(vEnemyOrigin, screenPos))
-    {
-        const float wm = m_width / 2, hm = m_height / 2;
-        Vector last_pos = std::get< Vector >(m_path.at(m_path.size() - 1));
+    //if (!is_on_screen(vEnemyOrigin, screenPos))
+    //{
+    //    const float wm = m_width / 2, hm = m_height / 2;
+    //    Vector last_pos = std::get< Vector >(m_path.at(m_path.size() - 1));
 
-        QAngle dir;
+    //    QAngle dir;
 
-        Interfaces::m_pEngine->GetViewAngles(dir);
+    //    Interfaces::m_pEngine->GetViewAngles(dir);
 
-        float view_angle = dir.y;
+    //    float view_angle = dir.y;
 
-        if (view_angle < 0)
-            view_angle += 360;
+    //    if (view_angle < 0)
+    //        view_angle += 360;
 
-        view_angle = DEG2RAD(view_angle);
+    //    view_angle = DEG2RAD(view_angle);
 
-        auto entity_angle = Math::CalcAngle(vLocalOrigin, vEnemyOrigin);
-        entity_angle.Normalize();
+    //    auto entity_angle = Math::CalcAngle(vLocalOrigin, vEnemyOrigin);
+    //    entity_angle.Normalize();
 
-        if (entity_angle.y < 0.f)
-            entity_angle.y += 360.f;
+    //    if (entity_angle.y < 0.f)
+    //        entity_angle.y += 360.f;
 
-        entity_angle.y = DEG2RAD(entity_angle.y);
-        entity_angle.y -= view_angle;
+    //    entity_angle.y = DEG2RAD(entity_angle.y);
+    //    entity_angle.y -= view_angle;
 
-        auto position = Vector2D(wm, hm);
-        position.x -= std::clamp(vLocalOrigin.Distance(vEnemyOrigin), 400.f, hm - 40);
+    //    auto position = Vector2D(wm, hm);
+    //    position.x -= std::clamp(vLocalOrigin.Distance(vEnemyOrigin), 400.f, hm - 40);
 
-        rotate_point(position, Vector2D(wm, hm), false, entity_angle.y);
+    //    rotate_point(position, Vector2D(wm, hm), false, entity_angle.y);
 
-        if (dist < 45) {
-            Render::Engine::CircleFilled(position.x, position.y - 10, 20, 360, Color(26, 26, 30, 200));
-            draw_arc(position.x, position.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
-            Render::Engine::cs_huge.string(position.x - 8, position.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
-        }
+    //    if (dist < 45) {
+    //        Render::Engine::CircleFilled(position.x, position.y - 10, 20, 360, Color(26, 26, 30, 200));
+    //        draw_arc(position.x, position.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
+    //        Render::Engine::cs_huge.string(position.x - 8, position.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
+    //    }
 
-    }
+    //}
     return true;
 }
 
