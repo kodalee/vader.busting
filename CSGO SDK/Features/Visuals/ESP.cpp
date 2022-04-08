@@ -1306,6 +1306,14 @@ void CEsp::Main( ) {
 		if (!ent)
 			continue;
 
+		C_CSPlayer* player = (C_CSPlayer*)ent->m_hOwnerEntity().Get();
+
+		if (!player)
+			continue;
+
+		if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex() && g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0)
+			continue;
+
 		if (ent->IsDormant())
 			continue;
 

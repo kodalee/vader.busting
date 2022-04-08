@@ -159,6 +159,9 @@ bool c_grenade_prediction::data_t::draw() const
 
     int dist = pLocalPlayer->m_vecOrigin().Distance(m_origin) / 12;
 
+    if (dist > 200.f)
+        return false;
+
     auto prev_screen = Vector2D();
     auto prev_on_screen = Render::Engine::WorldToScreen(std::get< Vector >(m_path.front()), prev_screen);
 
@@ -169,7 +172,8 @@ bool c_grenade_prediction::data_t::draw() const
         if (prev_on_screen && cur_on_screen) {
 
             if (g_Vars.esp.Grenadetracer) {
-                DrawBeamPaw(std::get< Vector >(m_path.at(i - 1)), std::get< Vector >(m_path.at(i)), Color(255, 255, 255, 255)); // beamcolor
+                //DrawBeamPaw(std::get< Vector >(m_path.at(i - 1)), std::get< Vector >(m_path.at(i)), Color(255, 255, 255, 255)); // beamcolor
+                Render::Engine::Line(prev_screen.x, prev_screen.y, cur_screen.x, cur_screen.y, { 255, 255, 255, 200 });
             }
         }
 
@@ -189,7 +193,7 @@ bool c_grenade_prediction::data_t::draw() const
     }
 
     //if (dist < 150) {
-    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 200));
+    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, dist > 27 ? Color(26, 26, 30, 199) : Color(232, 39, 62, 199));
     draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
     Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
    // }
@@ -263,7 +267,7 @@ void c_grenade_prediction::grenade_warning(C_CSPlayer* entity)
         return;
 
     const auto client_class = entity->GetClientClass();
-    if (!client_class || client_class->m_ClassID != 114 && client_class->m_ClassID != 9)
+    if (!client_class || client_class->m_ClassID != CMolotovProjectile && client_class->m_ClassID != 9)
         return;
 
     if (client_class->m_ClassID == 9) {
@@ -284,7 +288,7 @@ void c_grenade_prediction::grenade_warning(C_CSPlayer* entity)
     }
 
     if (predicted_nades.find(handle) == predicted_nades.end()) {
-        predicted_nades.emplace(std::piecewise_construct, std::forward_as_tuple(handle), std::forward_as_tuple(reinterpret_cast<C_WeaponCSBaseGun*>(entity)->m_hThrower(), client_class->m_ClassID == 114 ? WEAPON_MOLOTOV : WEAPON_HEGRENADE, entity->m_vecOrigin(), reinterpret_cast<C_CSPlayer*>(entity)->m_vecVelocity(), entity->get_creation_time(), TIME_TO_TICKS(reinterpret_cast<C_CSPlayer*>(entity)->m_flSimulationTime() - entity->get_creation_time())));
+        predicted_nades.emplace(std::piecewise_construct, std::forward_as_tuple(handle), std::forward_as_tuple(reinterpret_cast<C_WeaponCSBaseGun*>(entity)->m_hThrower(), client_class->m_ClassID == CMolotovProjectile ? WEAPON_MOLOTOV : WEAPON_HEGRENADE, entity->m_vecOrigin(), reinterpret_cast<C_CSPlayer*>(entity)->m_vecVelocity(), entity->get_creation_time(), TIME_TO_TICKS(reinterpret_cast<C_CSPlayer*>(entity)->m_flSimulationTime() - entity->get_creation_time())));
     }
 
     if (predicted_nades.at(handle).draw())
