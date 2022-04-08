@@ -30,6 +30,7 @@
 #include "IVEffects.h"
 #include "Trace.h"
 #include "../Miscellaneous/walkbot.h"
+#include "gh.h"
 
 #include <iomanip>
 
@@ -1290,6 +1291,81 @@ void CEsp::Main( ) {
 	if( !m_LocalPlayer->IsDead( ) )
 		Indicators( );
 
+	auto& predicted_nades = g_grenades_pred.get_list();
+
+	static auto last_server_tick = Interfaces::m_pEngine->GetServerTick();
+	if (Interfaces::m_pEngine->GetServerTick() != last_server_tick) {
+		predicted_nades.clear();
+
+		last_server_tick = Interfaces::m_pEngine->GetServerTick();
+	}
+
+	// draw esp on ents.
+	for (int i{ 1 }; i <= Interfaces::m_pEntList->GetHighestEntityIndex(); ++i) {
+		auto* ent = (C_BaseEntity*)Interfaces::m_pEntList->GetClientEntity(i);
+		if (!ent)
+			continue;
+
+		if (ent->IsDormant())
+			continue;
+
+		if (!ent->GetClientClass() /*|| !entity->GetClientClass( )->m_ClassID*/)
+			continue;
+
+		if (ent->GetClientClass()->m_ClassID != ClassId_t::CMolotovProjectile
+			&& ent->GetClientClass()->m_ClassID != ClassId_t::CBaseCSGrenadeProjectile)
+			continue;
+
+		if (ent->GetClientClass()->m_ClassID == ClassId_t::CBaseCSGrenadeProjectile) {
+			const auto studio_model = ent->GetModel();
+			if (!studio_model
+				|| std::string_view(studio_model->szName).find(XorStr("fraggrenade")) == std::string::npos)
+				continue;
+		}
+
+		const auto handle = reinterpret_cast<C_CSPlayer*>(ent)->GetRefEHandle().ToLong();
+
+		if (ent->m_fEffects() & EF_NODRAW) {
+			predicted_nades.erase(handle);
+
+			continue;
+		}
+
+		if (predicted_nades.find(handle) == predicted_nades.end()) {
+			predicted_nades.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(handle),
+				std::forward_as_tuple(
+					reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntityFromHandle(ent->m_hThrower())),
+					ent->GetClientClass()->m_ClassID == ClassId_t::CMolotovProjectile ? WEAPON_MOLOTOV : WEAPON_HEGRENADE,
+					ent->m_vecOrigin(), reinterpret_cast<C_CSPlayer*>(ent)->m_vecVelocity(), ent->m_flSpawnTime_Grenade(),
+					TIME_TO_TICKS(reinterpret_cast<C_CSPlayer*>(ent)->m_flSimulationTime() - ent->m_flSpawnTime_Grenade())
+				)
+			);
+		}
+
+		if (predicted_nades.at(handle).draw())
+			continue;
+
+		predicted_nades.erase(handle);
+	}
+
+	g_grenades_pred.get_local_data().draw();
+
+
+	for (auto k = 0; k < Interfaces::m_pEntList->GetHighestEntityIndex(); k++)
+	{
+		C_CSPlayer* entity = Interfaces::m_pEntList->GetClientEntity(k)->as<C_CSPlayer*>();
+
+		if (entity == nullptr ||
+			!entity->GetClientClass() ||
+			entity == m_LocalPlayer)
+			continue;
+
+		g_grenades_pred.grenade_warning(entity);
+		g_grenades_pred.get_local_data().draw();
+	}
+
 	// draw the damage at the latest pos we hit an enemy at
 	//if( g_Vars.esp.visualize_damage && Hitmarkers::m_vecWorldHitmarkers.size( ) ) {
 	//	Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers.back( );
@@ -1314,13 +1390,13 @@ void CEsp::Main( ) {
 
 	dlight_players();
 
-	Grenade_Tracer();
+	//Grenade_Tracer();
 
 	walkbot::Instance().update(false);
 
-	if (g_Vars.esp.NadeTracer) {
-		GrenadeClass.draw();
-	}
+	//if (g_Vars.esp.NadeTracer) {
+	//	GrenadeClass.draw();
+	//}
 
 	//static float auto_peek_radius = 0.f;
 	bool condition = g_Vars.misc.autopeek && g_Vars.misc.autopeek_visualise && !AutoPeekPos.IsZero( ) && g_Vars.misc.autopeek_bind.enabled;
@@ -1886,7 +1962,11 @@ void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {
 			item_definition = WEAPON_FLASHBANG;
 		}
 		else {
-			Name = XorStr("l");
+			if (!g_Vars.esp.Grenadewarning) {
+				Name = XorStr("l");
+			}
+			else
+				Name = XorStr(" ");
 			item_definition = WEAPON_HEGRENADE;
 		}
 		break;
@@ -1907,7 +1987,11 @@ void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {
 		}
 		break;
 	case ClassId_t::CMolotovProjectile:
-		Name = XorStr("n");
+		if (!g_Vars.esp.Grenadewarning) {
+			Name = XorStr("n");
+		}
+		else
+			Name = XorStr(" ");
 		// bich
 		if (nade && (nade->m_hOwnerEntity().Get()) && ((C_CSPlayer*)(nade->m_hOwnerEntity().Get()))) {
 			item_definition = ((C_CSPlayer*)(nade->m_hOwnerEntity().Get()))->m_iTeamNum() == TEAM_CT ? WEAPON_FIREBOMB : WEAPON_MOLOTOV;

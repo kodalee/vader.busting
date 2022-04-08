@@ -206,6 +206,8 @@ struct DllInitializeData {
 	  DWORD32 m_bPinPulled;
 	  DWORD32 m_fThrowTime;
 	  DWORD32 m_flThrowStrength;
+	  DWORD32 m_hThrower;
+	  DWORD32 m_flSpawnTime_Grenade;
    } DT_BaseCSGrenade;
 
    // DT_BaseAttributableItem
@@ -240,6 +242,11 @@ struct DllInitializeData {
 	  DWORD32 m_nSmokeCount;
 	//  DWORD32 m_SmokeParticlesSpawned;
    } DT_SmokeGrenadeProjectile;
+
+   // DT_BaseCSGrenadeProjectile
+   struct {
+	   DWORD32 m_nExplodeEffectTickBegin;
+   } DT_BaseCSGrenadeProjectile;
 
    // DT_PlantedC4
    struct {

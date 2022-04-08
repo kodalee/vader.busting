@@ -109,6 +109,7 @@ public:
    Vector GetShootPosition();
    bool CanShoot( bool skip_revolver = false);
    bool IsReloading( );
+   float& get_creation_time();
 
    Vector GetEyePosition( );
    void ForceAngleTo(QAngle angle);

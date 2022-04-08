@@ -102,6 +102,7 @@ public:
   void UpdateAccuracyPenalty( );
 
   bool IsInThrow( );
+  CHandle<C_CSPlayer>& m_hThrower();
   bool IsFireTime( );
   bool IsSecondaryFireTime( );
 };

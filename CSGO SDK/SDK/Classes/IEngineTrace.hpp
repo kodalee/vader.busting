@@ -277,6 +277,13 @@ public:
 	IClientEntity*      hit_entity;
 	int                 hitbox;                       // box hit by trace in studio
 
+	__forceinline void clear() {
+		std::memset(this, 0, sizeof(CGameTrace));
+
+		fraction = 1.f;
+		surface.name = XorStr("**empty**");
+	}
+
 	CGameTrace() {}
 
 private:
@@ -322,4 +329,7 @@ public:
 	virtual void  TraceRay(const Ray_t &ray, unsigned int fMask, ITraceFilter *pTraceFilter, CGameTrace *pTrace) = 0;
 
 	__forceinline uint32_t GetFilterSimpleVtable( );
+
+	void TraceLine(const Vector& src, const Vector& dst, int mask, IHandleEntity* entity, int collision_group, CGameTrace* trace);
+	void TraceHull(const Vector& src, const Vector& dst, const Vector& mins, const Vector& maxs, int mask, IHandleEntity* entity, int collision_group, CGameTrace* trace);
 };

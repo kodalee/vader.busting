@@ -138,6 +138,23 @@ public:
 
 class IClientEntity : public IClientUnknown {
 public:
+	// helper methods.
+	template< typename t >
+	__forceinline t& get(size_t offset) {
+		return *(t*)((uintptr_t)this + offset);
+	}
+
+	template< typename t >
+	__forceinline void set(size_t offset, const t& val) {
+		*(t*)((uintptr_t)this + offset) = val;
+	}
+
+	template< typename t >
+	__forceinline t as() {
+		return (t)this;
+	}
+
+public:
 	SDK_pad( 0x64 );
 	int m_entIndex;
 
@@ -149,6 +166,8 @@ public:
 
 	Vector& GetAbsOrigin( );
 	QAngle& GetAbsAngles( );
+
+	int m_nExplodeEffectTickBegin();
 
 	ClientClass* GetClientClass( );
 	bool IsDormant( );
@@ -262,6 +281,8 @@ public:
 	void UpdateVisibilityAllEntities( );
 
 	float& m_flSimulationTime( );
+	float& m_flSpawnTime_Grenade();
+	CBaseHandle& m_hThrower();
 	float& m_flOldSimulationTime( );
 	float m_flAnimationTime( );
 

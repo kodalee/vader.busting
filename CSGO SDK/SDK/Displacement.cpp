@@ -168,6 +168,8 @@ namespace Engine
 		Displacement.DT_BaseCSGrenade.m_bPinPulled = pPropManager->GetOffset( XorStr( "DT_BaseCSGrenade" ), XorStr( "m_bPinPulled" ) );
 		Displacement.DT_BaseCSGrenade.m_fThrowTime = pPropManager->GetOffset( XorStr( "DT_BaseCSGrenade" ), XorStr( "m_fThrowTime" ) );
 		Displacement.DT_BaseCSGrenade.m_flThrowStrength = pPropManager->GetOffset( XorStr( "DT_BaseCSGrenade" ), XorStr( "m_flThrowStrength" ) );
+		Displacement.DT_BaseCSGrenade.m_hThrower = pPropManager->GetOffset(XorStr("DT_BaseCSGrenade"), XorStr("m_hThrower"));
+		Displacement.DT_BaseCSGrenade.m_flSpawnTime_Grenade = 0x29b0;
 
 		Displacement.DT_BaseAttributableItem.m_flFallbackWear = pPropManager->GetOffset( XorStr( "DT_BaseAttributableItem" ), XorStr( "m_flFallbackWear" ) );
 		Displacement.DT_BaseAttributableItem.m_nFallbackPaintKit = pPropManager->GetOffset( XorStr( "DT_BaseAttributableItem" ), XorStr( "m_nFallbackPaintKit" ) );
@@ -192,6 +194,8 @@ namespace Engine
 		Displacement.DT_SmokeGrenadeProjectile.m_nSmokeEffectTickBegin = pPropManager->GetOffset( XorStr( "DT_SmokeGrenadeProjectile" ), XorStr( "m_nSmokeEffectTickBegin" ) );
 		Displacement.DT_SmokeGrenadeProjectile.m_nSmokeCount = Memory::Scan( image_client, XorStr( "A3 ? ? ? ? 57 8B CB" ) ) + 0x1;
 		//Displacement.DT_SmokeGrenadeProjectile.m_SmokeParticlesSpawned = *( int* )( Memory::Scan( image_client, XorStr( "80 BF ?? ?? ?? ?? ?? 0F 85 ?? ?? ?? ?? F3 0F 7E 87 ?? ?? ?? ??" ) ) + 2 );
+
+		Displacement.DT_BaseCSGrenadeProjectile.m_nExplodeEffectTickBegin = pPropManager->GetOffset(XorStr("DT_BaseCSGrenadeProjectile"), XorStr("m_nExplodeEffectTickBegin"));
 
 		Displacement.CBoneMergeCache.m_nConstructor = Memory::Scan( image_client, XorStr( "56 8B F1 0F 57 C0 C7 86 ?? ?? ?? ?? ?? ?? ?? ??" ) );
 		Displacement.CBoneMergeCache.m_nInit = CallableFromRelative( Memory::Scan( image_client, XorStr( "E8 ?? ?? ?? ?? FF 75 08 8B 8E ?? ?? ?? ??" ) ) );

@@ -397,6 +397,7 @@
     <ClCompile Include="Features\Visuals\Trace.cpp" />
     <ClCompile Include="Features\Miscellaneous\walkbot.cpp" />
     <ClCompile Include="Features\Game\netdata.cpp" />
+    <ClCompile Include="Features\Visuals\gh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -949,6 +950,7 @@
     <ClInclude Include="Features\Visuals\Trace.h" />
     <ClInclude Include="Features\Miscellaneous\walkbot.h" />
     <ClInclude Include="Features\Game\netdata.h" />
+    <ClInclude Include="Features\Visuals\gh.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

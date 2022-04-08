@@ -133,6 +133,10 @@ QAngle& IClientEntity::GetAbsAngles( ) {
 	return Memory::VCall<Fn>( this, Index::IClientEntity::GetAbsAngles )( this );
 }
 
+int IClientEntity::m_nExplodeEffectTickBegin() {
+	return *(int*)((uintptr_t)this + Engine::Displacement.DT_BaseCSGrenadeProjectile.m_nExplodeEffectTickBegin);
+}
+
 ClientClass* IClientEntity::GetClientClass( ) {
 	auto networkable = GetClientNetworkable( );
 	if( !networkable )
@@ -331,6 +335,14 @@ float& C_PlantedC4::m_flC4Blow( ) {
 
 float& C_BaseEntity::m_flSimulationTime( ) {
 	return *( float* )( ( uintptr_t )this + Engine::Displacement.DT_BaseEntity.m_flSimulationTime );
+}
+
+float& C_BaseEntity::m_flSpawnTime_Grenade() {
+	return *(float*)((uintptr_t)this + Engine::Displacement.DT_BaseCSGrenade.m_flSpawnTime_Grenade);
+}
+
+CBaseHandle& C_BaseEntity::m_hThrower() {
+	return *(CBaseHandle*)((uintptr_t)this + Engine::Displacement.DT_BaseCSGrenade.m_hThrower);
 }
 
 float& C_BaseEntity::m_flOldSimulationTime( ) {

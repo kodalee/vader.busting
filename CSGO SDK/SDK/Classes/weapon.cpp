@@ -135,6 +135,10 @@ bool C_WeaponCSBaseGun::IsInThrow( ) {
    return false;
 }
 
+CHandle<C_CSPlayer>& C_WeaponCSBaseGun::m_hThrower() {
+	return *(CHandle< C_CSPlayer >*)((uintptr_t)this + Engine::Displacement.DT_BaseCSGrenade.m_hThrower);
+}
+
 CUtlVector<IRefCounted*>& C_EconItemView::m_CustomMaterials( ) {
    static auto _m_CustomMaterials = Engine::Displacement.DT_BaseAttributableItem.m_Item + 0x14;
    return *( CUtlVector< IRefCounted* >* )( ( uintptr_t ) this + _m_CustomMaterials );
