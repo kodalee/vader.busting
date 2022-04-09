@@ -1477,7 +1477,7 @@ void CEsp::Main( ) {
 					FloatColor color;
 
 					if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex() && g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0)
-						continue; // lets not draw our teammates molotovs to save some fps ;)
+						return; // lets not draw our teammates molotovs to save some fps ;)
 
 					//if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex()) {
 					//	if (g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0) {
