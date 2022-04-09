@@ -742,7 +742,7 @@ void Visuals()
 				//if (g_Vars.esp.NadeTracer) {
 				//	ColorPicker(XorStr("##GrenadeTracerColor"), g_Vars.esp.nade_tracer_color, true, false);
 				//}
-				InsertCheckbox(GrenadeWarning, XorStr("Grenade warning"), &g_Vars.esp.Grenadewarning);
+				InsertCheckbox(GrenadeWarning, XorStr("Grenade Warning"), &g_Vars.esp.Grenadewarning);
 				if (g_Vars.esp.Grenadewarning) {
 					InsertCheckbox(GrenadeWarningTracer, XorStr("Tracer"), &g_Vars.esp.Grenadetracer);
 				}
