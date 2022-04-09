@@ -1476,14 +1476,17 @@ void CEsp::Main( ) {
 				if (player) {
 					FloatColor color;
 
-					if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex()) {
-						if (g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0) {
-							color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.8f);
-						}
-					}
-					else {
+					if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex() && g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0)
+						return; // lets not draw our teammates molotovs to save some fps ;)
+
+					//if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex()) {
+					//	if (g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0) {
+					//		color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.8f);
+					//	}
+					//}
+					//else {
 						color = FloatColor(1.f, 0.f, 0.f, 0.8f);
-					}
+					//}
 
 					const Vector origin = pInferno->GetAbsOrigin();
 					Vector2D screen_origin = Vector2D();
