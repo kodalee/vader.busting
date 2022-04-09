@@ -263,7 +263,17 @@ void c_grenade_prediction::grenade_warning(C_CSPlayer* entity)
         last_server_tick = Interfaces::m_pEngine->GetServerTick();
     }
 
+    C_CSPlayer* pLocalPlayer = C_CSPlayer::GetLocalPlayer();
+
+    if (!pLocalPlayer)
+        return;
+
     if (entity->IsDormant() || !g_Vars.esp.Grenadewarning)
+        return;
+
+    C_CSPlayer* player = (C_CSPlayer*)entity->m_hOwnerEntity().Get();
+
+    if (player->m_iTeamNum() == pLocalPlayer->m_iTeamNum() && player->EntIndex() != pLocalPlayer->EntIndex() && g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0)
         return;
 
     const auto client_class = entity->GetClientClass();
