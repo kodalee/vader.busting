@@ -157,7 +157,7 @@ bool c_grenade_prediction::data_t::draw() const
 
     Interfaces::m_pEngine->GetScreenSize(m_width, m_height);
 
-    int dist = pLocalPlayer->m_vecOrigin().Distance(m_origin) / 12;
+    float dist = pLocalPlayer->m_vecOrigin().Distance(m_origin) / 12;
 
     if (dist > 200.f)
         return false;
