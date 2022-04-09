@@ -482,7 +482,7 @@ namespace Interfaces
 			static int DefensiveCounter; //peek check
 
 
-			if (g_Vars.globals.m_bAimbotShot || g_Vars.globals.WasShootingInPeek) {
+			if (FakeLag::Get()->IsPeeking(cmd) || g_Vars.globals.WasShootingInPeek) {
 				DefensiveCounter++;
 				AppliedShift = min2(DefensiveCounter, 14);//14
 				printf(XorStr("shot\n"));
