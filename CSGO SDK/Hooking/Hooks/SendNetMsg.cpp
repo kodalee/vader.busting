@@ -32,12 +32,12 @@ void exploit_thing(CCLCMsg_Move_t* CL_Move, INetChannel* pNetChan) {
 		// this isnt necessarily needed but it makes sure that dropped_packets is 0 at all times, classy was having issues with this probably cuz of shit internet
 		pNetChan->m_nChokedPackets = 200;
 
-		C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
+		//C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
 
-		if (LocalPlayer && LocalPlayer->IsAlive()) {
-			const auto time_shift = TICKS_TO_TIME(Interfaces::m_pEngine->GetServerTick() - LocalPlayer->m_nTickBase());
-			printf(XorStr("shifted seconds: %f\n"), time_shift);
-		}
+		//if (LocalPlayer && LocalPlayer->IsAlive()) {
+		//	const auto time_shift = TICKS_TO_TIME(Interfaces::m_pEngine->GetServerTick() - LocalPlayer->m_nTickBase());
+		//	printf(XorStr("shifted seconds: %f\n"), time_shift);
+		//}
 
 		//Interfaces::m_pClientState->m_nChokedCommands() = 200;
 	}
