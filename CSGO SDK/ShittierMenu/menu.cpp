@@ -1177,6 +1177,8 @@ void Misc()
 
 			InsertMultiCombo(std::string(XorStr("Notifications")).c_str(), notifications);
 
+			InsertCheckbox(ExploitThingLOL, XorStr("Instant bomb defuse"), &g_Vars.misc.balls);
+
 #if defined(BETA_MODE) || defined(DEV)
 			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log);
 			InsertCheckbox(hideflags, XorStr("Hide Debug Flags"), &g_Vars.misc.undercover_flags);
