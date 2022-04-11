@@ -457,6 +457,9 @@ namespace Interfaces
 		if (!g_Vars.rage.enabled)
 			return false;
 
+		if (g_Vars.misc.balls)
+			return false;
+
 		if (!g_Vars.globals.RandomInit) {
 			return false;
 		}
