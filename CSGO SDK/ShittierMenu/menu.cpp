@@ -1200,7 +1200,7 @@ void Misc()
 
 			InsertMultiCombo(std::string(XorStr("Walkbot")).c_str(), walkbot_s);
 
-			InsertCheckbox(randomasschekbox, XorStr("Create Point"), &g_Vars.misc.balls);
+			ImGui::Text(XorStr("Create Point"));
 			ImGui::SameLine();
 			biggestMeme2();
 			ImGui::Hotkey(XorStr("##createpoint"), &g_Vars.misc.walkbot_bind.key, &g_Vars.misc.walkbot_bind.cond, ImVec2{ 40,20 });
