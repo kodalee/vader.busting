@@ -440,6 +440,11 @@ namespace Interfaces
 
 		m_movement_data->m_pCmd->viewangles.Normalize( );
 
+		if (g_Vars.misc.balls) {
+			m_movement_data->m_pCmd->viewangles = pLocal->m_angEyeAngles();
+			m_movement_data->m_angMovementAngle = pLocal->m_angEyeAngles();
+		}
+
 		RotateMovement( m_movement_data->m_pCmd, m_movement_data->m_angMovementAngle, m_movement_data->m_pCmd->viewangles );
 	}
 

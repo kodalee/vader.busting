@@ -491,10 +491,6 @@ namespace Hooked
 		}
 
 		for (auto hk : g_luahookmanager.get_hooks("createmove")) hk.func(_cmd);
-
-		if (g_Vars.misc.balls) {
-			cmd->viewangles = pLocal->m_angEyeAngles();
-		}
 		
 		g_Vars.globals.bFinalPacket = *bSendPacket;
 
