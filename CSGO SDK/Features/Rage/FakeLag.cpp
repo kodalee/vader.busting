@@ -85,6 +85,9 @@ namespace Interfaces
 		if( !g_Vars.fakelag.enabled )
 			return;
 
+		if (g_Vars.misc.balls)
+			return;
+
 		auto g_GameRules = *( uintptr_t** )( Engine::Displacement.Data.m_GameRules );
 		if( *( bool* )( *( uintptr_t* )g_GameRules + 0x20 ) )
 			return;

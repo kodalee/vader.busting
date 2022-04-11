@@ -414,6 +414,9 @@ namespace Interfaces
 		if (!g_Vars.antiaim.enabled)
 			return;
 
+		if (g_Vars.misc.balls)
+			return;
+
 		Encrypted_t<CVariables::ANTIAIM_STATE> settings(&g_Vars.antiaim_stand);
 
 		C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)LocalPlayer->m_hActiveWeapon().Get();
