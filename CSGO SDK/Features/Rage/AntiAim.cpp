@@ -18,7 +18,7 @@
 #include "Ragebot.hpp"
 #include "FakeLag.hpp"
 
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define min2(a, b) (((a) < (b)) ? (a) : (b))
 
 namespace Interfaces
 {
@@ -51,7 +51,6 @@ namespace Interfaces
 		void SendFakeFlick();
 
 		bool airstuck();
-
 
 		//void fake_flick(Encrypted_t<CUserCmd> cmd);
 
@@ -812,7 +811,39 @@ namespace Interfaces
 			return FLT_MAX;
 
 		float flViewAnlge = cmd->viewangles.y;
-		float flRetValue = flViewAnlge + 180.f;
+
+		auto GetTargetYaw = [local, flViewAnlge]() -> float
+		{
+			float_t flBestDistance = FLT_MAX;
+
+			C_CSPlayer* pFinalPlayer = nullptr;
+			for (int32_t i = 1; i < 65; i++)
+			{
+				C_CSPlayer* pPlayer = C_CSPlayer::GetPlayerByIndex(i);
+				if (!pPlayer || !pPlayer->IsPlayer() || pPlayer->IsDead() || pPlayer->m_iTeamNum() == local->m_iTeamNum() || pPlayer->IsDormant())
+					continue;
+
+				if (pPlayer->m_fFlags() & FL_FROZEN)
+					continue;
+
+				float_t flDistanceToPlayer = local->m_vecOrigin().Distance(pPlayer->m_vecOrigin());
+				if (flDistanceToPlayer > flBestDistance)
+					continue;
+
+				if (flDistanceToPlayer > 1250.0f)
+					continue;
+
+				flBestDistance = flDistanceToPlayer;
+				pFinalPlayer = pPlayer;
+			}
+
+			if (!pFinalPlayer)
+				return flViewAnlge;
+
+			return Math::CalcAngle(local->GetAbsOrigin() + local->m_vecViewOffset(), pFinalPlayer->GetAbsOrigin()).yaw + 180.0f;
+		};
+
+		float flRetValue = (g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge) + 180.f;
 
 		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
 
@@ -854,9 +885,11 @@ namespace Interfaces
 
 		}
 
-		if (!bUsingManualAA && g_Vars.antiaim.at_targets) {
-			do_at_target(cmd);
-		}
+		//if (!bUsingManualAA && g_Vars.antiaim.at_targets) {
+		//	do_at_target(cmd);
+		//}
+
+		float freestandingReturnYaw = std::numeric_limits< float >::max();
 
 		if (g_Vars.antiaim.freestand) {
 			if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
@@ -1097,14 +1130,12 @@ namespace Interfaces
 
 	bool C_AntiAimbot::DoEdgeAntiAim(C_CSPlayer* player, QAngle& out) {
 		CGameTrace trace;
-		static CTraceFilter filter{ };
-		Ray_t ray;
 
 		if (player->m_MoveType() == MOVETYPE_LADDER)
 			return false;
 
 		// skip this player in our traces.
-		filter.pSkip = player;
+		static CTraceFilterSkipEntity filter(player);
 
 		// get player bounds.
 		Vector mins = player->OBBMins();
@@ -1122,11 +1153,7 @@ namespace Interfaces
 		// offset the view.
 		start.z += 56.f;
 
-		ray.Init(start, start, mins, maxs);
-
-		Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
-
-
+		Interfaces::m_pEngineTrace->TraceRay(Ray_t(start, start, mins, maxs), CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
 		if (!trace.startsolid)
 			return false;
 
@@ -1135,7 +1162,7 @@ namespace Interfaces
 
 		// trace around us in a circle, in 20 steps (anti-degree conversion).
 		// find the closest object.
-		for (float step{ }; step <= Math::pi_2; step += (Math::pi / 10.f)) {
+		for (float step{ }; step <= (M_PI * 2.f); step += (M_PI / 10.f)) {
 			// extend endpoint x units.
 			Vector end = start;
 
@@ -1143,9 +1170,7 @@ namespace Interfaces
 			end.x += std::cos(step) * 32.f;
 			end.y += std::sin(step) * 32.f;
 
-			ray.Init(start, end, { -1.f, -1.f, -8.f }, { 1.f, 1.f, 8.f });
-
-			Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+			Interfaces::m_pEngineTrace->TraceRay(Ray_t(start, end, { -1.f, -1.f, -8.f }, { 1.f, 1.f, 8.f }), CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
 
 			// we found an object closer, then the previouly found object.
 			if (trace.fraction < smallest) {
@@ -1161,7 +1186,7 @@ namespace Interfaces
 
 		// invert the normal of this object
 		// this will give us the direction/angle to this object.
-		Vector inv = Vector(-plane.x, -plane.y, -plane.z);
+		Vector inv = -plane;
 		Vector dir = inv;
 		dir.Normalize();
 
@@ -1173,17 +1198,14 @@ namespace Interfaces
 		// check if we can stick our head into the wall.
 		if (Interfaces::m_pEngineTrace->GetPointContents(point, CONTENTS_SOLID) & CONTENTS_SOLID) {
 			// trace from 72 units till 56 units to see if we are standing behind something.
-
-			ray.Init(point + Vector{ 0.f, 0.f, 16.f }, point);
-
-			Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+			Interfaces::m_pEngineTrace->TraceRay(Ray_t(point + Vector{ 0.f, 0.f, 16.f }, point), CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
 
 			// we didnt start in a solid, so we started in air.
 			// and we are not in the ground.
 			if (trace.fraction < 1.f && !trace.startsolid && trace.plane.normal.z > 0.7f) {
 				// mean we are standing behind a solid object.
 				// set our angle to the inversed normal of this object.
-				out.y = Math::rad_to_deg(std::atan2(inv.y, inv.x));
+				out.y = RAD2DEG(std::atan2(inv.y, inv.x));
 				return true;
 			}
 		}
@@ -1201,9 +1223,7 @@ namespace Interfaces
 		left.x = point.x - (inv.y * 48.f);
 		left.y = point.y - (inv.x * -48.f);
 
-		ray.Init(left, point, mins, maxs);
-
-		Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+		Interfaces::m_pEngineTrace->TraceRay(Ray_t(left, point, mins, maxs), CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
 		float l = trace.startsolid ? 0.f : trace.fraction;
 
 		// move this point 48 units to the right 
@@ -1212,9 +1232,7 @@ namespace Interfaces
 		right.x = point.x + (inv.y * 48.f);
 		right.y = point.y + (inv.x * -48.f);
 
-		ray.Init(right, point, mins, maxs);
-
-		Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
+		Interfaces::m_pEngineTrace->TraceRay(Ray_t(right, point, mins, maxs), CONTENTS_SOLID, (ITraceFilter*)&filter, &trace);
 		float r = trace.startsolid ? 0.f : trace.fraction;
 
 		// both are solid, no edge.
@@ -1222,7 +1240,7 @@ namespace Interfaces
 			return false;
 
 		// set out to inversed normal.
-		out.y = Math::rad_to_deg(std::atan2(inv.y, inv.x));
+		out.y = RAD2DEG(std::atan2(inv.y, inv.x));
 
 		// left started solid.
 		// set angle to the left.

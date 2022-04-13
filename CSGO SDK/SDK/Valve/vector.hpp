@@ -74,6 +74,10 @@ public:
 	 return ( src.x != x ) || ( src.y != y ) || ( src.z != z );
   }
 
+  __forceinline Vector operator-() const {
+	  return Vector{ -x, -y, -z };
+  }
+
   Vector& operator = ( const Vector& v );
   Vector& operator = ( const float* v );
 
