@@ -70,6 +70,7 @@ using namespace SDK;
 
 #define FL_ONGROUND ( 1 << 0 )
 #define FL_DUCKING ( 1 << 1 )
+#define FL_FROZEN (1 << 6) // so skylet wont bitch ;)
 
 #define IN_ATTACK ( 1 << 0 )
 #define IN_JUMP ( 1 << 1 )
