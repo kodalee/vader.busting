@@ -323,7 +323,6 @@ namespace Interfaces
 			case Hitgroup_LeftLeg:
 				if (hitboxSet->pHitbox(HITBOX_RIGHT_FOOT) != hitbox && hitboxSet->pHitbox(HITBOX_LEFT_FOOT) != hitbox) {
 					ps = m_rage_data->rbot->point_scale;
-					printf(std::to_string(m_rage_data->rbot->point_scale).c_str());
 					return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_legs : m_rage_data->rbot->hitboxes_legs;
 				}
 				break;
