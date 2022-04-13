@@ -50,6 +50,7 @@ void ColorPicker_w_name(const char* name, float* color, bool alpha, bool combo) 
 }
 
 enum WeaponGroup_t {
+	WEAPONGROUP_FAGGOT,
 	WEAPONGROUP_PISTOL,
 	WEAPONGROUP_HEAVYPISTOL,
 	WEAPONGROUP_RIFLE,
@@ -82,13 +83,6 @@ void Ragebot()
 	{
 		static int current_weapon = 0, rage_current_group = 0, current_group = 0;
 
-		if (rageTab == -1) {
-			InsertCheckbox(EnableRagebot, XorStr("Aimbot"), &g_Vars.rage.enabled);
-
-			InsertCheckbox(SilentAim, XorStr("Silent aim"), &g_Vars.rage.silent_aim);
-			InsertCheckbox(Autoshoot, XorStr("Automatic fire"), &g_Vars.rage.auto_fire);
-		}
-
 		CVariables::RAGE* rbot = nullptr;
 		switch (rageTab) {
 		case WEAPONGROUP_PISTOL:
@@ -118,19 +112,23 @@ void Ragebot()
 		case WEAPONGROUP_AUTOSNIPER + 1:
 			rbot = &g_Vars.rage_autosnipers;
 			break;
-		case -1:
-			rbot = &g_Vars.rage_default;
-			break;
 		default:
 			rbot = &g_Vars.rage_default;
 			break;
 		}
 
-		if (rageTab != -1) {
-			InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->active);
+		if (rageTab == 0) {
+			InsertCheckbox(EnableRagebot, XorStr("Aimbot"), &g_Vars.rage.enabled);
+
+			InsertCheckbox(SilentAim, XorStr("Silent aim"), &g_Vars.rage.silent_aim);
+			InsertCheckbox(Autoshoot, XorStr("Automatic fire"), &g_Vars.rage.auto_fire);
+		}
+
+		if (rageTab != 0) {
+			InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->active);
 		}
 		const char* TargetSelection[] = { XorStr("Highest damage"), XorStr("Nearest to crosshair"), XorStr("Lowest health"), XorStr("Lowest distance"), XorStr("Lowest latency") };
-		InsertCombo(std::string(XorStr("Target selection") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->target_selection, TargetSelection);
+		InsertCombo(std::string(XorStr("Target selection") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->target_selection, TargetSelection);
 
 		std::vector<MultiItem_t> hitboxes = {
 			{ XorStr("Head"), &rbot->hitboxes_head },
@@ -151,11 +149,11 @@ void Ragebot()
 			{ XorStr("Feet"), &rbot->mp_hitboxes_feets },
 		};
 
-		InsertMultiCombo(std::string(XorStr("Hitboxes") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), hitboxes);
+		InsertMultiCombo(std::string(XorStr("Hitboxes") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), hitboxes);
 
-		InsertMultiCombo(std::string(XorStr("Multipoints") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), multipoints);
+		InsertMultiCombo(std::string(XorStr("Multipoints") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), multipoints);
 
-		InsertCheckbox(IgnoreLimbs, XorStr("Ignore limbs when moving") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->ignorelimbs_ifwalking);
+		InsertCheckbox(IgnoreLimbs, XorStr("Ignore limbs when moving") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->ignorelimbs_ifwalking);
 
 		std::vector<MultiItem_t> mp_safety_hitboxes = {
 			{ XorStr("Head"), &rbot->mp_hitboxes_head },
@@ -168,30 +166,30 @@ void Ragebot()
 		//	if (!mp_safety_hitboxes.empty())
 		//		GUI::Controls::MultiDropdown(XorStr("Multipoints") + std::string(XorStr("#") + std::to_string(rage_current_group)), mp_safety_hitboxes);
 
-		InsertCheckbox(StaticPointscale, XorStr("Static pointscale") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->static_point_scale);
+		InsertCheckbox(StaticPointscale, XorStr("Static pointscale") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->static_point_scale);
 		if (rbot->static_point_scale) {
-			InsertSliderFloat(std::string(XorStr("Point scale##687687675") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
-			InsertSliderFloat(std::string(XorStr("Stomach scale##68776678") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->body_point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
+			InsertSliderFloat(std::string(XorStr("Point scale##687687675") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
+			InsertSliderFloat(std::string(XorStr("Stomach scale##68776678") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->body_point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
 		}
-		InsertSliderFloat(std::string(XorStr("Minimum hitchance") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->hitchance, 0.f, 100.f, XorStr("%.0f%%"));
-		InsertSliderInt(std::string(XorStr("Minimum dmg") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage_visible, 1, 130, std::string(rbot->min_damage_visible > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_visible - 100)))) : XorStr("%d hp")).c_str());
-		InsertCheckbox(AutomaticPenetration, XorStr("Automatic penetration") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->autowall);
+		InsertSliderFloat(std::string(XorStr("Minimum hitchance") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance, 0.f, 100.f, XorStr("%.0f%%"));
+		InsertSliderInt(std::string(XorStr("Minimum dmg") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage_visible, 1, 130, std::string(rbot->min_damage_visible > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_visible - 100)))) : XorStr("%d hp")).c_str());
+		InsertCheckbox(AutomaticPenetration, XorStr("Automatic penetration") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autowall);
 		if (rbot->autowall) {
-			InsertSliderInt(std::string(XorStr("Minimum penetration") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage, 1.f, 130.f, std::string(rbot->min_damage > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage - 100)))) : XorStr("%d hp")).c_str());
+			InsertSliderInt(std::string(XorStr("Minimum penetration") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage, 1.f, 130.f, std::string(rbot->min_damage > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage - 100)))) : XorStr("%d hp")).c_str());
 		}
 
 		ImGui::NextColumn();
 		ImGui::NewLine();
 
-		InsertCheckbox(ExtendedBT, std::string(XorStr("Extended backtrack") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &g_Vars.misc.extended_backtrack);
+		InsertCheckbox(ExtendedBT, std::string(XorStr("Extended backtrack") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack);
 		if (g_Vars.misc.extended_backtrack) {
 			ImGui::SameLine();
 			biggestMeme2();
-			ImGui::Hotkey(std::string(XorStr("##Extended backtrack Key") + std::to_string(rage_current_group)).c_str(), &g_Vars.misc.extended_backtrack_key.key, &g_Vars.misc.extended_backtrack_key.cond, ImVec2{ 40,20 });
-			InsertSliderFloat(std::string(XorStr("Extended backtrack##amt") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &g_Vars.misc.extended_backtrack_time, 0.f, 1.f, XorStr("%.2fs"));
+			ImGui::Hotkey(std::string(XorStr("##Extended backtrack Key") + std::to_string(rageTab)).c_str(), &g_Vars.misc.extended_backtrack_key.key, &g_Vars.misc.extended_backtrack_key.cond, ImVec2{ 40,20 });
+			InsertSliderFloat(std::string(XorStr("Extended backtrack##amt") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack_time, 0.f, 1.f, XorStr("%.2fs"));
 		}
 
-		InsertCheckbox(CompensateSpreadRage, std::string(XorStr("Compensate spread") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->compensate_spread);
+		InsertCheckbox(CompensateSpreadRage, std::string(XorStr("Compensate spread") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->compensate_spread);
 
 		InsertCheckbox(Autostop, XorStr("Automatic stop"), &rbot->autostop_check);
 		std::vector<MultiItem_t> stop_options = {
@@ -205,8 +203,8 @@ void Ragebot()
 			InsertMultiCombo(XorStr("Automatic stop options"), stop_options);
 		}
 
-		InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->autoscope);
-		InsertCheckbox(prefer_body, XorStr("Prefer body-aim") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->prefer_body);
+		InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autoscope);
+		InsertCheckbox(prefer_body, XorStr("Prefer body-aim") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->prefer_body);
 
 		std::vector<MultiItem_t> prefer_body_cond = {
 			//	{ XorStr( "Target firing" ), &rbot->prefer_body_disable_shot },
@@ -218,15 +216,15 @@ void Ragebot()
 			InsertMultiCombo(XorStr("Prefer body-aim disablers##PreferBody"), prefer_body_cond);
 		}
 
-		InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->accry_boost_on_shot);
+		InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->accry_boost_on_shot);
 
 		const char* accuracyonshotmodes[] = {XorStr("Off"), XorStr("Low"), XorStr("Medium"), XorStr("High")};
 		if (rbot->accry_boost_on_shot) {
 			InsertCombo(XorStr("Accuracy boost modes"), &rbot->accry_boost_on_shot_modes, accuracyonshotmodes);
 		}
 
-		InsertCheckbox(shotdelay, XorStr("Delay hitbox selection") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->shotdelay);
-		InsertCheckbox(delay_shot_on_unducking, XorStr("Delay shot on unduck") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->delay_shot_on_unducking);
+		InsertCheckbox(shotdelay, XorStr("Delay hitbox selection") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->shotdelay);
+		InsertCheckbox(delay_shot_on_unducking, XorStr("Delay shot on unduck") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->delay_shot_on_unducking);
 
 		InsertCheckbox(knife_bot, XorStr("Knife bot"), &g_Vars.misc.knife_bot);
 		const char* knife_bot_type[] = { XorStr("Default"), XorStr("Backstab"), XorStr("Quick") };
@@ -245,15 +243,15 @@ void Ragebot()
 		ImGui::Text(XorStr("Force bodyaim"));
 		ImGui::SameLine();
 		biggestMeme2();
-		ImGui::Hotkey(std::string(XorStr("##Force bodyaim key") + std::to_string(rage_current_group)).c_str(), &g_Vars.rage.prefer_body.key, &g_Vars.rage.prefer_body.cond, ImVec2{ 40,20 });
+		ImGui::Hotkey(std::string(XorStr("##Force bodyaim key") + std::to_string(rageTab)).c_str(), &g_Vars.rage.prefer_body.key, &g_Vars.rage.prefer_body.cond, ImVec2{ 40,20 });
 
 
 		ImGui::Text(std::string(XorStr("Override resolver")).c_str());
 		ImGui::SameLine();
 		biggestMeme2();
-		ImGui::Hotkey(std::string(XorStr("##Override resolver key") + std::to_string(rage_current_group)).c_str(), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond, ImVec2{ 40,20 });
+		ImGui::Hotkey(std::string(XorStr("##Override resolver key") + std::to_string(rageTab)).c_str(), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond, ImVec2{ 40,20 });
 
-		InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.rage.exploit);
+		InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rageTab)), &g_Vars.rage.exploit);
 		ImGui::SameLine();
 		biggestMeme2();
 		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
@@ -261,7 +259,7 @@ void Ragebot()
 			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
 			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, XorStr("%d"));
 			InsertSliderInt(XorStr("Doubletap Speed"), &rbot->doubletap_speed, 11, 18, XorStr("%d"));
-			InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rage_current_group)), &g_Vars.misc.disablebtondt);
+			InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rageTab)), &g_Vars.misc.disablebtondt);
 			InsertCheckbox(exploits_enable, XorStr("DT Exploits"), &g_Vars.rage.dt_exploits);
 
 			if (g_Vars.rage.dt_exploits) {
@@ -275,16 +273,16 @@ void Ragebot()
 			}
 		}
 
-		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->min_damage_override);
+		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->min_damage_override);
 		ImGui::SameLine();
 		biggestMeme2();
 		ImGui::Hotkey(XorStr("##MinDamageOverride"), &g_Vars.rage.key_dmg_override.key, &g_Vars.rage.key_dmg_override.cond, ImVec2{ 40,20 });
 		//ImGui::Keybind(std::string(XorStr("Minimum dmg override key#key") + std::string(XorStr("#") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.key_dmg_override.key);
 		if (rbot->min_damage_override) {
-			InsertSliderInt(std::string(XorStr("Dmg override amount##slider") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
+			InsertSliderInt(std::string(XorStr("Dmg override amount##slider") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
 		}
 
-		InsertCheckbox(OverrideHitscan, XorStr("Override hitscan") + std::string(XorStr("##") + std::to_string(rage_current_group)), &rbot->override_hitscan);
+		InsertCheckbox(OverrideHitscan, XorStr("Override hitscan") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->override_hitscan);
 		ImGui::SameLine();
 		biggestMeme2();
 		ImGui::Hotkey(XorStr("##OverrideHitscanKey"), &g_Vars.rage.override_key.key, &g_Vars.rage.override_key.cond, ImVec2{ 40,20 });
@@ -301,7 +299,7 @@ void Ragebot()
 				{ XorStr("Feet"), &rbot->bt_hitboxes_feets },
 			};
 
-			InsertMultiCombo(std::string(XorStr("Override hitboxes") + std::string(XorStr("##") + std::to_string(rage_current_group))).c_str(), override_hitboxes);
+			InsertMultiCombo(std::string(XorStr("Override hitboxes") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), override_hitboxes);
 		}
 
 	}
@@ -1589,16 +1587,16 @@ void IMGUIMenu::Render()
 		{
 			case 0:
 			{
-				ImGui::TrueSubTab(XorStr("  Other  "), rageTab, -1, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Pistols  "), rageTab, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Heavy Pistols  "), rageTab, 1, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Rifles  "), rageTab, 2, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  AWP  "), rageTab, 3, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Scout  "), rageTab, 4, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Auto  "), rageTab, 5, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  SMG  "), rageTab, 6, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Heavys  "), rageTab, 7, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Shotguns  "), rageTab, 8, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  Other  "), rageTab, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  Pistols  "), rageTab, 1, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  Heavy Pistols  "), rageTab, 2, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  Rifles  "), rageTab, 3, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  AWP  "), rageTab, 4, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  Scout  "), rageTab, 5, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  Auto  "), rageTab, 6, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  SMG  "), rageTab, 7, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  Heavys  "), rageTab, 8, ImVec2(0.f, 25.f)); ImGui::SameLine();
+				ImGui::TrueSubTab(XorStr("  Shotguns  "), rageTab, 9, ImVec2(0.f, 25.f)); ImGui::SameLine();
 
 				break;
 			}
