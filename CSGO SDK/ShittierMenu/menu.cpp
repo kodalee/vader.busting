@@ -447,7 +447,7 @@ void HvH()
 				biggestMeme2();
 				ImGui::Hotkey(XorStr("##Fake-walk key"), &g_Vars.misc.slow_walk_bind.key, &g_Vars.misc.slow_walk_bind.cond, ImVec2{ 40,20 });
 				if (g_Vars.misc.slow_walk) {
-					InsertSliderInt(XorStr("Fake-walk speed"), &g_Vars.misc.slow_walk_speed, 2, 16, XorStr("%d"));
+					InsertSliderInt(XorStr("Fake-walk speed"), &g_Vars.misc.slow_walk_speed, 2, 17, XorStr("%d"));
 				}
 
 				break;
