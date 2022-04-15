@@ -328,13 +328,15 @@ namespace Hooked
 			RemoveButtons( IN_ATTACK2 );
 			RemoveButtons( IN_USE );
 
-			if( ImGui::GetIO().WantTextInput && g_IMGUIMenu.Initialized ) {
-				RemoveButtons( IN_MOVERIGHT );
-				RemoveButtons( IN_MOVELEFT );
-				RemoveButtons( IN_FORWARD );
-				RemoveButtons( IN_BACK );
+			if (ImGui::GetCurrentContext() != NULL) {
+				if (g_IMGUIMenu.Initialized && ImGui::GetIO().WantTextInput) {
+					RemoveButtons(IN_MOVERIGHT);
+					RemoveButtons(IN_MOVELEFT);
+					RemoveButtons(IN_FORWARD);
+					RemoveButtons(IN_BACK);
 
-				movement->InstantStop( cmd.Xor( ) );
+					movement->InstantStop(cmd.Xor());
+				}
 			}
 		}
 
