@@ -2572,7 +2572,7 @@ void CEsp::Offscreen( ) {
 			continue;
 
 		// get the player's center screen position.
-		auto target_pos = entity->GetAbsOrigin( );
+		auto target_pos = entity->WorldSpaceCenter( );
 		Vector2D screen_pos;
 		auto is_on_screen = WorldToScreen( target_pos, screen_pos );
 
