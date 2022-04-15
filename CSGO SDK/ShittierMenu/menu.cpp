@@ -1560,58 +1560,60 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 	window->DrawList->PathStroke(color, false, thickness);
 }
 
-void IMGUIMenu::Render()
+void IMGUIMenu::Loading()
 {
-	static bool megatron7000 = true;
 
-	if (megatron7000) {
 
-		static bool load = true;
-		static float flCurTime;
-		static bool init = true;
+	static bool load = true;
+	static float flCurTime;
+	static bool init = true;
 
-		if (init) {
-			flCurTime = Interfaces::m_pGlobalVars->curtime;
-			init = false;
-		}
-
-		float flSubtractedTime = Interfaces::m_pGlobalVars->curtime - flCurTime;
-
-		if (flSubtractedTime > 7.f && load) { // 7 seconds i think is the optimal time
-			load = false;
-			megatron7000 = false; // we do this to save resources
-		}
-
-		if (load)
-		{
-			static bool retard = true;
-
-			ImGui::SetNextWindowPos(ImVec2(Render::GetScreenSize().x * 0.5f, Render::GetScreenSize().y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-
-			ImGui::SetNextWindowSize(ImVec2(Render::GetScreenSize().x, Render::GetScreenSize().y));
-
-			ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Set window background to black
-
-			ImGui::Begin(XorStr("Loading"), &retard, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoMove);
-
-			ImGui::PopStyleColor();
-
-			ImGui::PushFont(watermark);
-
-			ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 55, -1.0f, Render::GetScreenSize().y * 0.5f + 40);
-			ImGui::Text(XorStr("Initializing Vader.tech"));
-
-			ImGui::PopFont();
-
-			Spinner(XorStr("##spinner"), 15, 6, ImColor(255, 215, 0));
-
-			ImGui::End();
-
-			return;
-		}
+	if (init) {
+		flCurTime = Interfaces::m_pGlobalVars->curtime;
+		init = false;
 	}
 
-	if (!Opened || megatron7000 == true) return; // add another check to be safe...
+	float flSubtractedTime = Interfaces::m_pGlobalVars->curtime - flCurTime;
+
+	if (flSubtractedTime > 7.f && load) { // 7 seconds i think is the optimal time
+		load = false;
+		Loaded = true;
+	}
+
+	if (load)
+	{
+		static bool retard = true;
+
+		ImGui::SetNextWindowPos(ImVec2(Render::GetScreenSize().x * 0.5f, Render::GetScreenSize().y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+
+		ImGui::SetNextWindowSize(ImVec2(Render::GetScreenSize().x, Render::GetScreenSize().y));
+
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Set window background to black
+
+		ImGui::Begin(XorStr("Loading"), &retard, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoMove);
+
+		ImGui::PopStyleColor();
+
+		ImGui::PushFont(watermark);
+
+		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 55, -1.0f, Render::GetScreenSize().y * 0.5f + 40);
+		ImGui::Text(XorStr("Initializing Vader.tech"));
+
+		ImGui::PopFont();
+
+		Spinner(XorStr("##spinner"), 15, 6, ImColor(255, 215, 0));
+
+		ImGui::End();
+
+		return;
+	}
+
+}
+
+void IMGUIMenu::Render()
+{
+
+	if (!Opened) return;
 
 	//ImGui::GetIO().MouseDrawCursor = _visible;
 

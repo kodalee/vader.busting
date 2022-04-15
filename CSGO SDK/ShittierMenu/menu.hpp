@@ -30,13 +30,15 @@ public:
 
     //IDirect3DTexture9* menuLogo;;
 
+    void Loading();
+
     void Render();
 
     void Toggle();
 
     bool IsVisible() const { return _visible; }
 
-    bool Opened = false, Initialized = false;
+    bool Opened = false, Initialized = false, Loaded = false;
 private:
     void CreateStyle();
 
