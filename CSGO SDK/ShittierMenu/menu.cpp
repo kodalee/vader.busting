@@ -1574,7 +1574,7 @@ void IMGUIMenu::Render()
 
 	float flSubtractedTime = Interfaces::m_pGlobalVars->curtime - flCurTime;
 
-	if (flSubtractedTime > 7.f) { // 7 seconds i think is the optimal time
+	if (flSubtractedTime > 7.f && load) { // 7 seconds i think is the optimal time
 		load = false;
 	}
 
