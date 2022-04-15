@@ -1277,46 +1277,69 @@ void Misc()
 				if (!cfg_list.empty()) {
 					if (ImGui::Button(XorStr("Save")))
 					{
-						ImGui::OpenPopup(XorStr("Confirmation"));
+						ImGui::OpenPopup(XorStr("Confirmation_Save"));
 					}
 
-					if (ImGui::BeginPopupModal(XorStr("Confirmation")))
+					if (ImGui::BeginPopupContextItem(XorStr("Confirmation_Save")))
 					{
 						if (ImGui::Button(XorStr("Are you sure?")))
 						{
 							LuaConfigSystem::Save();
 							ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
-							ILoggerEvent::Get()->PushEvent("Saved config", FloatColor(1.f, 1.f, 1.f), true, "");
+							ILoggerEvent::Get()->PushEvent(XorStr("Saved config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
 							ImGui::CloseCurrentPopup();
 						}
-						if (ImGui::Button("Cancel", ImVec2(120, 0)))
+						//if (ImGui::Button(XorStr("Cancel"), ImVec2(120, 0)))
+						//{
+						//	ImGui::CloseCurrentPopup();
+						//}
+						ImGui::EndPopup();
+					}
+
+					ImGui::SameLine();
+
+					if (ImGui::Button(XorStr("Load")))
+					{
+						ImGui::OpenPopup(XorStr("Confirmation_Load"));
+					}
+
+					if (ImGui::BeginPopupContextItem(XorStr("Confirmation_Load")))
+					{
+						if (ImGui::Button(XorStr("Are you sure?")))
 						{
+							if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
+								ConfigManager::ResetConfig();
+
+								LuaConfigSystem::Load();
+								ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
+								ILoggerEvent::Get()->PushEvent(XorStr("Loaded config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
+								g_Vars.m_global_skin_changer.m_update_skins = true;
+								g_Vars.m_global_skin_changer.m_update_gloves = true;
+								ImGui::CloseCurrentPopup();
+							}
+						}
+						ImGui::EndPopup();
+					}
+
+					ImGui::SameLine();
+					if (ImGui::Button(XorStr("Delete")))
+					{
+						ImGui::OpenPopup(XorStr("Confirmation_Delete"));
+					}
+
+					if (ImGui::BeginPopupContextItem(XorStr("Confirmation_Delete")))
+					{
+						if (ImGui::Button(XorStr("Are you sure?")))
+						{
+							ConfigManager::RemoveConfig(cfg_list.at(selected_cfg));
+							cfg_list = ConfigManager::GetConfigs();
+							ILoggerEvent::Get()->PushEvent(XorStr("Deleted config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
 							ImGui::CloseCurrentPopup();
 						}
 						ImGui::EndPopup();
 					}
 
 
-					ImGui::SameLine();
-
-					if (ImGui::Button(XorStr("Load")))
-					{
-						if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
-							ConfigManager::ResetConfig();
-
-							LuaConfigSystem::Load();
-							ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
-							
-							g_Vars.m_global_skin_changer.m_update_skins = true;
-							g_Vars.m_global_skin_changer.m_update_gloves = true;
-						}
-					}
-					ImGui::SameLine();
-					if (ImGui::Button(XorStr("Delete")))
-					{
-						ConfigManager::RemoveConfig(cfg_list.at(selected_cfg));
-						cfg_list = ConfigManager::GetConfigs();
-					}
 					ImGui::SameLine();
 				}
 
@@ -1329,8 +1352,20 @@ void Misc()
 				}
 				ImGui::SameLine();
 				if (ImGui::Button(XorStr("Reset"))) {
-					ConfigManager::ResetConfig();
+					ImGui::OpenPopup(XorStr("Confirmation_Reset"));
 				}
+
+				if (ImGui::BeginPopupContextItem(XorStr("Confirmation_Reset")))
+				{
+					if (ImGui::Button(XorStr("Are you sure?")))
+					{
+						ConfigManager::ResetConfig();
+						ILoggerEvent::Get()->PushEvent(XorStr("Reset config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+
 				if (ImGui::Button(XorStr("Open config folder")))
 				{
 					ConfigManager::OpenConfigFolder();
