@@ -2567,7 +2567,7 @@ void CEsp::Offscreen( ) {
 	auto m_width = Render::GetScreenSize( ).x, m_height = Render::GetScreenSize( ).y;
 	for( auto i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++ ) {
 		auto entity = C_CSPlayer::GetPlayerByIndex( i );
-		if( !entity || !entity->IsPlayer( ) || entity == LocalPlayer || entity->IsDormant( ) || entity->IsDead( )
+		if( !entity || !entity->IsPlayer( ) || entity == LocalPlayer || entity->IsDead( )
 			|| ( g_Vars.esp.team_check && entity->m_iTeamNum( ) == LocalPlayer->m_iTeamNum( ) ) )
 			continue;
 
@@ -2587,7 +2587,7 @@ void CEsp::Offscreen( ) {
 			|| screen_pos.y >( m_height + leeway_y ) ) {
 
 			const auto screen_center = Vector2D( width * .5f, height * .5f );
-			const auto angle_yaw_rad = DEG2RAD( viewangles.y - Math::CalcAngle( LocalPlayer->GetEyePosition( ), entity->GetAbsOrigin( ), true ).y - 90 );
+			const auto angle_yaw_rad = DEG2RAD( viewangles.y - Math::CalcAngle( LocalPlayer->GetEyePosition( ), entity->WorldSpaceCenter( ), true ).y - 90 );
 
 			float radius = std::max( 10.f, g_Vars.esp.offscren_distance );
 			float size = std::max( 5.f, g_Vars.esp.offscren_size );
@@ -2599,13 +2599,20 @@ void CEsp::Offscreen( ) {
 				Vector2D( new_point_x + size, new_point_y ),
 				Vector2D( new_point_x - size, new_point_y + size ) };
 
-			rotate_arrow( points, viewangles.y - Math::CalcAngle( LocalPlayer->GetEyePosition( ), entity->GetAbsOrigin( ), true ).y - 90 );
+			rotate_arrow( points, viewangles.y - Math::CalcAngle( LocalPlayer->GetEyePosition( ), entity->WorldSpaceCenter( ), true ).y - 90 );
 
 			std::array< Vertex_t, 3 >vertices{ Vertex_t( points.at( 0 ) ), Vertex_t( points.at( 1 ) ), Vertex_t( points.at( 2 ) ) };
 			static int texture_id = Interfaces::m_pSurface.Xor( )->CreateNewTextureID( true );
 			static unsigned char buf[ 4 ] = { 255, 255, 255, 255 };
 
-			Color clr = g_Vars.esp.offscreen_color.ToRegularColor( );
+			Color clr;
+
+			if (!entity->IsDormant()) {
+				clr = g_Vars.esp.offscreen_color.ToRegularColor();
+			}
+			else {
+				clr = Color(255,255,255,44);
+			}
 
 			// fill
 			Interfaces::m_pSurface.Xor( )->DrawSetColor( clr.r( ), clr.g( ), clr.b( ), ( clr.a( ) * 0.4f ) * GetAlpha( i ) );
