@@ -187,8 +187,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		pDevice->SetVertexDeclaration(vertDec);
 		pDevice->SetVertexShader(vertShader);
 	}
-
-	if (g_IMGUIMenu.Loaded && g_IMGUIMenu.Opened && g_IMGUIMenu.Initialize(pDevice))
+	else if (g_IMGUIMenu.Loaded && g_IMGUIMenu.Opened && g_IMGUIMenu.Initialize(pDevice))
 	{
 		pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
 		pDevice->GetVertexDeclaration(&vertDec);
