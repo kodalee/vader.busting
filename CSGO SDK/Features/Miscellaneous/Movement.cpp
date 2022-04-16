@@ -893,7 +893,7 @@ namespace Interfaces
 
 		// zero forwardmove and sidemove.
 		if (ticks > ((g_Vars.misc.slow_walk_speed - 1) - Interfaces::m_pClientState->m_nChokedCommands()) || !Interfaces::m_pClientState->m_nChokedCommands()) {
-			m_movement_data->m_pCmd->forwardmove = m_movement_data->m_pCmd->sidemove = 0.f;
+			InstantStop();
 			g_Vars.globals.updatingPacket = true;
 		}
 		else
