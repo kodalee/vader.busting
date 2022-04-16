@@ -12,6 +12,7 @@
 #include "../source.hpp"
 #include "../Features/Miscellaneous/walkbot.h"
 #include "../Features/Visuals/EventLogger.hpp"
+#include "../SDK/Classes/Player.hpp"
 
 //lua
 
@@ -760,6 +761,7 @@ void Visuals()
 				//InsertCheckbox(VisualizeDamage, XorStr("Visualize Damage"), &g_Vars.esp.visualize_damage); // disabled for now, very buggy.
 				InsertCheckbox(TaserRange, XorStr("Taser Range"), &g_Vars.esp.zeus_distance);
 				InsertCheckbox(KeybindList, XorStr("Keybind List"), &g_Vars.esp.keybind_window_enabled);
+				InsertCheckbox(SpectatorList, XorStr("Spectator List"), &g_Vars.esp.spec_window_enabled);
 				InsertCheckbox(Radar, XorStr("Radar"), &g_Vars.misc.ingame_radar);
 				InsertCheckbox(thirdperson, XorStr("Thirdperson"), &g_Vars.misc.third_person);
 				ImGui::SameLine();
@@ -864,7 +866,8 @@ void Visuals()
 
 				const char* chams_mats[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
 				const char* chams_mats_local[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
-				const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking"), XorStr("Animated") };
+				const char* chams_mats_overlay_local[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking"), XorStr("Animated") };
+				const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking") };
 				const char* chams_mats_overlay_misc[] = { XorStr("Disabled"), XorStr("Glow") };
 				const char* glow_types[] = { XorStr("Standard"), XorStr("Pulse"), XorStr("Inner") };
 				const char* chams_mats_overlay_viewmodel[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Animated") };
@@ -962,7 +965,7 @@ void Visuals()
 
 						}
 
-						InsertCombo(XorStr("Local overlay"), &g_Vars.esp.new_chams_local_overlay, chams_mats_overlay);
+						InsertCombo(XorStr("Local overlay"), &g_Vars.esp.new_chams_local_overlay, chams_mats_overlay_local);
 						ColorPicker(XorStr("##local_overlay_color"), g_Vars.esp.new_chams_local_overlay_color, true, true);
 						if (g_Vars.esp.new_chams_local_overlay == 1) {
 
@@ -1645,10 +1648,358 @@ void IMGUIMenu::Loading()
 
 }
 
+enum AnimationTypes { STATIC, DYNAMIC, INTERP };
+
+std::string pChar(std::string first_, std::string second_) {
+	return (std::stringstream{} << first_ << second_).str();
+}
+
+float Animate(const char* label, const char* second_label, bool if_, float Maximal_, float Speed_, int type) {
+
+	auto ID = ImGui::GetID(pChar(label, second_label).c_str());
+
+	static std::map<ImGuiID, float> pValue;
+
+	auto this_e = pValue.find(ID);
+
+	if (this_e == pValue.end()) {
+		pValue.insert({ ID, 0.f });
+		this_e = pValue.find(ID);
+	}
+
+	switch (type) {
+
+	case DYNAMIC: {
+		if (if_) //do
+			this_e->second += abs(Maximal_ - this_e->second) / Speed_;
+		else
+			this_e->second -= (0 + this_e->second) / Speed_;
+	}
+				break;
+
+	case INTERP: {
+		this_e->second += (Maximal_ - this_e->second) / Speed_;
+	}
+			   break;
+
+	case STATIC: {
+		if (if_) //do
+			this_e->second += Speed_;
+		else
+			this_e->second -= Speed_;
+	}
+			   break;
+	}
+
+	if (type != INTERP) {
+		if (this_e->second < 0.f)
+			this_e->second = 0.f;
+		else if (this_e->second > Maximal_)
+			this_e->second = Maximal_;
+	}
+
+	return this_e->second;
+
+}
+
+void DrawShapeAnimated(const char* label, ImVec2 min, ImVec2 max, ImVec2 pos, ImColor color) {
+
+	int hovered_delta = Animate(label, XorStr("hovered_rect"), ImGui::IsMouseHoveringRect(min, max, false), 255.f, 15.f, STATIC);
+
+	ImGui::SetCursorPos(pos - ImGui::GetWindowPos());
+
+	auto clicked = ImGui::GetIO().MouseClicked[0] && ImGui::IsMouseHoveringRect(min, max, false);
+	auto ID = ImGui::GetID(pChar(label, XorStr("b_animation")).c_str());
+
+	static std::map<ImGuiID, bool> pValue;
+	auto ItPLibrary = pValue.find(ID);
+	if (ItPLibrary == pValue.end()) {
+		pValue.insert({ ID, false });
+		ItPLibrary = pValue.find(ID);
+	}
+
+	float radius = Animate(label, XorStr("circle_radius"), ItPLibrary->second, 100.f, 10.f, DYNAMIC);
+
+	static std::map<ImGuiID, int> pValue2;
+
+	static POINT MousePoint;
+	GetCursorPos(&MousePoint);
+
+	static std::map<ImGuiID, ImVec2> CirclePosMap;
+	auto CirclePos = CirclePosMap.find(ID);
+	if (CirclePos == CirclePosMap.end()) {
+		CirclePosMap.insert({ ID, ImVec2(MousePoint.x, MousePoint.y) });
+		CirclePos = CirclePosMap.find(ID);
+	}
+
+	if (clicked) {
+		CirclePos->second = ImVec2(MousePoint.x, MousePoint.y);
+		ItPLibrary->second = true;
+	}
+
+	if (ItPLibrary->second) {
+
+		if (radius >= 95.f) {
+			ItPLibrary->second = false;
+			radius = 0.f;
+		}
+	}
+	ImRect bb = ImRect(min, max);
+	auto size = bb.GetSize();
+	//calc circle start radius and scale radius
+	float StartRad = sqrt((size.x + size.y) / 2);
+	//scale :::
+	float ScaleRad = ((StartRad + radius) + (sqrt(size.x * size.y) / ((size.x - size.y) / StartRad))) * 0.5;
+
+	ImGui::BeginChild(pChar(XorStr("drawlist_zone"), label).c_str(), size, false, ImGuiWindowFlags_NoBackground); {
+		if (ItPLibrary->second)
+			ImGui::GetWindowDrawList()->AddCircleFilled(CirclePos->second, StartRad + ScaleRad, ImColor(int(255.f * color.Value.x), int(255.f * color.Value.y), int(255.f * color.Value.z), 95 - (int)(radius)), (StartRad + ScaleRad) * 15.f);
+	}
+	ImGui::EndChild();
+}
+void create_spectators(const char* name, std::vector <std::string> vec) {
+
+	ImGui::SetNextWindowSize(ImVec2(170, 30));
+	if (!ImGui::IsMouseDragging()) {
+		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y), ImGuiCond_Always);
+	}
+	//draw
+
+	//flags - 
+	static const WORD dw_window_flags{
+		ImGuiWindowFlags_NoBackground
+		| ImGuiWindowFlags_NoTitleBar
+		| ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoScrollbar
+		| ImGuiWindowFlags_NoScrollWithMouse
+	};
+
+	if (ImGui::Begin(name, nullptr, dw_window_flags))
+	{
+		//get vars :::
+		ImColor theme = ImColor(255, 215, 0, 255);
+		ImColor theme_zero = ImColor(255, 215, 0, 0);
+		ImColor black = ImColor(0, 0, 0, 210);
+		ImColor black_zero = ImColor(0, 0, 0, 0);
+		ImColor black_half = ImColor(0, 0, 0, 60);
+		ImColor theme_background = ImColor(41, 32, 59, 210);
+
+		const auto draw = ImGui::GetBackgroundDrawList();
+		const auto p = ImGui::GetWindowPos();
+		const auto s = ImGui::GetWindowSize();
+
+		if (g_Vars.esp.spec_window_x != p.x) {
+			g_Vars.esp.spec_window_x = p.x;
+		}
+		
+		if (g_Vars.esp.spec_window_y != p.y) {
+			g_Vars.esp.spec_window_y = p.y;
+		}
+
+		//background
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, s.y), theme_background, theme_background, theme_background, theme_background);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, s.y) - ImVec2(10, 0), theme_background, theme_background, theme_background, theme_background);
+
+		//up
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+
+		auto spec_sz = ImGui::CalcTextSize(name);
+		draw->AddText(p + ImVec2(s.x / 2 - spec_sz.x / 2, s.y / 2 - spec_sz.y / 2), ImColor(255, 255, 255), name);
+
+		ImVec2 shape_pos = p + ImVec2(10, 0);
+		ImVec2 shape_sz = s - ImVec2(20, -2);
+
+		DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
+
+		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
+
+		for (auto i = 0; i < vec.size(); i++) {
+			int alpha_of_this = Animate(XorStr("Spectators"), vec[i].c_str(), true, 255, 15, STATIC);
+			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 25 * i);
+			draw->AddCircleFilled(first_circle_pos, 2.3f, ImColor(255, 215, 0, alpha_of_this), 5.f * 15.f);
+			draw->AddCircleFilled(first_circle_pos, 2.f, ImColor(255, 215, 0, alpha_of_this), 5.f * 15.f);
+			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
+		}
+
+	}
+	ImGui::End();
+
+
+}
+void create_keybinds(const char* name, std::vector <std::string> vec) {
+
+	ImGui::SetNextWindowSize(ImVec2(170, 30));
+	if (!ImGui::IsMouseDragging()) {
+		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y), ImGuiCond_Always);
+	}
+	//draw
+
+	//flags - 
+	static const WORD dw_window_flags{
+		ImGuiWindowFlags_NoBackground
+		| ImGuiWindowFlags_NoTitleBar
+		| ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoScrollbar
+		| ImGuiWindowFlags_NoScrollWithMouse
+	};
+
+	if (ImGui::Begin(name, nullptr, dw_window_flags))
+	{
+		//get vars :::
+		ImColor theme = ImColor(255, 215, 0, 255);
+		ImColor theme_zero = ImColor(255, 215, 0, 0);
+		ImColor black = ImColor(0, 0, 0, 210);
+		ImColor black_zero = ImColor(0, 0, 0, 0);
+		ImColor black_half = ImColor(0, 0, 0, 60);
+		ImColor theme_background = ImColor(41, 32, 59, 210);
+
+		const auto draw = ImGui::GetBackgroundDrawList();
+		const auto p = ImGui::GetWindowPos();
+		const auto s = ImGui::GetWindowSize();
+
+		if (g_Vars.esp.keybind_window_x != p.x) {
+			g_Vars.esp.keybind_window_x = p.x;
+		}
+
+		if (g_Vars.esp.keybind_window_y != p.y) {
+			g_Vars.esp.keybind_window_y = p.y;
+		}
+
+		//background
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, s.y), theme_background, theme_background, theme_background, theme_background);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, s.y) - ImVec2(10, 0), theme_background, theme_background, theme_background, theme_background);
+
+		//up
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+
+		auto keybind_sz = ImGui::CalcTextSize(name);
+		draw->AddText(p + ImVec2(s.x / 2 - keybind_sz.x / 2, s.y / 2 - keybind_sz.y / 2), ImColor(255, 255, 255), name);
+
+		ImVec2 shape_pos = p + ImVec2(10, 0);
+		ImVec2 shape_sz = s - ImVec2(20, -2);
+
+		DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
+
+		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
+
+		for (auto i = 0; i < vec.size(); i++) {
+			int alpha_of_this = Animate(XorStr("Keybinds"), vec[i].c_str(), true, 255, 15, STATIC);
+			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 25 * i);
+			draw->AddCircleFilled(first_circle_pos, 2.3f, ImColor(255, 215, 0, alpha_of_this), 5.f * 15.f);
+			draw->AddCircleFilled(first_circle_pos, 2.f, ImColor(255, 215, 0, alpha_of_this), 5.f * 15.f);
+			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
+		}
+
+	}
+	ImGui::End();
+
+
+}
+void IMGUIMenu::Keybinds_Spectators() {
+
+	if (g_Vars.esp.keybind_window_enabled) {
+		std::vector <std::string> binds{ };
+
+		{ // SORRY FOR THE MESS! HAD NOWHERE TO PUT THIS JOHN!
+			if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+				binds.push_back(XorStr("Doubletap"));
+			}
+			if (g_Vars.rage.enabled) {
+				if (g_Vars.rage.key_dmg_override.enabled) {
+					binds.push_back(XorStr("Min dmg override"));
+				}
+				if (g_Vars.rage.prefer_body.enabled) {
+					binds.push_back(XorStr("Force body-aim"));
+				}
+				if (g_Vars.rage.override_key.enabled) {
+					binds.push_back(XorStr("Hitscan override"));
+				}
+			}
+			if (g_Vars.misc.fakeduck && g_Vars.misc.fakeduck_bind.enabled) {
+				binds.push_back(XorStr("Fake-Duck"));
+			}
+			if (g_Vars.misc.move_exploit && g_Vars.misc.move_exploit_key.enabled && g_Vars.antiaim.enabled) {
+				binds.push_back(XorStr("Move Exploit"));
+			}
+			if (g_Vars.misc.autopeek && g_Vars.misc.autopeek_bind.enabled) {
+				binds.push_back(XorStr("Auto-Peek"));
+			}
+			if (g_Vars.misc.slow_walk && g_Vars.misc.slow_walk_bind.enabled) {
+				binds.push_back(XorStr("Fake-walk"));
+			}
+			if (g_Vars.misc.extended_backtrack && g_Vars.misc.extended_backtrack_key.enabled) {
+				binds.push_back(XorStr("Ping-spike"));
+			}
+		}
+
+		if (!binds.empty() || Opened) {
+			create_keybinds(XorStr("Keybinds"), binds);
+		}
+	}
+
+	if (g_Vars.esp.spec_window_enabled) {
+
+		std::vector< std::string > spectators{ };
+		C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer();
+
+
+		if (Interfaces::m_pEngine->IsInGame() && pLocal) {
+			const auto local_observer = pLocal->m_hObserverTarget();
+			for (int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i) {
+				C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
+				if (!player)
+					continue;
+
+				if (!player->IsDead())
+					continue;
+
+				if (player->IsDormant())
+					continue;
+
+				if (player->EntIndex() == pLocal->EntIndex())
+					continue;
+
+				player_info_t info;
+				if (!Interfaces::m_pEngine->GetPlayerInfo(i, &info))
+					continue;
+
+				if (pLocal->IsDead()) {
+					auto observer = player->m_hObserverTarget();
+					if (local_observer.IsValid() && observer.IsValid()) {
+						const auto spec = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntityFromHandle(local_observer);
+						auto target = reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntityFromHandle(observer));
+
+						if (target == spec && spec) {
+							spectators.push_back(std::string(info.szName).substr(0, 17));
+						}
+					}
+				}
+				else {
+					if (player->m_hObserverTarget() != pLocal)
+						continue;
+
+					spectators.push_back(std::string(info.szName).substr(0, 17));
+				}
+			}
+		}
+
+		if (!spectators.empty() || Opened) {
+			create_spectators(XorStr("Spectators"), spectators);
+		}
+	}
+
+}
+
 void IMGUIMenu::Render()
 {
 
 	if (!Opened) return;
+
+	Keybinds_Spectators();
 
 	//ImGui::GetIO().MouseDrawCursor = _visible;
 

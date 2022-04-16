@@ -32,6 +32,8 @@ public:
 
     void Loading();
 
+    void Keybinds_Spectators();
+
     void Render();
 
     void Toggle();

@@ -1268,8 +1268,8 @@ void CEsp::Main( ) {
 	DrawWatermark( );
 	//spotify( ); - there might be fps drops / fps issues caused by this.
 
-	if( g_Vars.esp.keybind_window_enabled )
-		Keybinds( );
+	//if( g_Vars.esp.keybind_window_enabled )
+	//	Keybinds( );
 
 	//if( g_Vars.esp.spec_window_enabled )
 	//	SpectatorList( true );

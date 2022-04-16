@@ -256,26 +256,26 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 	if (data.section_number == 0 && data.sequence_bytes == 0 && data.uncompressed_sample_offset == 0)
 		return oVoiceData(ecx, msg);
 
-	const char* formatter = {
-			"CSVCMsg_VoiceData_Legacy : \n"
-			"   client                     : %d\n"
-			"   audible_mask               : %d\n"
-			"   xuid_low                   : %d\n"
-			"   xuid_high                  : %d\n"
-			"   proximity                  : %d\n"
-			"   format                     : %d\n"
-			"   sequence_bytes             : %d\n"
-			"   section_number             : %d\n"
-			"   uncompressed_sample_offset : %d\n"
-	};
+	//const char* formatter = {
+	//		"CSVCMsg_VoiceData_Legacy : \n"
+	//		"   client                     : %d\n"
+	//		"   audible_mask               : %d\n"
+	//		"   xuid_low                   : %d\n"
+	//		"   xuid_high                  : %d\n"
+	//		"   proximity                  : %d\n"
+	//		"   format                     : %d\n"
+	//		"   sequence_bytes             : %d\n"
+	//		"   section_number             : %d\n"
+	//		"   uncompressed_sample_offset : %d\n"
+	//};
 
-	char buffer[4096];
+	//char buffer[4096];
 
 	//snprintf(buffer, 4096 * 2, formatter2, g_csgo.m_globals->m_tick_count, OT_ESP->Counter, OT_ESP->x, Decode(OT_ESP->x), OT_ESP->y, Decode(OT_ESP->y), OT_ESP->z, Decode(OT_ESP->z));
 
-	snprintf(buffer, 4096, formatter, m->client, m->audible_mask, m->xuid_low, m->xuid_high, m->proximity, m->format, m->sequence_bytes, m->section_number, m->uncompressed_sample_offset);
+	//snprintf(buffer, 4096, formatter, m->client, m->audible_mask, m->xuid_low, m->xuid_high, m->proximity, m->format, m->sequence_bytes, m->section_number, m->uncompressed_sample_offset);
 
-	if (buffer) {
+	//if (buffer) {
 		//printf(buffer);
 
 		//printf("[000000!!!] CSVCMsg_VoiceData_Legacy :\n");
@@ -283,7 +283,7 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 		//printf("   section_number             : %d\n", m->section_number);
 		//printf("   uncompressed_sample_offset : %d\n", m->uncompressed_sample_offset);
 		//printf("\n");
-	}
+	//}
 
 	return oVoiceData(ecx, msg);
 }
@@ -323,8 +323,8 @@ bool __fastcall net_show_fragments( void* cvar, void* edx ) {
 	if( !netchannel.IsValid( ) )
 		return o_net_show_fragments( cvar );
 
-	static auto read_sub_channel_data_ret = reinterpret_cast< uintptr_t* >( Memory::Scan( "engine.dll", "85 C0 74 12 53 FF 75 0C 68 ? ? ? ? FF 15 ? ? ? ? 83 C4 0C" ) );
-	static auto check_receiving_list_ret = reinterpret_cast< uintptr_t* >( Memory::Scan( "engine.dll", "8B 1D ? ? ? ? 85 C0 74 16 FF B6" ) );
+	static auto read_sub_channel_data_ret = reinterpret_cast< uintptr_t* >( Memory::Scan( XorStr("engine.dll"), XorStr("85 C0 74 12 53 FF 75 0C 68 ? ? ? ? FF 15 ? ? ? ? 83 C4 0C") ) );
+	static auto check_receiving_list_ret = reinterpret_cast< uintptr_t* >( Memory::Scan( XorStr("engine.dll"), XorStr("8B 1D ? ? ? ? 85 C0 74 16 FF B6") ) );
 
 	static uint32_t last_fragment = 0;
 
@@ -638,7 +638,7 @@ float __fastcall hkRainAlphaGetFloat( void* ecx, void* edx ) {
 typedef bool( __thiscall* fnGetBool )( void* );
 fnGetBool oSvCheatsGetBool;
 bool __fastcall sv_cheats_get_bool( void* pConVar, void* edx ) {
-	static auto ret_ard = ( uintptr_t )Memory::Scan( "client.dll", "85 C0 75 30 38 86" );
+	static auto ret_ard = ( uintptr_t )Memory::Scan( XorStr("client.dll"), XorStr("85 C0 75 30 38 86") );
 	if( reinterpret_cast< uintptr_t >( _ReturnAddress( ) ) == ret_ard )
 		return true;
 
@@ -1103,9 +1103,9 @@ namespace Interfaces
 		oAddBoxOverlay = Hooked::HooksManager.HookVirtual<decltype( oAddBoxOverlay )>( m_pDebugOverlay.Xor( ), &hkAddBoxOverlay, 1 );
 		
 		//sv_cheats_get_bool
-		oSvCheatsGetBool = Hooked::HooksManager.HookVirtual<decltype( oSvCheatsGetBool )>( Interfaces::m_pCvar->FindVar("sv_cheats"), &sv_cheats_get_bool, 13 );
+		//oSvCheatsGetBool = Hooked::HooksManager.HookVirtual<decltype( oSvCheatsGetBool )>( Interfaces::m_pCvar->FindVar(XorStr("sv_cheats")), &sv_cheats_get_bool, 13 );
 
-		o_net_show_fragments = Hooked::HooksManager.HookVirtual<decltype( o_net_show_fragments )>( Interfaces::m_pCvar->FindVar("net_showfragments"), &net_show_fragments, 13 );
+		o_net_show_fragments = Hooked::HooksManager.HookVirtual<decltype( o_net_show_fragments )>( Interfaces::m_pCvar->FindVar(XorStr("net_showfragments")), &net_show_fragments, 13 );
 
 		oWriteUsercmdDeltaToBuffer = Hooked::HooksManager.HookVirtual<decltype( oWriteUsercmdDeltaToBuffer )>( m_pClient.Xor( ), &WriteUsercmdDeltaToBuffer, 23 );
 
