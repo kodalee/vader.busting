@@ -912,8 +912,8 @@ namespace Interfaces
 		if( !Interfaces::m_pEngine->IsInGame( ) )
 			return;
 
-		// check if we have a local player and he is alive.
-		bool alive = !local->IsDead( );
+		// check if local player is alive.
+		bool alive = local->IsAlive( );
 
 		if (alive) {
 			C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)m_movement_data->m_pLocal->m_hActiveWeapon().Get();
@@ -975,8 +975,10 @@ namespace Interfaces
 			Vector origin = m_movement_data->m_pLocal->GetAbsOrigin( ) + offsetd;
 
 			// setup trace filter and trace.
-			CTraceFilterWorldAndPropsOnly filter;
+			CTraceFilter filter;
 			CGameTrace tr;
+
+			filter.pSkip = local;
 
 			Interfaces::m_pEngineTrace->TraceRay(
 				Ray_t( origin, origin - ( forward * offset.z ), { -16.f, -16.f, -16.f }, { 16.f, 16.f, 16.f } ),
