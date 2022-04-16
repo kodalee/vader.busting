@@ -917,18 +917,16 @@ namespace Interfaces
 
 		if (alive) {
 			C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)m_movement_data->m_pLocal->m_hActiveWeapon().Get();
-
-			if (!Weapon)
-				return;
-
 			auto weaponInfo = Weapon->GetCSWeaponData();
-			if (!weaponInfo.IsValid())
-				return;
 
-			if (weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE && g_Vars.misc.third_person_on_grenade) {
-				Interfaces::m_pInput->CAM_ToFirstPerson();
-				Interfaces::m_pInput->m_fCameraInThirdPerson = false;
-				return;
+			if (Weapon && weaponInfo.IsValid()) {
+
+				if (weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE && g_Vars.misc.third_person_on_grenade) {
+					Interfaces::m_pInput->CAM_ToFirstPerson();
+					Interfaces::m_pInput->m_fCameraInThirdPerson = false;
+					return;
+				}
+
 			}
 		}
 
