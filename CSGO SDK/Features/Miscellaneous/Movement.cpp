@@ -975,10 +975,8 @@ namespace Interfaces
 			Vector origin = m_movement_data->m_pLocal->GetAbsOrigin( ) + offsetd;
 
 			// setup trace filter and trace.
-			CTraceFilter filter;
+			CTraceFilterWorldAndPropsOnly filter;
 			CGameTrace tr;
-
-			filter.pSkip = local;
 
 			Interfaces::m_pEngineTrace->TraceRay(
 				Ray_t( origin, origin - ( forward * offset.z ), { -16.f, -16.f, -16.f }, { 16.f, 16.f, 16.f } ),
