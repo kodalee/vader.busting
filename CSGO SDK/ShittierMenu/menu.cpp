@@ -2000,8 +2000,6 @@ void IMGUIMenu::Render()
 
 	if (!Opened) return;
 
-	Keybinds_Spectators();
-
 	//ImGui::GetIO().MouseDrawCursor = _visible;
 
 	ImGuiStyle* style = &ImGui::GetStyle();
