@@ -216,7 +216,7 @@ void CEsp::BloomEffect( ) {
 }
 
 void DrawWatermark() {
-	if (!g_Vars.misc.watermark) {
+	if (!g_Vars.misc.watermark || !g_IMGUIMenu.Loaded) {
 		return;
 	}
 
