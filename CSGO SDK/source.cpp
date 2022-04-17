@@ -163,8 +163,10 @@ void __fastcall Hooked_RandomColor_InitNewParticlesScalar(C_INIT_RandomColor* th
 void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 	g_Vars.globals.szLastHookCalled = XorStr("52");
 
-	if (!msg)
-		return oVoiceData(ecx, msg);
+	if (!msg) {
+		oVoiceData(ecx, msg);
+		return;
+	}
 
 	auto local = C_CSPlayer::GetLocalPlayer();
 
@@ -243,18 +245,26 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 	int sender_index = m->client + 1;
 	VoiceDataCustom data = m->get_data();
 
-	if(!local)
-		return oVoiceData(ecx, msg);
+	if(!local) {
+		oVoiceData(ecx, msg);
+		return;
+	}
 
-	if(local->EntIndex() == sender_index)
-		return oVoiceData(ecx, msg);
+	if(local->EntIndex() == sender_index) {
+		oVoiceData(ecx, msg);
+		return;
+	}
 
-	if (m->format != 0)
-		return oVoiceData(ecx, msg);
+	if (m->format != 0) {
+		oVoiceData(ecx, msg);
+		return;
+	}
 
 	// check if its empty
-	if (data.section_number == 0 && data.sequence_bytes == 0 && data.uncompressed_sample_offset == 0)
-		return oVoiceData(ecx, msg);
+	if (data.section_number == 0 && data.sequence_bytes == 0 && data.uncompressed_sample_offset == 0) {
+		oVoiceData(ecx, msg);
+		return;
+	}
 
 	//const char* formatter = {
 	//		"CSVCMsg_VoiceData_Legacy : \n"
@@ -285,7 +295,7 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 		//printf("\n");
 	//}
 
-	return oVoiceData(ecx, msg);
+	oVoiceData(ecx, msg);
 }
 
 
