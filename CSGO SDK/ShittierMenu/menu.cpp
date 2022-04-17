@@ -125,9 +125,7 @@ void Ragebot()
 			InsertCheckbox(Autoshoot, XorStr("Automatic fire"), &g_Vars.rage.auto_fire);
 		}
 
-		if (rageTab != 0) {
-			InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->active);
-		}
+		InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->active);
 		const char* TargetSelection[] = { XorStr("Highest damage"), XorStr("Nearest to crosshair"), XorStr("Lowest health"), XorStr("Lowest distance"), XorStr("Lowest latency") };
 		InsertCombo(std::string(XorStr("Target selection") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->target_selection, TargetSelection);
 

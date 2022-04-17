@@ -405,35 +405,37 @@ namespace Hooked
 
 			int nShotCmd = -1;
 
-			if( cmd->buttons & IN_ATTACK
-				&& weapon->m_iItemDefinitionIndex( ) != WEAPON_C4
-				&& weaponInfo->m_iWeaponType >= WEAPONTYPE_KNIFE
-				&& weaponInfo->m_iWeaponType <= WEAPONTYPE_MACHINEGUN
-				&& pLocal->CanShoot( ) )
-			{
-				nShotCmd = cmd->command_number;
-				g_Vars.globals.m_iShotTick = cmd->tick_count;
-				lockedAngles = cmd->viewangles;
-				LastShotTime = Interfaces::m_pGlobalVars->tickcount;
+			if (weaponInfo.IsValid()) {
+				if (cmd->buttons & IN_ATTACK
+					&& weapon->m_iItemDefinitionIndex() != WEAPON_C4
+					&& weaponInfo->m_iWeaponType >= WEAPONTYPE_KNIFE
+					&& weaponInfo->m_iWeaponType <= WEAPONTYPE_MACHINEGUN
+					&& pLocal->CanShoot())
+				{
+					nShotCmd = cmd->command_number;
+					g_Vars.globals.m_iShotTick = cmd->tick_count;
+					lockedAngles = cmd->viewangles;
+					LastShotTime = Interfaces::m_pGlobalVars->tickcount;
 
-				if( weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE ) {
-					g_Vars.globals.m_flLastShotTime = Interfaces::m_pGlobalVars->realtime;
-					//if( g_Vars.globals.bInRagebot ) {
-					//	g_Vars.globals.m_flLastShotTimeInRage = g_Vars.globals.m_flLastShotTime;
-					//}
+					if (weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE) {
+						g_Vars.globals.m_flLastShotTime = Interfaces::m_pGlobalVars->realtime;
+						//if( g_Vars.globals.bInRagebot ) {
+						//	g_Vars.globals.m_flLastShotTimeInRage = g_Vars.globals.m_flLastShotTime;
+						//}
+					}
+
+					g_Vars.globals.WasShootingInChokeCycle = !(*bSendPacket);
+					g_Vars.globals.WasShooting = true;
+
+					if (weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE)
+						g_Vars.globals.WasShootingInPeek = true;
+
+					//g_Vars.globals.m_ShotAngle = Interfaces::m_pInput->m_pCommands[ nShotCmd % 150 ].viewangles;
+
 				}
-
-				g_Vars.globals.WasShootingInChokeCycle = !( *bSendPacket );
-				g_Vars.globals.WasShooting = true;
-
-				if( weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE )
-					g_Vars.globals.WasShootingInPeek = true;
-
-				//g_Vars.globals.m_ShotAngle = Interfaces::m_pInput->m_pCommands[ nShotCmd % 150 ].viewangles;
-
-			}
-			else {
-				g_Vars.globals.WasShooting = false;
+				else {
+					g_Vars.globals.WasShooting = false;
+				}
 			}
 
 			g_Vars.globals.iWeaponIndex = weapon->m_iItemDefinitionIndex( );
