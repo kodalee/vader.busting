@@ -286,13 +286,7 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 	//snprintf(buffer, 4096, formatter, m->client, m->audible_mask, m->xuid_low, m->xuid_high, m->proximity, m->format, m->sequence_bytes, m->section_number, m->uncompressed_sample_offset);
 
 	//if (buffer) {
-		//printf(buffer);
-
-		//printf("[000000!!!] CSVCMsg_VoiceData_Legacy :\n");
-		//printf("   sequence_bytes             : %d\n", m->sequence_bytes);
-		//printf("   section_number             : %d\n", m->section_number);
-		//printf("   uncompressed_sample_offset : %d\n", m->uncompressed_sample_offset);
-		//printf("\n");
+	//	printf(buffer);
 	//}
 
 	oVoiceData(ecx, msg);
