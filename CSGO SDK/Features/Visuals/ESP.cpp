@@ -2129,7 +2129,7 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 			else if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) <= 199) {
 				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 128, 0, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) + XorStr("MS"));
 			}
-			else if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) <= 200) {
+			else if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) <= 999) {
 				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) + XorStr("MS"));
 			}
 		}
