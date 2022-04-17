@@ -1354,7 +1354,7 @@ void Misc()
 					ConfigManager::CreateConfig(config_name);
 					cfg_list = ConfigManager::GetConfigs();
 				}
-				ImGui::SameLine();
+
 				if (ImGui::Button(XorStr("Reset"))) {
 					ImGui::OpenPopup(XorStr("Confirmation_Reset"));
 				}
@@ -1369,6 +1369,7 @@ void Misc()
 					}
 					ImGui::EndPopup();
 				}
+				ImGui::SameLine();
 
 				if (ImGui::Button(XorStr("Open config folder")))
 				{
@@ -1559,8 +1560,8 @@ void IMGUIMenu::OnDeviceReset()
 auto windowFlags = (ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding);
 ImFont* gravity, *gravityBold, *StarWars, *watermark;
 
-#define MENU_WIDTH 786.f
-#define MENU_HEIGHT 650.f
+#define MENU_WIDTH 650.f
+#define MENU_HEIGHT 600.f
 
 bool Spinner(const char* label, float radius, int thickness, const ImU32& color) {
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
