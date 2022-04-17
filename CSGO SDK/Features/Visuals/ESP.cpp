@@ -2164,7 +2164,11 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	}
 
 	if( g_Vars.esp.draw_defusing && player->m_bHasDefuser( ) ) {
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 105, 218, 204, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "KIT" ) );
+		if (!player->IsDormant()) {
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(105, 218, 204, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("KIT"));
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("KIT"));
 	}
 
 	if (g_Vars.esp.draw_flashed && player->m_flFlashDuration() > 1.f) {
