@@ -561,6 +561,7 @@ void Visuals()
 					{ XorStr("Distance"), &g_Vars.esp.draw_distance },
 					{ XorStr("Grenade pin"), &g_Vars.esp.draw_grenade_pin },
 					{ XorStr("Resolved"), &g_Vars.esp.draw_resolver },
+					{ XorStr("Ping"), &g_Vars.esp.draw_ping },
 				};
 
 				InsertMultiCombo(XorStr("Flags"), flags);

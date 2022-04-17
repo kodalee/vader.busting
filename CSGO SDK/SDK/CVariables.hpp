@@ -944,6 +944,7 @@ public:
 	config_option( bool, draw_reloading, false );
 	config_option( bool, draw_grenade_pin, false );
 	config_option( bool, draw_defusing, false );
+	config_option( bool, draw_ping, false );
 	config_option( bool, team_check, false );
 	config_option( bool, draw_ammo_bar, false );
 	config_option( bool, draw_lby_bar, false );
