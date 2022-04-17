@@ -73,7 +73,7 @@ void Render::DirectX::init( IDirect3DDevice9* dev ) {
 		font->init( );
 	}
 
-	Textures::background->setup( device, background_texture, sizeof( background_texture ), 2000, 2000 );
+	//Textures::background->setup( device, background_texture, sizeof( background_texture ), 2000, 2000 );
 
 	initialized = true;
 }
@@ -83,8 +83,8 @@ void Render::DirectX::invalidate( ) {
 		font->invalidate( );
 	}
 
-	Textures::background->invalidate( );
-	Textures::logo->invalidate( );
+	//Textures::background->invalidate( );
+	//Textures::logo->invalidate( );
 }
 
 void Render::DirectX::restore( IDirect3DDevice9* dev ) {
@@ -95,7 +95,7 @@ void Render::DirectX::restore( IDirect3DDevice9* dev ) {
 		font->init( );
 	}
 
-	Textures::background->setup( device, background_texture, sizeof( background_texture ), 2000, 2000 );
+	//Textures::background->setup( device, background_texture, sizeof( background_texture ), 2000, 2000 );
 }
 
 void Render::DirectX::set_viewport( D3DVIEWPORT9 vp ) {
