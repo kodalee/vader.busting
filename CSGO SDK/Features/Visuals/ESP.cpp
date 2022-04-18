@@ -2259,8 +2259,13 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 
 		auto definition_index = weapon->m_Item( ).m_iItemDefinitionIndex( );
 
-		if( definition_index == WEAPON_C4 && g_Vars.esp.draw_bombc4 )
-			g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "C4" ) );
+		if (definition_index == WEAPON_C4 && g_Vars.esp.draw_bombc4) {
+			if (!player->IsDormant()) {
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("C4"));
+			}
+			else
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("C4"));
+		}
 	}
 
 	auto pWeapon = ( C_WeaponCSBaseGun* )player->m_hActiveWeapon( ).Get( );
@@ -2268,7 +2273,11 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		auto pWeaponData = pWeapon->GetCSWeaponData( );
 		if( pWeaponData.IsValid( ) ) {
 			if( pWeaponData->m_iWeaponType == WEAPONTYPE_GRENADE && pWeapon->m_bPinPulled( ) ) {
-				g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 0, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "PIN" ) );
+				if (!player->IsDormant()) {
+					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("PIN"));
+				}
+				else
+					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("PIN"));
 			}
 		}
 	}
