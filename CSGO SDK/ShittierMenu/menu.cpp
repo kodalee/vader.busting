@@ -2145,10 +2145,11 @@ void IMGUIMenu::Render()
 	window->DrawList->PathClear();
 
 	const std::string user = g_Vars.globals.user_info.username;
+	char buff[24]; // max username is 12 
+	sprintf_s(buff, XorStr("Hello, %s"), user.c_str());
+	auto user_size = ImGui::CalcTextSize(user.c_str());
 
-
-	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(137, 30) }, ImColor(255, 255, 255), user.c_str());
-	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(170, 30) }, ImColor(255, 255, 255), "Hello, ");
+	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(160 + (user_size.x / 2), 30) }, ImColor(255, 255, 255), buff);
 
 	ImGui::EndChild();
 	ImGui::End();

@@ -847,8 +847,8 @@ bool c_lua::initialize() {
 	utils[XorStr("clamp")] = lua_utils::clamp;
 	utils[XorStr("find_signature")] = lua_utils::find_signature;
 	utils[XorStr("apply_clan_tag")] = lua_utils::apply_clan_tag;
-	utils[XorStr("color")] = lua_utils::create_color;
-	utils[XorStr("floatcolor")] = lua_utils::create_floatcolor;
+	//utils[XorStr("color")] = lua_utils::create_color; // not needed.......
+	//utils[XorStr("floatcolor")] = lua_utils::create_floatcolor; // not needed.......
 	utils[XorStr("color_rainbow")] = lua_utils::create_color_rainbow;
 	utils[XorStr("lowerbody_yaw")] = lua_utils::lowerbody_yaw;
 	utils[XorStr("local_alive")] = lua_utils::local_alive;

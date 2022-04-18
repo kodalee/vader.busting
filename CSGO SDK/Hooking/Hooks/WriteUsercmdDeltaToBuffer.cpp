@@ -3,6 +3,9 @@
 #include "../../Features/Rage/TickbaseShift.hpp"
 #include "../../SDK/Classes/Player.hpp"
 
+bool inSendMove = false, firstSendMovePack = false;
+int sinceuse = 0;
+
 void WriteUsercmdD(bf_write* buf, CUserCmd* incmd, CUserCmd* outcmd) {
 	__asm
 	{
@@ -29,13 +32,49 @@ bool __fastcall Hooked::WriteUsercmdDeltaToBuffer(void* ECX, void* EDX, int nSlo
 	if (o_from != -1)
 		return true;
 
+	// CL_SendMove function
+	auto CL_SendMove = []()
+	{
+		using CL_SendMove_t = void(__fastcall*)(void);
+		static CL_SendMove_t CL_SendMoveF = (CL_SendMove_t)Memory::Scan(XorStr("engine.dll"), XorStr("55 8B EC A1 ? ? ? ? 81 EC ? ? ? ? B9 ? ? ? ? 53 8B 98"));
+
+		CL_SendMoveF();
+	};
+
 	auto p_new_commands = (int*)((DWORD)buffer - 0x2C);
 	auto p_backup_commands = (int*)((DWORD)buffer - 0x30);
 	auto new_commands = *p_new_commands;
 
+	if (!inSendMove)
+	{
+		if (new_commands <= 0)
+			return false;
+
+		inSendMove = true;
+		firstSendMovePack = true;
+		g_Vars.globals.shift_amount += new_commands;
+
+		while (g_Vars.globals.shift_amount > 0)
+		{
+			CL_SendMove();
+			firstSendMovePack = false;
+		}
+
+		inSendMove = false;
+		return false;
+	}
+
+	if (!firstSendMovePack)
+	{
+		int32_t loss = std::min(g_Vars.globals.shift_amount, 10);
+
+		g_Vars.globals.shift_amount -= loss;
+		Interfaces::m_pEngine->GetNetChannelInfo()->m_nOutSequenceNr += loss;
+	}
+
 	auto next_cmd_nr = Interfaces::m_pClientState->m_nLastOutgoingCommand() + Interfaces::m_pClientState->m_nChokedCommands() + 1;
 
-	auto total_new_commands = std::clamp(g_Vars.globals.shift_amount, 0, 16);
+	auto total_new_commands = std::clamp(g_Vars.globals.shift_amount, 0, 62);
 	g_Vars.globals.shift_amount -= total_new_commands;
 
 	o_from = -1;
