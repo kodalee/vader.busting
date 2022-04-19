@@ -1,5 +1,5 @@
 #pragma once
-#include "sdk.hpp"
+#include "../sdk.hpp"
 
 struct SndInfo_t
 {
@@ -119,7 +119,11 @@ public:
   virtual void		StopSoundByGuid( int guid, bool bForceSync ) = 0;
   virtual void		SetVolumeByGuid( int guid, float fvol ) = 0;
   virtual void    unknown( ) = 0;
-  virtual void		GetActiveSounds( CUtlVector<SndInfo_t>& sndlist ) = 0;
+  void GetActiveSounds(CUtlVector <SndInfo_t>& sndList)
+  {
+	  using GetActiveSoundsFn = void(__thiscall*)(void*, CUtlVector <SndInfo_t>&);
+	  return Memory::VCall<GetActiveSoundsFn>(this, 18)(this, sndList);
+  }
   virtual void		PrecacheSentenceGroup( const char *pGroupName ) = 0;
   virtual void		NotifyBeginMoviePlayback( ) = 0;
   virtual void		NotifyEndMoviePlayback( ) = 0;
