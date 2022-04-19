@@ -530,9 +530,9 @@ namespace Hooked
 				g_netdata.apply();
 
 				// fix issues when players we are spectating scope in
-				if( local && local->m_iObserverMode( ) == 5 ) { 
-					local->m_iFOV( ) = 90.f;
-				}
+				//if( local && local->m_iObserverMode( ) == 5 ) { 
+				//	local->m_iFOV( ) = 90.f;
+				//}
 			}
 		}
 
