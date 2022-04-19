@@ -385,14 +385,18 @@ bool CEsp::ValidPlayer( C_CSPlayer* player ) {
 		return false;
 	}
 
+	constexpr int EXPIRE_DURATION = 450; // miliseconds-ish?
+	auto& sound_player = IExtendedEsp::Get()->m_cSoundPlayers[player->EntIndex()];
+	bool sound_expired = GetTickCount() - sound_player.m_iReceiveTime > EXPIRE_DURATION;
+
 	static auto g_GameRules = *( uintptr_t** )( Engine::Displacement.Data.m_GameRules );
 	if( *( bool* )( *( uintptr_t* )g_GameRules + 0x20 ) ) {
-		if( player->IsDormant( ) ) {
+		if( player->IsDormant( ) && sound_expired ) {
 			m_flAlpha[ idx ] = 0.f;
 		}
 		return false;
 	}
-	if( player->IsDormant( ) ) {
+	if( player->IsDormant( ) && sound_expired ) {
 		if( m_flAlpha[ idx ] < 0.6f ) {
 			m_flAlpha[ idx ] -= ( 1.0f / 1.0f ) * Interfaces::m_pGlobalVars->frametime;
 			m_flAlpha[ idx ] = std::clamp( m_flAlpha[ idx ], 0.f, 0.6f );
