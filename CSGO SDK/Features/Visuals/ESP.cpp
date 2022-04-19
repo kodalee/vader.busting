@@ -393,9 +393,9 @@ bool CEsp::ValidPlayer( C_CSPlayer* player ) {
 		return false;
 	}
 	if( player->IsDormant( ) ) {
-		if( m_flAlpha[ idx ] < 0.7f ) {
+		if( m_flAlpha[ idx ] < 0.6f ) {
 			m_flAlpha[ idx ] -= ( 1.0f / 1.0f ) * Interfaces::m_pGlobalVars->frametime;
-			m_flAlpha[ idx ] = std::clamp( m_flAlpha[ idx ], 0.f, 0.7f );
+			m_flAlpha[ idx ] = std::clamp( m_flAlpha[ idx ], 0.f, 0.6f );
 		}
 		else {
 			m_flAlpha[ idx ] -= ( 1.0f / 20.f ) * Interfaces::m_pGlobalVars->frametime;
