@@ -1555,7 +1555,7 @@ void IMGUIMenu::OnDeviceReset()
     ImGui_ImplDX9_CreateDeviceObjects();
 }
 
-auto windowFlags = (ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding);
+auto windowFlags = (ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoSavedSettings);
 ImFont* gravity, *gravityBold, *StarWars, *watermark;
 
 #define MENU_WIDTH 650.f
@@ -1628,7 +1628,7 @@ void IMGUIMenu::Loading()
 
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Set window background to black
 
-		ImGui::Begin(XorStr("Loading"), &retard, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoMove);
+		ImGui::Begin(XorStr("Loading"), &retard, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
 
 		ImGui::PopStyleColor();
 
@@ -1773,6 +1773,7 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 		| ImGuiWindowFlags_NoResize
 		| ImGuiWindowFlags_NoScrollbar
 		| ImGuiWindowFlags_NoScrollWithMouse
+		| ImGuiWindowFlags_NoSavedSettings
 	};
 
 	if (ImGui::Begin(name, nullptr, dw_window_flags))
@@ -1844,6 +1845,7 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 		| ImGuiWindowFlags_NoResize
 		| ImGuiWindowFlags_NoScrollbar
 		| ImGuiWindowFlags_NoScrollWithMouse
+		| ImGuiWindowFlags_NoSavedSettings
 	};
 
 	if (ImGui::Begin(name, nullptr, dw_window_flags))
