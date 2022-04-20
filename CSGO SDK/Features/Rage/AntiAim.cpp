@@ -615,7 +615,7 @@ namespace Interfaces
 			//printf("fuck you kids\n");
 			cmd->forwardmove = 7.f;
 			*bSendPacket = true;
-			cmd->viewangles.y -= 90.f;
+			cmd->viewangles.y += g_Vars.antiaim.break_lby_first;
 			g_Vars.globals.need_break_lastmove = false;
 		}
 
