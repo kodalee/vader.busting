@@ -622,9 +622,9 @@ namespace lua_render {
 		Render::Engine::CircleFilled((int)x, (int)y, (int)radius, (int)segments, color);
 	}
 
-	void draw_gradient(int x, int y, int w, int h, Color color, Color color2)
+	void draw_gradient(int x, int y, int w, int h, Color color, Color color2, bool horizontal)
 	{
-		Render::Engine::Gradient((int)x, (int)y, (int)w, (int)h, color, color2);
+		Render::Engine::Gradient((int)x, (int)y, (int)w, (int)h, color, color2, horizontal);
 	}
 
 	Vector world_to_screen(Vector pos) {
@@ -657,8 +657,6 @@ bool c_lua::initialize() {
 	this->lua["pcall"] = sol::nil;
 	this->lua["print"] = sol::nil;
 	this->lua["xpcall"] = sol::nil;
-	this->lua["getmetatable"] = sol::nil;
-	this->lua["setmetatable"] = sol::nil;
 	this->lua["__nil_callback"] = []() {};
 
 	this->lua["print"] = [](std::string s) { engine_console(s); };
