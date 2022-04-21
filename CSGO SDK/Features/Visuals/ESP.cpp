@@ -227,7 +227,15 @@ void DrawWatermark() {
 
 	// Constants for colors
 	const auto col_background = Color(41, 32, 59, 175); // Watermark background color
-	const auto col_accent = Color(255, 215, 0, 255); // Watermark line accent color
+	FloatColor col_accent; // Watermark line accent color
+
+	if (!g_Vars.misc.custom_menu) {
+		col_accent = FloatColor(255, 215, 0, 255);
+	}
+	else {
+		col_accent = g_Vars.misc.accent_color;
+	}
+
 	const auto col_text = Color(255, 255, 255); // Watermark text color
 
 	static auto framerate = 0.0f;
@@ -277,7 +285,7 @@ void DrawWatermark() {
 		margin); // Top align
 
 	Render::Engine::RectFilled(bg_pos.x, bg_pos.y, bg_size.x, bg_size.y, col_background); // Background
-	Render::Engine::Rect(bg_pos.x, bg_pos.y, bg_size.x, 2, col_accent); // Accent line
+	Render::Engine::Rect(bg_pos.x, bg_pos.y, bg_size.x, 2, col_accent.ToRegularColor()); // Accent line
 	Render::Engine::tahoma_sexy.string(text_pos.x, text_pos.y, col_text, text); // Text
 }
 

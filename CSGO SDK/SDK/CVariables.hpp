@@ -1406,6 +1406,10 @@ public:
 	config_option( bool, accurate_walk, false );
 	config_option( bool, slide_walk, false );
 	config_option( bool, fakeduck, false );
+	config_option(bool, custom_menu, false);
+	config_option(FloatColor, accent_color, FloatColor(255, 215, 0));
+	config_option(FloatColor, logo_color, FloatColor(0, 87, 255));
+
 	config_keybind( fakeduck_bind );
 
 	config_option( bool, third_person, false );

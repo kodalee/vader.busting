@@ -1130,6 +1130,8 @@ void Misc()
 
 			InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
 			InsertCheckbox(FastStop, XorStr("Fast Stop"), &g_Vars.misc.quickstop);
+			InsertCheckbox(Custom_menu, XorStr("Custom menu"), &g_Vars.misc.custom_menu); if (g_Vars.misc.custom_menu) { ImGui::SameLine(); ColorPicker(XorStr("##accent"), g_Vars.misc.accent_color, false, false); ImGui::SameLine(); ColorPicker(XorStr("##logo"), g_Vars.misc.logo_color, false, false); }
+
 			ImGui::NextColumn();
 			ImGui::NewLine();
 
@@ -1779,8 +1781,18 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 	if (ImGui::Begin(name, nullptr, dw_window_flags))
 	{
 		//get vars :::
-		ImColor theme = ImColor(255, 215, 0, 255);
-		ImColor theme_zero = ImColor(255, 215, 0, 0);
+		ImColor theme;
+		ImColor theme_zero;
+
+		if (!g_Vars.misc.custom_menu) {
+			theme = ImColor(255, 215, 0, 255);
+			theme_zero = ImColor(255, 215, 0, 0);
+		}
+		else {
+			theme = (ImColor)g_Vars.misc.accent_color;
+			theme_zero = ImColor(g_Vars.misc.accent_color.r, g_Vars.misc.accent_color.g, g_Vars.misc.accent_color.b, 0.f);
+		}
+
 		ImColor black = ImColor(0, 0, 0, 210);
 		ImColor black_zero = ImColor(0, 0, 0, 0);
 		ImColor black_half = ImColor(0, 0, 0, 60);
@@ -1851,8 +1863,18 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 	if (ImGui::Begin(name, nullptr, dw_window_flags))
 	{
 		//get vars :::
-		ImColor theme = ImColor(255, 215, 0, 255);
-		ImColor theme_zero = ImColor(255, 215, 0, 0);
+		ImColor theme;
+		ImColor theme_zero;
+
+		if (!g_Vars.misc.custom_menu) {
+			theme = ImColor(255, 215, 0, 255);
+			theme_zero = ImColor(255, 215, 0, 0);
+		}
+		else {
+			theme = (ImColor)g_Vars.misc.accent_color;
+			theme_zero = ImColor(g_Vars.misc.accent_color.r, g_Vars.misc.accent_color.g, g_Vars.misc.accent_color.b, 0.f);
+		}
+
 		ImColor black = ImColor(0, 0, 0, 210);
 		ImColor black_zero = ImColor(0, 0, 0, 0);
 		ImColor black_half = ImColor(0, 0, 0, 60);
@@ -2012,8 +2034,15 @@ void IMGUIMenu::Render()
 
 	style->WindowPadding = ImVec2(7.f, 7.f);
 
-	style->Colors[ImGuiCol_MenuAccent] = ImColor(255, 215, 0);
-	style->Colors[ImGuiCol_Logo] = ImColor(0, 87, 255);
+	if (!g_Vars.misc.custom_menu) {
+		style->Colors[ImGuiCol_MenuAccent] = ImColor(255, 215, 0);
+		style->Colors[ImGuiCol_Logo] = ImColor(0, 87, 255);
+	}
+	else {
+		style->Colors[ImGuiCol_MenuAccent] = (ImColor)g_Vars.misc.accent_color;
+		style->Colors[ImGuiCol_Logo] = (ImColor)g_Vars.misc.logo_color;
+	}
+
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 	{
