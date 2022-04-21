@@ -1783,14 +1783,17 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 		//get vars :::
 		ImColor theme;
 		ImColor theme_zero;
+		ImColor circle_color;
 
 		if (!g_Vars.misc.custom_menu) {
 			theme = ImColor(255, 215, 0, 255);
 			theme_zero = ImColor(255, 215, 0, 0);
+			circle_color = ImColor(255, 215, 0, 255);
 		}
 		else {
 			theme = (ImColor)g_Vars.misc.accent_color;
 			theme_zero = ImColor(g_Vars.misc.accent_color.r, g_Vars.misc.accent_color.g, g_Vars.misc.accent_color.b, 0.f);
+			circle_color = (ImColor)g_Vars.misc.accent_color;
 		}
 
 		ImColor black = ImColor(0, 0, 0, 210);
@@ -1829,10 +1832,9 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
 
 		for (auto i = 0; i < vec.size(); i++) {
-			int alpha_of_this = Animate(XorStr("Spectators"), vec[i].c_str(), true, 255, 15, STATIC);
 			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 25 * i);
-			draw->AddCircleFilled(first_circle_pos, 2.3f, ImColor(255, 215, 0, alpha_of_this), 5.f * 15.f);
-			draw->AddCircleFilled(first_circle_pos, 2.f, ImColor(255, 215, 0, alpha_of_this), 5.f * 15.f);
+			draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
+			draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
 			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
 		}
 
@@ -1865,14 +1867,17 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 		//get vars :::
 		ImColor theme;
 		ImColor theme_zero;
+		ImColor circle_color;
 
 		if (!g_Vars.misc.custom_menu) {
 			theme = ImColor(255, 215, 0, 255);
 			theme_zero = ImColor(255, 215, 0, 0);
+			circle_color = ImColor(255, 215, 0, 255);
 		}
 		else {
 			theme = (ImColor)g_Vars.misc.accent_color;
 			theme_zero = ImColor(g_Vars.misc.accent_color.r, g_Vars.misc.accent_color.g, g_Vars.misc.accent_color.b, 0.f);
+			circle_color = (ImColor)g_Vars.misc.accent_color;
 		}
 
 		ImColor black = ImColor(0, 0, 0, 210);
@@ -1911,10 +1916,9 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
 
 		for (auto i = 0; i < vec.size(); i++) {
-			int alpha_of_this = Animate(XorStr("Keybinds"), vec[i].c_str(), true, 255, 15, STATIC);
 			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 25 * i);
-			draw->AddCircleFilled(first_circle_pos, 2.3f, ImColor(255, 215, 0, alpha_of_this), 5.f * 15.f);
-			draw->AddCircleFilled(first_circle_pos, 2.f, ImColor(255, 215, 0, alpha_of_this), 5.f * 15.f);
+			draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
+			draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
 			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
 		}
 
