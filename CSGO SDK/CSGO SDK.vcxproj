@@ -155,6 +155,7 @@
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Beta|Win32'">
@@ -221,41 +222,6 @@
     <ClCompile Include="Libraries\lua-api\lua_api.cpp" />
     <ClCompile Include="Libraries\lua-api\lua_gameevents.cpp" />
     <ClCompile Include="Libraries\lua-api\lua_hooks.cpp" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lapi.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lauxlib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lbaselib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lbitlib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lcode.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lcorolib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lctype.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\ldblib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\ldebug.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\ldo.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\ldump.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lfunc.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lgc.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\linit.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\liolib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\llex.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lmathlib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lmem.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\loadlib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lobject.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lopcodes.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\loslib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lparser.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lstate.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lstring.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lstrlib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\ltable.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\ltablib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\ltests.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\ltm.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lua.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lundump.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lutf8lib.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lvm.c" />
-    <ClCompile Include="Libraries\lua-wrapper\src\lzio.c" />
     <ClCompile Include="Loader\Exports.cpp" />
     <ClCompile Include="Loader\Security\Security.cpp" />
     <ClCompile Include="Renderer\Wrapper\sprite\sprite.cpp" />
@@ -409,29 +375,8 @@
     <ClInclude Include="Libraries\lua-wrapper\include\lua.h" />
     <ClInclude Include="Libraries\lua-wrapper\include\lua.hpp" />
     <ClInclude Include="Libraries\lua-wrapper\include\luaconf.h" />
+    <ClInclude Include="Libraries\lua-wrapper\include\luajit.h" />
     <ClInclude Include="Libraries\lua-wrapper\include\lualib.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lapi.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lcode.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lctype.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\ldebug.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\ldo.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lfunc.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lgc.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\llex.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\llimits.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lmem.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lobject.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lopcodes.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lparser.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lprefix.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lstate.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lstring.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\ltable.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\ltests.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\ltm.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lundump.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lvm.h" />
-    <ClInclude Include="Libraries\lua-wrapper\src\lzio.h" />
     <ClInclude Include="Libraries\sol\sol.hpp" />
     <ClInclude Include="Loader\Exports.h" />
     <ClInclude Include="Loader\Security\Security.hpp" />
@@ -704,6 +649,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ShittierMenu\IMGAY\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Libraries\lua-wrapper\include\lua51.lib" />
+    <Library Include="Libraries\lua-wrapper\include\luajit.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

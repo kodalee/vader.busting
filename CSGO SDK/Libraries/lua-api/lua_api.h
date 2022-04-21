@@ -6,6 +6,9 @@
 #include "lua_gameevents.h"
 #include "../../SDK/CLuaConfigs.h"
 
+#pragma comment(lib, "../lua-wrapper/include/luajit.lib")
+#pragma comment(lib, "../lua-wrapper/include/lua51.lib")
+
 enum MENUITEMTYPE {
 	MENUITEM_CHECKBOX = 0,
 	MENUITEM_SLIDERINT,
