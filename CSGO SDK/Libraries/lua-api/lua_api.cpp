@@ -654,7 +654,6 @@ bool c_lua::initialize() {
 	this->lua["dofile"] = sol::nil;
 	this->lua["load"] = sol::nil;
 	this->lua["loadfile"] = sol::nil;
-	this->lua["pcall"] = sol::nil;
 	this->lua["print"] = sol::nil;
 	this->lua["xpcall"] = sol::nil;
 	this->lua["__nil_callback"] = []() {};
