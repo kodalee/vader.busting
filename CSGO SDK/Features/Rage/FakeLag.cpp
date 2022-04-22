@@ -207,14 +207,17 @@ namespace Interfaces
 		fakelag_amount = apply_choketype( fakelag_amount );
 		*bSendPacket = Interfaces::m_pClientState->m_nChokedCommands( ) > fakelag_amount;
 
-		if( Interfaces::m_pClientState->m_nChokedCommands( ) > 16 )
+		if (Interfaces::m_pClientState->m_nChokedCommands() > 16) {
 			*bSendPacket = true;
+			g_Vars.globals.bCanWeaponFire = false;
+		}
 
 		fakelagData->m_iWillChoke = fakelag_amount - Interfaces::m_pClientState->m_nChokedCommands( );
 
 		auto diff_too_large = abs( Interfaces::m_pGlobalVars->tickcount - OutgoingTickcount ) > fakelagData->m_iMaxChoke;
 		if( Interfaces::m_pClientState->m_nChokedCommands( ) > 0 && diff_too_large ) {
 			*bSendPacket = true;
+			g_Vars.globals.bCanWeaponFire = false;
 			fakelagData->m_bAlternative = false;
 			fakelagData->m_iWillChoke = 0;
 			return;

@@ -491,10 +491,10 @@ namespace Interfaces
 
 
 		// don't lag when shooting, this way events are instant
-		if( !bDontFakelag )
-			if( g_Vars.globals.m_bOldShot ) {
-				*m_movement_data->m_pSendPacket = true;
-			}
+		//if( !bDontFakelag )
+			//if( g_Vars.globals.m_bOldShot ) {
+			//	*m_movement_data->m_pSendPacket = true;
+			//}
 		
 		Interfaces::AntiAimbot::Get( )->Main( m_movement_data->m_pSendPacket, m_movement_data->m_pFinalPacket, m_movement_data->m_pCmd, g_Vars.globals.bInRagebot );
 
@@ -858,6 +858,7 @@ namespace Interfaces
 
 		if (Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed) {
 			*m_movement_data->m_pSendPacket = true;
+			g_Vars.globals.bCanWeaponFire = false;
 			//printf("sent packet\n");
 		}
 

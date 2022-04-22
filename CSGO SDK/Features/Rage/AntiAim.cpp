@@ -167,7 +167,9 @@ namespace Interfaces
 		{
 
 			auto angles = cmd->viewangles.y;
-
+			if (g_Vars.globals.Fakewalking) {
+				*bSendPacket = true;
+			}
 			target_lby = initial_lby;
 			cmd->viewangles.y = initial_lby;
 			cmd->viewangles.Clamp();
@@ -175,10 +177,6 @@ namespace Interfaces
 
 			if (secondupdate)
 			{
-				if (g_Vars.globals.Fakewalking) {
-					*bSendPacket = true;
-				}
-
 				initial_lby = angles + g_Vars.antiaim.break_lby;
 
 				secondupdate = false;
@@ -468,8 +466,6 @@ namespace Interfaces
 					*bSendPacket = true;
 					g_Vars.globals.shift_amount = shift_time > 0 ? 16 : 0;
 				}
-
-				g_Vars.globals.shift_amount = 16;
 
 				//*bSendPacket = false;
 

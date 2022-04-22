@@ -488,7 +488,7 @@ namespace Interfaces
 			if (FakeLag::Get()->IsPeeking(cmd) || g_Vars.globals.WasShootingInPeek) {
 				DefensiveCounter++;
 				AppliedShift = min2(DefensiveCounter, 14);//14
-				printf(XorStr("shot\n"));
+				//printf(XorStr("shot\n"));
 			}
 			else
 				DefensiveCounter = 2;
@@ -498,6 +498,9 @@ namespace Interfaces
 
 		bool revolver = weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER;
 
+		if(!g_Vars.globals.bCanWeaponFire)
+			StripAttack(cmd);
+
 		// we have a normal weapon or a non cocking revolver
 		// choke if its the processing tick.
 		if (g_Vars.globals.bCanWeaponFire && g_Vars.fakelag.fakelag_onshot && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.key_dt.enabled) {
@@ -506,15 +509,13 @@ namespace Interfaces
 			return false;
 		}
 
+		if (!g_Vars.globals.bCanWeaponFire)
+			return false;
+
 		//else if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && g_TickbaseController.s_bBuilding && g_TickbaseController.s_nExtraProcessingTicks < g_TickbaseController.s_nSpeed) {
 		//	*sendPacket = false;
 		//	StripAttack(cmd);
 		//}
-
-		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
-			*sendPacket = true;
-			//printf("setting send packet to true\n");
-		}
 
 		if (!SetupRageOptions())
 			return false;
@@ -536,13 +537,13 @@ namespace Interfaces
 
 		g_TickbaseController.s_nSpeed = m_rage_data->rbot->doubletap_speed;
 
-		if (m_rage_data->m_pCmd->buttons & (IN_ATTACK) || GetAsyncKeyState(VK_LBUTTON)) {
-			g_TickbaseController.m_bSupressRecharge = true;
-			//printf("supressing\n");
-		}
-		else {
-			g_TickbaseController.m_bSupressRecharge = false;
-		}
+		//if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
+		//	g_TickbaseController.m_bSupressRecharge = true;
+		//	//printf("supressing\n");
+		//}
+		//else {
+		//	g_TickbaseController.m_bSupressRecharge = false;
+		//}
 
 		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
 			if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
@@ -1577,6 +1578,8 @@ namespace Interfaces
 
 		g_Vars.globals.RageBotTargetting = false;
 
+		g_TickbaseController.m_bSupressRecharge = false;
+
 		if (!SetupTargets())
 			return { false, C_AimPoint() };
 
@@ -2242,8 +2245,11 @@ namespace Interfaces
 		}
 
 		if (g_Vars.rage.auto_fire) {
-			//if (!g_Vars.globals.Fakewalking)
-				//*m_rage_data->m_pSendPacket = false; // this is not needed.
+			if (g_Vars.fakelag.fakelag_onshot) {
+				*m_rage_data->m_pSendPacket = false;
+			}
+
+			g_TickbaseController.m_bSupressRecharge = true;
 
 			m_rage_data->m_pCmd->buttons |= IN_ATTACK;
 
