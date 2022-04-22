@@ -498,7 +498,7 @@ namespace Interfaces
 
 		bool revolver = weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER;
 
-		if(!g_Vars.globals.bCanWeaponFire)
+		if(!g_Vars.globals.bCanWeaponFire && !g_Vars.rage.key_dt.enabled)
 			StripAttack(cmd);
 
 		// we have a normal weapon or a non cocking revolver
@@ -509,8 +509,8 @@ namespace Interfaces
 			return false;
 		}
 
-		if (!g_Vars.globals.bCanWeaponFire)
-			return false;
+		//if (!g_Vars.globals.bCanWeaponFire)
+		//	return false;
 
 		//else if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && g_TickbaseController.s_bBuilding && g_TickbaseController.s_nExtraProcessingTicks < g_TickbaseController.s_nSpeed) {
 		//	*sendPacket = false;
