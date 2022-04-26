@@ -204,6 +204,10 @@ namespace Hooked
 
 		local->m_AnimOverlay( ).Element( 12 ).m_flWeight = 0.f;
 
+		if (local->m_flPoseParameter()) {
+			local->m_flPoseParameter()[6] = g_Vars.globals.m_flJumpFall;
+		}
+
 		// pull the lower body direction towards the eye direction, but only when the player is moving
 		if( state->m_bOnGround ) {
 			const float CSGO_ANIM_LOWER_CATCHUP_IDLE = 100.0f;

@@ -230,7 +230,7 @@ void DrawWatermark() {
 	FloatColor col_accent; // Watermark line accent color
 
 	if (!g_Vars.misc.custom_menu) {
-		col_accent = FloatColor(255, 215, 0, 255);
+		col_accent = FloatColor(255, 0, 0, 255);
 	}
 	else {
 		col_accent = g_Vars.misc.accent_color;
@@ -246,7 +246,7 @@ void DrawWatermark() {
 	// Cheat variables
 	std::string logo = XorStr("vader.tech");
 #ifdef DEV
-	logo.append(XorStr(" [dev]")); // :)
+	logo.append(XorStr(" [debug]")); // :)
 #endif
 #ifdef BETA
 	logo.append(XorStr(" [beta]")); // :)

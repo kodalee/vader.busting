@@ -668,13 +668,6 @@ namespace Interfaces
 		}
 
 
-		QAngle ang;
-
-		if (DoEdgeAntiAim(LocalPlayer, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1 && g_Vars.antiaim.freestand && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // run edge aa
-			cmd->viewangles.y += Math::AngleNormalize(ang.y);
-		}
-
-
 		//if (GetAsyncKeyState(VK_UP)) {
 		//	//store our magic variables
 		//	float backup_tickcount = Interfaces::m_pGlobalVars->tickcount;
@@ -888,9 +881,26 @@ namespace Interfaces
 		float freestandingReturnYaw = std::numeric_limits< float >::max();
 
 		if (g_Vars.antiaim.freestand) {
-			if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
+			bool DoFreestanding = true;
+			QAngle ang;
+
+			if (g_Vars.antiaim.freestand_disable_fakewalk && g_Vars.globals.Fakewalking)
+				DoFreestanding = false;
+
+			if (g_Vars.antiaim.freestand_disable_air && !g_Vars.globals.m_bGround)
+				DoFreestanding = false;
+
+			if (local->m_PlayerAnimState()->m_velocity > 0.1f && g_Vars.globals.m_bGround && !g_Vars.globals.Fakewalking) {
+				if (g_Vars.antiaim.freestand_disable_run)
+					DoFreestanding = false;
+			}
+
+			if (DoFreestanding && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
 				AutoDirection(cmd);
 				flRetValue = m_auto + g_Vars.antiaim.add_yaw;
+			}
+			else if (DoFreestanding && DoEdgeAntiAim(local, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1) { // run edge aa
+				flRetValue = Math::AngleNormalize(ang.y);
 			}
 
 
@@ -995,8 +1005,9 @@ namespace Interfaces
 				bGenerate = false;
 			}
 
+			float flDistortion = std::sin((Interfaces::m_pGlobalVars->realtime * g_Vars.antiaim.distort_speed) * 0.5f + 0.5f);
 			float flDelta = fabs(flLastMoveYaw - local->m_flLowerBodyYawTarget());
-			cmd->viewangles.y += flDelta + flGenerated;
+			cmd->viewangles.y += flDelta + flGenerated * flDistortion;
 		}
 	}
 

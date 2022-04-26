@@ -376,6 +376,15 @@ void HvH()
 						InsertSliderInt(XorStr("Timeout time"), &g_Vars.antiaim.timeout_time, 0, 10, XorStr("%d"));
 						InsertSliderInt(XorStr("Add yaw"), &g_Vars.antiaim.add_yaw, -180.f, 180.f, XorStr("%d"));
 					}
+
+					std::vector<MultiItem_t> freestand_disablers = {
+						{ XorStr("Fakewalking"), &g_Vars.antiaim.freestand_disable_fakewalk },
+						{ XorStr("Running"), &g_Vars.antiaim.freestand_disable_run },
+						{ XorStr("Airborne"), &g_Vars.antiaim.freestand_disable_air },
+					};
+
+					InsertCheckbox(LockFreestand, XorStr( "Lock freestand" ), &g_Vars.antiaim.freestand_lock );
+					InsertMultiCombo(XorStr("Freestand disablers"), freestand_disablers);
 				}
 
 				// distortion.
@@ -383,9 +392,7 @@ void HvH()
 				if (g_Vars.antiaim.distort) {
 					InsertCheckbox(AAManualOverride, XorStr("Override Manual Distortion"), &g_Vars.antiaim.distort_manual_aa);
 					InsertCheckbox(Twist, XorStr("Twist"), &g_Vars.antiaim.distort_twist);
-					if (g_Vars.antiaim.distort_twist) {
-						InsertSliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1fs"));
-					}
+					InsertSliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1fs"));
 					InsertSliderFloat(XorStr("Max time"), &g_Vars.antiaim.distort_max_time, 0.f, 10.f, XorStr("%.f"));
 					InsertSliderFloat(XorStr("Range"), &g_Vars.antiaim.distort_range, -360.f, 360.f, XorStr("%.f"));
 
@@ -1641,7 +1648,7 @@ void IMGUIMenu::Loading()
 
 		ImGui::PopFont();
 
-		Spinner(XorStr("##spinner"), 15, 6, ImColor(255, 215, 0));
+		Spinner(XorStr("##spinner"), 15, 6, ImColor(255, 0, 0));
 
 		ImGui::End();
 
@@ -1786,9 +1793,9 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 		ImColor circle_color;
 
 		if (!g_Vars.misc.custom_menu) {
-			theme = ImColor(255, 215, 0, 255);
-			theme_zero = ImColor(255, 215, 0, 0);
-			circle_color = ImColor(255, 215, 0, 255);
+			theme = ImColor(255, 0, 0, 255);
+			theme_zero = ImColor(255, 0, 0, 0);
+			circle_color = ImColor(255, 0, 0, 255);
 		}
 		else {
 			theme = (ImColor)g_Vars.misc.accent_color;
@@ -1870,9 +1877,9 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 		ImColor circle_color;
 
 		if (!g_Vars.misc.custom_menu) {
-			theme = ImColor(255, 215, 0, 255);
-			theme_zero = ImColor(255, 215, 0, 0);
-			circle_color = ImColor(255, 215, 0, 255);
+			theme = ImColor(255, 0, 0, 255);
+			theme_zero = ImColor(255, 0, 0, 0);
+			circle_color = ImColor(255, 0, 0, 255);
 		}
 		else {
 			theme = (ImColor)g_Vars.misc.accent_color;
@@ -2039,8 +2046,8 @@ void IMGUIMenu::Render()
 	style->WindowPadding = ImVec2(7.f, 7.f);
 
 	if (!g_Vars.misc.custom_menu) {
-		style->Colors[ImGuiCol_MenuAccent] = ImColor(255, 215, 0);
-		style->Colors[ImGuiCol_Logo] = ImColor(0, 87, 255);
+		style->Colors[ImGuiCol_MenuAccent] = ImColor(255, 0, 0);
+		style->Colors[ImGuiCol_Logo] = ImColor(255, 0, 0);
 	}
 	else {
 		style->Colors[ImGuiCol_MenuAccent] = (ImColor)g_Vars.misc.accent_color;
@@ -2054,7 +2061,7 @@ void IMGUIMenu::Render()
 
 		ImGui::PopFont();
 		ImGui::PushFont(StarWars);
-		ImGui::SameLine(5.f);
+		ImGui::SameLine(8.f, -0.1f, 5.f);
 		ImGui::PushStyleColor(ImGuiCol_Text, ImGuiCol_Logo);
 		ImGui::Text(XorStr("VADER"));
 		ImGui::PopStyleColor();
@@ -2164,13 +2171,13 @@ void IMGUIMenu::Render()
 	}
 	style->Colors[ImGuiCol_Border] = ImColor(0, 0, 0, 0);
 
-	ImGui::AddCircleImageFilled(
-		logo_nuts,
-		ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(45, 35),
-		30.f,
-		ImColor(255, 255, 255),
-		360
-	);
+	//ImGui::AddCircleImageFilled(
+	//	logo_nuts,
+	//	ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(45, 35),
+	//	30.f,
+	//	ImColor(255, 255, 255),
+	//	360
+	//);
 
 	auto window = ImGui::GetCurrentWindow();
 	if (window->SkipItems)
@@ -2179,12 +2186,12 @@ void IMGUIMenu::Render()
 	ImGuiContext& g = *GImGui;
 	window->DrawList->PathClear();
 
-	const std::string user = g_Vars.globals.user_info.username;
-	char buff[24]; // max username is 12 
-	sprintf_s(buff, XorStr("Hello, %s"), user.c_str());
-	auto user_size = ImGui::CalcTextSize(user.c_str());
+	//const std::string user = g_Vars.globals.user_info.username;
+	//char buff[24]; // max username is 12 
+	//sprintf_s(buff, XorStr("Hello, %s"), user.c_str());
+	//auto user_size = ImGui::CalcTextSize(user.c_str());
 
-	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(160 + (user_size.x / 2), 30) }, ImColor(255, 255, 255), buff);
+	//window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(160 + (user_size.x / 2), 30) }, ImColor(255, 255, 255), buff);
 
 	ImGui::EndChild();
 	ImGui::End();
@@ -2219,7 +2226,7 @@ void IMGUIMenu::CreateStyle()
 	//GetWindowsDirectoryA(buffer, MAX_PATH);
 
 	gravity = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravity_compressed_data, gravity_compressed_size, 13.f);
-	StarWars = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(star_wars_compressed_data, star_wars_compressed_size, 50.f);
+	StarWars = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(starwars2_compressed_data, starwars2_compressed_size, 50.f);
 	watermark = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravityb_compressed_data, gravityb_compressed_size, 16.f);
 	gravityBold = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravityb_compressed_data, gravityb_compressed_size, 13.f);
 	ImGui::SmallestPixel = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(smallestpixel_compressed_data, smallestpixel_compressed_size, 10, NULL, io.Fonts->GetGlyphRangesCyrillic());

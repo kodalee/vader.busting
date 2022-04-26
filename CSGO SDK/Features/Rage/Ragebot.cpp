@@ -1807,6 +1807,9 @@ namespace Interfaces
 								if (bDidDelayHeadShot)
 									flags.push_back(XorStr("DH"));
 
+								if (g_Vars.rage.prefer_body.enabled)
+									flags.push_back(XorStr("FB"));
+
 								std::string buffer;
 								if (!flags.empty()) {
 									for (auto n = 0; n < flags.size(); ++n) {
@@ -2050,14 +2053,10 @@ namespace Interfaces
 		backup.Setup(player);
 
 		auto record = GetBestLagRecord(player, &backup);
-
-		if (!record)
-			return 0;
-
-		//if (!record || !IsRecordValid(player, record)) {
-		//	backup.Apply(player);
-		//	return 0;
-		//}
+		if (!record || !IsRecordValid(player, record)) {
+			backup.Apply(player);
+			//return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
+		}
 
 		backup.Apply(player);
 
