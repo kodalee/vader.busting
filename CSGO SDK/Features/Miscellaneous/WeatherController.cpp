@@ -56,34 +56,37 @@ namespace Engine
 			return;
 		}
 
-		IClientUnknown* pRainUnknown = ((IClientRenderable*)m_Networkable)->GetIClientUnknown();
-		if (!pRainUnknown) {
-			return;
+		if (m_Networkable) {
+
+			IClientUnknown* pRainUnknown = ((IClientRenderable*)m_Networkable)->GetIClientUnknown();
+			if (!pRainUnknown) {
+				return;
+			}
+
+			C_BaseEntity* m_Precipitation = pRainUnknown->GetBaseEntity();
+			if (!m_Precipitation) {
+				return;
+			}
+
+			m_Networkable->PreDataUpdate(NULL);
+			m_Networkable->OnPreDataChanged(NULL);
+
+			// null da callbacks
+			if (g_Vars.r_RainRadius->fnChangeCallback.m_Size != 0)
+				g_Vars.r_RainRadius->fnChangeCallback.m_Size = 0;
+
+			// limit the render distance of da rain
+			if (g_Vars.r_RainRadius->GetFloat() != 1000.f)
+				g_Vars.r_RainRadius->SetValueFloat(1000.f);
+
+			// only PRECIPITATION_TYPE_RAIN and PRECIPITATION_TYPE_SNOW work..?
+			m_Precipitation->m_nPrecipType() = PrecipitationType_t::PRECIPITATION_TYPE_SNOW;
+			m_Precipitation->GetCollideable()->OBBMins() = Vector(-32768.0f, -32768.0f, -32768.0f);
+			m_Precipitation->GetCollideable()->OBBMaxs() = Vector(32768.0f, 32768.0f, 32768.0f);
+
+			m_Networkable->OnDataChanged(NULL);
+			m_Networkable->PostDataUpdate(NULL);
 		}
-
-		C_BaseEntity* m_Precipitation = pRainUnknown->GetBaseEntity();
-		if (!m_Precipitation) {
-			return;
-		}
-
-		m_Networkable->PreDataUpdate(NULL);
-		m_Networkable->OnPreDataChanged(NULL);
-
-		// null da callbacks
-		if (g_Vars.r_RainRadius->fnChangeCallback.m_Size != 0)
-			g_Vars.r_RainRadius->fnChangeCallback.m_Size = 0;
-
-		// limit the render distance of da rain
-		if (g_Vars.r_RainRadius->GetFloat() != 1000.f)
-			g_Vars.r_RainRadius->SetValueFloat(1000.f);
-
-		// only PRECIPITATION_TYPE_RAIN and PRECIPITATION_TYPE_SNOW work..?
-		m_Precipitation->m_nPrecipType() = PrecipitationType_t::PRECIPITATION_TYPE_SNOW;
-		m_Precipitation->GetCollideable()->OBBMins() = Vector(-32768.0f, -32768.0f, -32768.0f);
-		m_Precipitation->GetCollideable()->OBBMaxs() = Vector(32768.0f, 32768.0f, 32768.0f);
-
-		m_Networkable->OnDataChanged(NULL);
-		m_Networkable->PostDataUpdate(NULL);
 	}
 
 	IClientNetworkable* C_WeatherController::CreateWeatherEntity()
