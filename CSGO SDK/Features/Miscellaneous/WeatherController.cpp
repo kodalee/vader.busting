@@ -92,10 +92,6 @@ namespace Engine
 	IClientNetworkable* C_WeatherController::CreateWeatherEntity()
 	{
 		ClientClass* Class = Interfaces::m_pClient->GetAllClasses();
-
-		if (!Class)
-			return NULL;
-
 		while ((int32_t)(Class->m_ClassID) != ClassId_t::CPrecipitation)
 			Class = Class->m_pNext;
 
