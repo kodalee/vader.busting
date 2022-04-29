@@ -15,7 +15,7 @@ namespace Engine
 		virtual void UpdateWeather( ); // call on overrideview
 		IClientNetworkable* CreateWeatherEntity();
 
-		IClientNetworkable* m_Networkable;
+		IClientNetworkable* m_Networkable = nullptr;
 	};
 
 	WeatherController* WeatherController::Get( ) {

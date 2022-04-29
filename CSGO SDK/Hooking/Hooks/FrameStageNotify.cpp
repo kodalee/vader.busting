@@ -514,22 +514,21 @@ namespace Hooked
 				g_netdata.apply();
 
 
-				if (Interfaces::m_pEngine->IsInGame()) {
-					static bool bShouldCall = false;
-					if (bShouldCall && !g_Vars.esp.weather) {
-						Engine::WeatherController::Get()->ResetWeather();
-						bShouldCall = false;
-					}
-
-					if (!bShouldCall && g_Vars.esp.weather) {
-						g_Vars.globals.bCreatedRain = false;
-						bShouldCall = true;
-					}
-
-					if (bShouldCall) {
-						Engine::WeatherController::Get()->UpdateWeather();
-					}
+				static bool bShouldCall = false;
+				if (bShouldCall && !g_Vars.esp.weather) {
+					Engine::WeatherController::Get()->ResetWeather();
+					bShouldCall = false;
 				}
+
+				if (!bShouldCall && g_Vars.esp.weather) {
+					g_Vars.globals.bCreatedRain = false;
+					bShouldCall = true;
+				}
+
+				if (bShouldCall) {
+					Engine::WeatherController::Get()->UpdateWeather();
+				}
+				
 
 				// fix issues when players we are spectating scope in
 				if( local && local->m_iObserverMode( ) == 5 ) { 
