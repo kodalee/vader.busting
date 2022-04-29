@@ -2244,7 +2244,7 @@ namespace Interfaces
 		}
 
 		if (g_Vars.rage.auto_fire) {
-			if (g_Vars.fakelag.fakelag_onshot) {
+			if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire) {
 				*m_rage_data->m_pSendPacket = false;
 			}
 
