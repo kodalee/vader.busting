@@ -515,7 +515,7 @@ namespace Hooked
 
 
 				static bool bShouldCall = false;
-				if (bShouldCall && !g_Vars.esp.weather) {
+				if (bShouldCall && !g_Vars.esp.weather || !local) {
 					Engine::WeatherController::Get()->ResetWeather();
 					bShouldCall = false;
 				}

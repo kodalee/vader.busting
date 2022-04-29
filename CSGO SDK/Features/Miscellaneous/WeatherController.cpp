@@ -13,6 +13,7 @@ namespace Engine
 
 		virtual void ResetWeather( );
 		virtual void UpdateWeather( ); // call on overrideview
+		virtual void ResetData( );
 	};
 
 	WeatherController* WeatherController::Get( ) {
@@ -94,4 +95,10 @@ namespace Engine
 			g_Vars.globals.bCreatedRain = true;
 		}
 	}
+
+	void C_WeatherController::ResetData()
+	{
+		g_Vars.globals.bCreatedRain = false;
+	}
+
 }
