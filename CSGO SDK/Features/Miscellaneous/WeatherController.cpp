@@ -13,9 +13,6 @@ namespace Engine
 
 		virtual void ResetWeather( );
 		virtual void UpdateWeather( ); // call on overrideview
-		IClientNetworkable* CreateWeatherEntity();
-
-		IClientNetworkable* m_Networkable = nullptr;
 	};
 
 	WeatherController* WeatherController::Get( ) {
@@ -50,11 +47,18 @@ namespace Engine
 			return;
 		}
 
-		if (!g_Vars.globals.bCreatedRain)
-		{
-			m_Networkable = this->CreateWeatherEntity();
+		if (g_Vars.globals.bCreatedRain) {
 			return;
 		}
+
+		ClientClass* Class = Interfaces::m_pClient->GetAllClasses();
+		while ((int32_t)(Class->m_ClassID) != ClassId_t::CPrecipitation)
+			Class = Class->m_pNext;
+
+		IClientNetworkable* m_Networkable = nullptr;
+		m_Networkable = ((IClientNetworkable * (*)(int, int))Class->m_pCreateFn)(Interfaces::m_pEntList->GetHighestEntityIndex() + 1, RandomInt(0, 4096));
+		if (!m_Networkable || !((IClientRenderable*)m_Networkable)->GetIClientUnknown())
+			return;
 
 		if (m_Networkable) {
 
@@ -86,20 +90,8 @@ namespace Engine
 
 			m_Networkable->OnDataChanged(NULL);
 			m_Networkable->PostDataUpdate(NULL);
+
+			g_Vars.globals.bCreatedRain = true;
 		}
-	}
-
-	IClientNetworkable* C_WeatherController::CreateWeatherEntity()
-	{
-		ClientClass* Class = Interfaces::m_pClient->GetAllClasses();
-		while ((int32_t)(Class->m_ClassID) != ClassId_t::CPrecipitation)
-			Class = Class->m_pNext;
-
-		IClientNetworkable* Networkable = ((IClientNetworkable * (*)(int, int))Class->m_pCreateFn)(Interfaces::m_pEntList->GetHighestEntityIndex() + 1, RandomInt(0, 4096));
-		if (!Networkable || !((IClientRenderable*)Networkable)->GetIClientUnknown())
-			return NULL;
-
-		g_Vars.globals.bCreatedRain = true;
-		return Networkable;
 	}
 }
