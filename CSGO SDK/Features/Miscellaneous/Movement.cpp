@@ -965,8 +965,6 @@ namespace Interfaces
 			Math::clampSupremacy(progress, 0.f, 1.f);
 			Interfaces::m_pInput->m_vecCameraOffset.z = g_Vars.misc.third_person_dist * progress;
 
-			printf(std::to_string(progress).c_str());
-
 			// set to first person.
 			if (!progress)
 				Interfaces::m_pInput->CAM_ToFirstPerson();
