@@ -989,8 +989,6 @@ namespace Interfaces
 
 			offset.z = g_Vars.misc.third_person_dist * progress;
 
-			printf(std::to_string(progress).c_str());
-
 			Vector offsetd = m_movement_data->m_pLocal->m_vecViewOffset( );
 
 			// start pos.
