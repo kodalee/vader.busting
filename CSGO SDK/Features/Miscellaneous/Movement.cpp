@@ -905,6 +905,8 @@ namespace Interfaces
 		if( !m_movement_data->m_pLocal )
 			return;
 
+		static float progress{ };
+
 		auto local = C_CSPlayer::GetLocalPlayer( );
 		if( !local || local != m_movement_data->m_pLocal )
 			return;
@@ -956,7 +958,18 @@ namespace Interfaces
 
 		// camera should be in firstperson.
 		else {
-			Interfaces::m_pInput->CAM_ToFirstPerson();
+			// animate backwards.
+			progress -= Interfaces::m_pGlobalVars->frametime * 7.f + (progress / 100);
+
+			// clamp.
+			Math::clampSupremacy(progress, 0.f, 1.f);
+			Interfaces::m_pInput->m_vecCameraOffset.z = g_Vars.misc.third_person_dist * progress;
+
+			printf(std::to_string(progress).c_str());
+
+			// set to first person.
+			if (!progress)
+				Interfaces::m_pInput->CAM_ToFirstPerson();
 		}
 
 		// if after all of this we are still in thirdperson.
@@ -969,7 +982,14 @@ namespace Interfaces
 			Vector forward;
 			Math::AngleVectors( offset, forward );
 
-			offset.z = g_Vars.misc.third_person_dist;
+			if(g_Vars.misc.third_person_bind.enabled)
+				progress += Interfaces::m_pGlobalVars->frametime * 7.f + (progress / 100);
+
+			Math::clampSupremacy(progress, 0.f, 1.f);
+
+			offset.z = g_Vars.misc.third_person_dist * progress;
+
+			printf(std::to_string(progress).c_str());
 
 			Vector offsetd = m_movement_data->m_pLocal->m_vecViewOffset( );
 

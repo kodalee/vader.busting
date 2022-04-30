@@ -133,6 +133,11 @@ namespace Math
 			return val;
 	}
 
+	template < typename t >
+	__forceinline void clampSupremacy(t& n, const t& lower, const t& upper) {
+		n = std::max(lower, std::min(n, upper));
+	}
+
 	template < typename T >
 	T Hermite_Spline(
 		T p1,
