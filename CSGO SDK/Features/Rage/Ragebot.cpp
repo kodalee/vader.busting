@@ -537,14 +537,6 @@ namespace Interfaces
 
 		g_TickbaseController.s_nSpeed = m_rage_data->rbot->doubletap_speed;
 
-		//if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
-		//	g_TickbaseController.m_bSupressRecharge = true;
-		//	//printf("supressing\n");
-		//}
-		//else {
-		//	g_TickbaseController.m_bSupressRecharge = false;
-		//}
-
 		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
 			if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
 				static float cockTime = 0.f;
@@ -1578,10 +1570,12 @@ namespace Interfaces
 
 		g_Vars.globals.RageBotTargetting = false;
 
-		g_TickbaseController.m_bSupressRecharge = false;
+		//g_TickbaseController.m_bSupressRecharge = false;
 
-		if (!SetupTargets())
+		if (!SetupTargets()) {
+			g_TickbaseController.m_bSupressRecharge = false;
 			return { false, C_AimPoint() };
+		}
 
 		//g_TickbaseController.m_bSupressRecharge = true;
 
@@ -2244,9 +2238,9 @@ namespace Interfaces
 		}
 
 		if (g_Vars.rage.auto_fire) {
-			if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire) {
-				*m_rage_data->m_pSendPacket = false;
-			}
+			//if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire) {
+			//	*m_rage_data->m_pSendPacket = false;
+			//}
 
 			g_TickbaseController.m_bSupressRecharge = true;
 
