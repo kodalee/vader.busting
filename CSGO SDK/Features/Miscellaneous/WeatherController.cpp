@@ -53,13 +53,16 @@ namespace Engine
 		}
 
 		ClientClass* Class = Interfaces::m_pClient->GetAllClasses();
-		while ((int32_t)(Class->m_ClassID) != ClassId_t::CPrecipitation)
-			Class = Class->m_pNext;
-
 		IClientNetworkable* m_Networkable = nullptr;
-		m_Networkable = ((IClientNetworkable * (*)(int, int))Class->m_pCreateFn)(Interfaces::m_pEntList->GetHighestEntityIndex() + 1, RandomInt(0, 4096));
-		if (!m_Networkable || !((IClientRenderable*)m_Networkable)->GetIClientUnknown())
-			return;
+
+		if (!g_Vars.globals.bCreatedRain) {
+			while ((int32_t)(Class->m_ClassID) != ClassId_t::CPrecipitation)
+				Class = Class->m_pNext;
+
+			m_Networkable = ((IClientNetworkable * (*)(int, int))Class->m_pCreateFn)(Interfaces::m_pEntList->GetHighestEntityIndex() + 1, RandomInt(0, 4096));
+			if (!m_Networkable || !((IClientRenderable*)m_Networkable)->GetIClientUnknown())
+				return;
+		}
 
 		if (m_Networkable) {
 
@@ -98,6 +101,7 @@ namespace Engine
 
 	void C_WeatherController::ResetData()
 	{
+		Engine::WeatherController::Get()->ResetWeather();
 		g_Vars.globals.bCreatedRain = false;
 	}
 
