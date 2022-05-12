@@ -140,7 +140,11 @@ namespace lua_config {
 	}
 
 	bool pingspike_enabled() {
-		return g_Vars.misc.extended_backtrack_key.enabled;
+		if (g_Vars.misc.extended_backtrack) {
+			return g_Vars.misc.extended_backtrack_key.enabled;
+		}
+		else
+			return false;
 	}
 
 	float pingspike_value() {
