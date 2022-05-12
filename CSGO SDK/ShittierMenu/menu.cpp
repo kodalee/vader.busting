@@ -1834,7 +1834,7 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 		ImVec2 shape_pos = p + ImVec2(10, 0);
 		ImVec2 shape_sz = s - ImVec2(20, -2);
 
-		DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
+		//DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
 
 		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
 
@@ -1918,7 +1918,7 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 		ImVec2 shape_pos = p + ImVec2(10, 0);
 		ImVec2 shape_sz = s - ImVec2(20, -2);
 
-		DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
+		//DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
 
 		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
 
