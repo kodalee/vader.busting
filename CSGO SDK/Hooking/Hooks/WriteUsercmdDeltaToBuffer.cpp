@@ -26,7 +26,7 @@ bool __fastcall Hooked::WriteUsercmdDeltaToBuffer(void* ECX, void* EDX, int nSlo
 		|| !LocalPlayer->IsAlive())
 		return oWriteUsercmdDeltaToBuffer(ECX, nSlot, buffer, o_from, o_to, isnewcommand);
 
-	if (!g_Vars.globals.shift_amount)
+	if (!g_Vars.globals.shift_amount || Interfaces::m_pClientState->m_nChokedCommands() > 3)
 		return oWriteUsercmdDeltaToBuffer(ECX, nSlot, buffer, o_from, o_to, isnewcommand);
 
 	if (o_from != -1)
