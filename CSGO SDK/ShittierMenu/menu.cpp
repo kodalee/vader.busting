@@ -12,6 +12,7 @@
 #include "../source.hpp"
 #include "../Features/Miscellaneous/walkbot.h"
 #include "../Features/Visuals/EventLogger.hpp"
+#include "../SDK/Classes/Player.hpp"
 
 //lua
 
@@ -124,9 +125,7 @@ void Ragebot()
 			InsertCheckbox(Autoshoot, XorStr("Automatic fire"), &g_Vars.rage.auto_fire);
 		}
 
-		if (rageTab != 0) {
-			InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->active);
-		}
+		InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->active);
 		const char* TargetSelection[] = { XorStr("Highest damage"), XorStr("Nearest to crosshair"), XorStr("Lowest health"), XorStr("Lowest distance"), XorStr("Lowest latency") };
 		InsertCombo(std::string(XorStr("Target selection") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->target_selection, TargetSelection);
 
@@ -377,6 +376,15 @@ void HvH()
 						InsertSliderInt(XorStr("Timeout time"), &g_Vars.antiaim.timeout_time, 0, 10, XorStr("%d"));
 						InsertSliderInt(XorStr("Add yaw"), &g_Vars.antiaim.add_yaw, -180.f, 180.f, XorStr("%d"));
 					}
+
+					std::vector<MultiItem_t> freestand_disablers = {
+						{ XorStr("Fakewalking"), &g_Vars.antiaim.freestand_disable_fakewalk },
+						{ XorStr("Running"), &g_Vars.antiaim.freestand_disable_run },
+						{ XorStr("Airborne"), &g_Vars.antiaim.freestand_disable_air },
+					};
+
+					InsertCheckbox(LockFreestand, XorStr( "Lock freestand" ), &g_Vars.antiaim.freestand_lock );
+					InsertMultiCombo(XorStr("Freestand disablers"), freestand_disablers);
 				}
 
 				// distortion.
@@ -384,10 +392,8 @@ void HvH()
 				if (g_Vars.antiaim.distort) {
 					InsertCheckbox(AAManualOverride, XorStr("Override Manual Distortion"), &g_Vars.antiaim.distort_manual_aa);
 					InsertCheckbox(Twist, XorStr("Twist"), &g_Vars.antiaim.distort_twist);
-					if (g_Vars.antiaim.distort_twist) {
-						InsertSliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1f"));
-					}
-					InsertSliderFloat(XorStr("Max time"), &g_Vars.antiaim.distort_max_time, 0.f, 10.f, XorStr("%.fs"));
+					InsertSliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1fs"));
+					InsertSliderFloat(XorStr("Max time"), &g_Vars.antiaim.distort_max_time, 0.f, 10.f, XorStr("%.f"));
 					InsertSliderFloat(XorStr("Range"), &g_Vars.antiaim.distort_range, -360.f, 360.f, XorStr("%.f"));
 
 					std::vector<MultiItem_t> distort_disablers = {
@@ -447,7 +453,7 @@ void HvH()
 				biggestMeme2();
 				ImGui::Hotkey(XorStr("##Fake-walk key"), &g_Vars.misc.slow_walk_bind.key, &g_Vars.misc.slow_walk_bind.cond, ImVec2{ 40,20 });
 				if (g_Vars.misc.slow_walk) {
-					InsertSliderInt(XorStr("Fake-walk speed"), &g_Vars.misc.slow_walk_speed, 2, 16, XorStr("%d"));
+					InsertSliderInt(XorStr("Fake-walk speed"), &g_Vars.misc.slow_walk_speed, 2, 17, XorStr("%d"));
 				}
 
 				break;
@@ -560,6 +566,7 @@ void Visuals()
 					{ XorStr("Distance"), &g_Vars.esp.draw_distance },
 					{ XorStr("Grenade pin"), &g_Vars.esp.draw_grenade_pin },
 					{ XorStr("Resolved"), &g_Vars.esp.draw_resolver },
+					{ XorStr("Ping"), &g_Vars.esp.draw_ping },
 				};
 
 				InsertMultiCombo(XorStr("Flags"), flags);
@@ -760,6 +767,7 @@ void Visuals()
 				//InsertCheckbox(VisualizeDamage, XorStr("Visualize Damage"), &g_Vars.esp.visualize_damage); // disabled for now, very buggy.
 				InsertCheckbox(TaserRange, XorStr("Taser Range"), &g_Vars.esp.zeus_distance);
 				InsertCheckbox(KeybindList, XorStr("Keybind List"), &g_Vars.esp.keybind_window_enabled);
+				InsertCheckbox(SpectatorList, XorStr("Spectator List"), &g_Vars.esp.spec_window_enabled);
 				InsertCheckbox(Radar, XorStr("Radar"), &g_Vars.misc.ingame_radar);
 				InsertCheckbox(thirdperson, XorStr("Thirdperson"), &g_Vars.misc.third_person);
 				ImGui::SameLine();
@@ -864,7 +872,8 @@ void Visuals()
 
 				const char* chams_mats[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
 				const char* chams_mats_local[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
-				const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking"), XorStr("Animated") };
+				const char* chams_mats_overlay_local[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking"), XorStr("Animated") };
+				const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking") };
 				const char* chams_mats_overlay_misc[] = { XorStr("Disabled"), XorStr("Glow") };
 				const char* glow_types[] = { XorStr("Standard"), XorStr("Pulse"), XorStr("Inner") };
 				const char* chams_mats_overlay_viewmodel[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Animated") };
@@ -962,7 +971,7 @@ void Visuals()
 
 						}
 
-						InsertCombo(XorStr("Local overlay"), &g_Vars.esp.new_chams_local_overlay, chams_mats_overlay);
+						InsertCombo(XorStr("Local overlay"), &g_Vars.esp.new_chams_local_overlay, chams_mats_overlay_local);
 						ColorPicker(XorStr("##local_overlay_color"), g_Vars.esp.new_chams_local_overlay_color, true, true);
 						if (g_Vars.esp.new_chams_local_overlay == 1) {
 
@@ -1128,6 +1137,8 @@ void Misc()
 
 			InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
 			InsertCheckbox(FastStop, XorStr("Fast Stop"), &g_Vars.misc.quickstop);
+			InsertCheckbox(Custom_menu, XorStr("Custom menu"), &g_Vars.misc.custom_menu); if (g_Vars.misc.custom_menu) { ImGui::SameLine(); ColorPicker(XorStr("##accent"), g_Vars.misc.accent_color, false, false); ImGui::SameLine(); ColorPicker(XorStr("##logo"), g_Vars.misc.logo_color, false, false); }
+
 			ImGui::NextColumn();
 			ImGui::NewLine();
 
@@ -1277,46 +1288,69 @@ void Misc()
 				if (!cfg_list.empty()) {
 					if (ImGui::Button(XorStr("Save")))
 					{
-						ImGui::OpenPopup(XorStr("Confirmation"));
+						ImGui::OpenPopup(XorStr("Confirmation_Save"));
 					}
 
-					if (ImGui::BeginPopupModal(XorStr("Confirmation")))
+					if (ImGui::BeginPopupContextItem(XorStr("Confirmation_Save")))
 					{
 						if (ImGui::Button(XorStr("Are you sure?")))
 						{
 							LuaConfigSystem::Save();
 							ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
-							ILoggerEvent::Get()->PushEvent("Saved config", FloatColor(1.f, 1.f, 1.f), true, "");
+							ILoggerEvent::Get()->PushEvent(XorStr("Saved config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
 							ImGui::CloseCurrentPopup();
 						}
-						if (ImGui::Button("Cancel", ImVec2(120, 0)))
+						//if (ImGui::Button(XorStr("Cancel"), ImVec2(120, 0)))
+						//{
+						//	ImGui::CloseCurrentPopup();
+						//}
+						ImGui::EndPopup();
+					}
+
+					ImGui::SameLine();
+
+					if (ImGui::Button(XorStr("Load")))
+					{
+						ImGui::OpenPopup(XorStr("Confirmation_Load"));
+					}
+
+					if (ImGui::BeginPopupContextItem(XorStr("Confirmation_Load")))
+					{
+						if (ImGui::Button(XorStr("Are you sure?")))
 						{
+							if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
+								ConfigManager::ResetConfig();
+
+								LuaConfigSystem::Load();
+								ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
+								ILoggerEvent::Get()->PushEvent(XorStr("Loaded config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
+								g_Vars.m_global_skin_changer.m_update_skins = true;
+								g_Vars.m_global_skin_changer.m_update_gloves = true;
+								ImGui::CloseCurrentPopup();
+							}
+						}
+						ImGui::EndPopup();
+					}
+
+					ImGui::SameLine();
+					if (ImGui::Button(XorStr("Delete")))
+					{
+						ImGui::OpenPopup(XorStr("Confirmation_Delete"));
+					}
+
+					if (ImGui::BeginPopupContextItem(XorStr("Confirmation_Delete")))
+					{
+						if (ImGui::Button(XorStr("Are you sure?")))
+						{
+							ConfigManager::RemoveConfig(cfg_list.at(selected_cfg));
+							cfg_list = ConfigManager::GetConfigs();
+							ILoggerEvent::Get()->PushEvent(XorStr("Deleted config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
 							ImGui::CloseCurrentPopup();
 						}
 						ImGui::EndPopup();
 					}
 
 
-					ImGui::SameLine();
-
-					if (ImGui::Button(XorStr("Load")))
-					{
-						if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
-							ConfigManager::ResetConfig();
-
-							LuaConfigSystem::Load();
-							ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
-							
-							g_Vars.m_global_skin_changer.m_update_skins = true;
-							g_Vars.m_global_skin_changer.m_update_gloves = true;
-						}
-					}
-					ImGui::SameLine();
-					if (ImGui::Button(XorStr("Delete")))
-					{
-						ConfigManager::RemoveConfig(cfg_list.at(selected_cfg));
-						cfg_list = ConfigManager::GetConfigs();
-					}
 					ImGui::SameLine();
 				}
 
@@ -1327,10 +1361,23 @@ void Misc()
 					ConfigManager::CreateConfig(config_name);
 					cfg_list = ConfigManager::GetConfigs();
 				}
-				ImGui::SameLine();
+
 				if (ImGui::Button(XorStr("Reset"))) {
-					ConfigManager::ResetConfig();
+					ImGui::OpenPopup(XorStr("Confirmation_Reset"));
 				}
+
+				if (ImGui::BeginPopupContextItem(XorStr("Confirmation_Reset")))
+				{
+					if (ImGui::Button(XorStr("Are you sure?")))
+					{
+						ConfigManager::ResetConfig();
+						ILoggerEvent::Get()->PushEvent(XorStr("Reset config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+				ImGui::SameLine();
+
 				if (ImGui::Button(XorStr("Open config folder")))
 				{
 					ConfigManager::OpenConfigFolder();
@@ -1404,25 +1451,25 @@ void Skins()
 				ImGui::InputInt(XorStr("CZ75A Skin"), &g_Vars.misc.cz75a_skin);
 				ImGui::InputInt(XorStr("Elite Skin"), &g_Vars.misc.elite_skin);
 				ImGui::InputInt(XorStr("Deagle Skin"), &g_Vars.misc.deagle_skin);
-				ImGui::InputInt(XorStr("Revolver Skin"), &g_Vars.misc.revolver_skin);
+				ImGui::InputInt(XorStr("R8 Skin"), &g_Vars.misc.revolver_skin);
 				ImGui::InputInt(XorStr("Famas Skin"), &g_Vars.misc.famas_skin);
 				ImGui::InputInt(XorStr("Galil Skin"), &g_Vars.misc.galilar_skin);
 				ImGui::InputInt(XorStr("M4a1 Skin"), &g_Vars.misc.m4a1_skin);
-				ImGui::InputInt(XorStr("M4a1-S Skin"), &g_Vars.misc.m4a1s_skin);
+				ImGui::InputInt(XorStr("M4a1s Skin"), &g_Vars.misc.m4a1s_skin);
 				ImGui::InputInt(XorStr("Ak47 Skin"), &g_Vars.misc.ak47_skin);
 				ImGui::InputInt(XorStr("Sg556 Skin"), &g_Vars.misc.sg556_skin);
 				ImGui::InputInt(XorStr("Aug Skin"), &g_Vars.misc.aug_skin);
-				ImGui::InputInt(XorStr("Ssg08 Skin"), &g_Vars.misc.ssg08_skin);
-				ImGui::InputInt(XorStr("Awp Skin"), &g_Vars.misc.awp_skin);
 				ImGui::NextColumn();
 				ImGui::NewLine();
+				ImGui::InputInt(XorStr("Ssg08 Skin"), &g_Vars.misc.ssg08_skin);
+				ImGui::InputInt(XorStr("Awp Skin"), &g_Vars.misc.awp_skin);
 				ImGui::InputInt(XorStr("Scar20 Skin"), &g_Vars.misc.scar20_skin);
 				ImGui::InputInt(XorStr("G3sg1 Skin"), &g_Vars.misc.g3sg1_skin);
-				ImGui::InputInt(XorStr("Sawedoff Skin"), &g_Vars.misc.sawedoff_skin);
+				ImGui::InputInt(XorStr("Sawoff Skin"), &g_Vars.misc.sawedoff_skin);
 				ImGui::InputInt(XorStr("M249 Skin"), &g_Vars.misc.m249_skin);
 				ImGui::InputInt(XorStr("Negev Skin"), &g_Vars.misc.negev_skin);
 				ImGui::InputInt(XorStr("Mag7 Skin"), &g_Vars.misc.mag7_skin);
-				ImGui::InputInt(XorStr("Xm1014 Skin"), &g_Vars.misc.xm1014_skin);
+				ImGui::InputInt(XorStr("Xm Skin"), &g_Vars.misc.xm1014_skin);
 				ImGui::InputInt(XorStr("Nova Skin"), &g_Vars.misc.nova_skin);
 				ImGui::InputInt(XorStr("Bizon Skin"), &g_Vars.misc.bizon_skin);
 				ImGui::InputInt(XorStr("Mp7 Skin"), &g_Vars.misc.mp7_skin);
@@ -1517,14 +1564,474 @@ void IMGUIMenu::OnDeviceReset()
     ImGui_ImplDX9_CreateDeviceObjects();
 }
 
-auto windowFlags = (ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding);
+auto windowFlags = (ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoSavedSettings);
 ImFont* gravity, *gravityBold, *StarWars, *watermark;
 
-#define MENU_WIDTH 786.f
-#define MENU_HEIGHT 650.f
+#define MENU_WIDTH 650.f
+#define MENU_HEIGHT 600.f
+
+bool Spinner(const char* label, float radius, int thickness, const ImU32& color) {
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	const ImGuiStyle& style = g.Style;
+	const ImGuiID id = window->GetID(label);
+
+	ImVec2 pos = ImVec2(Render::GetScreenSize().x * 0.5f, Render::GetScreenSize().y * 0.5f);
+	ImVec2 size((radius) * 2, (radius + style.FramePadding.y) * 2);
+
+	const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
+	ImGui::ItemSize(bb, style.FramePadding.y);
+	if (!ImGui::ItemAdd(bb, id))
+		return false;
+
+	// Render
+	window->DrawList->PathClear();
+
+	int num_segments = 30;
+	int start = abs(ImSin(g.Time * 1.8f) * (num_segments - 5));
+
+	const float a_min = IM_PI * 2.0f * ((float)start) / (float)num_segments;
+	const float a_max = IM_PI * 2.0f * ((float)num_segments - 3) / (float)num_segments;
+
+	const ImVec2 centre = ImVec2(pos.x + radius, pos.y + radius + style.FramePadding.y);
+
+	for (int i = 0; i < num_segments; i++) {
+		const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
+		window->DrawList->PathLineTo(ImVec2(centre.x + ImCos(a + g.Time * 8) * radius,
+			centre.y + ImSin(a + g.Time * 8) * radius));
+	}
+
+	window->DrawList->PathStroke(color, false, thickness);
+}
+
+void IMGUIMenu::Loading()
+{
+
+
+	static bool load = true;
+	static float flCurTime;
+	static bool init = true;
+
+	if (init) {
+		flCurTime = Interfaces::m_pGlobalVars->curtime;
+		init = false;
+	}
+
+	float flSubtractedTime = Interfaces::m_pGlobalVars->curtime - flCurTime;
+
+	if (flSubtractedTime > 7.f && load) { // 7 seconds i think is the optimal time
+		load = false;
+		Loaded = true;
+	}
+
+	if (load)
+	{
+		static bool retard = true;
+
+		ImGui::SetNextWindowPos(ImVec2(Render::GetScreenSize().x * 0.5f, Render::GetScreenSize().y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+
+		ImGui::SetNextWindowSize(ImVec2(Render::GetScreenSize().x, Render::GetScreenSize().y));
+
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Set window background to black
+
+		ImGui::Begin(XorStr("Loading"), &retard, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+
+		ImGui::PopStyleColor();
+
+		ImGui::PushFont(watermark);
+
+		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 55, -1.0f, Render::GetScreenSize().y * 0.5f + 40);
+		ImGui::Text(XorStr("Initializing Vader.tech"));
+
+		ImGui::PopFont();
+
+		Spinner(XorStr("##spinner"), 15, 6, ImColor(255, 0, 0));
+
+		ImGui::End();
+
+		return;
+	}
+
+}
+
+enum AnimationTypes { STATIC, DYNAMIC, INTERP };
+
+std::string pChar(std::string first_, std::string second_) {
+	return (std::stringstream{} << first_ << second_).str();
+}
+
+float Animate(const char* label, const char* second_label, bool if_, float Maximal_, float Speed_, int type) {
+
+	auto ID = ImGui::GetID(pChar(label, second_label).c_str());
+
+	static std::map<ImGuiID, float> pValue;
+
+	auto this_e = pValue.find(ID);
+
+	if (this_e == pValue.end()) {
+		pValue.insert({ ID, 0.f });
+		this_e = pValue.find(ID);
+	}
+
+	switch (type) {
+
+	case DYNAMIC: {
+		if (if_) //do
+			this_e->second += abs(Maximal_ - this_e->second) / Speed_;
+		else
+			this_e->second -= (0 + this_e->second) / Speed_;
+	}
+				break;
+
+	case INTERP: {
+		this_e->second += (Maximal_ - this_e->second) / Speed_;
+	}
+			   break;
+
+	case STATIC: {
+		if (if_) //do
+			this_e->second += Speed_;
+		else
+			this_e->second -= Speed_;
+	}
+			   break;
+	}
+
+	if (type != INTERP) {
+		if (this_e->second < 0.f)
+			this_e->second = 0.f;
+		else if (this_e->second > Maximal_)
+			this_e->second = Maximal_;
+	}
+
+	return this_e->second;
+
+}
+
+void DrawShapeAnimated(const char* label, ImVec2 min, ImVec2 max, ImVec2 pos, ImColor color) {
+
+	int hovered_delta = Animate(label, XorStr("hovered_rect"), ImGui::IsMouseHoveringRect(min, max, false), 255.f, 15.f, STATIC);
+
+	ImGui::SetCursorPos(pos - ImGui::GetWindowPos());
+
+	auto clicked = ImGui::GetIO().MouseClicked[0] && ImGui::IsMouseHoveringRect(min, max, false);
+	auto ID = ImGui::GetID(pChar(label, XorStr("b_animation")).c_str());
+
+	static std::map<ImGuiID, bool> pValue;
+	auto ItPLibrary = pValue.find(ID);
+	if (ItPLibrary == pValue.end()) {
+		pValue.insert({ ID, false });
+		ItPLibrary = pValue.find(ID);
+	}
+
+	float radius = Animate(label, XorStr("circle_radius"), ItPLibrary->second, 100.f, 10.f, DYNAMIC);
+
+	static std::map<ImGuiID, int> pValue2;
+
+	static POINT MousePoint;
+	GetCursorPos(&MousePoint);
+
+	static std::map<ImGuiID, ImVec2> CirclePosMap;
+	auto CirclePos = CirclePosMap.find(ID);
+	if (CirclePos == CirclePosMap.end()) {
+		CirclePosMap.insert({ ID, ImVec2(MousePoint.x, MousePoint.y) });
+		CirclePos = CirclePosMap.find(ID);
+	}
+
+	if (clicked) {
+		CirclePos->second = ImVec2(MousePoint.x, MousePoint.y);
+		ItPLibrary->second = true;
+	}
+
+	if (ItPLibrary->second) {
+
+		if (radius >= 95.f) {
+			ItPLibrary->second = false;
+			radius = 0.f;
+		}
+	}
+	ImRect bb = ImRect(min, max);
+	auto size = bb.GetSize();
+	//calc circle start radius and scale radius
+	float StartRad = sqrt((size.x + size.y) / 2);
+	//scale :::
+	float ScaleRad = ((StartRad + radius) + (sqrt(size.x * size.y) / ((size.x - size.y) / StartRad))) * 0.5;
+
+	ImGui::BeginChild(pChar(XorStr("drawlist_zone"), label).c_str(), size, false, ImGuiWindowFlags_NoBackground); {
+		if (ItPLibrary->second)
+			ImGui::GetWindowDrawList()->AddCircleFilled(CirclePos->second, StartRad + ScaleRad, ImColor(int(255.f * color.Value.x), int(255.f * color.Value.y), int(255.f * color.Value.z), 95 - (int)(radius)), (StartRad + ScaleRad) * 15.f);
+	}
+	ImGui::EndChild();
+}
+void create_spectators(const char* name, std::vector <std::string> vec) {
+
+	ImGui::SetNextWindowSize(ImVec2(170, 30));
+	if (!ImGui::IsMouseDragging()) {
+		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y), ImGuiCond_Always);
+	}
+	//draw
+
+	//flags - 
+	static const WORD dw_window_flags{
+		ImGuiWindowFlags_NoBackground
+		| ImGuiWindowFlags_NoTitleBar
+		| ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoScrollbar
+		| ImGuiWindowFlags_NoScrollWithMouse
+		| ImGuiWindowFlags_NoSavedSettings
+	};
+
+	if (ImGui::Begin(name, nullptr, dw_window_flags))
+	{
+		//get vars :::
+		ImColor theme;
+		ImColor theme_zero;
+		ImColor circle_color;
+
+		if (!g_Vars.misc.custom_menu) {
+			theme = ImColor(255, 0, 0, 255);
+			theme_zero = ImColor(255, 0, 0, 0);
+			circle_color = ImColor(255, 0, 0, 255);
+		}
+		else {
+			theme = (ImColor)g_Vars.misc.accent_color;
+			theme_zero = ImColor(g_Vars.misc.accent_color.r, g_Vars.misc.accent_color.g, g_Vars.misc.accent_color.b, 0.f);
+			circle_color = (ImColor)g_Vars.misc.accent_color;
+		}
+
+		ImColor black = ImColor(0, 0, 0, 210);
+		ImColor black_zero = ImColor(0, 0, 0, 0);
+		ImColor black_half = ImColor(0, 0, 0, 60);
+		ImColor theme_background = ImColor(41, 32, 59, 210);
+
+		const auto draw = ImGui::GetBackgroundDrawList();
+		const auto p = ImGui::GetWindowPos();
+		const auto s = ImGui::GetWindowSize();
+
+		if (g_Vars.esp.spec_window_x != p.x) {
+			g_Vars.esp.spec_window_x = p.x;
+		}
+		
+		if (g_Vars.esp.spec_window_y != p.y) {
+			g_Vars.esp.spec_window_y = p.y;
+		}
+
+		//background
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, s.y), theme_background, theme_background, theme_background, theme_background);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, s.y) - ImVec2(10, 0), theme_background, theme_background, theme_background, theme_background);
+
+		//up
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+
+		auto spec_sz = ImGui::CalcTextSize(name);
+		draw->AddText(p + ImVec2(s.x / 2 - spec_sz.x / 2, s.y / 2 - spec_sz.y / 2), ImColor(255, 255, 255), name);
+
+		ImVec2 shape_pos = p + ImVec2(10, 0);
+		ImVec2 shape_sz = s - ImVec2(20, -2);
+
+		//DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
+
+		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
+
+		for (auto i = 0; i < vec.size(); i++) {
+			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 25 * i);
+			draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
+			draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
+			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
+		}
+
+	}
+	ImGui::End();
+
+
+}
+void create_keybinds(const char* name, std::vector <std::string> vec) {
+
+	ImGui::SetNextWindowSize(ImVec2(170, 30));
+	if (!ImGui::IsMouseDragging()) {
+		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y), ImGuiCond_Always);
+	}
+	//draw
+
+	//flags - 
+	static const WORD dw_window_flags{
+		ImGuiWindowFlags_NoBackground
+		| ImGuiWindowFlags_NoTitleBar
+		| ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoScrollbar
+		| ImGuiWindowFlags_NoScrollWithMouse
+		| ImGuiWindowFlags_NoSavedSettings
+	};
+
+	if (ImGui::Begin(name, nullptr, dw_window_flags))
+	{
+		//get vars :::
+		ImColor theme;
+		ImColor theme_zero;
+		ImColor circle_color;
+
+		if (!g_Vars.misc.custom_menu) {
+			theme = ImColor(255, 0, 0, 255);
+			theme_zero = ImColor(255, 0, 0, 0);
+			circle_color = ImColor(255, 0, 0, 255);
+		}
+		else {
+			theme = (ImColor)g_Vars.misc.accent_color;
+			theme_zero = ImColor(g_Vars.misc.accent_color.r, g_Vars.misc.accent_color.g, g_Vars.misc.accent_color.b, 0.f);
+			circle_color = (ImColor)g_Vars.misc.accent_color;
+		}
+
+		ImColor black = ImColor(0, 0, 0, 210);
+		ImColor black_zero = ImColor(0, 0, 0, 0);
+		ImColor black_half = ImColor(0, 0, 0, 60);
+		ImColor theme_background = ImColor(41, 32, 59, 210);
+
+		const auto draw = ImGui::GetBackgroundDrawList();
+		const auto p = ImGui::GetWindowPos();
+		const auto s = ImGui::GetWindowSize();
+
+		if (g_Vars.esp.keybind_window_x != p.x) {
+			g_Vars.esp.keybind_window_x = p.x;
+		}
+
+		if (g_Vars.esp.keybind_window_y != p.y) {
+			g_Vars.esp.keybind_window_y = p.y;
+		}
+
+		//background
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, s.y), theme_background, theme_background, theme_background, theme_background);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, s.y) - ImVec2(10, 0), theme_background, theme_background, theme_background, theme_background);
+
+		//up
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+
+		auto keybind_sz = ImGui::CalcTextSize(name);
+		draw->AddText(p + ImVec2(s.x / 2 - keybind_sz.x / 2, s.y / 2 - keybind_sz.y / 2), ImColor(255, 255, 255), name);
+
+		ImVec2 shape_pos = p + ImVec2(10, 0);
+		ImVec2 shape_sz = s - ImVec2(20, -2);
+
+		//DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
+
+		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
+
+		for (auto i = 0; i < vec.size(); i++) {
+			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 25 * i);
+			draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
+			draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
+			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
+		}
+
+	}
+	ImGui::End();
+
+
+}
+void IMGUIMenu::Keybinds_Spectators() {
+
+	if (g_Vars.esp.keybind_window_enabled) {
+		std::vector <std::string> binds{ };
+
+		{ // SORRY FOR THE MESS! HAD NOWHERE TO PUT THIS JOHN!
+			if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+				binds.push_back(XorStr("Doubletap"));
+			}
+			if (g_Vars.rage.enabled) {
+				if (g_Vars.rage.key_dmg_override.enabled) {
+					binds.push_back(XorStr("Min dmg override"));
+				}
+				if (g_Vars.rage.prefer_body.enabled) {
+					binds.push_back(XorStr("Force body-aim"));
+				}
+				if (g_Vars.rage.override_key.enabled) {
+					binds.push_back(XorStr("Hitscan override"));
+				}
+			}
+			if (g_Vars.misc.fakeduck && g_Vars.misc.fakeduck_bind.enabled) {
+				binds.push_back(XorStr("Fake-Duck"));
+			}
+			if (g_Vars.misc.move_exploit && g_Vars.misc.move_exploit_key.enabled && g_Vars.antiaim.enabled) {
+				binds.push_back(XorStr("Move Exploit"));
+			}
+			if (g_Vars.misc.autopeek && g_Vars.misc.autopeek_bind.enabled) {
+				binds.push_back(XorStr("Auto-Peek"));
+			}
+			if (g_Vars.misc.slow_walk && g_Vars.misc.slow_walk_bind.enabled) {
+				binds.push_back(XorStr("Fake-walk"));
+			}
+			if (g_Vars.misc.extended_backtrack && g_Vars.misc.extended_backtrack_key.enabled) {
+				binds.push_back(XorStr("Ping-spike"));
+			}
+		}
+
+		if (!binds.empty() || Opened) {
+			create_keybinds(XorStr("Keybinds"), binds);
+		}
+	}
+
+	if (g_Vars.esp.spec_window_enabled) {
+
+		std::vector< std::string > spectators{ };
+		C_CSPlayer* pLocal = C_CSPlayer::GetLocalPlayer();
+
+
+		if (Interfaces::m_pEngine->IsInGame() && pLocal) {
+			const auto local_observer = pLocal->m_hObserverTarget();
+			for (int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i) {
+				C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
+				if (!player)
+					continue;
+
+				if (!player->IsDead())
+					continue;
+
+				if (player->IsDormant())
+					continue;
+
+				if (player->EntIndex() == pLocal->EntIndex())
+					continue;
+
+				player_info_t info;
+				if (!Interfaces::m_pEngine->GetPlayerInfo(i, &info))
+					continue;
+
+				if (pLocal->IsDead()) {
+					auto observer = player->m_hObserverTarget();
+					if (local_observer.IsValid() && observer.IsValid()) {
+						const auto spec = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntityFromHandle(local_observer);
+						auto target = reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntityFromHandle(observer));
+
+						if (target == spec && spec) {
+							spectators.push_back(std::string(info.szName).substr(0, 17));
+						}
+					}
+				}
+				else {
+					if (player->m_hObserverTarget() != pLocal)
+						continue;
+
+					spectators.push_back(std::string(info.szName).substr(0, 17));
+				}
+			}
+		}
+
+		if (!spectators.empty() || Opened) {
+			create_spectators(XorStr("Spectators"), spectators);
+		}
+	}
+
+}
 
 void IMGUIMenu::Render()
 {
+
 	if (!Opened) return;
 
 	//ImGui::GetIO().MouseDrawCursor = _visible;
@@ -1538,8 +2045,15 @@ void IMGUIMenu::Render()
 
 	style->WindowPadding = ImVec2(7.f, 7.f);
 
-	style->Colors[ImGuiCol_MenuAccent] = ImColor(255, 215, 0);
-	style->Colors[ImGuiCol_Logo] = ImColor(0, 87, 255);
+	if (!g_Vars.misc.custom_menu) {
+		style->Colors[ImGuiCol_MenuAccent] = ImColor(255, 0, 0);
+		style->Colors[ImGuiCol_Logo] = ImColor(255, 0, 0);
+	}
+	else {
+		style->Colors[ImGuiCol_MenuAccent] = (ImColor)g_Vars.misc.accent_color;
+		style->Colors[ImGuiCol_Logo] = (ImColor)g_Vars.misc.logo_color;
+	}
+
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 	{
@@ -1547,7 +2061,7 @@ void IMGUIMenu::Render()
 
 		ImGui::PopFont();
 		ImGui::PushFont(StarWars);
-		ImGui::SameLine(5.f);
+		ImGui::SameLine(8.f, -0.1f, 5.f);
 		ImGui::PushStyleColor(ImGuiCol_Text, ImGuiCol_Logo);
 		ImGui::Text(XorStr("VADER"));
 		ImGui::PopStyleColor();
@@ -1657,13 +2171,13 @@ void IMGUIMenu::Render()
 	}
 	style->Colors[ImGuiCol_Border] = ImColor(0, 0, 0, 0);
 
-	ImGui::AddCircleImageFilled(
-		logo_nuts,
-		ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(45, 35),
-		30.f,
-		ImColor(255, 255, 255),
-		360
-	);
+	//ImGui::AddCircleImageFilled(
+	//	logo_nuts,
+	//	ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(45, 35),
+	//	30.f,
+	//	ImColor(255, 255, 255),
+	//	360
+	//);
 
 	auto window = ImGui::GetCurrentWindow();
 	if (window->SkipItems)
@@ -1672,11 +2186,12 @@ void IMGUIMenu::Render()
 	ImGuiContext& g = *GImGui;
 	window->DrawList->PathClear();
 
-	const std::string user = g_Vars.globals.user_info.username;
+	//const std::string user = g_Vars.globals.user_info.username;
+	//char buff[24]; // max username is 12 
+	//sprintf_s(buff, XorStr("Hello, %s"), user.c_str());
+	//auto user_size = ImGui::CalcTextSize(user.c_str());
 
-
-	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(137, 30) }, ImColor(255, 255, 255), user.c_str());
-	window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(170, 30) }, ImColor(255, 255, 255), "Hello, ");
+	//window->DrawList->AddText(ImVec2{ ImGui::GetWindowPos() + ImGui::GetWindowSize() - ImVec2(160 + (user_size.x / 2), 30) }, ImColor(255, 255, 255), buff);
 
 	ImGui::EndChild();
 	ImGui::End();
@@ -1711,7 +2226,7 @@ void IMGUIMenu::CreateStyle()
 	//GetWindowsDirectoryA(buffer, MAX_PATH);
 
 	gravity = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravity_compressed_data, gravity_compressed_size, 13.f);
-	StarWars = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(star_wars_compressed_data, star_wars_compressed_size, 50.f);
+	StarWars = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(starwars2_compressed_data, starwars2_compressed_size, 50.f);
 	watermark = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravityb_compressed_data, gravityb_compressed_size, 16.f);
 	gravityBold = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravityb_compressed_data, gravityb_compressed_size, 13.f);
 	ImGui::SmallestPixel = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(smallestpixel_compressed_data, smallestpixel_compressed_size, 10, NULL, io.Fonts->GetGlyphRangesCyrillic());
