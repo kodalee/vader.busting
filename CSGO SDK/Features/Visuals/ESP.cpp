@@ -1988,11 +1988,7 @@ void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {
 			item_definition = WEAPON_FLASHBANG;
 		}
 		else {
-			if (!g_Vars.esp.Grenadewarning) {
-				Name = XorStr("l");
-			}
-			else
-				Name = XorStr(" ");
+			Name = XorStr("l");
 			item_definition = WEAPON_HEGRENADE;
 		}
 		break;
@@ -2013,11 +2009,7 @@ void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {
 		}
 		break;
 	case ClassId_t::CMolotovProjectile:
-		if (!g_Vars.esp.Grenadewarning) {
-			Name = XorStr("n");
-		}
-		else
-			Name = XorStr(" ");
+		Name = XorStr("n");
 		// bich
 		if (nade && (nade->m_hOwnerEntity().Get()) && ((C_CSPlayer*)(nade->m_hOwnerEntity().Get()))) {
 			item_definition = ((C_CSPlayer*)(nade->m_hOwnerEntity().Get()))->m_iTeamNum() == TEAM_CT ? WEAPON_FIREBOMB : WEAPON_MOLOTOV;
