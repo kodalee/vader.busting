@@ -356,7 +356,7 @@ namespace Engine
 
 		record->m_bIsShoting = false;
 		record->m_flShotTime = 0.0f;
-		record->m_bFakeWalking;
+		record->m_bFakeWalking = false;
 		Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
 
 		if( previous_record.IsValid( ) ) {

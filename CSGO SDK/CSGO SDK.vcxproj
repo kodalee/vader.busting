@@ -395,6 +395,7 @@
     <ClInclude Include="Features\Miscellaneous\skinchanger2.h" />
     <ClInclude Include="Features\Miscellaneous\walkbot.h" />
     <ClInclude Include="Features\Miscellaneous\WeatherController.hpp" />
+    <ClInclude Include="Features\Rage\angle.hpp" />
     <ClInclude Include="Features\Rage\AnimationSystem.hpp" />
     <ClInclude Include="Features\Rage\AntiAim.hpp" />
     <ClInclude Include="Features\Rage\Resolver.hpp" />

@@ -7,6 +7,7 @@
 #include "../Visuals/EventLogger.hpp"
 #include "Ragebot.hpp"
 #include "TickbaseShift.hpp"
+#include "angle.hpp"
 
 static float NextLBYUpdate[65];
 static float Add[65];
@@ -221,7 +222,7 @@ namespace Engine {
 		if (!pLagData.IsValid())
 			return;
 
-		if (entity->EntIndex() == local->EntIndex())
+		if (entity == local)
 			return;
 
 		C_AnimationRecord* move = &pLagData->m_walk_record;
@@ -382,18 +383,21 @@ namespace Engine {
 
 		// if on ground, moving, and not fakewalking.
 		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking)
-			record->m_iResolverMode = RESOLVE_WALK;
+			record->m_iResolverMode = MOVING;
 
 		//if (g_Vars.rage.override_reoslver.enabled && record->m_fFlags & FL_ONGROUND && (speed <= 25.f || record->m_bFakeWalking))
 		//	record->m_iResolverMode = RESOLVE_OVERRIDE;
 
 		// if on ground, not moving or fakewalking.
-		else if ((record->m_fFlags & FL_ONGROUND) && (speed <= 0.1f || record->m_bFakeWalking))
-			record->m_iResolverMode = RESOLVE_LASTMOVE;
+		//else if ((record->m_fFlags & FL_ONGROUND) && (speed <= 0.1f || record->m_bFakeWalking))
+		//	record->m_iResolverMode = LASTMOVE;
 
 		// if not on ground.
-		else if (!(record->m_fFlags & FL_ONGROUND))
-			record->m_iResolverMode = RESOLVE_AIR;
+		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecVelocity.Length2D() > 45.f)
+			record->m_iResolverMode = AIR;
+
+		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecAnimationVelocity.Length2D() <= 45.f)
+			record->m_iResolverMode = AIRSTAND;
 	}
 
 	void CResolver::ResolveAngles(C_CSPlayer* player, C_AnimationRecord* record) {
@@ -405,12 +409,115 @@ namespace Engine {
 		if (!pLagData.IsValid())
 			return;
 
+		C_AnimationRecord* move = &pLagData->m_walk_record;
+
+		if (move->m_flSimulationTime > 0.f) {
+			if (!record->m_moved) {
+				Vector delta = move->m_vecOrigin - record->m_vecOrigin;
+				if (delta.Length() <= 128.f && record->m_fFlags & FL_ONGROUND) {
+					record->m_moved = true;
+					//printf("move true 2\n");
+				}
+			}
+		}
+
+		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
+		const int activity = player->GetSequenceActivity(curr->m_nSequence);
+
 		if (pLagData->m_bRoundStart) {
 			record->m_moved = false;
 			printf("move reset\n");
 		}
 
-		C_AnimationRecord* move = &pLagData->m_walk_record;
+		float delta = record->m_anim_time - move->m_anim_time;
+
+		//if (activity == 979 && curr->m_flWeight == 0 && delta > .22f && record->m_anim_time < NextLBYUpdate[player->EntIndex()]) {
+		//	printf("distorting/jittering\n");
+		//}
+
+		static bool m_iFirstCheck = true;
+		static bool m_iRestartDistortCheck = true;
+		static int m_iDistortCheck = 0;
+		static int m_iResetCheck = 0;
+		static float m_flLastDistortTime = 0.f;
+		static float m_flMaxDistortTime = Interfaces::m_pGlobalVars->curtime + 0.10f;
+		static float m_flLastResetTime = 0.f;
+		static float m_flMaxResetTime = Interfaces::m_pGlobalVars->curtime + 0.85f;
+		static bool sugma = false;
+		static bool balls = false;
+
+		if ((m_iRestartDistortCheck || m_iFirstCheck) && local->IsAlive()) {
+			record->m_iDistortTiming = Interfaces::m_pGlobalVars->curtime + 0.15f;
+			printf(std::to_string(m_iDistortCheck).c_str());
+			printf(" < Restart check ran\n");
+			m_iRestartDistortCheck = false;
+			m_iFirstCheck = false;
+		}
+
+		if ((player->m_AnimOverlay()[3].m_flWeight == 0.f && player->m_AnimOverlay()[3].m_flCycle == 0.f) &&
+			player->m_vecVelocity().Length2D() < 0.1f && !m_iRestartDistortCheck) {
+			if (!sugma) {
+				m_flMaxDistortTime = Interfaces::m_pGlobalVars->curtime + 0.10f;
+				sugma = true;
+			}
+
+			m_flLastDistortTime = Interfaces::m_pGlobalVars->curtime;
+
+			if (m_flLastDistortTime >= m_flMaxDistortTime) {
+				m_iDistortCheck++;
+				m_iResetCheck = 0;
+				//m_iRestartDistortCheck = true;
+				sugma = false;
+			}
+
+			printf(std::to_string(m_iDistortCheck).c_str());
+			printf(" < animlayer check ran\n");
+		}
+		else {
+			sugma = false;
+		}
+
+		if (player->m_AnimOverlay()[3].m_flCycle >= 0.1f && player->m_AnimOverlay()[3].m_flCycle <= 0.99999f && player->m_vecVelocity().Length2D() < 0.01f && record->m_vecVelocity.Length2D() < 0.01f) {
+			if (!balls) {
+				m_flMaxResetTime = Interfaces::m_pGlobalVars->curtime + 0.85f;
+				printf("balls was false\n");
+				balls = true;
+			}
+
+			m_flLastResetTime = Interfaces::m_pGlobalVars->curtime;
+
+			if (m_flLastResetTime >= m_flMaxResetTime) {
+				m_iResetCheck++;
+				printf(std::to_string(m_iResetCheck).c_str());
+				printf("\n");
+				balls = false;
+			}
+		}
+		else {
+			balls = false;
+		}
+
+
+		if (m_iResetCheck >= 3) {
+			m_iRestartDistortCheck = true;
+			m_iDistortCheck = 0;
+			record->m_iDistorting[player->EntIndex()] = false;
+		}
+
+		//if (record->m_vecVelocity.Length2D() > 0.1f) {
+		//	m_iDistortCheck = 0;
+		//	m_iRestartDistortCheck = true;
+		//}
+
+		if (m_iDistortCheck >= 2) {
+			record->m_iDistorting[player->EntIndex()] = true;
+			printf("Player is distorting\n");
+		}
+
+		const auto simtime = record->m_flSimulationTime;
+
+		if (!local->IsAlive() || !player->IsAlive() || player->IsDormant())
+			record->m_moved = false;
 
 		// mark this record if it contains a shot.
 		MatchShot(player, record);
@@ -429,21 +536,59 @@ namespace Engine {
 
 		//printf(std::to_string(test).c_str());
 
+		//printf(std::to_string(record->m_anim_time > record->m_body_update).c_str());
+
+		if (record->m_vecVelocity.Length2D() < 0.01f || record->m_bFakeWalking) {
+
+			if (is_flicking) {
+				record->m_iResolverMode = FLICK;
+				printf("FLICKING\n");
+			}
+
+			else if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin)
+			{
+				if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.65f && pLagData->m_iMissedShotsFreestand < 1)
+				{
+					record->m_iResolverMode = ANTIFREESTAND;
+				}
+				else if (pLagData->m_delta_index < 1)
+				{
+					record->m_iResolverMode = LBYDELTA;
+					pLagData->m_flSavedLbyDelta = pLagData->m_flLowerBodyYawTarget - pLagData->m_flOldLowerBodyYawTarget;
+				}
+			}
+
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1) {
+				record->m_iResolverMode = LASTMOVE;
+			}
+
+			else if (record->m_moved && record->m_iDistorting[player->EntIndex()]) {
+				record->m_iResolverMode = DISTORTINGLMOVE;
+			}
+			//if (is_spin(record, player)) {
+			//	record->m_iResolverMode = SPIN;
+			//}
+			else if (ShouldUseFreestand(record, player) && pLagData->m_iMissedShotsFreestand < 2) {
+				record->m_iResolverMode = ANTIFREESTAND;
+			}
+
+			else {
+				record->m_iResolverMode = STAND;
+			}
+		}
 		// we arrived here we can do the acutal resolve.
-		if (record->m_iResolverMode == RESOLVE_WALK)
+		if (record->m_iResolverMode == MOVING)
 			ResolveWalk(player, record);
 
 		//else if (record->m_iResolverMode == RESOLVE_OVERRIDE || g_Vars.rage.override_reoslver.enabled)
 		//	ResolveOverride(player, record);
 
-		else if (record->m_iResolverMode == RESOLVE_LASTMOVE || record->m_iResolverMode == RESOLVE_UNKNOWM)
-			LastMoveLby(record, player);
-
-		else if (record->m_iResolverMode == RESOLVE_AIR)
+		else if (record->m_iResolverMode == AIR || record->m_iResolverMode == AIRSTAND)
 			ResolveAir(player, record);
 
-		if (!local->IsAlive() || !player->IsAlive() || player->IsDormant())
-			record->m_moved = false;
+		else {
+			resolve(player, record);
+		}
 
 		// normalize the eye angles, doesn't really matter but its clean.
 		Math::NormalizeAngle(record->m_angEyeAngles.y);
@@ -451,10 +596,232 @@ namespace Engine {
 		player->m_angEyeAngles() = record->m_angEyeAngles;
 	}
 
+	void CResolver::resolve(C_CSPlayer* player, C_AnimationRecord* record) {
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return;
+
+		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+		if (!pLagData.IsValid())
+			return;
+
+		if (player->IsDormant()) {
+			is_flicking = false;
+		}
+
+		C_AnimationRecord* move = &pLagData->m_walk_record;
+
+		// predict LBY flicks.
+		if (!player->IsDormant() && !record->dormant()) {
+			// since we null velocity when they fakewalk, no need to check for it.
+			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
+			//	Add[player->EntIndex()] = 0.22f;
+			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			//}
+			// lby wont update on this tick but after.
+			if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && record->m_moved)
+			{
+				is_flicking = true;
+				Add[player->EntIndex()] = 1.1f;
+				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+			else
+				is_flicking = false;
+
+			// LBY updated via PROXY.
+			if (pLagData->m_body != pLagData->m_old_body && record->m_moved) {
+				is_flicking = true;
+				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+			else
+				is_flicking = false;
+
+			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
+				Add[player->EntIndex()] = 0.22f;
+				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+
+		}
+		else {
+			is_flicking = false;
+		}
+
+		const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+
+		if (is_flicking && pLagData->m_iMissedShotsLBY < 3 /* && !record->m_bFakeWalking*/)
+		{
+			//m_iMode = 0;
+			record->m_angEyeAngles.y = pLagData->m_body;
+
+			//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
+
+			record->m_iResolverMode = FLICK;
+			record->m_iResolverText = XorStr("UPDATE");
+		}
+		else {
+			if (record->m_iResolverMode == LASTMOVE) {
+				record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
+			}
+			else if (record->m_iResolverMode == LBYDELTA) {
+				record->m_angEyeAngles.y = Math::normalize_float(pLagData->m_flLowerBodyYawTarget - pLagData->m_flSavedLbyDelta);
+			}
+			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1) {
+				record->m_angEyeAngles.y = at_target_yaw + 180.f;
+			}
+			else if (record->m_iResolverMode == ANTIFREESTAND) {
+				AntiFreestand(record, player);
+			}
+			else {
+				switch (pLagData->m_iMissedBruteShots % 5) {
+				case 0:
+					record->m_angEyeAngles.y = at_target_yaw + 180.f;
+					break;
+				case 1:
+					record->m_angEyeAngles.y = at_target_yaw - 70.f;
+					break;
+				case 2:
+					record->m_angEyeAngles.y = at_target_yaw + 70.f;
+					break;
+				case 3:
+					record->m_angEyeAngles.y = at_target_yaw - 70.f;
+					break;
+				case 4:
+					record->m_angEyeAngles.y = at_target_yaw + 70.f;
+					break;
+				}
+			}
+		}
+
+	}
+
+	void CResolver::on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw)
+	{
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return;
+
+		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(entity->m_entIndex);
+		if (!pLagData.IsValid())
+			return;
+
+
+		float oldBodyYaw; // xmm4_4
+		float nextPredictedSimtime; // xmm3_4
+		float nextPredictedSimtimeAccurate; // xmm3_4
+		float nextBodyUpdate = 0.f; // xmm3_4
+
+		oldBodyYaw = pLagData->m_body;
+
+		//if (entity != g_pLocalPlayer)
+		//{
+		//	nextPredictedSimtimeAccurate = entity->get_simtime() + g_pGlobals->interval_per_tick;
+
+		//	nextPredictedSimtime = entity->get_oldsimtime() + g_pGlobals->interval_per_tick;
+
+		//	if (entity->get_flags() & FL_ONGROUND) {
+
+		//		if (nextPredictedSimtimeAccurate >= NextLBYUpdate && !entity->IsDormant()) {
+		//			//CurrentRecord.PredLBYFlick = true;
+		//			PlayerRecord->LBYFLICK = true;
+		//			Add = 1.1f;
+		//			NextLBYUpdate = entity->get_simtime() + Add;
+		//			nextBodyUpdate = NextLBYUpdate;
+		//		}
+		//		else {
+		//			PlayerRecord->LBYFLICK = false;
+		//		}
+
+		//		if (oldBodyYaw != *LowerBodyYaw && fabs(math::get().NormalizeYaw(*LowerBodyYaw - oldBodyYaw)) > 5.f && !entity->IsDormant()) {
+		//			//CurrentRecord.LBYFlick = true;
+		//			PlayerRecord->LBYFLICK = true;
+		//			Add = 1.1f;
+		//			NextLBYUpdate = nextPredictedSimtimeAccurate + Add;
+		//			nextBodyUpdate = NextLBYUpdate;
+		//		}
+		//		else {
+		//			PlayerRecord->LBYFLICK = false;
+		//		}
+
+		//		if (entity->get_velocity().Length2D() > 0.1f && !PlayerRecord->fakewalking) {
+		//			Add = 0.22f;
+		//			NextLBYUpdate = entity->get_simtime() + Add;
+		//			nextBodyUpdate = NextLBYUpdate;
+		//		}
+
+		//		//if (PlayerRecord->nextBodyUpdate <= nextPredictedSimtimeAccurate)
+		//		//	nextBodyUpdate = nextPredictedSimtimeAccurate + 1.1f;
+
+		//		if (nextBodyUpdate != 0.f)
+		//			PlayerRecord->nextBodyUpdate = nextBodyUpdate;
+
+		//	}
+
+		//	PlayerRecord->m_flLastLowerBodyYawTargetUpdateTime = entity->get_oldsimtime() + g_pGlobals->interval_per_tick;
+		//	PlayerRecord->m_flOldLowerBodyYawTarget = oldBodyYaw;
+		//	PlayerRecord->m_flLowerBodyYawTarget = math::normalize_float(*LowerBodyYaw);
+		//}
+
+		if (oldBodyYaw != *LowerBodyYaw)
+		{
+			if (entity != local && entity->m_fFlags() & FL_ONGROUND)
+			{
+				//---------------
+				nextPredictedSimtime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+				float vel = entity->m_vecVelocity().Length2D();
+				if (vel > 0.1f)
+					nextBodyUpdate = nextPredictedSimtime + 0.22f;
+				else if (pLagData->nextBodyUpdate <= nextPredictedSimtime)
+					nextBodyUpdate = nextPredictedSimtime + 1.1f;
+
+				if (nextBodyUpdate != 0.f)
+					pLagData->nextBodyUpdate = nextBodyUpdate;
+			}
+
+			pLagData->m_flLastLowerBodyYawTargetUpdateTime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+			pLagData->m_flOldLowerBodyYawTarget = oldBodyYaw;
+			pLagData->m_flLowerBodyYawTarget = Math::normalize_float(*LowerBodyYaw);
+
+			//util::print_dev_console( true, Color::Green(), "update time = %f\n", PlayerRecord->m_flLastLowerBodyYawTargetUpdateTime );
+		}
+
+		if ( entity->m_vecVelocity( ).Length2D( ) > 75.f || entity->m_fFlags( ) & FL_DUCKING && entity->m_vecVelocity( ).Length2D( ) > 20.f )
+		{
+			pLagData->m_flLastMovingLowerBodyYawTarget = Math::normalize_float(*LowerBodyYaw);
+			pLagData->m_flLastMovingLowerBodyYawTargetTime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+		}
+	}
+
+
 	void CResolver::OnBodyUpdate(C_CSPlayer* player, float value) {
 		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
 		if (!pLagData.IsValid())
 			return;
+
+		float oldBodyYaw; // xmm4_4
+		float nextPredictedSimtime; // xmm3_4
+		float nextPredictedSimtimeAccurate; // xmm3_4
+		float nextBodyUpdate = 0.f; // xmm3_4
+
+		oldBodyYaw = pLagData->m_flLowerBodyYawTarget;
+		
+		if (oldBodyYaw != value) {
+			pLagData->m_flOldLowerBodyYawTarget = oldBodyYaw;
+
+			pLagData->m_flLastLowerBodyYawTargetUpdateTime = player->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+			pLagData->m_flOldLowerBodyYawTarget = oldBodyYaw;
+			pLagData->m_flLowerBodyYawTarget = Math::normalize_float(value);
+		}
+
+		if (player->m_vecVelocity().Length2D() > 0.1f && !Engine::g_ResolverData[player->EntIndex()].fakewalking && player->m_fFlags() & FL_ONGROUND)
+		{
+			pLagData->m_flLastMovingLowerBodyYawTarget = Math::normalize_float(value);
+			pLagData->m_flLastMovingLowerBodyYawTargetTime = player->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+		}
 
 		// set data.
 		pLagData->m_old_body = pLagData->m_body;
@@ -602,6 +969,106 @@ namespace Engine {
 		return true;
 	}
 
+	bool CResolver::is_spin(C_AnimationRecord* record, C_CSPlayer* player)
+	{
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return false;
+
+		auto lag_data = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+		if (!lag_data.IsValid() || lag_data->m_History.empty())
+			return false;
+
+		if (player == local)
+			return false;
+
+		if (lag_data->m_History.size() < 3 || lag_data->m_History.empty())
+			return false;
+
+		step = 0;
+
+		size_t size{};
+
+		for (const auto& it : lag_data->m_History) {
+			if (it.player->IsDormant()) {
+				break;
+			}
+
+			++size;
+		}
+
+		if (size > 2) {
+
+			spindelta = (record[0].m_body - record[1].m_body) / record[1].m_iChokeTicks;
+			spinbody = record->m_body;
+			float delta2 = (record[1].m_body - record[2].m_body) / record[2].m_iChokeTicks;
+
+			return spindelta == delta2 && spindelta > 0.5f;
+
+		}
+		else
+			return false;
+		
+
+		//spindelta = (record[0].m_body - record[1].m_body) / record[1].m_iChokeTicks;
+		//spinbody = record[0].m_body;
+		//const auto delta2 = (record[1].m_body - record[2].m_body) / record[2].m_iChokeTicks;
+
+		////return false;
+
+		//return spindelta == delta2 && spindelta > 0.5f;
+	}
+
+	bool CResolver::ShouldUseFreestand(C_AnimationRecord* record, C_CSPlayer* player) // allows freestanding if not in open
+	{
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return false;
+
+		if (!player || player == local)
+			return false;
+
+		/* externs */
+		Vector src3D, dst3D, forward, right, up, src, dst;
+		float back_two, right_two, left_two;
+		CGameTrace tr;
+		CTraceFilterSimple filter;
+
+		/* angle vectors */
+		Math::angle_vectors(QAngle(0, GetAwayAngle(record), 0), &forward, &right, &up);
+
+		/* filtering */
+		filter.SetPassEntity(player);
+		src3D = player->GetShootPosition();
+		dst3D = src3D + (forward * 384);
+
+		/* back engine tracers */
+		Interfaces::m_pEngineTrace->TraceRay(Ray_t(src3D, dst3D), MASK_SHOT_BRUSHONLY | MASK_OPAQUE_AND_NPCS, &filter, &tr);
+		back_two = (tr.endpos - tr.startpos).Length();
+
+		/* right engine tracers */
+		Interfaces::m_pEngineTrace->TraceRay(Ray_t(src3D + right * 35, dst3D + right * 35), MASK_SHOT_BRUSHONLY | MASK_OPAQUE_AND_NPCS, &filter, &tr);
+		right_two = (tr.endpos - tr.startpos).Length();
+
+		/* left engine tracers */
+		Interfaces::m_pEngineTrace->TraceRay(Ray_t(src3D - right * 35, dst3D - right * 35), MASK_SHOT_BRUSHONLY | MASK_OPAQUE_AND_NPCS, &filter, &tr);
+		left_two = (tr.endpos - tr.startpos).Length();
+
+		/* fix side */
+		if (left_two > right_two) {
+			bFacingleft = true;
+			bFacingright = false;
+			return true;
+		}
+		else if (right_two > left_two) {
+			bFacingright = true;
+			bFacingleft = false;
+			return true;
+		}
+		else
+			return false;
+	}
+
 	void CResolver::LastMoveLby(C_AnimationRecord* record, C_CSPlayer* player)
 	{
 		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
@@ -615,6 +1082,8 @@ namespace Engine {
 		auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
 		if (!anim_data)
 			return;
+
+		const auto simtime = record->m_flSimulationTime;
 
 		// pointer for easy access.
 		C_AnimationRecord* move = &pLagData->m_walk_record;
@@ -695,6 +1164,33 @@ namespace Engine {
 		else {
 			is_flicking = false;
 		}
+
+		if (is_flicking) {
+			record->m_iResolverMode = FLICK;
+		}
+		if (record->m_moved /* && distortion check here*/) {
+			record->m_iResolverMode = LASTMOVE;
+		}
+		//if (is_spin(record, player)) {
+		//	m_iMode = SPIN;
+		//}
+		if (ShouldUseFreestand(record, player)) {
+			record->m_iResolverMode = ANTIFREESTAND;
+		}
+
+		if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin)
+		{
+			if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.65f)
+			{
+				record->m_iResolverMode = ANTIFREESTAND;
+			}
+			else
+			{
+				record->m_iResolverMode = LBYDELTA;
+				pLagData->m_flSavedLbyDelta = pLagData->m_flLowerBodyYawTarget - pLagData->m_flOldLowerBodyYawTarget;
+			}
+		}
+
 		//if (hitPlayer[index] && (player->m_vecVelocity().length_2d() < 1.f || player->m_vecVelocity().length_2d() > 1.f && record->m_bFakeWalking)) {
 		//	static bool repeat[64];
 		//	if (!repeat[index]) {
@@ -736,7 +1232,7 @@ namespace Engine {
 
 			if (!record->m_moved) {
 
-				record->m_iResolverMode = RESOLVE_UNKNOWM;
+				record->m_iResolverMode = STAND;
 				//record->m_iResolverText = XorStr("STAND");
 
 
@@ -749,7 +1245,7 @@ namespace Engine {
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 
-					record->m_iResolverMode = RESOLVE_BODY;
+					record->m_iResolverMode = FLICK;
 					record->m_iResolverText = XorStr("UPDATE");
 				}
 				else {
@@ -818,7 +1314,7 @@ namespace Engine {
 				const int activity = player->GetSequenceActivity(curr->m_nSequence);
 
 
-				record->m_iResolverMode = RESOLVE_LASTMOVE;
+				record->m_iResolverMode = LASTMOVE;
 				//record->m_iResolverText = XorStr("LASTMOVE");
 
 				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
@@ -830,7 +1326,7 @@ namespace Engine {
 					record->m_angEyeAngles.y = pLagData->m_body;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
-					record->m_iResolverMode = RESOLVE_BODY;
+					record->m_iResolverMode = FLICK;
 					record->m_iResolverText = XorStr("UPDATE");
 				}
 				else {
@@ -919,7 +1415,7 @@ namespace Engine {
 			// set this for completion.
 			// so the shot parsing wont pick the hits / misses up.
 			// and process them wrongly.
-			record->m_iResolverMode = EResolverModes::RESOLVE_STAND;
+			record->m_iResolverMode = STAND;
 
 			// invoke our stand resolver.
 			LastMoveLby(record, player);

@@ -151,6 +151,38 @@ private:
 	IClientEntity* pEnt2;
 };
 
+typedef bool(*ShouldHitFunc_t)(IHandleEntity* pHandleEntity, int contentsMask);
+
+class CTraceFilterSimple : public CTraceFilter
+{
+public:
+
+	// It does have a base, but we'll never network anything below here..
+	//CTraceFilterSimple(const IHandleEntity* passentity, int collisionGroup, ShouldHitFunc_t pExtraShouldHitCheckFn = NULL);
+	//virtual bool ShouldHitEntity(IHandleEntity* pHandleEntity, int contentsMask);
+	virtual void SetPassEntity(const IHandleEntity* pPassEntity) { m_pPassEnt = pPassEntity; }
+	virtual void SetCollisionGroup(int iCollisionGroup) { m_collisionGroup = iCollisionGroup; }
+
+	const IHandleEntity* GetPassEntity(void) { return m_pPassEnt; }
+
+private:
+	const IHandleEntity* m_pPassEnt;
+	int m_collisionGroup;
+	ShouldHitFunc_t m_pExtraShouldHitCheckFunction;
+
+public:
+	__forceinline CTraceFilterSimple() :
+		m_pPassEnt{},
+		m_collisionGroup{},
+		m_pExtraShouldHitCheckFunction{} {}
+
+	__forceinline CTraceFilterSimple(const IHandleEntity* pass_ent1, int collision_group = COLLISION_GROUP_NONE, ShouldHitFunc_t shouldhit_check_fn = nullptr) :
+		m_pPassEnt{ pass_ent1 },
+		m_collisionGroup{ collision_group },
+		m_pExtraShouldHitCheckFunction{ shouldhit_check_fn } {}
+
+};
+
 class CTraceFilterHitAll : public CTraceFilter
 {
 public:

@@ -75,8 +75,13 @@ namespace Engine
 		float m_flFeetCycle;
 
 		int m_iResolverMode;
+		bool m_iDistorting[65];
 		bool m_moved;
+		int m_iDistortCheck;
+		bool m_iRestartDistortCheck;
+		bool m_iFirstCheck;
 		float     m_body_update;
+		float m_iDistortTiming;
 
 		std::string m_iResolverText;
 

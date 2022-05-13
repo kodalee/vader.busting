@@ -398,7 +398,7 @@ namespace lua_utils {
 		if (local->m_vecVelocity().Length2D() > 30.f && !g_Vars.misc.slow_walk_bind.enabled) // bad fix for localplayer walking
 			return 0.f;
 
-		return std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+		return std::abs(Math::NormalizedAngle(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
 	}
 
 	bool local_alive() {

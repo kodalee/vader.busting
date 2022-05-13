@@ -951,6 +951,7 @@
     <ClInclude Include="Features\Miscellaneous\walkbot.h" />
     <ClInclude Include="Features\Game\netdata.h" />
     <ClInclude Include="Features\Visuals\gh.h" />
+    <ClInclude Include="Features\Rage\angle.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

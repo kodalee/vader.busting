@@ -322,18 +322,18 @@ namespace Engine
 						if(g_ResolverData->m_iMode == 32)
 							g_ResolverData->hitPlayer[player->EntIndex()] = false;
 
-						if (it->snapshot->ResolverType == EResolverModes::RESOLVE_BODY)
+						if (it->snapshot->ResolverType == FLICK)
 							lag_data->m_iMissedShotsLBY++;
-						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_DELTA)
+						else if (it->snapshot->ResolverType == LBYDELTA)
 							lag_data->m_delta_index++;
-						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_LASTMOVE)
+						else if (it->snapshot->ResolverType == LASTMOVE)
 							lag_data->m_last_move++;
-						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_UNKNOWM)
-							lag_data->m_unknown_move++;
-						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_STAND2)
-							lag_data->m_stand_index2++;
-						else if (it->snapshot->ResolverType == EResolverModes::RESOLVE_LBY)
-							lag_data->m_lby_index++;
+						else if (it->snapshot->ResolverType == STAND)
+							lag_data->m_iMissedBruteShots++;
+						else if (it->snapshot->ResolverType == ANTIFREESTAND)
+							lag_data->m_iMissedShotsFreestand++;
+						else if (it->snapshot->ResolverType == DISTORTINGLMOVE)
+							lag_data->m_iMissedShotsDistort++;
 						else
 							lag_data->m_iMissedShots++;
 
@@ -482,7 +482,10 @@ namespace Engine
 				lagData->m_delta_index = 0;
 				lagData->m_stand_index2 = 0;
 				lagData->m_unknown_move = 0;
+				lagData->m_iMissedShotsDistort = 0;
+				lagData->m_iMissedBruteShots = 0;
 				lagData->m_lby_index = 0;
+				lagData->m_iMissedShotsFreestand = 0;
 				g_Vars.globals.m_iFiredShots = 0;
 			}
 
@@ -498,8 +501,11 @@ namespace Engine
 					lagData->m_iMissedShotsLBY = 0;
 					lagData->m_body_index = 0;
 					lagData->m_delta_index = 0;
+					lagData->m_iMissedShotsDistort = 0;
+					lagData->m_iMissedBruteShots = 0;
 					lagData->m_stand_index2 = 0;
 					lagData->m_unknown_move = 0;
+					lagData->m_iMissedShotsFreestand = 0;
 					lagData->m_lby_index = 0;
 					lagData->m_bRoundStart = true;
 					g_Vars.globals.m_iFiredShots = 0;

@@ -49,7 +49,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 					float flRemaining = g_Vars.globals.m_flBodyPredNoob - Interfaces::m_pGlobalVars->curtime;
 
 					// get the absolute change between current lby and animated angle.
-					float change = std::abs( Math::AngleNormalize( g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y ) );
+					float change = std::abs( Math::NormalizedAngle( g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y ) );
 
 					bool moving = m_LocalPlayer->m_vecVelocity( ).Length2D( ) > 0.1f && !g_Vars.globals.Fakewalking;
 

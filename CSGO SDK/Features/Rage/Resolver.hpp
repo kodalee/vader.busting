@@ -29,6 +29,23 @@ namespace Engine {
 		RESOLVE_BRUTEFORCE,
 	};
 
+	enum RModes {
+		LBYDELTA = 0,
+		FLICK,
+		LASTMOVE,
+		DISTORTINGLMOVE,
+		STAND,
+		MOVING,
+		ANTIFREESTAND,
+		BRUTE,
+		OVERRIDE,
+		SPIN,
+		AGFREESTAND,
+		JITTER,
+		AIR,
+		AIRSTAND
+	};
+
 	struct CResolverData {
 		struct LastMoveData_t {
 			float m_flLowerBodyYawTarget;
@@ -78,6 +95,12 @@ namespace Engine {
 		float back_damage[64];
 
 		int m_iMode;
+		int step;
+		float spindelta;
+		float spinbody;
+
+		bool bFacingleft;
+		bool bFacingright;
 
 		std::vector<Vector> last_eye_positions;
 
@@ -154,6 +177,8 @@ namespace Engine {
 		void AntiFreestand(C_AnimationRecord* record, C_CSPlayer* entity);
 		void FindBestAngle(C_CSPlayer* player);
 		bool AntiFreestanding(C_CSPlayer* entity, float& yaw);
+		bool is_spin(C_AnimationRecord* record, C_CSPlayer* player);
+		bool ShouldUseFreestand(C_AnimationRecord* record, C_CSPlayer* player);
 		//bool wall_detect(Engine::C_LagRecord* record, float& angle) const;
 	};
 

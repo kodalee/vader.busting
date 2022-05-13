@@ -537,7 +537,7 @@ void CEsp::Indicators() {
 		if (g_Vars.antiaim.enabled && (pLocal->m_vecVelocity().Length2D() <= 0.1f || g_Vars.globals.Fakewalking)) {
 			Indicator_t ind{ };
 			// get the absolute change between current lby and animated angle.
-			float change = std::abs(Math::AngleNormalize(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+			float change = std::abs(Math::NormalizedAngle(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
 			ind.color = change > 35.f ? Color(100, 255, 25) : Color(255, 0, 0);
 			ind.text = XorStr("LBY ");
 
@@ -2143,14 +2143,18 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	}
 
 	if (!g_Vars.misc.undercover_flags) {
-		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[12].m_flWeight));
-		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flWeight));
-		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flCycle));
+		//g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[12].m_flWeight));
+		//g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flWeight));
+		//g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flCycle));
 		//g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flPrevCycle ) );
-		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flPlaybackRate));
+		//g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[6].m_flPlaybackRate));
 		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flPlaybackRate));
 		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flWeight));
 		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flCycle));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flPrevCycle));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_flWeightDeltaRate));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_nOrder));
+		g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[3].m_nSequence));
 		//g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( player->m_AnimOverlay( )[ 6 ].m_flWeightDeltaRate ) );
 	}
 

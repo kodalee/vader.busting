@@ -92,6 +92,9 @@ namespace Engine
 		float m_flRate = 0.0f;
 
 		int m_iMissedShots = 0;
+		int m_iMissedBruteShots = 0;
+		int m_iMissedShotsDistort = 0;
+		int m_iMissedShotsFreestand = 0;
 		int m_iMissedShotsLBY = 0;
 		int m_stand_index2 = 0;
 		int m_lby_index = 0;
@@ -103,6 +106,7 @@ namespace Engine
 		float m_old_body = 0.f;
 		float m_body = 0.f;
 
+		bool m_bInBruteOrder = false;
 		bool m_bHitLastMove = false;
 		std::deque< float > m_flLastMoveYaw;
 		C_AnimationRecord m_walk_record;
@@ -113,6 +117,14 @@ namespace Engine
 		bool m_bRateCheck = false;
 		bool m_bRoundStart = false;
 		float m_flAbsYawHandled = 0.f;
+		float m_flLastMovingLowerBodyYawTarget = 0.f;
+		float m_flLastMovingLowerBodyYawTargetTime = 0.f;
+		float nextBodyUpdate = 0.f;
+		float m_flLastLowerBodyYawTargetUpdateTime = 0.f;
+		float m_flOldLowerBodyYawTarget = 0.f;
+		float m_flLowerBodyYawTarget = 0.f;
+		float m_flSavedLbyDelta = 0.f;
+		bool fakewalking = false;
 
 		// ragebot scan data
 		float m_flLastSpread, m_flLastInaccuracy;
