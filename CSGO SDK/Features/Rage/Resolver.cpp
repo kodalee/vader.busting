@@ -676,7 +676,7 @@ namespace Engine {
 			else if (record->m_iResolverMode == ANTIFREESTAND) {
 				AntiFreestand(record, player);
 			}
-			else {
+			else if(record->m_iResolverMode == STAND) {
 				switch (pLagData->m_iMissedBruteShots % 5) {
 				case 0:
 					record->m_angEyeAngles.y = at_target_yaw + 180.f;
@@ -688,10 +688,10 @@ namespace Engine {
 					record->m_angEyeAngles.y = at_target_yaw + 70.f;
 					break;
 				case 3:
-					record->m_angEyeAngles.y = at_target_yaw - 70.f;
+					record->m_angEyeAngles.y = at_target_yaw - 120.f;
 					break;
 				case 4:
-					record->m_angEyeAngles.y = at_target_yaw + 70.f;
+					record->m_angEyeAngles.y = at_target_yaw + 120.f;
 					break;
 				}
 			}
