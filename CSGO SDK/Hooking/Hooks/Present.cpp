@@ -159,7 +159,35 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		InputSys::Get( )->SetScrollMouse( 0.f );
 	}
 
-	if (g_IMGUIMenu.Opened && g_IMGUIMenu.Initialize(pDevice))
+	if (!g_IMGUIMenu.Loaded && g_IMGUIMenu.Initialize(pDevice)) {
+		pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
+		pDevice->GetVertexDeclaration(&vertDec);
+		pDevice->GetVertexShader(&vertShader);
+		pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, 0xffffffff);
+		pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
+		pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+		pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
+		pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP);
+		pDevice->SetSamplerState(NULL, D3DSAMP_SRGBTEXTURE, NULL);
+
+		ImGui_ImplDX9_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+
+		{
+			g_IMGUIMenu.Loading();
+		}
+
+		ImGui::EndFrame();
+		ImGui::Render();
+		ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+
+		pDevice->SetRenderState(D3DRS_COLORWRITEENABLE, dwOld_D3DRS_COLORWRITEENABLE);
+		pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, true);
+		pDevice->SetVertexDeclaration(vertDec);
+		pDevice->SetVertexShader(vertShader);
+	}
+	else if (g_IMGUIMenu.Loaded /*&& g_IMGUIMenu.Opened*/ && g_IMGUIMenu.Initialize(pDevice))
 	{
 		pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
 		pDevice->GetVertexDeclaration(&vertDec);
@@ -178,6 +206,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		/*render stuff*/
 		{
 			g_IMGUIMenu.Render();
+			g_IMGUIMenu.Keybinds_Spectators();
 		}
 
 		ImGui::EndFrame();

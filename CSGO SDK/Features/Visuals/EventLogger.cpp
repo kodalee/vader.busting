@@ -88,9 +88,16 @@ void CLogger::PushEvent(std::string msg, FloatColor clr, bool visualise, std::st
 		m_notify_text.push_back(std::make_shared< NotifyText >(std::string(XorStr("")).append(prefix.data()).append(XorStr("")).append(msg), clr.ToRegularColor(), 8.f));
 	}
 
-	Interfaces::m_pCvar->ConsoleColorPrintf(/*g_Vars.menu.ascent.ToRegularColor()*/FloatColor(0.f, 0.518f, 1.f).ToRegularColor(), XorStr("[ vader.tech ] "));
+	FloatColor Color;
+	if (!g_Vars.misc.custom_menu) {
+		Color = FloatColor(1.f, 0.f, 0.f);
+	}
+	else
+		Color = g_Vars.misc.accent_color;
+
+	Interfaces::m_pCvar->ConsoleColorPrintf(/*g_Vars.menu.ascent.ToRegularColor()*/Color.ToRegularColor(), XorStr("[ vader.tech ] "));
 	if (!prefix.empty()) {
-		Interfaces::m_pCvar->ConsoleColorPrintf(/*g_Vars.menu.ascent.ToRegularColor()*/FloatColor(0.f, 0.518f, 1.f).ToRegularColor(), std::string(XorStr("")).append(prefix.data()).append(XorStr("")).data());
+		Interfaces::m_pCvar->ConsoleColorPrintf(/*g_Vars.menu.ascent.ToRegularColor()*/Color.ToRegularColor(), std::string(XorStr("")).append(prefix.data()).append(XorStr("")).data());
 	}
 
 	Interfaces::m_pCvar->ConsoleColorPrintf(clr.ToRegularColor(), std::string(msg + XorStr("\n")).c_str());

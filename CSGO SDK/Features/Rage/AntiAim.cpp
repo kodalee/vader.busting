@@ -167,7 +167,9 @@ namespace Interfaces
 		{
 
 			auto angles = cmd->viewangles.y;
-
+			if (g_Vars.globals.Fakewalking) {
+				*bSendPacket = true;
+			}
 			target_lby = initial_lby;
 			cmd->viewangles.y = initial_lby;
 			cmd->viewangles.Clamp();
@@ -175,10 +177,6 @@ namespace Interfaces
 
 			if (secondupdate)
 			{
-				if (g_Vars.globals.Fakewalking) {
-					*bSendPacket = true;
-				}
-
 				initial_lby = angles + g_Vars.antiaim.break_lby;
 
 				secondupdate = false;
@@ -469,8 +467,6 @@ namespace Interfaces
 					g_Vars.globals.shift_amount = shift_time > 0 ? 16 : 0;
 				}
 
-				g_Vars.globals.shift_amount = 16;
-
 				//*bSendPacket = false;
 
 				++shift_time = 14;
@@ -615,7 +611,7 @@ namespace Interfaces
 			//printf("fuck you kids\n");
 			cmd->forwardmove = 7.f;
 			*bSendPacket = true;
-			cmd->viewangles.y -= 90.f;
+			cmd->viewangles.y += g_Vars.antiaim.break_lby_first;
 			g_Vars.globals.need_break_lastmove = false;
 		}
 
@@ -669,13 +665,6 @@ namespace Interfaces
 
 		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // rotate
 			cmd->viewangles.y += std::fmod(Interfaces::m_pGlobalVars->curtime * (g_Vars.antiaim.rot_speed * 20.f), g_Vars.antiaim.rot_range);
-		}
-
-
-		QAngle ang;
-
-		if (DoEdgeAntiAim(LocalPlayer, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1 && g_Vars.antiaim.freestand && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // run edge aa
-			cmd->viewangles.y += Math::AngleNormalize(ang.y);
 		}
 
 
@@ -892,9 +881,26 @@ namespace Interfaces
 		float freestandingReturnYaw = std::numeric_limits< float >::max();
 
 		if (g_Vars.antiaim.freestand) {
-			if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
+			bool DoFreestanding = true;
+			QAngle ang;
+
+			if (g_Vars.antiaim.freestand_disable_fakewalk && g_Vars.globals.Fakewalking)
+				DoFreestanding = false;
+
+			if (g_Vars.antiaim.freestand_disable_air && !g_Vars.globals.m_bGround)
+				DoFreestanding = false;
+
+			if (local->m_PlayerAnimState()->m_velocity > 0.1f && g_Vars.globals.m_bGround && !g_Vars.globals.Fakewalking) {
+				if (g_Vars.antiaim.freestand_disable_run)
+					DoFreestanding = false;
+			}
+
+			if (DoFreestanding && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
 				AutoDirection(cmd);
 				flRetValue = m_auto + g_Vars.antiaim.add_yaw;
+			}
+			else if (DoFreestanding && DoEdgeAntiAim(local, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1) { // run edge aa
+				flRetValue = Math::AngleNormalize(ang.y);
 			}
 
 
@@ -999,8 +1005,9 @@ namespace Interfaces
 				bGenerate = false;
 			}
 
+			float flDistortion = std::sin((Interfaces::m_pGlobalVars->realtime * g_Vars.antiaim.distort_speed) * 0.5f + 0.5f);
 			float flDelta = fabs(flLastMoveYaw - local->m_flLowerBodyYawTarget());
-			cmd->viewangles.y += flDelta + flGenerated;
+			cmd->viewangles.y += flDelta + flGenerated * flDistortion;
 		}
 	}
 

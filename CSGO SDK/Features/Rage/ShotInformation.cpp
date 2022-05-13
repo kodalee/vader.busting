@@ -296,6 +296,9 @@ namespace Engine
 									if (current) {
 
 										msg << XorStr("res: ") << current->m_iResolverText << XorStr(" | ");
+										msg << XorStr("vel: ") << current->m_vecVelocity.Length2D() << XorStr(" | ");
+										msg << XorStr("fakewalk: ") << current->m_bFakeWalking << XorStr(" | ");
+										msg << XorStr("micromove: ") << current->m_bUnsafeVelocityTransition << XorStr(" | ");
 
 									}
 

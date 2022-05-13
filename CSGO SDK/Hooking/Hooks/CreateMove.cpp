@@ -204,6 +204,10 @@ namespace Hooked
 
 		local->m_AnimOverlay( ).Element( 12 ).m_flWeight = 0.f;
 
+		if (local->m_flPoseParameter()) {
+			local->m_flPoseParameter()[6] = g_Vars.globals.m_flJumpFall;
+		}
+
 		// pull the lower body direction towards the eye direction, but only when the player is moving
 		if( state->m_bOnGround ) {
 			const float CSGO_ANIM_LOWER_CATCHUP_IDLE = 100.0f;
@@ -328,13 +332,15 @@ namespace Hooked
 			RemoveButtons( IN_ATTACK2 );
 			RemoveButtons( IN_USE );
 
-			if( ImGui::GetIO().WantTextInput && g_IMGUIMenu.Initialized ) {
-				RemoveButtons( IN_MOVERIGHT );
-				RemoveButtons( IN_MOVELEFT );
-				RemoveButtons( IN_FORWARD );
-				RemoveButtons( IN_BACK );
+			if (ImGui::GetCurrentContext() != NULL) {
+				if (g_IMGUIMenu.Initialized && ImGui::GetIO().WantTextInput) {
+					RemoveButtons(IN_MOVERIGHT);
+					RemoveButtons(IN_MOVELEFT);
+					RemoveButtons(IN_FORWARD);
+					RemoveButtons(IN_BACK);
 
-				movement->InstantStop( cmd.Xor( ) );
+					movement->InstantStop(cmd.Xor());
+				}
 			}
 		}
 
@@ -403,35 +409,37 @@ namespace Hooked
 
 			int nShotCmd = -1;
 
-			if( cmd->buttons & IN_ATTACK
-				&& weapon->m_iItemDefinitionIndex( ) != WEAPON_C4
-				&& weaponInfo->m_iWeaponType >= WEAPONTYPE_KNIFE
-				&& weaponInfo->m_iWeaponType <= WEAPONTYPE_MACHINEGUN
-				&& pLocal->CanShoot( ) )
-			{
-				nShotCmd = cmd->command_number;
-				g_Vars.globals.m_iShotTick = cmd->tick_count;
-				lockedAngles = cmd->viewangles;
-				LastShotTime = Interfaces::m_pGlobalVars->tickcount;
+			if (weaponInfo.IsValid()) {
+				if (cmd->buttons & IN_ATTACK
+					&& weapon->m_iItemDefinitionIndex() != WEAPON_C4
+					&& weaponInfo->m_iWeaponType >= WEAPONTYPE_KNIFE
+					&& weaponInfo->m_iWeaponType <= WEAPONTYPE_MACHINEGUN
+					&& pLocal->CanShoot())
+				{
+					nShotCmd = cmd->command_number;
+					g_Vars.globals.m_iShotTick = cmd->tick_count;
+					lockedAngles = cmd->viewangles;
+					LastShotTime = Interfaces::m_pGlobalVars->tickcount;
 
-				if( weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE ) {
-					g_Vars.globals.m_flLastShotTime = Interfaces::m_pGlobalVars->realtime;
-					//if( g_Vars.globals.bInRagebot ) {
-					//	g_Vars.globals.m_flLastShotTimeInRage = g_Vars.globals.m_flLastShotTime;
-					//}
+					if (weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE) {
+						g_Vars.globals.m_flLastShotTime = Interfaces::m_pGlobalVars->realtime;
+						//if( g_Vars.globals.bInRagebot ) {
+						//	g_Vars.globals.m_flLastShotTimeInRage = g_Vars.globals.m_flLastShotTime;
+						//}
+					}
+
+					g_Vars.globals.WasShootingInChokeCycle = !(*bSendPacket);
+					g_Vars.globals.WasShooting = true;
+
+					if (weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE)
+						g_Vars.globals.WasShootingInPeek = true;
+
+					//g_Vars.globals.m_ShotAngle = Interfaces::m_pInput->m_pCommands[ nShotCmd % 150 ].viewangles;
+
 				}
-
-				g_Vars.globals.WasShootingInChokeCycle = !( *bSendPacket );
-				g_Vars.globals.WasShooting = true;
-
-				if( weaponInfo->m_iWeaponType != WEAPONTYPE_KNIFE )
-					g_Vars.globals.WasShootingInPeek = true;
-
-				//g_Vars.globals.m_ShotAngle = Interfaces::m_pInput->m_pCommands[ nShotCmd % 150 ].viewangles;
-
-			}
-			else {
-				g_Vars.globals.WasShooting = false;
+				else {
+					g_Vars.globals.WasShooting = false;
+				}
 			}
 
 			g_Vars.globals.iWeaponIndex = weapon->m_iItemDefinitionIndex( );

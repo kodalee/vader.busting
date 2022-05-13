@@ -23,6 +23,7 @@
 #pragma comment(lib, "shlwapi.lib")
 
 #include "../../Loader/Security/Security.hpp"
+#include "WeatherController.hpp"
 
 
 #define ADD_GAMEEVENT(n)  Interfaces::m_pGameEvent->AddListener(this, XorStr(#n), false)
@@ -309,7 +310,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 					if( g_Vars.esp.event_harm ) {
 						std::stringstream msg;
 
-						msg << XorStr( "harmed " ) << enemy_info.szName << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
+						msg << XorStr( "harmed by " ) << enemy_info.szName << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
 
 						ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "" ) );
 					}
@@ -603,6 +604,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	{
 		g_Vars.globals.Fakewalking = g_Vars.misc.fakeduck_bind.enabled = false;
 		g_TickbaseController.m_bSupressRecharge = false;
+		Engine::WeatherController::Get()->ResetData();
 
 		for( int i = 0; i < Interfaces::g_pDeathNotices->m_vecDeathNotices.Count( ); i++ ) {
 			auto cur = &Interfaces::g_pDeathNotices->m_vecDeathNotices[ i ];

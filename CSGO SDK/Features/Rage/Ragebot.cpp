@@ -479,7 +479,7 @@ namespace Interfaces
 			&& (weaponInfo->m_iWeaponType == WEAPONTYPE_KNIFE || weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE || weaponInfo->m_iWeaponType == WEAPONTYPE_C4))
 			return false;
 
-		if (g_Vars.rage.exploit_lag_peek && g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled) {
+		if (g_Vars.rage.exploit_lag_peek && g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
 
 			int AppliedShift = 13;//13
 			static int DefensiveCounter; //peek check
@@ -488,7 +488,7 @@ namespace Interfaces
 			if (FakeLag::Get()->IsPeeking(cmd) || g_Vars.globals.WasShootingInPeek) {
 				DefensiveCounter++;
 				AppliedShift = min2(DefensiveCounter, 14);//14
-				printf(XorStr("shot\n"));
+				//printf(XorStr("shot\n"));
 			}
 			else
 				DefensiveCounter = 2;
@@ -498,6 +498,9 @@ namespace Interfaces
 
 		bool revolver = weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER;
 
+		if(!g_Vars.globals.bCanWeaponFire && !g_Vars.rage.key_dt.enabled)
+			StripAttack(cmd);
+
 		// we have a normal weapon or a non cocking revolver
 		// choke if its the processing tick.
 		if (g_Vars.globals.bCanWeaponFire && g_Vars.fakelag.fakelag_onshot && !Interfaces::m_pClientState->m_nChokedCommands() && !revolver && !g_Vars.rage.key_dt.enabled) {
@@ -506,15 +509,13 @@ namespace Interfaces
 			return false;
 		}
 
+		//if (!g_Vars.globals.bCanWeaponFire)
+		//	return false;
+
 		//else if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && g_TickbaseController.s_bBuilding && g_TickbaseController.s_nExtraProcessingTicks < g_TickbaseController.s_nSpeed) {
 		//	*sendPacket = false;
 		//	StripAttack(cmd);
 		//}
-
-		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
-			*sendPacket = true;
-			//printf("setting send packet to true\n");
-		}
 
 		if (!SetupRageOptions())
 			return false;
@@ -535,14 +536,6 @@ namespace Interfaces
 		g_Vars.globals.OverridingHitscan = m_rage_data->rbot->override_hitscan && g_Vars.rage.override_key.enabled;
 
 		g_TickbaseController.s_nSpeed = m_rage_data->rbot->doubletap_speed;
-
-		if (m_rage_data->m_pCmd->buttons & (IN_ATTACK) || GetAsyncKeyState(VK_LBUTTON)) {
-			g_TickbaseController.m_bSupressRecharge = true;
-			//printf("supressing\n");
-		}
-		else {
-			g_TickbaseController.m_bSupressRecharge = false;
-		}
 
 		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
 			if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
@@ -1577,8 +1570,12 @@ namespace Interfaces
 
 		g_Vars.globals.RageBotTargetting = false;
 
-		if (!SetupTargets())
+		//g_TickbaseController.m_bSupressRecharge = false;
+
+		if (!SetupTargets()) {
+			g_TickbaseController.m_bSupressRecharge = false;
 			return { false, C_AimPoint() };
+		}
 
 		//g_TickbaseController.m_bSupressRecharge = true;
 
@@ -1803,6 +1800,9 @@ namespace Interfaces
 
 								if (bDidDelayHeadShot)
 									flags.push_back(XorStr("DH"));
+
+								if (g_Vars.rage.prefer_body.enabled)
+									flags.push_back(XorStr("FB"));
 
 								std::string buffer;
 								if (!flags.empty()) {
@@ -2047,14 +2047,10 @@ namespace Interfaces
 		backup.Setup(player);
 
 		auto record = GetBestLagRecord(player, &backup);
-
-		if (!record)
-			return 0;
-
-		//if (!record || !IsRecordValid(player, record)) {
-		//	backup.Apply(player);
-		//	return 0;
-		//}
+		if (!record || !IsRecordValid(player, record)) {
+			backup.Apply(player);
+			//return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
+		}
 
 		backup.Apply(player);
 
@@ -2242,8 +2238,11 @@ namespace Interfaces
 		}
 
 		if (g_Vars.rage.auto_fire) {
-			//if (!g_Vars.globals.Fakewalking)
-				//*m_rage_data->m_pSendPacket = false; // this is not needed.
+			//if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire) {
+			//	*m_rage_data->m_pSendPacket = false;
+			//}
+
+			g_TickbaseController.m_bSupressRecharge = true;
 
 			m_rage_data->m_pCmd->buttons |= IN_ATTACK;
 

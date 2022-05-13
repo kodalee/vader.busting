@@ -13,6 +13,7 @@ namespace Engine
 
 		virtual void ResetWeather( );
 		virtual void UpdateWeather( ); // call on overrideview
+		virtual void ResetData( );
 	};
 
 	WeatherController* WeatherController::Get( ) {
@@ -42,65 +43,66 @@ namespace Engine
 		}
 	}
 
-	void C_WeatherController::UpdateWeather( ) {
-		if( !g_Vars.esp.weather ) {
+	void C_WeatherController::UpdateWeather() {
+		if (!g_Vars.esp.weather) {
 			return;
 		}
 
-		if( g_Vars.globals.bCreatedRain ) {
+		if (g_Vars.globals.bCreatedRain) {
 			return;
 		}
 
-		static ClientClass* pPrecipitation = nullptr;
-		if( !pPrecipitation ) {
-			for( auto pClientClass = Interfaces::m_pClient->GetAllClasses( ); pClientClass && !pPrecipitation; pClientClass = pClientClass->m_pNext ) {
-				if( pClientClass->m_ClassID == ClassId_t::CPrecipitation ) {
-					pPrecipitation = pClientClass;
-				}
-			}
+		ClientClass* Class = Interfaces::m_pClient->GetAllClasses();
+		IClientNetworkable* m_Networkable = nullptr;
+
+		if (!g_Vars.globals.bCreatedRain) {
+			while ((int32_t)(Class->m_ClassID) != ClassId_t::CPrecipitation)
+				Class = Class->m_pNext;
+
+			m_Networkable = ((IClientNetworkable * (*)(int, int))Class->m_pCreateFn)(Interfaces::m_pEntList->GetHighestEntityIndex() + 1, RandomInt(0, 4096));
+			if (!m_Networkable || !((IClientRenderable*)m_Networkable)->GetIClientUnknown())
+				return;
 		}
 
-		if( pPrecipitation && pPrecipitation->m_pCreateFn ) {
-			IClientNetworkable* pRainNetworkable = ((IClientNetworkable * (*)(int, int))pPrecipitation->m_pCreateFn)(MAX_EDICTS - 1, 0);
+		if (m_Networkable) {
 
-			if( !pRainNetworkable ) {
+			IClientUnknown* pRainUnknown = ((IClientRenderable*)m_Networkable)->GetIClientUnknown();
+			if (!pRainUnknown) {
 				return;
 			}
 
-			IClientUnknown* pRainUnknown = ( ( IClientRenderable* )pRainNetworkable )->GetIClientUnknown( );
-			if( !pRainUnknown ) {
+			C_BaseEntity* m_Precipitation = pRainUnknown->GetBaseEntity();
+			if (!m_Precipitation) {
 				return;
 			}
 
-			C_BaseEntity* pRainEnt = pRainUnknown->GetBaseEntity( );
-			if( !pRainEnt ) {
-				return;
-			}
-
-			if( !pRainEnt->GetClientNetworkable( ) ) {
-				return;
-			}
-
-			pRainNetworkable->PreDataUpdate( 0 );
-			pRainNetworkable->OnPreDataChanged( 0 );
+			m_Networkable->PreDataUpdate(NULL);
+			m_Networkable->OnPreDataChanged(NULL);
 
 			// null da callbacks
-			if( g_Vars.r_RainRadius->fnChangeCallback.m_Size != 0 )
+			if (g_Vars.r_RainRadius->fnChangeCallback.m_Size != 0)
 				g_Vars.r_RainRadius->fnChangeCallback.m_Size = 0;
 
 			// limit the render distance of da rain
-			if( g_Vars.r_RainRadius->GetFloat( ) != 1000.f )
-				g_Vars.r_RainRadius->SetValueFloat( 1000.f );
+			if (g_Vars.r_RainRadius->GetFloat() != 1000.f)
+				g_Vars.r_RainRadius->SetValueFloat(1000.f);
 
 			// only PRECIPITATION_TYPE_RAIN and PRECIPITATION_TYPE_SNOW work..?
-			pRainEnt->m_nPrecipType( ) = PrecipitationType_t::PRECIPITATION_TYPE_SNOW;
-			pRainEnt->GetCollideable()->OBBMins( ) = Vector( -16384.0f, -16384.0f, -16384.0f);
-			pRainEnt->GetCollideable()->OBBMaxs() = Vector( 16384.0f, 16384.0f, 16384.0f );
+			m_Precipitation->m_nPrecipType() = PrecipitationType_t::PRECIPITATION_TYPE_SNOW;
+			m_Precipitation->GetCollideable()->OBBMins() = Vector(-32768.0f, -32768.0f, -32768.0f);
+			m_Precipitation->GetCollideable()->OBBMaxs() = Vector(32768.0f, 32768.0f, 32768.0f);
 
-			pRainEnt->GetClientNetworkable( )->OnDataChanged( 0 );
-			pRainEnt->GetClientNetworkable( )->PostDataUpdate( 0 );
+			m_Networkable->OnDataChanged(NULL);
+			m_Networkable->PostDataUpdate(NULL);
 
 			g_Vars.globals.bCreatedRain = true;
 		}
 	}
+
+	void C_WeatherController::ResetData()
+	{
+		Engine::WeatherController::Get()->ResetWeather();
+		g_Vars.globals.bCreatedRain = false;
+	}
+
 }

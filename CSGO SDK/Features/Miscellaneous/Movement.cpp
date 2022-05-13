@@ -494,10 +494,10 @@ namespace Interfaces
 
 
 		// don't lag when shooting, this way events are instant
-		if( !bDontFakelag )
-			if( g_Vars.globals.m_bOldShot ) {
-				*m_movement_data->m_pSendPacket = true;
-			}
+		//if( !bDontFakelag )
+			//if( g_Vars.globals.m_bOldShot ) {
+			//	*m_movement_data->m_pSendPacket = true;
+			//}
 		
 		Interfaces::AntiAimbot::Get( )->Main( m_movement_data->m_pSendPacket, m_movement_data->m_pFinalPacket, m_movement_data->m_pCmd, g_Vars.globals.bInRagebot );
 
@@ -861,6 +861,7 @@ namespace Interfaces
 
 		if (Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed) {
 			*m_movement_data->m_pSendPacket = true;
+			g_Vars.globals.bCanWeaponFire = false;
 			//printf("sent packet\n");
 		}
 
@@ -896,7 +897,7 @@ namespace Interfaces
 
 		// zero forwardmove and sidemove.
 		if (ticks > ((g_Vars.misc.slow_walk_speed - 1) - Interfaces::m_pClientState->m_nChokedCommands()) || !Interfaces::m_pClientState->m_nChokedCommands()) {
-			m_movement_data->m_pCmd->forwardmove = m_movement_data->m_pCmd->sidemove = 0.f;
+			InstantStop();
 			g_Vars.globals.updatingPacket = true;
 		}
 		else
@@ -907,6 +908,8 @@ namespace Interfaces
 		if( !m_movement_data->m_pLocal )
 			return;
 
+		static float progress{ };
+
 		auto local = C_CSPlayer::GetLocalPlayer( );
 		if( !local || local != m_movement_data->m_pLocal )
 			return;
@@ -915,8 +918,8 @@ namespace Interfaces
 		if( !Interfaces::m_pEngine->IsInGame( ) )
 			return;
 
-		// check if we have a local player and he is alive.
-		bool alive = !local->IsDead( );
+		// check if local player is alive.
+		bool alive = local->IsAlive( );
 
 		if (alive) {
 			C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)m_movement_data->m_pLocal->m_hActiveWeapon().Get();
@@ -950,7 +953,6 @@ namespace Interfaces
 				// we need to disable thirdperson to spectate properly.
 				if( Interfaces::m_pInput->CAM_IsThirdPerson( ) ) {
 					Interfaces::m_pInput->CAM_ToFirstPerson( );
-					Interfaces::m_pInput->m_vecCameraOffset.z = 0.f;
 				}
 
 				m_movement_data->m_pLocal->m_iObserverMode( ) = 5;
@@ -958,8 +960,17 @@ namespace Interfaces
 		}
 
 		// camera should be in firstperson.
-		else if( Interfaces::m_pInput->CAM_IsThirdPerson( ) ) {
-			Interfaces::m_pInput->CAM_ToFirstPerson( );
+		else {
+			// animate backwards.
+			progress -= Interfaces::m_pGlobalVars->frametime * 7.f + (progress / 100);
+
+			// clamp.
+			Math::clampSupremacy(progress, 0.f, 1.f);
+			Interfaces::m_pInput->m_vecCameraOffset.z = g_Vars.misc.third_person_dist * progress;
+
+			// set to first person.
+			if (!progress)
+				Interfaces::m_pInput->CAM_ToFirstPerson();
 		}
 
 		// if after all of this we are still in thirdperson.
@@ -972,7 +983,12 @@ namespace Interfaces
 			Vector forward;
 			Math::AngleVectors( offset, forward );
 
-			offset.z = g_Vars.misc.third_person_dist;
+			if(g_Vars.misc.third_person_bind.enabled)
+				progress += Interfaces::m_pGlobalVars->frametime * 7.f + (progress / 100);
+
+			Math::clampSupremacy(progress, 0.f, 1.f);
+
+			offset.z = g_Vars.misc.third_person_dist * progress;
 
 			Vector offsetd = m_movement_data->m_pLocal->m_vecViewOffset( );
 

@@ -200,6 +200,9 @@ void ImGui_ImplDX9_RenderDrawData(ImDrawData* draw_data)
 
 IMGUI_API LRESULT ImGui_ImplDX9_WndProcHandler(HWND, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    if (ImGui::GetCurrentContext() == NULL)
+        return 0;
+
     ImGuiIO& io = ImGui::GetIO();
     switch (msg)
     {

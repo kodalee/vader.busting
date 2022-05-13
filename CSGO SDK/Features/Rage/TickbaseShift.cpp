@@ -52,7 +52,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 
 
 	const bool bStart = s_bBuilding;
-	s_bBuilding = /*m_didFakeFlick || */(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !GetAsyncKeyState(VK_LBUTTON)
+	s_bBuilding = /*m_didFakeFlick || */(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit
 #ifndef STANDALONE_CSGO
 			&& s_nTicksSinceUse >= s_nTicksRequired
 		&& !m_bSupressRecharge) ||

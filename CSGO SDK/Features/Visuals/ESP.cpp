@@ -216,7 +216,7 @@ void CEsp::BloomEffect( ) {
 }
 
 void DrawWatermark() {
-	if (!g_Vars.misc.watermark) {
+	if (!g_Vars.misc.watermark || !g_IMGUIMenu.Loaded) {
 		return;
 	}
 
@@ -227,7 +227,15 @@ void DrawWatermark() {
 
 	// Constants for colors
 	const auto col_background = Color(41, 32, 59, 175); // Watermark background color
-	const auto col_accent = Color(255, 215, 0, 255); // Watermark line accent color
+	FloatColor col_accent; // Watermark line accent color
+
+	if (!g_Vars.misc.custom_menu) {
+		col_accent = FloatColor(255, 0, 0, 255);
+	}
+	else {
+		col_accent = g_Vars.misc.accent_color;
+	}
+
 	const auto col_text = Color(255, 255, 255); // Watermark text color
 
 	static auto framerate = 0.0f;
@@ -238,7 +246,7 @@ void DrawWatermark() {
 	// Cheat variables
 	std::string logo = XorStr("vader.tech");
 #ifdef DEV
-	logo.append(XorStr(" [dev]")); // :)
+	logo.append(XorStr(" [debug]")); // :)
 #endif
 #ifdef BETA
 	logo.append(XorStr(" [beta]")); // :)
@@ -277,7 +285,7 @@ void DrawWatermark() {
 		margin); // Top align
 
 	Render::Engine::RectFilled(bg_pos.x, bg_pos.y, bg_size.x, bg_size.y, col_background); // Background
-	Render::Engine::Rect(bg_pos.x, bg_pos.y, bg_size.x, 2, col_accent); // Accent line
+	Render::Engine::Rect(bg_pos.x, bg_pos.y, bg_size.x, 2, col_accent.ToRegularColor()); // Accent line
 	Render::Engine::tahoma_sexy.string(text_pos.x, text_pos.y, col_text, text); // Text
 }
 
@@ -385,14 +393,18 @@ bool CEsp::ValidPlayer( C_CSPlayer* player ) {
 		return false;
 	}
 
+	constexpr int EXPIRE_DURATION = 450; // miliseconds-ish?
+	auto& sound_player = IExtendedEsp::Get()->m_cSoundPlayers[player->EntIndex()];
+	bool sound_expired = GetTickCount() - sound_player.m_iReceiveTime > EXPIRE_DURATION;
+
 	static auto g_GameRules = *( uintptr_t** )( Engine::Displacement.Data.m_GameRules );
 	if( *( bool* )( *( uintptr_t* )g_GameRules + 0x20 ) ) {
-		if( player->IsDormant( ) ) {
+		if( player->IsDormant( ) && sound_expired ) {
 			m_flAlpha[ idx ] = 0.f;
 		}
 		return false;
 	}
-	if( player->IsDormant( ) ) {
+	if( player->IsDormant( ) && sound_expired ) {
 		if( m_flAlpha[ idx ] < 0.6f ) {
 			m_flAlpha[ idx ] -= ( 1.0f / 1.0f ) * Interfaces::m_pGlobalVars->frametime;
 			m_flAlpha[ idx ] = std::clamp( m_flAlpha[ idx ], 0.f, 0.6f );
@@ -1268,8 +1280,8 @@ void CEsp::Main( ) {
 	DrawWatermark( );
 	//spotify( ); - there might be fps drops / fps issues caused by this.
 
-	if( g_Vars.esp.keybind_window_enabled )
-		Keybinds( );
+	//if( g_Vars.esp.keybind_window_enabled )
+	//	Keybinds( );
 
 	//if( g_Vars.esp.spec_window_enabled )
 	//	SpectatorList( true );
@@ -1910,7 +1922,13 @@ void CEsp::AmmoBar( C_CSPlayer* player, BBox_t bbox ) {
 			// draw.
 			Render::Engine::RectFilled( bbox.x, bbox.y + bbox.h + 2, bbox.w, 4, Color( 0, 0, 0, 180 * this->m_flAlpha[ player->EntIndex( ) ] ) );
 
-			Color clr = g_Vars.esp.ammo_color.ToRegularColor( );
+			Color clr;
+			if (!player->IsDormant()) {
+				clr = g_Vars.esp.ammo_color.ToRegularColor();
+			}
+			else
+				clr = Color(112, 112, 112, 180);
+
 			clr.RGBA[ 3 ] *= this->m_flAlpha[ player->EntIndex( ) ];
 
 			Render::Engine::Rect( bbox.x + 1, bbox.y + bbox.h + 3, bar, 2, clr );
@@ -1970,11 +1988,7 @@ void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {
 			item_definition = WEAPON_FLASHBANG;
 		}
 		else {
-			if (!g_Vars.esp.Grenadewarning) {
-				Name = XorStr("l");
-			}
-			else
-				Name = XorStr(" ");
+			Name = XorStr("l");
 			item_definition = WEAPON_HEGRENADE;
 		}
 		break;
@@ -1995,11 +2009,7 @@ void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {
 		}
 		break;
 	case ClassId_t::CMolotovProjectile:
-		if (!g_Vars.esp.Grenadewarning) {
-			Name = XorStr("n");
-		}
-		else
-			Name = XorStr(" ");
+		Name = XorStr("n");
 		// bich
 		if (nade && (nade->m_hOwnerEntity().Get()) && ((C_CSPlayer*)(nade->m_hOwnerEntity().Get()))) {
 			item_definition = ((C_CSPlayer*)(nade->m_hOwnerEntity().Get()))->m_iTeamNum() == TEAM_CT ? WEAPON_FIREBOMB : WEAPON_MOLOTOV;
@@ -2037,7 +2047,14 @@ void CEsp::DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player ) {
 	if( !player )
 		return;
 
-	auto color = clr;
+	FloatColor color;
+
+	if (!player->IsDormant()) {
+		color = clr;
+	}
+	else
+		color = FloatColor(112, 112, 112, 180);
+
 	color.a *= ( m_flAlpha[ player->EntIndex( ) ] );
 
 	FloatColor outline = FloatColor( 0.0f, 0.0f, 0.0f, color.a * 0.68f );
@@ -2066,8 +2083,13 @@ void CEsp::DrawHealthBar( C_CSPlayer* player, BBox_t bbox ) {
 	Render::Engine::RectFilled( bbox.x - 6, y - 1, 4, h + 2, Color( 10, 10, 10, 180 * GetAlpha( player->EntIndex( ) ) ) );
 
 	// render actual bar.
-	Render::Engine::Rect( bbox.x - 5, y + h - fill, 2, fill, g_Vars.esp.health_override ? g_Vars.esp.health_color.ToRegularColor( ).OverrideAlpha( 210 * GetAlpha( player->EntIndex( ) ), true )
-		: Color( r, g, 0, 210 * GetAlpha( player->EntIndex( ) ) ) );
+	if (!player->IsDormant()) {
+		Render::Engine::Rect(bbox.x - 5, y + h - fill, 2, fill, g_Vars.esp.health_override ? g_Vars.esp.health_color.ToRegularColor().OverrideAlpha(210 * GetAlpha(player->EntIndex()), true)
+			: Color(r, g, 0, 210 * GetAlpha(player->EntIndex())));
+	}
+	else {
+		Render::Engine::Rect(bbox.x - 5, y + h - fill, 2, fill, Color(112, 112, 112, 210 * GetAlpha(player->EntIndex())));
+	}
 
 	// if hp is below max, draw a string.
 	if( hp < 100 )
@@ -2088,36 +2110,85 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		if( !anim_data->m_AnimationRecord.empty( ) ) {
 			auto current = &anim_data->m_AnimationRecord.front( );
 			if( current ) {
-				if( current->m_bResolved )
-					g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 0, 255, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "RESOLVED" ) );
-				else
-					g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 0, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "" ) );
+				if (!player->IsDormant()) {
+					if (current->m_bResolved)
+						g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(0, 255, 0, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("R"));
+					else
+						g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("R"));
+				}
+				else {
+					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("R"));
+				}
 
 				//g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), std::to_string( current->m_iResolverMode ) );
 			}
 		}
 	}
 
-	if( player->m_bIsScoped( ) && g_Vars.esp.draw_scoped )
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 0, 150, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "SCOPED" ) );
+	if (g_Vars.esp.draw_ping) {
+		if (!player->IsDormant()) {
+			if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) <= 99) {
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) + XorStr("MS"));
+			}
+			else if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) <= 199) {
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 128, 0, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) + XorStr("MS"));
+			}
+			else if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) <= 999) {
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) + XorStr("MS"));
+			}
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(player->EntIndex())) + XorStr("MS"));
+	}
 
-	if( g_Vars.esp.draw_money )
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 133, 198, 22, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "$" ) + std::to_string( player->m_iAccount( ) ) );
+
+	if (player->m_bIsScoped() && g_Vars.esp.draw_scoped) {
+		if (!player->IsDormant()) {
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(0, 150, 255, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("SCOPED"));
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("SCOPED"));
+	}
+
+	if (g_Vars.esp.draw_money) {
+		if (!player->IsDormant()) {
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(133, 198, 22, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("$") + std::to_string(player->m_iAccount()));
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("$") + std::to_string(player->m_iAccount()));
+	}
 
 	if( g_Vars.esp.draw_armor && player->m_ArmorValue( ) > 0 ) {
 		std::string name = player->m_bHasHelmet( ) ? XorStr( "HK" ) : XorStr( "K" );
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), name.c_str( ) );
+		if (!player->IsDormant()) {
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), name.c_str());
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), name.c_str());
 	}
 
 	if( g_Vars.esp.draw_defusing && player->m_bHasDefuser( ) ) {
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 105, 218, 204, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "KIT" ) );
+		if (!player->IsDormant()) {
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(105, 218, 204, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("KIT"));
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("KIT"));
 	}
 
-	if( g_Vars.esp.draw_flashed && player->m_flFlashDuration( ) > 1.f )
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 216, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "FLASH" ) );
+	if (g_Vars.esp.draw_flashed && player->m_flFlashDuration() > 1.f) {
+		if (!player->IsDormant()) {
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 216, 0, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("FLASH"));
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("FLASH"));
+	}
 
 	if( g_Vars.esp.draw_defusing && player->m_bIsDefusing( ) ) {
-		g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 235, 82, 82, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "DEFUSER" ) );
+		if (!player->IsDormant()) {
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(235, 82, 82, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("DEFUSER"));
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("DEFUSER"));
 	}
 
 	if (g_Vars.misc.ingame_radar) {
@@ -2176,7 +2247,11 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 			auto feet = meters * 3.281f;
 
 			std::string str = std::to_string( round_to_multiple( feet, 5 ) ) + XorStr( " FT" );
-			g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), str.c_str( ) );
+			if (!player->IsDormant()) {
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), str.c_str());
+			}
+			else
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), str.c_str());
 		}
 	}
 
@@ -2192,8 +2267,13 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 
 		auto definition_index = weapon->m_Item( ).m_iItemDefinitionIndex( );
 
-		if( definition_index == WEAPON_C4 && g_Vars.esp.draw_bombc4 )
-			g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 255, 255, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "C4" ) );
+		if (definition_index == WEAPON_C4 && g_Vars.esp.draw_bombc4) {
+			if (!player->IsDormant()) {
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("C4"));
+			}
+			else
+				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("C4"));
+		}
 	}
 
 	auto pWeapon = ( C_WeaponCSBaseGun* )player->m_hActiveWeapon( ).Get( );
@@ -2201,7 +2281,11 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		auto pWeaponData = pWeapon->GetCSWeaponData( );
 		if( pWeaponData.IsValid( ) ) {
 			if( pWeaponData->m_iWeaponType == WEAPONTYPE_GRENADE && pWeapon->m_bPinPulled( ) ) {
-				g_Vars.globals.m_vecTextInfo[ player->EntIndex( ) ].emplace_back( FloatColor( 255, 0, 0, ( int )( 180 * m_flAlpha[ player->EntIndex( ) ] ) ), XorStr( "PIN" ) );
+				if (!player->IsDormant()) {
+					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("PIN"));
+				}
+				else
+					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("PIN"));
 			}
 		}
 	}
@@ -2287,10 +2371,22 @@ void CEsp::DrawBottomInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player
 	std::vector<std::pair<Color, std::pair<std::string, Render::Engine::Font>>> m_vecTextInfo;
 
 	auto pWeapon = ( C_WeaponCSBaseGun* )( player->m_hActiveWeapon( ).Get( ) );
-	auto color = g_Vars.esp.weapon_color.ToRegularColor( ).OverrideAlpha( 180, true );
+	Color color;
+	if (!player->IsDormant()) {
+		color = g_Vars.esp.weapon_color.ToRegularColor().OverrideAlpha(180, true);
+	}
+	else
+		color = Color(112, 112, 112, 180);
+
 	color.RGBA[ 3 ] *= m_flAlpha[ player->EntIndex( ) ];
 
-	auto color_icon = g_Vars.esp.weapon_icon_color.ToRegularColor( ).OverrideAlpha( 180, true );
+	Color color_icon;
+	if (!player->IsDormant()) {
+		color_icon = g_Vars.esp.weapon_icon_color.ToRegularColor().OverrideAlpha(180, true);
+	}
+	else
+		color_icon = Color(112, 112, 112, 180);
+
 	color_icon.RGBA[ 3 ] *= m_flAlpha[ player->EntIndex( ) ];
 
 	if( !pWeapon )
@@ -2341,8 +2437,14 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	//	name.append( XorStr( " (" ) ).append( std::to_string( player->m_entIndex ) ).append( XorStr( ")" ) );
 	//#endif
 
-	Color clr = g_Vars.esp.name_color.ToRegularColor( ).OverrideAlpha( 180, true );
-	clr.RGBA[ 3 ] *= m_flAlpha[ player->EntIndex( ) ];
+	Color clr;
+	if (!player->IsDormant()) {
+		clr = g_Vars.esp.name_color.ToRegularColor().OverrideAlpha(180, true);
+	}
+	else
+		clr = Color(112, 112, 112, 180);
+
+	clr.RGBA[3] *= m_flAlpha[player->EntIndex()];
 
 	Render::Engine::tahoma_sexy.string( bbox.x + bbox.w / 2, bbox.y - Render::Engine::tahoma_sexy.m_size.m_height - 1, clr, name, Render::Engine::ALIGN_CENTER );
 
@@ -2571,12 +2673,12 @@ void CEsp::Offscreen( ) {
 	auto m_width = Render::GetScreenSize( ).x, m_height = Render::GetScreenSize( ).y;
 	for( auto i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++ ) {
 		auto entity = C_CSPlayer::GetPlayerByIndex( i );
-		if( !entity || !entity->IsPlayer( ) || entity == LocalPlayer || entity->IsDormant( ) || entity->IsDead( )
+		if( !entity || !entity->IsPlayer( ) || entity == LocalPlayer || entity->IsDead( )
 			|| ( g_Vars.esp.team_check && entity->m_iTeamNum( ) == LocalPlayer->m_iTeamNum( ) ) )
 			continue;
 
 		// get the player's center screen position.
-		auto target_pos = entity->GetAbsOrigin( );
+		auto target_pos = entity->WorldSpaceCenter( );
 		Vector2D screen_pos;
 		auto is_on_screen = WorldToScreen( target_pos, screen_pos );
 
@@ -2591,7 +2693,7 @@ void CEsp::Offscreen( ) {
 			|| screen_pos.y >( m_height + leeway_y ) ) {
 
 			const auto screen_center = Vector2D( width * .5f, height * .5f );
-			const auto angle_yaw_rad = DEG2RAD( viewangles.y - Math::CalcAngle( LocalPlayer->GetEyePosition( ), entity->GetAbsOrigin( ), true ).y - 90 );
+			const auto angle_yaw_rad = DEG2RAD( viewangles.y - Math::CalcAngle( LocalPlayer->GetEyePosition( ), entity->WorldSpaceCenter( ), true ).y - 90 );
 
 			float radius = std::max( 10.f, g_Vars.esp.offscren_distance );
 			float size = std::max( 5.f, g_Vars.esp.offscren_size );
@@ -2603,23 +2705,30 @@ void CEsp::Offscreen( ) {
 				Vector2D( new_point_x + size, new_point_y ),
 				Vector2D( new_point_x - size, new_point_y + size ) };
 
-			rotate_arrow( points, viewangles.y - Math::CalcAngle( LocalPlayer->GetEyePosition( ), entity->GetAbsOrigin( ), true ).y - 90 );
+			rotate_arrow( points, viewangles.y - Math::CalcAngle( LocalPlayer->GetEyePosition( ), entity->WorldSpaceCenter( ), true ).y - 90 );
 
 			std::array< Vertex_t, 3 >vertices{ Vertex_t( points.at( 0 ) ), Vertex_t( points.at( 1 ) ), Vertex_t( points.at( 2 ) ) };
 			static int texture_id = Interfaces::m_pSurface.Xor( )->CreateNewTextureID( true );
 			static unsigned char buf[ 4 ] = { 255, 255, 255, 255 };
 
-			Color clr = g_Vars.esp.offscreen_color.ToRegularColor( );
+			Color clr;
+
+			if (!entity->IsDormant()) {
+				clr = g_Vars.esp.offscreen_color.ToRegularColor();
+			}
+			else {
+				clr = Color(255, 255, 255, 44);
+			}
 
 			// fill
-			Interfaces::m_pSurface.Xor( )->DrawSetColor( clr.r( ), clr.g( ), clr.b( ), ( clr.a( ) * 0.4f ) * GetAlpha( i ) );
+			Interfaces::m_pSurface.Xor( )->DrawSetColor( clr.r( ), clr.g( ), clr.b( ), ( clr.a( ) ) * GetAlpha( i ) );
 			Interfaces::m_pSurface.Xor( )->DrawSetTexture( texture_id );
 			Interfaces::m_pSurface.Xor( )->DrawTexturedPolygon( 3, vertices.data( ) );
 
 			// outline
-			Interfaces::m_pSurface.Xor( )->DrawSetColor( clr.r( ), clr.g( ), clr.b( ), ( clr.a( ) ) * GetAlpha( i ) );
-			Interfaces::m_pSurface.Xor( )->DrawSetTexture( texture_id );
-			Interfaces::m_pSurface.Xor( )->DrawTexturedPolyLine( vertices.data( ), 3 );
+			//Interfaces::m_pSurface.Xor( )->DrawSetColor( clr.r( ), clr.g( ), clr.b( ), ( clr.a( ) ) * GetAlpha( i ) );
+			//Interfaces::m_pSurface.Xor( )->DrawSetTexture( texture_id );
+			//Interfaces::m_pSurface.Xor( )->DrawTexturedPolyLine( vertices.data( ), 3 );
 		}
 	}
 }

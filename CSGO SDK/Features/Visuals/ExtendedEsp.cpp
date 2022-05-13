@@ -17,25 +17,6 @@ private:
 
    bool ValidSound( SndInfo_t& sound );
 
-   struct SoundPlayer {
-	  void Override( SndInfo_t& sound ) {
-		 m_iIndex = sound.m_nSoundSource;
-		 //m_vecOrigin = *sound.m_pOrigin;
-		 m_iReceiveTime = GetTickCount( );
-	  }
-
-	  int m_iIndex = 0;
-	  int m_iReceiveTime = 0;
-	  Vector m_vecOrigin = Vector( 0, 0, 0 );
-	  Vector m_vecLastOrigin = Vector( 0, 0, 0 );
-
-	  /* Restore data */
-	  int m_nFlags = 0;
-	  int playerindex = 0;
-	  Vector m_vecAbsOrigin = Vector( 0, 0, 0 );
-	  bool m_bDormant = false;
-   } m_cSoundPlayers[ 65 ];
-
    CUtlVector<SndInfo_t> m_utlvecSoundBuffer;
    std::vector<SoundPlayer> m_arRestorePlayers;
 };

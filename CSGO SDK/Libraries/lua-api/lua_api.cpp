@@ -53,10 +53,18 @@ namespace lua_events {
 
 namespace lua_ui {
 	float keybinds_pos_x() {
-		return g_Vars.esp.spec_window_x;
+		return g_Vars.esp.keybind_window_x;
 	}
 
 	float keybinds_pos_y() {
+		return g_Vars.esp.keybind_window_y;
+	}
+
+	float speclist_pos_x() {
+		return g_Vars.esp.spec_window_x;
+	}
+
+	float speclist_pos_y() {
 		return g_Vars.esp.spec_window_y;
 	}
 
@@ -132,7 +140,11 @@ namespace lua_config {
 	}
 
 	bool pingspike_enabled() {
-		return g_Vars.misc.extended_backtrack_key.enabled;
+		if (g_Vars.misc.extended_backtrack) {
+			return g_Vars.misc.extended_backtrack_key.enabled;
+		}
+		else
+			return false;
 	}
 
 	float pingspike_value() {
@@ -151,16 +163,21 @@ namespace lua_config {
 		return g_Vars.rage.key_dt.enabled;
 	}
 
-	bool antiaim_manual_left_enabled() {
-		return g_Vars.antiaim.manual_left_bind.enabled;
-	}
+	int antiaim_manual_enabled() {
+		if (!g_Vars.antiaim.manual)
+			return -1;
 
-	bool antiaim_manual_right_enabled() {
-		return g_Vars.antiaim.manual_right_bind.enabled;
-	}
-
-	bool antiaim_manual_back_enabled() {
-		return g_Vars.antiaim.manual_back_bind.enabled;
+		switch (g_Vars.globals.manual_aa) {
+		case 0:
+			return 0;
+			break;
+		case 1:
+			return 1;
+			break;
+		case 2:
+			return 2;
+			break;
+		}
 	}
 
 	int antiaim_base_yaw() {
@@ -297,7 +314,7 @@ namespace lua_engine {
 		return Interfaces::m_pEngine->GetPlayerForUserID(userid);
 	}
 
-	int get_local_player() {
+	int get_local_player_index() {
 		return Interfaces::m_pEngine->GetLocalPlayer();
 	}
 
@@ -323,7 +340,6 @@ namespace lua_engine {
 		return Interfaces::m_pEngine->IsConnected();
 	}
 
-
 	INetChannel* get_net_channel_info() {
 		return (INetChannel* )Interfaces::m_pEngine->GetNetChannelInfo();
 	}
@@ -340,14 +356,18 @@ namespace lua_entitylist {
 	int get_highest_entity_index() {
 		return Interfaces::m_pEntList->GetHighestEntityIndex();
 	}
+
+	C_CSPlayer* get_local_player() {
+		return C_CSPlayer::GetLocalPlayer();
+	}
 }
 
 namespace lua_utils {
 	sol::table get_player_data(player_info_t& p) {
 		sol::table t = g_lua.lua.create_table();
-		t["name"] = std::string(p.szName);
-		t["steamid"] = std::string(p.szSteamID);
-		t["userid"] = p.userId;
+		t[XorStr("name")] = std::string(p.szName);
+		t[XorStr("steamid")] = std::string(p.szSteamID);
+		t[XorStr("userid")] = p.userId;
 		return t;
 	}
 
@@ -606,6 +626,11 @@ namespace lua_render {
 		Render::Engine::CircleFilled((int)x, (int)y, (int)radius, (int)segments, color);
 	}
 
+	void draw_gradient(int x, int y, int w, int h, Color color, Color color2, bool horizontal)
+	{
+		Render::Engine::Gradient((int)x, (int)y, (int)w, (int)h, color, color2, horizontal);
+	}
+
 	Vector world_to_screen(Vector pos) {
 		Vector2D scr;
 		Render::Engine::WorldToScreen(pos, scr);
@@ -627,17 +652,14 @@ namespace lua_clientstate
 c_lua g_lua;
 bool c_lua::initialize() {
 	this->lua = sol::state(sol::c_call<decltype(&lua_panic), &lua_panic>);
-	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package, sol::lib::coroutine, sol::lib::io, sol::lib::utf8);
+	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package, sol::lib::os, sol::lib::io, sol::lib::bit32, sol::lib::ffi, sol::lib::jit);
 
 	this->lua["collectgarbage"] = sol::nil;
 	this->lua["dofile"] = sol::nil;
 	this->lua["load"] = sol::nil;
 	this->lua["loadfile"] = sol::nil;
-	this->lua["pcall"] = sol::nil;
 	this->lua["print"] = sol::nil;
 	this->lua["xpcall"] = sol::nil;
-	this->lua["getmetatable"] = sol::nil;
-	this->lua["setmetatable"] = sol::nil;
 	this->lua["__nil_callback"] = []() {};
 
 	this->lua["print"] = [](std::string s) { engine_console(s); };
@@ -759,6 +781,7 @@ bool c_lua::initialize() {
 	this->lua.new_usertype<C_CSPlayer>(XorStr("c_baseentity"),
 		XorStr("is_player"), &C_CSPlayer::IsPlayer,
 		XorStr("is_alive"), &C_CSPlayer::IsAlive,
+		XorStr("is_dead"), &C_CSPlayer::IsDead,
 		XorStr("is_dormant"), &C_CSPlayer::IsDormant,
 		XorStr("get_abs_origin"), &C_CSPlayer::GetAbsOrigin,
 		XorStr("get_eye_position"), &C_CSPlayer::GetEyePosition,
@@ -766,7 +789,9 @@ bool c_lua::initialize() {
 		XorStr("get_hitbox_position"), &C_CSPlayer::GetHitboxPosition,
 		XorStr("get_index"), &C_CSPlayer::EntIndex,
 		XorStr("get_team"), &C_CSPlayer::m_iTeamNum,
-		XorStr("set_clientside_angle"), &C_CSPlayer::ForceAngleTo
+		XorStr("set_clientside_angle"), &C_CSPlayer::ForceAngleTo,
+		XorStr("get_velocity"), &C_CSPlayer::m_vecVelocity,
+		XorStr("get_fflags"), &C_CSPlayer::m_fFlags
 		);
 
 	auto events = this->lua.create_table();
@@ -782,9 +807,7 @@ bool c_lua::initialize() {
 	config[XorStr("move_exploit_enabled")] = lua_config::move_exploit_enabled;
 	config[XorStr("fakeduck_enabled")] = lua_config::fakeduck_enabled;
 	config[XorStr("doubletap_enabled")] = lua_config::doubletap_enabled;
-	config[XorStr("antiaim_manual_left_enabled")] = lua_config::antiaim_manual_left_enabled;
-	config[XorStr("antiaim_manual_right_enabled")] = lua_config::antiaim_manual_right_enabled;
-	config[XorStr("antiaim_manual_back_enabled")] = lua_config::antiaim_manual_back_enabled;
+	config[XorStr("antiaim_manual_enabled")] = lua_config::antiaim_manual_enabled;
 	config[XorStr("antiaim_base_yaw")] = lua_config::antiaim_base_yaw;
 	config[XorStr("antiaim_base_yaw_set")] = lua_config::antiaim_base_yaw_set;
 	config[XorStr("antiaim_jitter_value")] = lua_config::antiaim_jitter_value;
@@ -828,7 +851,7 @@ bool c_lua::initialize() {
 	auto engine = this->lua.create_table();
 	engine[XorStr("execute_client_cmd")] = lua_engine::execute_client_cmd;
 	engine[XorStr("get_player_for_user_id")] = lua_engine::get_player_for_user_id;
-	engine[XorStr("get_local_player_index")] = lua_engine::get_local_player;
+	engine[XorStr("get_local_player_index")] = lua_engine::get_local_player_index;
 	engine[XorStr("get_max_clients")] = lua_engine::get_max_clients;
 	engine[XorStr("get_net_channel_info")] = lua_engine::get_net_channel_info;
 	engine[XorStr("get_screen_width")] = lua_engine::get_screen_width;
@@ -841,17 +864,18 @@ bool c_lua::initialize() {
 	auto entity_list = this->lua.create_table();
 	entity_list[XorStr("get_client_entity")] = lua_entitylist::get_client_entity;
 	entity_list[XorStr("get_highest_entity_index")] = lua_entitylist::get_highest_entity_index;
+	entity_list[XorStr("get_local_player")] = lua_entitylist::get_local_player;
 
 	auto utils = this->lua.create_table();
 	utils[XorStr("get_player_data")] = lua_utils::get_player_data;
 	utils[XorStr("clamp")] = lua_utils::clamp;
 	utils[XorStr("find_signature")] = lua_utils::find_signature;
 	utils[XorStr("apply_clan_tag")] = lua_utils::apply_clan_tag;
-	utils[XorStr("color")] = lua_utils::create_color;
-	utils[XorStr("floatcolor")] = lua_utils::create_floatcolor;
+	//utils[XorStr("color")] = lua_utils::create_color; // not needed.......
+	//utils[XorStr("floatcolor")] = lua_utils::create_floatcolor; // not needed.......
 	utils[XorStr("color_rainbow")] = lua_utils::create_color_rainbow;
 	utils[XorStr("lowerbody_yaw")] = lua_utils::lowerbody_yaw;
-	utils[XorStr("local_alive")] = lua_utils::local_alive;
+	//utils[XorStr("local_alive")] = lua_utils::local_alive;
 
 	auto globals = this->lua.create_table();
 	globals[XorStr("realtime")] = lua_globals::realtime;
@@ -882,11 +906,14 @@ bool c_lua::initialize() {
 	render[XorStr("draw_rect_filled")] = lua_render::draw_rect_filled;
 	render[XorStr("draw_circle")] = lua_render::draw_circle;
 	render[XorStr("draw_rect_outlined")] = lua_render::draw_rect_outlined;
+	render[XorStr("draw_gradient")] = lua_render::draw_gradient;
 	render[XorStr("world_to_screen")] = lua_render::world_to_screen;
 
 	auto ui = this->lua.create_table();
 	ui[XorStr("keybinds_pos_x")] = lua_ui::keybinds_pos_x;
 	ui[XorStr("keybinds_pos_y")] = lua_ui::keybinds_pos_y;
+	ui[XorStr("speclist_pos_x")] = lua_ui::speclist_pos_x;
+	ui[XorStr("speclist_pos_y")] = lua_ui::speclist_pos_y;
 
 	auto clientstate = this->lua.create_table();
 	clientstate[XorStr("chokedcommands")] = lua_clientstate::chokedcommands;

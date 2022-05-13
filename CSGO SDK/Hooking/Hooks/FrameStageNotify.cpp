@@ -295,22 +295,6 @@ namespace Hooked
 		}
 
 		if( stage == FRAME_RENDER_START ) {
-			if( g_Vars.globals.HackIsReady ) {
-				static bool bShouldCall = false;
-				if( bShouldCall && !g_Vars.esp.weather ) {
-					Engine::WeatherController::Get( )->ResetWeather( );
-					bShouldCall = false;
-				}
-
-				if( !bShouldCall && g_Vars.esp.weather ) {
-					g_Vars.globals.bCreatedRain = false;
-					bShouldCall = true;
-				}
-
-				if( bShouldCall ) {
-					Engine::WeatherController::Get( )->UpdateWeather( );
-				}
-			}
 
 			if( g_Vars.esp.remove_smoke ) {
 				static auto smoke_count = *reinterpret_cast< uintptr_t* >( Engine::Displacement.DT_SmokeGrenadeProjectile.m_nSmokeCount );
@@ -528,6 +512,23 @@ namespace Hooked
 				Engine::LagCompensation::Get( )->Update( );
 
 				g_netdata.apply();
+
+
+				static bool bShouldCall = false;
+				if (bShouldCall && !g_Vars.esp.weather) {
+					Engine::WeatherController::Get()->ResetWeather();
+					bShouldCall = false;
+				}
+
+				if (!bShouldCall && g_Vars.esp.weather) {
+					g_Vars.globals.bCreatedRain = false;
+					bShouldCall = true;
+				}
+
+				if (bShouldCall) {
+					Engine::WeatherController::Get()->UpdateWeather();
+				}
+				
 
 				// fix issues when players we are spectating scope in
 				if( local && local->m_iObserverMode( ) == 5 ) { 

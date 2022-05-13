@@ -7,5 +7,6 @@ namespace Engine {
 		static WeatherController* Get( );
 		virtual void ResetWeather( ) = 0;
 		virtual void UpdateWeather( ) = 0;
+		virtual void ResetData( ) = 0;
 	};
 }

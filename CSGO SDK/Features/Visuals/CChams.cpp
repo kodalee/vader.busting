@@ -1536,6 +1536,7 @@ namespace Interfaces
 				if (g_Vars.fakelag.vis_lag) {
 					OverrideMaterial(false, MATERIAL_FLAT, g_Vars.fakelag.vis_lag_color, 0.f, false);
 					Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, g_Vars.globals.LagPosition);
+					InvalidateMaterial( );
 				}
 
 				if (g_Vars.esp.chams_local) {

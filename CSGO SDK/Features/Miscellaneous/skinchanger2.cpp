@@ -75,18 +75,18 @@ struct weapon_info {
 
 const weapon_info* GetWeaponInfo(int defindex) {
 	const static std::map<int, weapon_info> Info = {
-		{ WEAPON_KNIFE_CT,{ "models/weapons/v_knife_default_ct.mdl", "knife_default_ct", 2 } },
-		{ WEAPON_KNIFE_T,{ "models/weapons/v_knife_default_t.mdl", "knife_t", 12 } },
-		{ WEAPON_KNIFE_BAYONET,{ "models/weapons/v_knife_bayonet.mdl", "bayonet", 0 } },
-		{ WEAPON_KNIFE_FLIP,{ "models/weapons/v_knife_flip.mdl", "knife_flip", 4 } },
-		{ WEAPON_KNIFE_GUT,{ "models/weapons/v_knife_gut.mdl", "knife_gut", 5 } },
-		{ WEAPON_KNIFE_KARAMBIT,{ "models/weapons/v_knife_karam.mdl", "knife_karambit", 7 } },
-		{ WEAPON_KNIFE_M9_BAYONET,{ "models/weapons/v_knife_m9_bay.mdl", "knife_m9_bayonet", 8 } },
-		{ WEAPON_KNIFE_HUNTSMAN,{ "models/weapons/v_knife_tactical.mdl", "knife_tactical" } },
-		{ WEAPON_KNIFE_FALCHION,{ "models/weapons/v_knife_falchion_advanced.mdl", "knife_falchion", 3 } },
-		{ WEAPON_KNIFE_BOWIE,{ "models/weapons/v_knife_survival_bowie.mdl", "knife_survival_bowie", 11 } },
-		{ WEAPON_KNIFE_BUTTERFLY,{ "models/weapons/v_knife_butterfly.mdl", "knife_butterfly", 1 } },
-		{ WEAPON_KNIFE_SHADOW_DAGGERS,{ "models/weapons/v_knife_push.mdl", "knife_push", 9 } },
+		{ WEAPON_KNIFE_CT,{ XorStr("models/weapons/v_knife_default_ct.mdl"), XorStr("knife_default_ct"), 2 } },
+		{ WEAPON_KNIFE_T,{ XorStr("models/weapons/v_knife_default_t.mdl"), XorStr("knife_t"), 12 } },
+		{ WEAPON_KNIFE_BAYONET,{ XorStr("models/weapons/v_knife_bayonet.mdl"), XorStr("bayonet"), 0 } },
+		{ WEAPON_KNIFE_FLIP,{ XorStr("models/weapons/v_knife_flip.mdl"), XorStr("knife_flip"), 4 } },
+		{ WEAPON_KNIFE_GUT,{ XorStr("models/weapons/v_knife_gut.mdl"), XorStr("knife_gut"), 5 } },
+		{ WEAPON_KNIFE_KARAMBIT,{ XorStr("models/weapons/v_knife_karam.mdl"), XorStr("knife_karambit"), 7 } },
+		{ WEAPON_KNIFE_M9_BAYONET,{ XorStr("models/weapons/v_knife_m9_bay.mdl"), XorStr("knife_m9_bayonet"), 8 } },
+		{ WEAPON_KNIFE_HUNTSMAN,{ XorStr("models/weapons/v_knife_tactical.mdl"), XorStr("knife_tactical") } },
+		{ WEAPON_KNIFE_FALCHION,{ XorStr("models/weapons/v_knife_falchion_advanced.mdl"), XorStr("knife_falchion"), 3 } },
+		{ WEAPON_KNIFE_BOWIE,{ XorStr("models/weapons/v_knife_survival_bowie.mdl"), XorStr("knife_survival_bowie"), 11 } },
+		{ WEAPON_KNIFE_BUTTERFLY,{ XorStr("models/weapons/v_knife_butterfly.mdl"), XorStr("knife_butterfly"), 1 } },
+		{ WEAPON_KNIFE_SHADOW_DAGGERS,{ XorStr("models/weapons/v_knife_push.mdl"), XorStr("knife_push"), 9 } },
 
 	};
 	const auto entry = Info.find(defindex);
@@ -141,16 +141,16 @@ bool apply_skin(C_CSPlayer* local, C_BaseAttributableItem* skin, const char* mod
 
 void skins_speedy::Skinchanger()
 {
-	auto model_bayonet = "models/weapons/v_knife_bayonet.mdl";
-	auto model_m9 = "models/weapons/v_knife_m9_bay.mdl";
-	auto model_karambit = "models/weapons/v_knife_karam.mdl";
-	auto model_bowie = "models/weapons/v_knife_survival_bowie.mdl";
-	auto model_butterfly = "models/weapons/v_knife_butterfly.mdl";
-	auto model_falchion = "models/weapons/v_knife_falchion_advanced.mdl";
-	auto model_flip = "models/weapons/v_knife_flip.mdl";
-	auto model_gut = "models/weapons/v_knife_gut.mdl";
-	auto model_huntsman = "models/weapons/v_knife_tactical.mdl";
-	auto model_daggers = "models/weapons/v_knife_push.mdl";
+	auto model_bayonet = XorStr("models/weapons/v_knife_bayonet.mdl");
+	auto model_m9 = XorStr("models/weapons/v_knife_m9_bay.mdl");
+	auto model_karambit = XorStr("models/weapons/v_knife_karam.mdl");
+	auto model_bowie = XorStr("models/weapons/v_knife_survival_bowie.mdl");
+	auto model_butterfly = XorStr("models/weapons/v_knife_butterfly.mdl");
+	auto model_falchion = XorStr("models/weapons/v_knife_falchion_advanced.mdl");
+	auto model_flip = XorStr("models/weapons/v_knife_flip.mdl");
+	auto model_gut = XorStr("models/weapons/v_knife_gut.mdl");
+	auto model_huntsman = XorStr("models/weapons/v_knife_tactical.mdl");
+	auto model_daggers = XorStr("models/weapons/v_knife_push.mdl");
 
 	if (!Interfaces::m_pEngine->IsConnected() && !Interfaces::m_pEngine->IsInGame()) {
 		return;
