@@ -477,7 +477,7 @@ namespace Engine {
 			sugma = false;
 		}
 
-		if (player->m_AnimOverlay()[3].m_flCycle >= 0.1f && player->m_AnimOverlay()[3].m_flCycle <= 0.99999f && player->m_vecVelocity().Length2D() < 0.01f && record->m_vecVelocity.Length2D() < 0.01f) {
+		if (player->m_AnimOverlay()[3].m_flCycle >= 0.1f && player->m_AnimOverlay()[3].m_flCycle <= 0.99999f && player->m_vecVelocity().Length2D() < 0.01f && record->m_vecVelocity.Length2D() < 0.1f) {
 			if (!balls) {
 				m_flMaxResetTime = Interfaces::m_pGlobalVars->curtime + 0.85f;
 				printf("balls was false\n");
@@ -538,7 +538,7 @@ namespace Engine {
 
 		//printf(std::to_string(record->m_anim_time > record->m_body_update).c_str());
 
-		if (record->m_vecVelocity.Length2D() < 0.01f || record->m_bFakeWalking) {
+		if (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking) {
 
 			if (is_flicking) {
 				record->m_iResolverMode = FLICK;
