@@ -517,6 +517,11 @@ namespace Interfaces
 		//	StripAttack(cmd);
 		//}
 
+		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
+			*sendPacket = true;
+			//printf("setting send packet to true\n");
+		}
+
 		if (!SetupRageOptions())
 			return false;
 
