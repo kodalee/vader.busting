@@ -31,7 +31,7 @@ public:
 
 	bool m_bSupressRecharge = false;
 
-	float s_flTimeRequired = 0.2f;
+	float s_flTimeRequired = 0.3f;
 	size_t s_nTicksRequired = ( int )( s_flTimeRequired / s_flTickInterval + 0.5f );
 	size_t s_nTicksDelay = 32u;
 
