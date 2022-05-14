@@ -545,7 +545,11 @@ namespace Engine {
 				printf("FLICKING\n");
 			}
 
-			else if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin)
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1) {
+				record->m_iResolverMode = LASTMOVE;
+			}
+
+			else if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin && pLagData->m_iMissedShotsFreestand < 1 && pLagData->m_delta_index < 1)
 			{
 				if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.65f && pLagData->m_iMissedShotsFreestand < 1)
 				{
@@ -558,11 +562,7 @@ namespace Engine {
 				}
 			}
 
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1) {
-				record->m_iResolverMode = LASTMOVE;
-			}
-
-			else if (record->m_moved && record->m_iDistorting[player->EntIndex()]) {
+			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1) {
 				record->m_iResolverMode = DISTORTINGLMOVE;
 			}
 			//if (is_spin(record, player)) {
@@ -670,7 +670,7 @@ namespace Engine {
 			else if (record->m_iResolverMode == LBYDELTA) {
 				record->m_angEyeAngles.y = Math::normalize_float(pLagData->m_flLowerBodyYawTarget - pLagData->m_flSavedLbyDelta);
 			}
-			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1) {
+			else if (record->m_moved && record->m_iDistorting[player->EntIndex()]) {
 				record->m_angEyeAngles.y = at_target_yaw + 180.f;
 			}
 			else if (record->m_iResolverMode == ANTIFREESTAND) {
