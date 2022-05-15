@@ -17,6 +17,8 @@ public:
    void AngleMatrix( const QAngle& angles, const Vector& position );
    void MatrixAngles( QAngle& angles );
    void MatrixAngles( QAngle& angles, Vector& position );
+   Vector GetOrigin( );
+   void SetOrigin(Vector const& p);
    void MatrixSetColumn( const Vector& in, int column );
    void QuaternionMatrix( const Quaternion& q );
    void QuaternionMatrix( const Quaternion& q, const Vector& pos );

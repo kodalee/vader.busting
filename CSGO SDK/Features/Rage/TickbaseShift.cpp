@@ -52,13 +52,9 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 
 
 	const bool bStart = s_bBuilding;
-	s_bBuilding = /*m_didFakeFlick || */(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit
-#ifndef STANDALONE_CSGO
+	s_bBuilding = /*m_didFakeFlick || */((g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)
 			&& s_nTicksSinceUse >= s_nTicksRequired
-		&& !m_bSupressRecharge) ||
-#endif
-		(m_didFakeFlick && s_nTicksSinceUse >= s_nTicksRequired)
-		;
+		&& !m_bSupressRecharge || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1));
 
 	if (bStart && !s_bBuilding && ((s_nExtraProcessingTicks > 0 && !s_bAckedBuild) || (int)s_nExtraProcessingTicks < s_iClockCorrectionTicks))
 	{

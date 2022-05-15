@@ -1424,6 +1424,8 @@ public:
 	config_keybind( slow_walk_bind );
 	config_keybind( mind_trick_bind );
 	config_keybind( mind_trick_invert );
+	config_option( int, mind_trick_mode, 0 );
+	config_option(int, mind_trick_factor, 12);
 	config_option( bool, slow_walk_custom, false );
 	config_option( bool, mind_trick_test, false );
 	config_option(float, mind_trick_factor, 135.f);

@@ -20,6 +20,270 @@
 
 #define min2(a, b) (((a) < (b)) ? (a) : (b))
 
+//__m128 sub_384B9090(float* fl)
+//{
+//	float* v1; // edx
+//	bool v3; // cc
+//	float* v4; // eax
+//	float* v5; // ecx
+//	float* v6; // eax
+//	float v7; // xmm0_4
+//	__m128d v8; // xmm1
+//	float v9; // xmm2_4
+//	__m128 v10; // xmm3
+//	float* v11; // eax
+//	int v13; // [esp+0h] [ebp-Ch] BYREF
+//	int v14; // [esp+4h] [ebp-8h] BYREF
+//	int v15; // [esp+8h] [ebp-4h] BYREF
+//
+//	v1 = (float*)&v15;
+//	v14 = 1065353216;
+//	v3 = fl[63] >= 1.0;
+//	v4 = fl + 63;
+//	v15 = 1065353216;
+//	v5 = fl + 62;
+//	v13 = 0;
+//	if (!v3)
+//		v1 = v4;
+//	v6 = (float*)&v14;
+//	if (*v5 <= 1.0)
+//		v6 = v5;
+//	v7 = *v6;
+//	if (*v6 <= 0.0)
+//		v7 = 0.0;
+//	v8 = { 0L };
+//	v9 = fl[41];
+//	v8.m128d_f64[0] = v7 * (fl[71] * -0.30000001 - 0.19999999) + 1.0;
+//	v10 = _mm_cvtpd_ps(v8);
+//	if (v9 > 0.0)
+//	{
+//		v11 = (float*)&v13;
+//		if (*v1 > 0.0)
+//			v11 = v1;
+//		v10.m128_f32[0] = v10.m128_f32[0] + (float)((float)(v9 * *v11) * (float)(0.5 - v10.m128_f32[0]));
+//	}
+//	v10.m128_f32[0] = v10.m128_f32[0] * fl[205];
+//	return v10;
+//}
+//
+//void RetardedLBYAntiaim(CUserCmd* __pCmd, int a1, int somePassedValue, float LowerBodyYawTarget)
+//{
+//	float* v7; // edx
+//	float v8; // xmm3_4
+//	float insub_LowerBodyYaw; // xmm4_4
+//	int v10; // eax
+//	float flMicromoveToAdd; // xmm0_4
+//	int v12; // ecx
+//	CUserCmd* pCmd; // eax
+//	float addM; // xmm3_4
+//	float toAdd; // xmm0_4
+//	float addYaw; // xmm0_4
+//	float addY; // xmm0_4
+//	float flForwardMove; // xmm2_4
+//	float flSideMove; // xmm1_4
+//	float v20; // xmm0_4
+//	float v21; // xmm3_4
+//	int v22; // edx
+//	int v23; // ecx
+//	char v24; // cl
+//	float v25; // xmm0_4
+//	float v26; // xmm0_4
+//	float v27; // xmm1_4
+//	CUserCmd* v28; // eax
+//	float v29; // xmm0_4
+//	bool v30; // cl
+//	float v31; // xmm4_4
+//	float v32; // xmm1_4
+//	float v33; // [esp+4h] [ebp-28h]
+//	float v36; // [esp+18h] [ebp-14h]
+//	float v37; // [esp+18h] [ebp-14h]
+//	bool v38 = true; // [esp+1Fh] [ebp-Dh]
+//	static bool bSomeFlippingFlag = false;
+//	int dword_385B8A58 = Interfaces::m_pClientState->m_nChokedCommands();
+//	static DWORD dword_3859532C = NULL; // This is literally never set. Gigabrain devs btw
+//
+//	auto localPlayer = C_CSPlayer::GetLocalPlayer();
+//
+//	if (!localPlayer)
+//		return;
+//
+//	if (!(localPlayer->m_fFlags() & FL_ONGROUND) /*|| (v38 = 1, (dword_385958A0 & 2) != 0)*/ /*This is some retarded prediction shit that you don't need*/)
+//		v38 = false;
+//	v7 = *(float**)(((DWORD)localPlayer) + 14452);
+//	if (v7/**(DWORD*)(Globals::pLocal + 14452)*/)
+//	{
+//		v8 = sub_384B9090(v7).m128_u32[0];
+//		if (false /*I believe this is a settings thing, so make your own options for it*/ /*byte_386D8C09 == 2 || byte_386D8C09 == 3*/)
+//		{
+//			insub_LowerBodyYaw = LowerBodyYawTarget;
+//			if (a1)
+//			{
+//				insub_LowerBodyYaw = fabs(LowerBodyYawTarget);
+//				if (a1 == 2)
+//				{
+//					if (true/*byte_386D8C09 != 2*/)
+//						insub_LowerBodyYaw = -insub_LowerBodyYaw;
+//				}
+//				else if (true/*byte_386D8C09 == 2*/)
+//				{
+//					insub_LowerBodyYaw = -insub_LowerBodyYaw;
+//				}
+//			}
+//		}
+//		else
+//		{
+//			insub_LowerBodyYaw = LowerBodyYawTarget;
+//		}
+//		if (false /*this is some setting*/ /*byte_385B89FF*/)
+//		{
+//			v10 = dword_3859532C;
+//			if (!dword_3859532C)
+//			{
+//				if ((float)(fabs(__pCmd->forwardmove) + fabs(__pCmd->sidemove)) >= 1.0 || !v38)
+//					return;
+//				if ((__pCmd->command_number & 1) != 0)
+//					flMicromoveToAdd = 1.1;
+//				else
+//					flMicromoveToAdd = -1.1;
+//				__pCmd->sidemove = __pCmd->sidemove + flMicromoveToAdd;
+//				v10 = dword_3859532C;
+//			}
+//
+//			// This is not used in this feature so idk why it's here
+//			// if (v10 == 1 && dword_385B8A50 < 3)
+//			//     dword_385B8A50 = 3;
+//		}
+//		else
+//		{
+//			switch (somePassedValue)
+//			{
+//			case 1:
+//				v12 = dword_3859532C;
+//				pCmd = __pCmd;
+//				addM = 1.1;
+//				// v7 = v38;
+//				// LOBYTE(v7) = v38;
+//				if (!dword_3859532C)
+//				{
+//					if ((float)(fabs(__pCmd->forwardmove) + fabs(__pCmd->sidemove)) < 1.0 && v38)
+//					{
+//						if ((__pCmd->command_number & 1) != 0)
+//							toAdd = 1.1;
+//						else
+//							toAdd = -1.1;
+//						__pCmd->sidemove = __pCmd->sidemove + toAdd;
+//					}
+//					if (insub_LowerBodyYaw <= 0.0)
+//						addYaw = __pCmd->viewangles.y - fabs(insub_LowerBodyYaw);
+//					else
+//						addYaw = insub_LowerBodyYaw + __pCmd->viewangles.y;
+//					__pCmd->viewangles.y = addYaw;
+//					v12 = dword_3859532C;
+//				}
+//				if (v12 == 1)
+//				{
+//					if (dword_385B8A58)
+//					{
+//						if (insub_LowerBodyYaw <= 0.0)
+//							v20 = __pCmd->viewangles.y + -110.0;
+//						else
+//							v20 = __pCmd->viewangles.y + 110.0;
+//						__pCmd->viewangles.y = v20;
+//					}
+//					else
+//					{
+//						if (insub_LowerBodyYaw >= 0.0)
+//							addY = -110.0;
+//						else
+//							addY = 110.0;
+//						flForwardMove = __pCmd->forwardmove;
+//						flSideMove = fabs(__pCmd->sidemove);
+//						__pCmd->viewangles.y = addY + __pCmd->viewangles.y;
+//						if ((float)(flSideMove + flForwardMove) < 1.f && v38)
+//						{
+//							if ((__pCmd->command_number & 1) == 0)
+//								addM = -1.1;
+//							__pCmd->forwardmove = flForwardMove + addM;
+//						}
+//					}
+//				}
+//				else
+//				{
+//					if (v12 == 2)
+//					{
+//						v21 = Math::normalize_float(140.f /*Your LBY factor here I think*/);
+//						// v21 = sub_384E72B0(2, v7).m128_f32[0];
+//						int whatever = (((DWORD)localPlayer) + 14452);
+//						whatever = *(DWORD*)(whatever + 128);
+//						if (fabs(v21 - Math::normalize_float(whatever) >= 10.0))
+//							v24 = bSomeFlippingFlag;
+//						else
+//						{
+//							v24 = bSomeFlippingFlag == 0;
+//							bSomeFlippingFlag = !bSomeFlippingFlag;
+//						}
+//
+//						if (!v24)
+//							insub_LowerBodyYaw = -insub_LowerBodyYaw;
+//					}
+//					__pCmd->viewangles.y = insub_LowerBodyYaw + __pCmd->viewangles.y;
+//				}
+//				break;
+//			case 2:
+//				if ((float)(fabs(__pCmd->forwardmove) + fabs(__pCmd->sidemove)) < 1.0 && v38)
+//				{
+//					if ((__pCmd->command_number & 1) != 0)
+//						v25 = 1.1;
+//					else
+//						v25 = -1.1;
+//					__pCmd->sidemove = __pCmd->sidemove + v25;
+//				}
+//				v33 = fabs(insub_LowerBodyYaw);
+//				if (bSomeFlippingFlag)
+//				{
+//					v36 = RandomFloat(0.f, v33);
+//					v26 = v36;
+//				}
+//				else
+//				{
+//					v37 = RandomFloat(0.f, v33);
+//					v26 = -v37;
+//				}
+//				v27 = fabs(v26) + v8;
+//				if (v26 <= 0.0)
+//					__pCmd->viewangles.y = __pCmd->viewangles.y - v27;
+//				else
+//					__pCmd->viewangles.y = v27 + __pCmd->viewangles.y;
+//				if (!dword_385B8A58)
+//					bSomeFlippingFlag = !bSomeFlippingFlag;
+//				break;
+//			case 3:
+//				v28 = __pCmd;
+//				if ((float)(fabs(__pCmd->forwardmove) + fabs(__pCmd->sidemove)) < 1.0 && v38)
+//				{
+//					if ((__pCmd->command_number & 1) != 0)
+//						v29 = 1.1;
+//					else
+//						v29 = -1.1;
+//					__pCmd->sidemove = __pCmd->sidemove + v29;
+//				}
+//				v30 = bSomeFlippingFlag;
+//				v31 = fabs(insub_LowerBodyYaw);
+//				if (!bSomeFlippingFlag)
+//					v31 = -v31;
+//				v32 = fabs(v31) + v8;
+//				if (v31 <= 0.0)
+//					v28->viewangles.y = v28->viewangles.y - v32;
+//				else
+//					v28->viewangles.y = v32 + v28->viewangles.y;
+//				if (!dword_385B8A58)
+//					bSomeFlippingFlag = !v30;
+//				break;
+//			}
+//		}
+//	}
+//}
+
 namespace Interfaces
 {
 	class C_AntiAimbot : public AntiAimbot {
@@ -201,39 +465,76 @@ namespace Interfaces
 			if (!localPlayer || !localPlayer->IsAlive())
 				return;
 
-			if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
-
-
-				static bool FlickCheck = false;
-				static bool MicroMoveSide = false;
-				float flViewAnlge = cmd->viewangles.y;
-				static bool switcher = false;
-				//cmd->viewangles.y = flViewAnlge + (EdgeFlick ? 0 : g_Vars.misc.mind_trick_invert.enabled ? -90 : 90);
-				*bSendPacket = !(cmd->tick_count % 2 == 0);
-				if (cmd->tick_count % 2 == 0) {
-					if (FlickCheck) {
-						cmd->viewangles.y += 120;
-						FlickCheck = false;
-						if (cmd->sidemove == 0) {
-							MicroMoveSide = !MicroMoveSide;
-							cmd->sidemove = MicroMoveSide ? 11 : -11;
+			switch (g_Vars.misc.mind_trick_mode) {
+			case 0: {
+				if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+					static bool FlickCheck = false;
+					static bool MicroMoveSide = false;
+					float flViewAnlge = cmd->viewangles.y;
+					static bool switcher = false;
+					//cmd->viewangles.y = flViewAnlge + (EdgeFlick ? 0 : g_Vars.misc.mind_trick_invert.enabled ? -90 : 90);
+					*bSendPacket = !(cmd->tick_count % 2 == 0);
+					if (cmd->tick_count % 2 == 0) {
+						if (FlickCheck) {
+							cmd->viewangles.y += 120;
+							FlickCheck = false;
+							if (cmd->sidemove == 0) {
+								MicroMoveSide = !MicroMoveSide;
+								cmd->sidemove = MicroMoveSide ? 11 : -11;
+							}
+							return;
 						}
-						return;
+						if (cmd->tick_count % 18 == 0) {
+							FlickCheck = true;
+							if (cmd->sidemove == 0) {
+								MicroMoveSide = !MicroMoveSide;
+								cmd->sidemove = MicroMoveSide ? 11 : -11;
+							}
+							cmd->viewangles.y -= 115;
+							return;
+						}
 					}
-					if (cmd->tick_count % 18 == 0) {
-						FlickCheck = true;
-						if (cmd->sidemove == 0) {
-							MicroMoveSide = !MicroMoveSide;
-							cmd->sidemove = MicroMoveSide ? 11 : -11;
-						}
-						cmd->viewangles.y -= 115;
-						return;
+					else if (cmd->sidemove == 0) {
+						MicroMoveSide = !MicroMoveSide; // cant remember why i put this here???? dementia machport moment
+						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
 					}
 				}
-				else if (cmd->sidemove == 0) {
-					MicroMoveSide = !MicroMoveSide; // cant remember why i put this here???? dementia machport moment
-					cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+			}
+			case 1: {
+				if (localPlayer->m_vecVelocity().Length2D() < 14.f) {
+					static bool FlickCheck = false;
+					static bool MicroMoveSide = false;
+					float flViewAnlge = cmd->viewangles.y;
+					static bool switcher = false;
+					*bSendPacket = !(cmd->tick_count % 2 == 0);
+					if (cmd->tick_count % 2 == 0 && g_TickbaseController.s_nExtraProcessingTicks > 0) {
+						if (FlickCheck) {
+							g_Vars.globals.shift_amount = g_Vars.misc.mind_trick_factor;
+							cmd->viewangles.y += 180;
+							FlickCheck = false;
+							if (cmd->sidemove == 0) {
+								MicroMoveSide = !MicroMoveSide;
+								cmd->sidemove = MicroMoveSide ? 11 : -11;
+							}
+							return;
+						}
+						if (cmd->tick_count % 18 == 0) {
+							FlickCheck = true;
+							if (cmd->sidemove == 0) {
+								MicroMoveSide = !MicroMoveSide;
+								cmd->sidemove = MicroMoveSide ? 11 : -11;
+							}
+							cmd->viewangles.y -= 115;
+							return;
+						}
+					}
+					else if (cmd->sidemove == 0) {
+						MicroMoveSide = !MicroMoveSide; // cant remember why i put this here???? dementia machport moment
+						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+					}
 				}
+			}
+
 			}
 		}
 	}

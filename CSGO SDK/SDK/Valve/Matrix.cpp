@@ -109,6 +109,19 @@ void matrix3x4_t::MatrixAngles( QAngle& angles, Vector& position ) {
    MatrixSetColumn( position, 3 );
 }
 
+Vector matrix3x4_t::GetOrigin()
+{
+	return{ m[0][3], m[1][3], m[2][3] };
+}
+
+void matrix3x4_t::SetOrigin(Vector const& p)
+{
+	m[0][3] = p.x;
+	m[1][3] = p.y;
+	m[2][3] = p.z;
+}
+
+
 void matrix3x4_t::MatrixSetColumn( const Vector& in, int column ) {
    m[ 0 ][ column ] = in.x;
    m[ 1 ][ column ] = in.y;

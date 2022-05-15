@@ -1578,7 +1578,9 @@ namespace Interfaces
 		//g_TickbaseController.m_bSupressRecharge = false;
 
 		if (!SetupTargets()) {
-			g_TickbaseController.m_bSupressRecharge = false;
+			if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
+				g_TickbaseController.m_bSupressRecharge = false;
+			}
 			return { false, C_AimPoint() };
 		}
 
@@ -2247,7 +2249,9 @@ namespace Interfaces
 			//	*m_rage_data->m_pSendPacket = false;
 			//}
 
-			g_TickbaseController.m_bSupressRecharge = true;
+			if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
+				g_TickbaseController.m_bSupressRecharge = true;
+			}
 
 			m_rage_data->m_pCmd->buttons |= IN_ATTACK;
 
