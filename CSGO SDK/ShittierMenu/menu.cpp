@@ -437,9 +437,9 @@ void HvH()
 				ImGui::Hotkey(XorStr("##Mind-Trick key"), &g_Vars.misc.mind_trick_bind.key, &g_Vars.misc.mind_trick_bind.cond, ImVec2{ 40,20 });
 				if (g_Vars.misc.mind_trick) {
 					InsertCombo(XorStr("Mind-Trick Mode"), &g_Vars.misc.mind_trick_mode, mind_trick_mode);
-					if (g_Vars.misc.mind_trick_mode == 1) {
-						InsertSliderInt(XorStr("Factor"), &g_Vars.misc.mind_trick_factor, 1, 16, XorStr("%d"));
-					}
+					//if (g_Vars.misc.mind_trick_mode == 1) {
+					//	InsertSliderInt(XorStr("Factor"), &g_Vars.misc.mind_trick_factor, 1, 16, XorStr("%d"));
+					//}
 				}
 					//ImGui::Text(XorStr("Invert"));
 					//ImGui::SameLine();

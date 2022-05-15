@@ -511,7 +511,7 @@ namespace Interfaces
 					*bSendPacket = !(cmd->tick_count % 2 == 0);
 					if (cmd->tick_count % 2 == 0 && g_TickbaseController.s_nExtraProcessingTicks > 0) {
 						if (FlickCheck) {
-							g_Vars.globals.shift_amount = g_Vars.misc.mind_trick_factor;
+							g_Vars.globals.shift_amount = 12;
 							cmd->viewangles.y += 180;
 							FlickCheck = false;
 							if (cmd->sidemove == 0) {
