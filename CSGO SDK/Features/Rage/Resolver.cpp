@@ -302,14 +302,8 @@ namespace Engine {
 		}
 
 		if (!valid) {
-			if (record->m_moved && pLagData->m_iMissedShots < 2) {
-				record->m_angEyeAngles.y = move->m_body;
-				record->m_iResolverText = XorStr("LASTMOVE");
-			}
-			else {
-				record->m_angEyeAngles.y = away + 180.f;
-				record->m_iResolverText = XorStr("BACKWARDS");
-			}
+			record->m_angEyeAngles.y = away + 180.f;
+			record->m_iResolverText = XorStr("BACKWARDS");
 			return;
 		}
 
@@ -325,7 +319,7 @@ namespace Engine {
 		//wall_detect(entity, record, record->m_angEyeAngles.y)
 
 		// fix ppl breaking last move/freestand.
-		if (!record->m_bUnsafeVelocityTransition && best->m_yaw - record->m_body > 90.f || best->m_yaw - record->m_body < -90.f) {
+		if (!record->m_bUnsafeVelocityTransition && !record->m_bIsFakeFlicking && best->m_yaw - record->m_body > 90.f || best->m_yaw - record->m_body < -90.f) {
 			record->m_angEyeAngles.y = record->m_body;
 			record->m_iResolverText = XorStr("WHATTTTT");
 		}
@@ -382,7 +376,7 @@ namespace Engine {
 		float speed = record->m_vecVelocity.Length2D();
 
 		// if on ground, moving, and not fakewalking.
-		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking)
+		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking)
 			record->m_iResolverMode = MOVING;
 
 		//if (g_Vars.rage.override_reoslver.enabled && record->m_fFlags & FL_ONGROUND && (speed <= 25.f || record->m_bFakeWalking))
@@ -409,7 +403,49 @@ namespace Engine {
 		if (!pLagData.IsValid())
 			return;
 
+		auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
+		if (!anim_data)
+			return;
+
+		static int m_iFakeFlickCheck = 0;
+		static float m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
+		static float m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime;
+
 		C_AnimationRecord* move = &pLagData->m_walk_record;
+
+		Encrypted_t<C_AnimationRecord> previous_record = nullptr;
+
+		if (anim_data->m_AnimationRecord.size() > 0) {
+			previous_record = &anim_data->m_AnimationRecord.front();
+		}
+
+		if (record->m_vecVelocity.Length() < 18.f
+			&& record->m_serverAnimOverlays[6].m_flWeight != 1.0f
+			&& record->m_serverAnimOverlays[6].m_flWeight != 0.0f
+			&& record->m_serverAnimOverlays[6].m_flWeight != previous_record->m_serverAnimOverlays[6].m_flWeight
+			&& (record->m_fFlags & FL_ONGROUND)) {
+			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
+			record->m_bUnsafeVelocityTransition = true;
+		}
+
+		m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime;
+
+		if (m_flLastResetTime1 >= m_flMaxResetTime1 && record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 45.f) {
+			m_iFakeFlickCheck++;
+			printf(std::to_string(m_iFakeFlickCheck).c_str());
+			printf(" < fake flick check hit\n");
+		}
+
+		if (m_iFakeFlickCheck >= 8) {
+			record->m_bIsFakeFlicking = true;
+			printf("fakeflicking \n");
+		}
+		if (record->m_vecVelocity.Length2D() >= 45.f) {
+			record->m_bIsFakeFlicking = false;
+			m_iFakeFlickCheck = 0;
+			printf("fake flick reset due to speed \n");
+			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
+		}
 
 		if (move->m_flSimulationTime > 0.f) {
 			if (!record->m_moved) {
@@ -448,8 +484,8 @@ namespace Engine {
 
 		if ((m_iRestartDistortCheck || m_iFirstCheck) && local->IsAlive()) {
 			record->m_iDistortTiming = Interfaces::m_pGlobalVars->curtime + 0.15f;
-			printf(std::to_string(m_iDistortCheck).c_str());
-			printf(" < Restart check ran\n");
+			//printf(std::to_string(m_iDistortCheck).c_str());
+			//printf(" < Restart check ran\n");
 			m_iRestartDistortCheck = false;
 			m_iFirstCheck = false;
 		}
@@ -470,8 +506,8 @@ namespace Engine {
 				sugma = false;
 			}
 
-			printf(std::to_string(m_iDistortCheck).c_str());
-			printf(" < animlayer check ran\n");
+			//printf(std::to_string(m_iDistortCheck).c_str());
+			//printf(" < animlayer check ran\n");
 		}
 		else {
 			sugma = false;
@@ -480,7 +516,7 @@ namespace Engine {
 		if (player->m_AnimOverlay()[3].m_flCycle >= 0.1f && player->m_AnimOverlay()[3].m_flCycle <= 0.99999f && player->m_vecVelocity().Length2D() < 0.01f && record->m_vecVelocity.Length2D() < 0.1f) {
 			if (!balls) {
 				m_flMaxResetTime = Interfaces::m_pGlobalVars->curtime + 0.85f;
-				printf("balls was false\n");
+				//printf("balls was false\n");
 				balls = true;
 			}
 
@@ -488,8 +524,8 @@ namespace Engine {
 
 			if (m_flLastResetTime >= m_flMaxResetTime) {
 				m_iResetCheck++;
-				printf(std::to_string(m_iResetCheck).c_str());
-				printf("\n");
+				//printf(std::to_string(m_iResetCheck).c_str());
+				//printf("\n");
 				balls = false;
 			}
 		}
@@ -511,7 +547,7 @@ namespace Engine {
 
 		if (m_iDistortCheck >= 2) {
 			record->m_iDistorting[player->EntIndex()] = true;
-			printf("Player is distorting\n");
+			//printf("Player is distorting\n");
 		}
 
 		const auto simtime = record->m_flSimulationTime;
@@ -540,12 +576,12 @@ namespace Engine {
 
 		if (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking) {
 
-			if (is_flicking) {
+			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
 				record->m_iResolverMode = FLICK;
 				printf("FLICKING\n");
 			}
 
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1) {
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
 				record->m_iResolverMode = LASTMOVE;
 			}
 
@@ -562,7 +598,7 @@ namespace Engine {
 				}
 			}
 
-			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1) {
+			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
 				record->m_iResolverMode = DISTORTINGLMOVE;
 			}
 			//if (is_spin(record, player)) {
@@ -572,12 +608,15 @@ namespace Engine {
 				record->m_iResolverMode = ANTIFREESTAND;
 			}
 
+			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
+				record->m_iResolverMode = ANTIFREESTAND;
+			}
 			else {
 				record->m_iResolverMode = STAND;
 			}
 		}
 		// we arrived here we can do the acutal resolve.
-		if (record->m_iResolverMode == MOVING)
+		if (record->m_iResolverMode == MOVING && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition)
 			ResolveWalk(player, record);
 
 		//else if (record->m_iResolverMode == RESOLVE_OVERRIDE || g_Vars.rage.override_reoslver.enabled)
@@ -653,7 +692,7 @@ namespace Engine {
 
 		const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-		if (is_flicking && pLagData->m_iMissedShotsLBY < 3 /* && !record->m_bFakeWalking*/)
+		if (is_flicking && pLagData->m_iMissedShotsLBY < 3 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 0.01f /* && !record->m_bFakeWalking*/)
 		{
 			//m_iMode = 0;
 			record->m_angEyeAngles.y = pLagData->m_body;
@@ -664,7 +703,10 @@ namespace Engine {
 			record->m_iResolverText = XorStr("UPDATE");
 		}
 		else {
-			if (record->m_iResolverMode == LASTMOVE) {
+			if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
+				AntiFreestand(record, player);
+			}
+			else if (record->m_iResolverMode == LASTMOVE) {
 				record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
 			}
 			else if (record->m_iResolverMode == LBYDELTA) {

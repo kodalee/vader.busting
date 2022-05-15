@@ -48,6 +48,7 @@ namespace Engine
 		bool m_bNoFakeAngles;
 		bool m_bFakeWalking;
 		bool m_bUnsafeVelocityTransition;
+		bool m_bIsFakeFlicking;
 
 		Vector m_vecOrigin;
 		Vector m_vecVelocity;
@@ -56,9 +57,12 @@ namespace Engine
 
 		int m_fFlags;
 		int m_iChokeTicks;
+		int m_iFakeFlickCheck;
 
 		float m_flChokeTime;
 		float m_flSimulationTime;
+		float m_flMaxResetTime;
+		float m_flLastResetTime;
 		bool m_override;
 		Vector m_vecLastNonDormantOrig;
 		float m_anim_time;
