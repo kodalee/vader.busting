@@ -430,9 +430,9 @@ void HvH()
 				}
 
 				InsertCheckbox(JediMindTrick, XorStr("Jedi Mind-Trick"), &g_Vars.misc.mind_trick);
-					ImGui::SameLine();
-					biggestMeme2();
-					ImGui::Hotkey(XorStr("##Mind-Trick key"), &g_Vars.misc.mind_trick_bind.key, &g_Vars.misc.mind_trick_bind.cond, ImVec2{ 40,20 });
+				ImGui::SameLine();
+				biggestMeme2();
+				ImGui::Hotkey(XorStr("##Mind-Trick key"), &g_Vars.misc.mind_trick_bind.key, &g_Vars.misc.mind_trick_bind.cond, ImVec2{ 40,20 });
 					//ImGui::Text(XorStr("Invert"));
 					//ImGui::SameLine();
 					//biggestMeme2();
