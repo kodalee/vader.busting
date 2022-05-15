@@ -526,7 +526,7 @@ namespace Interfaces
 								MicroMoveSide = !MicroMoveSide;
 								cmd->sidemove = MicroMoveSide ? 11 : -11;
 							}
-							cmd->viewangles.y -= 115;
+							cmd->viewangles.y += 115; // -
 							return;
 						}
 					}
