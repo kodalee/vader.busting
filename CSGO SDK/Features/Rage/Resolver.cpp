@@ -387,10 +387,10 @@ namespace Engine {
 		//	record->m_iResolverMode = LASTMOVE;
 
 		// if not on ground.
-		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecVelocity.Length2D() > 45.f)
+		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecVelocity.Length2D() > 30.f)
 			record->m_iResolverMode = AIR;
 
-		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecAnimationVelocity.Length2D() <= 45.f)
+		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecAnimationVelocity.Length2D() <= 30.f)
 			record->m_iResolverMode = AIRSTAND;
 	}
 
@@ -430,17 +430,17 @@ namespace Engine {
 
 		m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime;
 
-		if (m_flLastResetTime1 >= m_flMaxResetTime1 && record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 45.f) {
+		if (m_flLastResetTime1 >= m_flMaxResetTime1 && record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 30.f) {
 			m_iFakeFlickCheck++;
 			printf(std::to_string(m_iFakeFlickCheck).c_str());
 			printf(" < fake flick check hit\n");
 		}
 
-		if (m_iFakeFlickCheck >= 8) {
+		if (m_iFakeFlickCheck >= 10) {
 			record->m_bIsFakeFlicking = true;
 			printf("fakeflicking \n");
 		}
-		if (record->m_vecVelocity.Length2D() >= 45.f) {
+		if (record->m_vecVelocity.Length2D() >= 30.f) {
 			record->m_bIsFakeFlicking = false;
 			m_iFakeFlickCheck = 0;
 			printf("fake flick reset due to speed \n");
@@ -576,7 +576,7 @@ namespace Engine {
 
 		if (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking) {
 
-			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
+			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking) {
 				record->m_iResolverMode = FLICK;
 				printf("FLICKING\n");
 			}
@@ -679,7 +679,7 @@ namespace Engine {
 			else
 				is_flicking = false;
 
-			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
+			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
 				Add[player->EntIndex()] = 0.22f;
 				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
