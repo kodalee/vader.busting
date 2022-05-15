@@ -208,7 +208,7 @@ namespace Interfaces
 				static bool MicroMoveSide = false;
 				float flViewAnlge = cmd->viewangles.y;
 				static bool switcher = false;
-				cmd->viewangles.y = flViewAnlge + (EdgeFlick ? 0 : g_Vars.misc.mind_trick_invert.enabled ? -90 : 90);
+				//cmd->viewangles.y = flViewAnlge + (EdgeFlick ? 0 : g_Vars.misc.mind_trick_invert.enabled ? -90 : 90);
 				*bSendPacket = !(cmd->tick_count % 2 == 0);
 				if (cmd->tick_count % 2 == 0) {
 					if (FlickCheck) {
