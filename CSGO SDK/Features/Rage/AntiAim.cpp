@@ -499,6 +499,8 @@ namespace Interfaces
 						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
 					}
 				}
+
+				break;
 			}
 			case 1: {
 				if (localPlayer->m_vecVelocity().Length2D() < 14.f) {
@@ -533,6 +535,8 @@ namespace Interfaces
 						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
 					}
 				}
+
+				break;
 			}
 
 			}
