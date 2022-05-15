@@ -1428,7 +1428,6 @@ public:
 	config_option(int, mind_trick_factor, 12);
 	config_option( bool, slow_walk_custom, false );
 	config_option( bool, mind_trick_test, false );
-	config_option(float, mind_trick_factor, 135.f);
 	config_option(float, mind_trick_lby, 59.f);
 
 	config_option( float, viewmodel_fov, 68.f );
