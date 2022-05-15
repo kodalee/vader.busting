@@ -48,7 +48,7 @@ namespace Interfaces
 
 		void do_at_target(Encrypted_t<CUserCmd> cmd);
 
-		void SendFakeFlick();
+		void FakeFlick(Encrypted_t<CUserCmd> cmd, bool* bSendPacket);
 
 		bool airstuck();
 
@@ -66,6 +66,7 @@ namespace Interfaces
 		float m_flLowerBodyUpdateTime = 0.f;
 		float m_flLowerBodyUpdateYaw = FLT_MAX;
 
+		bool   EdgeFlick = false;
 		float  m_auto;
 		float  m_auto_dist;
 		float  m_auto_last;
@@ -97,7 +98,7 @@ namespace Interfaces
 
 		static int negative = false;
 
-		if (Interfaces::m_pClientState->m_nChokedCommands())
+		if (Interfaces::m_pClientState->m_nChokedCommands() || (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick))
 			return;
 
 		if (animstate->m_velocity > 0.1f)
@@ -156,7 +157,7 @@ namespace Interfaces
 		if (!localPlayer)
 			return false;
 
-		if (Interfaces::m_pClientState->m_nChokedCommands() || !(localPlayer->m_fFlags() & FL_ONGROUND))
+		if (Interfaces::m_pClientState->m_nChokedCommands() || !(localPlayer->m_fFlags() & FL_ONGROUND) || (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick))
 			return false;
 
 		Encrypted_t<CVariables::ANTIAIM_STATE> settings(&g_Vars.antiaim_stand);
@@ -193,13 +194,49 @@ namespace Interfaces
 		return lby_update(cmd, bSendPacket);
 	}
 
-	//void C_AntiAimbot::SendFakeFlick() {
-	//	if (g_TickbaseController.m_didFakeFlick) {
-	//		//g_TickbaseController.s_nSpeed = 14;
-	//		g_TickbaseController.ignoreallcmds = true;
-	//		g_TickbaseController.m_didFakeFlick = false;
-	//	}
-	//}
+	void C_AntiAimbot::FakeFlick(Encrypted_t<CUserCmd> cmd, bool* bSendPacket) {
+		if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
+			auto localPlayer = C_CSPlayer::GetLocalPlayer();
+
+			if (!localPlayer || !localPlayer->IsAlive())
+				return;
+
+			if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+
+
+				static bool FlickCheck = false;
+				static bool MicroMoveSide = false;
+				float flViewAnlge = cmd->viewangles.y;
+				static bool switcher = false;
+				cmd->viewangles.y = flViewAnlge + (EdgeFlick ? 0 : g_Vars.misc.mind_trick_invert.enabled ? -90 : 90);
+				*bSendPacket = !(cmd->tick_count % 2 == 0);
+				if (cmd->tick_count % 2 == 0) {
+					if (FlickCheck) {
+						cmd->viewangles.y += 120;
+						FlickCheck = false;
+						if (cmd->sidemove == 0) {
+							MicroMoveSide = !MicroMoveSide;
+							cmd->sidemove = MicroMoveSide ? 11 : -11;
+						}
+						return;
+					}
+					if (cmd->tick_count % 18 == 0) {
+						FlickCheck = true;
+						if (cmd->sidemove == 0) {
+							MicroMoveSide = !MicroMoveSide;
+							cmd->sidemove = MicroMoveSide ? 11 : -11;
+						}
+						cmd->viewangles.y -= 115;
+						return;
+					}
+				}
+				else if (cmd->sidemove == 0) {
+					MicroMoveSide = !MicroMoveSide; // cant remember why i put this here???? dementia machport moment
+					cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+				}
+			}
+		}
+	}
 
 
 	//void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
@@ -580,6 +617,8 @@ namespace Interfaces
 			//if (!g_Vars.misc.mind_trick_bind.enabled) {
 				Distort(cmd);
 			//}
+
+			FakeFlick(cmd, bSendPacket);
 		
 			//fake_flick(cmd);
 
@@ -666,89 +705,6 @@ namespace Interfaces
 		if (settings->base_yaw == 2 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // rotate
 			cmd->viewangles.y += std::fmod(Interfaces::m_pGlobalVars->curtime * (g_Vars.antiaim.rot_speed * 20.f), g_Vars.antiaim.rot_range);
 		}
-
-
-		//if (GetAsyncKeyState(VK_UP)) {
-		//	//store our magic variables
-		//	float backup_tickcount = Interfaces::m_pGlobalVars->tickcount;
-		//	float backup_curtime = Interfaces::m_pGlobalVars->curtime;
-
-		//	Interfaces::m_pGlobalVars->tickcount = INT_MAX;
-		//	Interfaces::m_pGlobalVars->curtime = TICKS_TO_TIME(TIME_TO_TICKS(Interfaces::m_pGlobalVars->tickcount / INT_MAX) / Interfaces::m_pGlobalVars->interval_per_tick * TIME_TO_TICKS(LocalPlayer->m_flSimulationTime()));;
-
-		//	if (!*bSendPacket) {
-
-		//		g_Vars.globals.shift_amount = 0;
-		//		cmd->viewangles.y += 360.f;
-
-		//		if (LocalPlayer->m_vecVelocity().Length2D() < 11.f) {
-		//			static bool switcher = false;
-		//			cmd->forwardmove = switcher ? -1.15f : 1.15f;
-		//			switcher = !switcher;
-		//		}
-
-		//		int ticks = cmd->tick_count % 5;
-		//		switch (ticks)
-		//		{
-		//		case 0:
-		//			cmd->viewangles.y -= 360.f;
-		//			g_Vars.globals.shift_amount = 14;
-		//			break;
-		//		case 1:
-		//			cmd->tick_count = INT_MAX;
-		//			cmd->viewangles.y += 110.f;
-		//			break;
-		//		case 3:
-		//		{
-		//			if (Interfaces::m_pClientState->m_nChokedCommands() < 63)
-		//				*bSendPacket = false;
-		//		}
-		//		break;
-		//		case 4:
-		//			cmd->viewangles.y -= 110.f;
-		//			g_Vars.globals.shift_amount = 14;
-		//			break;
-		//		case 5:
-		//		{
-		//			cmd->tick_count = INT_MAX;
-		//			if (Interfaces::m_pClientState->m_nChokedCommands() > 0)
-		//				*bSendPacket = true;
-		//		}
-		//		break;
-		//		}
-
-		//	}
-		//	else
-		//	{
-
-		//		int ultra_retardation_maxima = cmd->tick_count % 11; //very important.
-
-		//		if (ultra_retardation_maxima >= 8)
-		//			g_Vars.globals.shift_amount = 14; //shift to fuck their resolver down.
-		//		else if (ultra_retardation_maxima == 10)
-		//		{
-		//			cmd->tick_count = INT_MAX; //ghecharge, or ghetto recharge as i say.
-		//			g_Vars.globals.shift_amount = 0; //suck that shit back up
-		//		}
-
-		//		//std::uniform_int_distribution random(-50, 420);
-
-		//		//switch (ultra_retardation_maxima)
-		//		//{
-		//		//case 9: //change our yaw after we shifted tickbase
-		//		//	cmd->viewangles.yaw = std::fabsf((4.f - (random(generator))));
-		//		//	break;
-		//		//case 10:
-		//		//	cmd->buttons &= ~(IN_FORWARD | IN_BACK | IN_MOVELEFT | IN_MOVERIGHT); //stop moving.
-		//		//	break;
-		//		//}
-
-		//	}
-
-		//	//restore out magic variables
-		//	Interfaces::m_pGlobalVars->tickcount = backup_tickcount;
-		//	Interfaces::m_pGlobalVars->curtime = backup_curtime;
-		//}
 
 		/*if ( g_Vars.antiaim.imposta ) {
 			Interfaces::AntiAimbot::Get( )->ImposterBreaker( bSendPacket, cmd );
@@ -1386,6 +1342,7 @@ namespace Interfaces
 			// set angle to backwards.
 			m_auto = Math::NormalizedAngle(m_view - 180.f);
 			m_auto_dist = -1.f;
+			EdgeFlick = false;
 			return;
 		}
 
@@ -1404,6 +1361,7 @@ namespace Interfaces
 			m_auto = Math::NormalizedAngle(best->m_yaw);
 			m_auto_dist = best->m_dist;
 			m_auto_last = Interfaces::m_pGlobalVars->curtime;
+			EdgeFlick = true;
 		}
 	}
 
