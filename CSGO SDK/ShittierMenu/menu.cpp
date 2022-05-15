@@ -1970,6 +1970,9 @@ void IMGUIMenu::Keybinds_Spectators() {
 			if (g_Vars.misc.extended_backtrack && g_Vars.misc.extended_backtrack_key.enabled) {
 				binds.push_back(XorStr("Ping-spike"));
 			}
+			if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
+				binds.push_back(XorStr("Jedi Mind-Trick"));
+			}
 		}
 
 		if (!binds.empty() || Opened) {
