@@ -885,7 +885,7 @@ namespace Engine {
 
 		float speed = record->m_vecVelocity.Length2D();
 
-		if (record->m_fFlags & FL_ONGROUND && speed > 1.f && data->m_fFlags() & FL_ONGROUND && !record->m_bFakeWalking) {
+		if (record->m_fFlags & FL_ONGROUND && speed > 1.f && data->m_fFlags() & FL_ONGROUND && !record->m_bFakeWalking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
 			//printf("move true 1\n");
 			record->m_moved = true;
 		}
