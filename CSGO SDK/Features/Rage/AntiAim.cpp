@@ -477,7 +477,7 @@ namespace Interfaces
 							FlickCheck = false;
 							if (cmd->sidemove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 7 : -7;
+								cmd->sidemove = MicroMoveSide ? 11 : -11;
 							}
 							return;
 						}
@@ -485,16 +485,16 @@ namespace Interfaces
 							FlickCheck = true;
 							if (cmd->sidemove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 7 : -7;
+								cmd->sidemove = MicroMoveSide ? 11 : -11;
 							}
 							cmd->viewangles.y -= 115;
 							return;
 						}
 					}
-					//else if (cmd->sidemove == 0) {
-					//	MicroMoveSide = !MicroMoveSide;
-					//	cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
-					//}
+					else if (cmd->sidemove == 0) {
+						MicroMoveSide = !MicroMoveSide;
+						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+					}
 				}
 
 				break;
@@ -511,7 +511,7 @@ namespace Interfaces
 							FlickCheck = false;
 							if (cmd->sidemove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 7 : -7;
+								cmd->sidemove = MicroMoveSide ? 11 : -11;
 							}
 							return;
 						}
@@ -519,16 +519,16 @@ namespace Interfaces
 							FlickCheck = true;
 							if (cmd->sidemove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 7 : -7;
+								cmd->sidemove = MicroMoveSide ? 11 : -11;
 							}
 							cmd->viewangles.y += 115; // -
 							return;
 						}
 					}
-					//else if (cmd->sidemove == 0) {
-					//	MicroMoveSide = !MicroMoveSide;
-					//	cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
-					//}
+					else if (cmd->sidemove == 0) {
+						MicroMoveSide = !MicroMoveSide;
+						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+					}
 				}
 
 				break;
