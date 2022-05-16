@@ -551,7 +551,7 @@ namespace Interfaces
 		else if( moving && !g_Vars.fakelag.when_moving )
 			return false;
 
-		if (moving) {
+		if (moving && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1)) {
 			if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)
 				fakelagData->m_iMaxChoke = 0;
 			else

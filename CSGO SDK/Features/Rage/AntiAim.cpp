@@ -470,9 +470,6 @@ namespace Interfaces
 				if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
 					static bool FlickCheck = false;
 					static bool MicroMoveSide = false;
-					float flViewAnlge = cmd->viewangles.y;
-					static bool switcher = false;
-					//cmd->viewangles.y = flViewAnlge + (EdgeFlick ? 0 : g_Vars.misc.mind_trick_invert.enabled ? -90 : 90);
 					*bSendPacket = !(cmd->tick_count % 2 == 0);
 					if (cmd->tick_count % 2 == 0) {
 						if (FlickCheck) {
@@ -480,7 +477,7 @@ namespace Interfaces
 							FlickCheck = false;
 							if (cmd->sidemove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 11 : -11;
+								cmd->sidemove = MicroMoveSide ? 7 : -7;
 							}
 							return;
 						}
@@ -488,16 +485,16 @@ namespace Interfaces
 							FlickCheck = true;
 							if (cmd->sidemove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 11 : -11;
+								cmd->sidemove = MicroMoveSide ? 7 : -7;
 							}
 							cmd->viewangles.y -= 115;
 							return;
 						}
 					}
-					else if (cmd->sidemove == 0) {
-						MicroMoveSide = !MicroMoveSide; // cant remember why i put this here???? dementia machport moment
-						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
-					}
+					//else if (cmd->sidemove == 0) {
+					//	MicroMoveSide = !MicroMoveSide;
+					//	cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+					//}
 				}
 
 				break;
@@ -506,8 +503,6 @@ namespace Interfaces
 				if (localPlayer->m_vecVelocity().Length2D() < 14.f) {
 					static bool FlickCheck = false;
 					static bool MicroMoveSide = false;
-					float flViewAnlge = cmd->viewangles.y;
-					static bool switcher = false;
 					*bSendPacket = !(cmd->tick_count % 2 == 0);
 					if (cmd->tick_count % 2 == 0 && g_TickbaseController.s_nExtraProcessingTicks > 0) {
 						if (FlickCheck) {
@@ -516,7 +511,7 @@ namespace Interfaces
 							FlickCheck = false;
 							if (cmd->sidemove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 11 : -11;
+								cmd->sidemove = MicroMoveSide ? 7 : -7;
 							}
 							return;
 						}
@@ -524,16 +519,16 @@ namespace Interfaces
 							FlickCheck = true;
 							if (cmd->sidemove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 11 : -11;
+								cmd->sidemove = MicroMoveSide ? 7 : -7;
 							}
 							cmd->viewangles.y += 115; // -
 							return;
 						}
 					}
-					else if (cmd->sidemove == 0) {
-						MicroMoveSide = !MicroMoveSide; // cant remember why i put this here???? dementia machport moment
-						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
-					}
+					//else if (cmd->sidemove == 0) {
+					//	MicroMoveSide = !MicroMoveSide;
+					//	cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+					//}
 				}
 
 				break;

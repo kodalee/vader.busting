@@ -843,6 +843,10 @@ bool c_lua::initialize() {
 	surface[XorStr("set_text_font")] = lua_surface::set_text_font;
 	surface[XorStr("set_text_pos")] = lua_surface::set_text_pos;
 
+	auto modelinfo = this->lua.create_table();
+	modelinfo[XorStr("get_model_index")] = lua_modelinfo::get_model_index;
+	modelinfo[XorStr("get_studio_model")] = lua_modelinfo::get_studio_model;
+
 	auto debugoverlay = this->lua.create_table();
 	debugoverlay[XorStr("add_box_overlay")] = lua_debugoverlay::add_box_overlay;
 	debugoverlay[XorStr("add_line_overlay")] = lua_debugoverlay::add_line_overlay;
@@ -924,6 +928,7 @@ bool c_lua::initialize() {
 	this->lua[XorStr("cheat")] = cheat;
 	this->lua[XorStr("math2")] = math;
 	this->lua[XorStr("surface")] = surface;
+	this->lua[XorStr("modelinfo")] = modelinfo;
 	this->lua[XorStr("debugoverlay")] = debugoverlay;
 	this->lua[XorStr("engine")] = engine;
 	this->lua[XorStr("entity_list")] = entity_list;
