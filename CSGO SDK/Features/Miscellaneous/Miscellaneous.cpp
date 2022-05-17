@@ -71,7 +71,7 @@ namespace Interfaces
 
 		ClantagChanger( );
 		ViewModelChanger( );
-		RainSoundEffects( );
+		//RainSoundEffects( );
 	}
 
 	void C_Miscellaneous::ModulateWorld( ) {
