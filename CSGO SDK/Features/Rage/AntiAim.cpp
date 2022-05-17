@@ -914,9 +914,9 @@ namespace Interfaces
 
 			cmd->viewangles.y = flYaw;
 
-			//if (!g_Vars.misc.mind_trick_bind.enabled) {
+			if (!(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) {
 				Distort(cmd);
-			//}
+			}
 
 			FakeFlick(cmd, bSendPacket);
 		
