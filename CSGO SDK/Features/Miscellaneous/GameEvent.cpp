@@ -310,7 +310,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 					if( g_Vars.esp.event_harm ) {
 						std::stringstream msg;
 
-						msg << XorStr( "harmed by " ) << enemy_info.szName << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
+						msg << XorStr( "harmed by " ) << attacker_info.szName << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
 
 						ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "" ) );
 					}
