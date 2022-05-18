@@ -302,12 +302,10 @@ namespace lua_debugoverlay {
 	}
 }
 namespace lua_engine {
-	float get_screen_width() {
-		return Render::GetScreenSize().x;
-	}
-
-	float get_screen_height() {
-		return Render::GetScreenSize().y;
+	Vector2D get_screen_size() {
+		int w, h;
+		Interfaces::m_pEngine->GetScreenSize(w, h);
+		return Vector2D(w, h);
 	}
 
 	int get_player_for_user_id(int userid) {
@@ -858,8 +856,7 @@ bool c_lua::initialize() {
 	engine[XorStr("get_local_player_index")] = lua_engine::get_local_player_index;
 	engine[XorStr("get_max_clients")] = lua_engine::get_max_clients;
 	engine[XorStr("get_net_channel_info")] = lua_engine::get_net_channel_info;
-	engine[XorStr("get_screen_width")] = lua_engine::get_screen_width;
-	engine[XorStr("get_screen_height")] = lua_engine::get_screen_height;
+	engine[XorStr("get_screen_size")] = lua_engine::get_screen_size;
 	engine[XorStr("get_view_angles")] = lua_engine::get_view_angles;
 	engine[XorStr("set_view_angles")] = lua_engine::set_view_angles;
 	engine[XorStr("is_connected")] = lua_engine::is_connected;
