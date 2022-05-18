@@ -1534,7 +1534,7 @@ namespace Interfaces
 				bool invalid = g_GameRules && *( bool* )( *( uintptr_t* )g_GameRules + 0x20 ) || ( entity->m_fFlags( ) & ( 1 << 6 ) );
 
 				if (g_Vars.fakelag.vis_lag) {
-					OverrideMaterial(false, MATERIAL_FLAT, g_Vars.fakelag.vis_lag_color, 0.f, false);
+					OverrideMaterial(false, MATERIAL_REGULAR, g_Vars.fakelag.vis_lag_color, 0.f, false);
 					Hooked::oDrawModelExecute(ECX, MatRenderContext, DrawModelState, RenderInfo, g_Vars.globals.LagPosition);
 					InvalidateMaterial( );
 				}
@@ -1603,7 +1603,7 @@ namespace Interfaces
 						// start from begin
 						matrix3x4_t out[ 128 ];
 						if( CChams::GetBacktrackMatrix( entity, out ) ) {
-							OverrideMaterial( true, MATERIAL_FLAT, g_Vars.esp.chams_history_color );
+							OverrideMaterial( true, MATERIAL_REGULAR, g_Vars.esp.chams_history_color );
 							Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, out );
 
 							InvalidateMaterial( );
