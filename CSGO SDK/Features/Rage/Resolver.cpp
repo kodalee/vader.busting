@@ -574,11 +574,49 @@ namespace Engine {
 
 		//printf(std::to_string(record->m_anim_time > record->m_body_update).c_str());
 
+		// predict LBY flicks.
+		if (!player->IsDormant() && !record->dormant()) {
+			// since we null velocity when they fakewalk, no need to check for it.
+			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
+			//	Add[player->EntIndex()] = 0.22f;
+			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			//}
+			// lby wont update on this tick but after.
+			if (player->m_flAnimationTime() >= NextLBYUpdate[player->EntIndex()])
+			{
+				is_flicking = true;
+				Add[player->EntIndex()] = 1.1f;
+				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+			else
+				is_flicking = false;
+
+			// LBY updated via PROXY.
+			if (pLagData->m_body != pLagData->m_old_body) {
+				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+
+			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
+				Add[player->EntIndex()] = 0.22f;
+				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+
+		}
+		else {
+			is_flicking = false;
+			record->m_body_update = 0.f;
+			NextLBYUpdate[player->EntIndex()] = 0.f;
+		}
+
 		if (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking) {
 
 			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking) {
 				record->m_iResolverMode = FLICK;
-				printf("FLICKING\n");
 			}
 
 			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
@@ -644,51 +682,7 @@ namespace Engine {
 		if (!pLagData.IsValid())
 			return;
 
-		if (player->IsDormant()) {
-			is_flicking = false;
-		}
-
 		C_AnimationRecord* move = &pLagData->m_walk_record;
-
-		// predict LBY flicks.
-		if (!player->IsDormant() && !record->dormant()) {
-			// since we null velocity when they fakewalk, no need to check for it.
-			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
-			//	Add[player->EntIndex()] = 0.22f;
-			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			//}
-			// lby wont update on this tick but after.
-			if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && record->m_moved)
-			{
-				is_flicking = true;
-				Add[player->EntIndex()] = 1.1f;
-				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-			else
-				is_flicking = false;
-
-			// LBY updated via PROXY.
-			if (pLagData->m_body != pLagData->m_old_body && record->m_moved) {
-				is_flicking = true;
-				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-			else
-				is_flicking = false;
-
-			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
-				Add[player->EntIndex()] = 0.22f;
-				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-
-		}
-		else {
-			is_flicking = false;
-		}
 
 		const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
@@ -707,10 +701,12 @@ namespace Engine {
 				AntiFreestand(record, player);
 			}
 			else if (record->m_iResolverMode == LASTMOVE) {
-				record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
+				record->m_angEyeAngles.y = move->m_body;
+				record->m_iResolverText = XorStr("LASTMOVE");
 			}
 			else if (record->m_iResolverMode == LBYDELTA) {
 				record->m_angEyeAngles.y = Math::normalize_float(pLagData->m_flLowerBodyYawTarget - pLagData->m_flSavedLbyDelta);
+				record->m_iResolverText = XorStr("DELTA");
 			}
 			else if (record->m_moved && record->m_iDistorting[player->EntIndex()]) {
 				record->m_angEyeAngles.y = at_target_yaw + 180.f;
@@ -719,7 +715,7 @@ namespace Engine {
 				AntiFreestand(record, player);
 			}
 			else if(record->m_iResolverMode == STAND) {
-				switch (pLagData->m_iMissedBruteShots % 5) {
+				switch (pLagData->m_iMissedBruteShots % 6) {
 				case 0:
 					record->m_angEyeAngles.y = at_target_yaw + 180.f;
 					break;
@@ -730,9 +726,12 @@ namespace Engine {
 					record->m_angEyeAngles.y = at_target_yaw + 70.f;
 					break;
 				case 3:
-					record->m_angEyeAngles.y = at_target_yaw - 120.f;
+					record->m_angEyeAngles.y = at_target_yaw;
 					break;
 				case 4:
+					record->m_angEyeAngles.y = at_target_yaw - 120.f;
+					break;
+				case 5:
 					record->m_angEyeAngles.y = at_target_yaw + 120.f;
 					break;
 				}
@@ -879,9 +878,6 @@ namespace Engine {
 
 		// apply lby to eyeangles.
 		record->m_angEyeAngles.y = record->m_body;
-
-		// delay body update.
-		record->m_body_update = record->m_anim_time + 0.22f;
 
 		float speed = record->m_vecVelocity.Length2D();
 
@@ -1161,50 +1157,6 @@ namespace Engine {
 					//printf("move true 2\n");
 				}
 			}
-		}
-
-		if (player->IsDormant()) {
-			is_flicking = false;
-		}
-
-		// predict LBY flicks.
-		if (!player->IsDormant() && !record->dormant()) {
-			// since we null velocity when they fakewalk, no need to check for it.
-			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
-			//	Add[player->EntIndex()] = 0.22f;
-			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			//}
-			// lby wont update on this tick but after.
-			if (record->m_anim_time >= NextLBYUpdate[player->EntIndex()] && record->m_moved)
-			{
-				is_flicking = true;
-				Add[player->EntIndex()] = 1.1f;
-				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-			else
-				is_flicking = false;
-
-			// LBY updated via PROXY.
-			if (pLagData->m_body != pLagData->m_old_body && record->m_moved) {
-				is_flicking = true;
-				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-			else
-				is_flicking = false;
-
-			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
-				Add[player->EntIndex()] = 0.22f;
-				NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-
-		}
-		else {
-			is_flicking = false;
 		}
 
 		if (is_flicking) {
