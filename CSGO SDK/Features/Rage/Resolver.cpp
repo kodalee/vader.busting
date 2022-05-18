@@ -420,7 +420,7 @@ namespace Engine {
 			NextLBYUpdate[player->EntIndex()] = 0.f;
 		}
 
-		if (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking) {
+		if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
 
 			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking) {
 				record->m_iResolverMode = FLICK;
@@ -453,7 +453,7 @@ namespace Engine {
 				record->m_iResolverMode = ANTIFREESTAND;
 			}
 
-			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
+			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition && pLagData->m_iMissedShotsFreestand < 2) {
 				record->m_iResolverMode = ANTIFREESTAND;
 			}
 			else {
