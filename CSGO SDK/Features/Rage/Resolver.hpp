@@ -110,7 +110,7 @@ namespace Engine {
 		void ResolveYaw(C_CSPlayer* player, C_AnimationRecord* record);
 		void OnBodyUpdate(C_CSPlayer* player, float value);
 		void MatchShot(C_CSPlayer* data, C_AnimationRecord* record);
-		void SetMode(C_AnimationRecord* record);
+		void SetMode(C_CSPlayer* player, C_AnimationRecord* record);
 		void LastMoveLby(C_AnimationRecord* record, C_CSPlayer* player);
 		float GetDirectionAngle(int index, C_CSPlayer* player);
 		float GetLBYRotatedYaw(float lby, float yaw);

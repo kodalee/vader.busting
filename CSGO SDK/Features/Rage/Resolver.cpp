@@ -368,15 +368,101 @@ namespace Engine {
 	static float NextLBYUpdate[65];
 	static float Add[65];
 
-	void CResolver::SetMode(C_AnimationRecord* record) {
-		// the resolver has 3 modes to chose from.
-		// these modes will vary more under the hood depending on what data we have about the player
-		// and what kind of hack vs. hack we are playing (mm/nospread).
+	void CResolver::SetMode(C_CSPlayer* player, C_AnimationRecord* record) {
+		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+		if (!pLagData.IsValid())
+			return;
+
+		auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
+		if (!anim_data)
+			return;
+
+		const auto simtime = record->m_flSimulationTime;
 
 		float speed = record->m_vecVelocity.Length2D();
 
+		// predict LBY flicks.
+		if (!player->IsDormant() && !record->dormant()) {
+			// since we null velocity when they fakewalk, no need to check for it.
+			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
+			//	Add[player->EntIndex()] = 0.22f;
+			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
+			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			//}
+			// lby wont update on this tick but after.
+			if (player->m_flAnimationTime() >= NextLBYUpdate[player->EntIndex()])
+			{
+				is_flicking = true;
+				Add[player->EntIndex()] = 1.1f;
+				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+			else
+				is_flicking = false;
+
+			// LBY updated via PROXY.
+			if (pLagData->m_body != pLagData->m_old_body) {
+				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+
+			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
+				Add[player->EntIndex()] = 0.22f;
+				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+
+		}
+		else {
+			is_flicking = false;
+			record->m_body_update = 0.f;
+			NextLBYUpdate[player->EntIndex()] = 0.f;
+		}
+
+		if (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking) {
+
+			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking) {
+				record->m_iResolverMode = FLICK;
+			}
+
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
+				record->m_iResolverMode = LASTMOVE;
+			}
+
+			else if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin && pLagData->m_iMissedShotsFreestand < 1 && pLagData->m_delta_index < 1)
+			{
+				if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.65f && pLagData->m_iMissedShotsFreestand < 1)
+				{
+					record->m_iResolverMode = ANTIFREESTAND;
+				}
+				else if (pLagData->m_delta_index < 1)
+				{
+					record->m_iResolverMode = LBYDELTA;
+					pLagData->m_flSavedLbyDelta = pLagData->m_flLowerBodyYawTarget - pLagData->m_flOldLowerBodyYawTarget;
+				}
+			}
+
+			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
+				record->m_iResolverMode = DISTORTINGLMOVE;
+			}
+			//if (is_spin(record, player)) {
+			//	record->m_iResolverMode = SPIN;
+			//}
+			else if (ShouldUseFreestand(record, player) && pLagData->m_iMissedShotsFreestand < 2) {
+				record->m_iResolverMode = ANTIFREESTAND;
+			}
+
+			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
+				record->m_iResolverMode = ANTIFREESTAND;
+			}
+			else {
+				record->m_iResolverMode = STAND;
+			}
+		}
+
 		// if on ground, moving, and not fakewalking.
-		if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking)
+		else if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking)
 			record->m_iResolverMode = MOVING;
 
 		//if (g_Vars.rage.override_reoslver.enabled && record->m_fFlags & FL_ONGROUND && (speed <= 25.f || record->m_bFakeWalking))
@@ -387,10 +473,10 @@ namespace Engine {
 		//	record->m_iResolverMode = LASTMOVE;
 
 		// if not on ground.
-		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecVelocity.Length2D() > 30.f)
+		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecVelocity.Length2D() > 45.f)
 			record->m_iResolverMode = AIR;
 
-		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecAnimationVelocity.Length2D() <= 30.f)
+		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecAnimationVelocity.Length2D() <= 45.f)
 			record->m_iResolverMode = AIRSTAND;
 	}
 
@@ -559,7 +645,7 @@ namespace Engine {
 		MatchShot(player, record);
 
 		// next up mark this record with a resolver mode that will be used.
-		SetMode(record);
+		SetMode(player, record);
 
 		// if we are in nospread mode, force all players pitches to down.
 		// TODO; we should check thei actual pitch and up too, since those are the other 2 possible angles.
@@ -574,85 +660,6 @@ namespace Engine {
 
 		//printf(std::to_string(record->m_anim_time > record->m_body_update).c_str());
 
-		// predict LBY flicks.
-		if (!player->IsDormant() && !record->dormant()) {
-			// since we null velocity when they fakewalk, no need to check for it.
-			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
-			//	Add[player->EntIndex()] = 0.22f;
-			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			//}
-			// lby wont update on this tick but after.
-			if (player->m_flAnimationTime() >= NextLBYUpdate[player->EntIndex()])
-			{
-				is_flicking = true;
-				Add[player->EntIndex()] = 1.1f;
-				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-			else
-				is_flicking = false;
-
-			// LBY updated via PROXY.
-			if (pLagData->m_body != pLagData->m_old_body) {
-				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-
-			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
-				Add[player->EntIndex()] = 0.22f;
-				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-
-		}
-		else {
-			is_flicking = false;
-			record->m_body_update = 0.f;
-			NextLBYUpdate[player->EntIndex()] = 0.f;
-		}
-
-		if (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking) {
-
-			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking) {
-				record->m_iResolverMode = FLICK;
-			}
-
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
-				record->m_iResolverMode = LASTMOVE;
-			}
-
-			else if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin && pLagData->m_iMissedShotsFreestand < 1 && pLagData->m_delta_index < 1)
-			{
-				if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.65f && pLagData->m_iMissedShotsFreestand < 1)
-				{
-					record->m_iResolverMode = ANTIFREESTAND;
-				}
-				else if (pLagData->m_delta_index < 1)
-				{
-					record->m_iResolverMode = LBYDELTA;
-					pLagData->m_flSavedLbyDelta = pLagData->m_flLowerBodyYawTarget - pLagData->m_flOldLowerBodyYawTarget;
-				}
-			}
-
-			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
-				record->m_iResolverMode = DISTORTINGLMOVE;
-			}
-			//if (is_spin(record, player)) {
-			//	record->m_iResolverMode = SPIN;
-			//}
-			else if (ShouldUseFreestand(record, player) && pLagData->m_iMissedShotsFreestand < 2) {
-				record->m_iResolverMode = ANTIFREESTAND;
-			}
-
-			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
-				record->m_iResolverMode = ANTIFREESTAND;
-			}
-			else {
-				record->m_iResolverMode = STAND;
-			}
-		}
 		// we arrived here we can do the acutal resolve.
 		if (record->m_iResolverMode == MOVING && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition)
 			ResolveWalk(player, record);
