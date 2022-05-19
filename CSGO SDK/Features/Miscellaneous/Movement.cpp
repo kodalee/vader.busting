@@ -719,6 +719,11 @@ namespace Interfaces
 		if( m_movement_data->m_pLocal->m_MoveType( ) != MOVETYPE_WALK )
 			return;
 
+		if (GetAsyncKeyState(VK_SHIFT)) {
+			InstantStop();
+			return;
+		}
+
 		static auto side = 1.0f;
 		side = -side;
 
@@ -836,7 +841,6 @@ namespace Interfaces
 
 		// not on ground dont fakewalk.
 		if (!(m_movement_data->m_pLocal->m_fFlags() & FL_ONGROUND)) {
-			InstantStop();
 			return;
 		}
 
