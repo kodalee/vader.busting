@@ -42,7 +42,7 @@ namespace lua_events {
 		//else {
 
 		g_luagameeventmanager.register_gameevent(eventname, g_lua.get_script_id(filename), func);
-		engine_console(filename + XorStr(": subscribed to gameevent ") + eventname);
+		engine_console(filename + XorStr(": registered to ") + eventname);
 
 		//}
 		
@@ -147,7 +147,7 @@ namespace lua_config {
 			return false;
 	}
 
-	float pingspike_value() {
+	int pingspike_value() {
 		return g_Vars.misc.extended_backtrack_time;
 	}
 
@@ -196,7 +196,7 @@ namespace lua_config {
 		g_Vars.antiaim.Jitter_range = value;
 	}
 
-	int antiaim_fakewalk_enabled() {
+	bool antiaim_fakewalk_enabled() {
 		return g_Vars.misc.slow_walk_bind.enabled;
 	}
 
@@ -652,14 +652,6 @@ bool c_lua::initialize() {
 	this->lua = sol::state(sol::c_call<decltype(&lua_panic), &lua_panic>);
 	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package, sol::lib::os, sol::lib::io, sol::lib::bit32, sol::lib::ffi, sol::lib::jit);
 
-	this->lua["collectgarbage"] = sol::nil;
-	this->lua["dofile"] = sol::nil;
-	this->lua["load"] = sol::nil;
-	this->lua["loadfile"] = sol::nil;
-	this->lua["print"] = sol::nil;
-	this->lua["xpcall"] = sol::nil;
-	this->lua["__nil_callback"] = []() {};
-
 	this->lua["print"] = [](std::string s) { engine_console(s); };
 	this->lua["error"] = [](std::string s) { engine_console(s); };
 
@@ -670,7 +662,7 @@ bool c_lua::initialize() {
 		(std::string)XorStr("a"), &Color::a
 		);
 
-	this->lua.new_usertype<CUserCmd>(XorStr("c_usercmd"),
+	this->lua.new_usertype<CUserCmd>(XorStr("cmd"),
 		XorStr("command_number"), sol::readonly(&CUserCmd::command_number),
 		XorStr("tick_count"), sol::readonly(&CUserCmd::tick_count),
 		XorStr("viewangles"), &CUserCmd::viewangles,
@@ -687,7 +679,7 @@ bool c_lua::initialize() {
 		XorStr("mousedy"), &CUserCmd::mousedy,
 		XorStr("hasbeenpredicted"), sol::readonly(&CUserCmd::hasbeenpredicted)
 		);
-	this->lua.new_usertype<IGameEvent>(XorStr("c_gameevent"),
+	this->lua.new_usertype<IGameEvent>(XorStr("game_event"),
 		XorStr("get_name"), &IGameEvent::GetName,
 		XorStr("is_reliable"), &IGameEvent::IsReliable,
 		XorStr("is_local"), &IGameEvent::IsLocal,
@@ -733,7 +725,6 @@ bool c_lua::initialize() {
 		XorStr("additive"), FontFlags_t::FONTFLAG_ADDITIVE,
 		XorStr("outline"), FontFlags_t::FONTFLAG_OUTLINE
 	);
-	this->lua.new_usertype<ConVar>(XorStr("c_convar"));
 	this->lua.new_usertype<INetChannel>(XorStr("INetChannelnelinfo"),
 		XorStr("out_sequence_nr"), sol::readonly(&INetChannel::m_nOutSequenceNr),
 		XorStr("in_sequence_nr"), sol::readonly(&INetChannel::m_nInSequenceNr),
@@ -776,7 +767,7 @@ bool c_lua::initialize() {
 		XorStr("z"), &QAngle::z,
 		XorStr("normalize"), &QAngle::Normalize
 		);
-	this->lua.new_usertype<C_CSPlayer>(XorStr("c_baseentity"),
+	this->lua.new_usertype<C_CSPlayer>(XorStr("player"),
 		XorStr("is_player"), &C_CSPlayer::IsPlayer,
 		XorStr("is_alive"), &C_CSPlayer::IsAlive,
 		XorStr("is_dead"), &C_CSPlayer::IsDead,
@@ -793,7 +784,7 @@ bool c_lua::initialize() {
 		);
 
 	auto events = this->lua.create_table();
-	events[XorStr("gameevent_callback")] = lua_events::gameevent_callback;
+	events[XorStr("register_event")] = lua_events::gameevent_callback;
 
 	auto config = this->lua.create_table();
 	config[XorStr("get")] = lua_config::get;
@@ -843,7 +834,7 @@ bool c_lua::initialize() {
 
 	auto modelinfo = this->lua.create_table();
 	modelinfo[XorStr("get_model_index")] = lua_modelinfo::get_model_index;
-	modelinfo[XorStr("get_studio_model")] = lua_modelinfo::get_studio_model;
+	//modelinfo[XorStr("get_studio_model")] = lua_modelinfo::get_studio_model;
 
 	auto debugoverlay = this->lua.create_table();
 	debugoverlay[XorStr("add_box_overlay")] = lua_debugoverlay::add_box_overlay;
