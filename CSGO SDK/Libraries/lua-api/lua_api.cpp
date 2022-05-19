@@ -281,7 +281,7 @@ namespace lua_modelinfo {
 	}
 
 	int get_model_index(std::string name) {
-		return  Interfaces::m_pModelInfo->GetModelIndex(name.c_str());
+		return Interfaces::m_pModelInfo->GetModelIndex(name.c_str());
 	}
 }
 namespace lua_debugoverlay {
@@ -725,7 +725,7 @@ bool c_lua::initialize() {
 		XorStr("additive"), FontFlags_t::FONTFLAG_ADDITIVE,
 		XorStr("outline"), FontFlags_t::FONTFLAG_OUTLINE
 	);
-	this->lua.new_usertype<INetChannel>(XorStr("INetChannelnelinfo"),
+	this->lua.new_usertype<INetChannel>(XorStr("inetchannel"),
 		XorStr("out_sequence_nr"), sol::readonly(&INetChannel::m_nOutSequenceNr),
 		XorStr("in_sequence_nr"), sol::readonly(&INetChannel::m_nInSequenceNr),
 		XorStr("out_sequence_nr_ack"), sol::readonly(&INetChannel::m_nOutSequenceNrAck),
