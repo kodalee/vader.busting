@@ -2437,30 +2437,15 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	std::string name;
 
 	if (!g_Vars.globals.vader_user.empty()) {
-		for (int i = 0; i <= Interfaces::m_pEntList->GetHighestEntityIndex(); ++i) {
-			auto entity = (C_BaseEntity*)Interfaces::m_pEntList->GetClientEntity(i);
+		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player->EntIndex()) != g_Vars.globals.vader_user.end()) {
 
-			if (!entity)
-				continue;
+			//printf(player_info.szName);
+			//printf("\n");
 
-			if (!entity->GetClientClass())
-				continue;
+			//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
+			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
 
-			//auto player = ToCSPlayer(entity);
-
-			//if (!player)
-			//	continue;
-
-			if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player->EntIndex()) != g_Vars.globals.vader_user.end()) {
-
-				//printf(player_info.szName);
-				//printf("\n");
-
-				//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
-				//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
-
-				name += player_info.steamID64 == 76561198041707533 ? XorStr("[boss] ") : XorStr("[vader] ");
-			}
+			name += player_info.steamID64 == 76561198041707533 ? XorStr("[boss] ") : XorStr("[vader] ");
 		}
 	}
 
