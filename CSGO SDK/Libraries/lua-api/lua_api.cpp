@@ -52,20 +52,28 @@ namespace lua_events {
 }
 
 namespace lua_ui {
-	float keybinds_pos_x() {
-		return g_Vars.esp.keybind_window_x;
+	Vector2D keybinds_pos() {
+		float x, y;
+		x = g_Vars.esp.keybind_window_x;
+		y = g_Vars.esp.keybind_window_y;
+
+		return Vector2D(x, y);
 	}
 
-	float keybinds_pos_y() {
-		return g_Vars.esp.keybind_window_y;
+	Vector2D speclist_pos() {
+		float x, y;
+		x = g_Vars.esp.spec_window_x;
+		y = g_Vars.esp.spec_window_y;
+
+		return Vector2D(x, y);
 	}
 
-	float speclist_pos_x() {
-		return g_Vars.esp.spec_window_x;
+	bool keybinds_open() {
+		return g_Vars.globals.m_bKeyBindOpen;
 	}
 
-	float speclist_pos_y() {
-		return g_Vars.esp.spec_window_y;
+	bool speclist_open() {
+		return g_Vars.globals.m_bSpecListOpen;
 	}
 
 }
@@ -206,6 +214,14 @@ namespace lua_config {
 
 	bool slide_walk_set(bool value) {
 		return g_Vars.misc.slide_walk = value;
+	}
+
+	bool mindtrick_enabled() {
+		if (g_Vars.misc.mind_trick) {
+			return g_Vars.misc.mind_trick_bind.enabled;
+		}
+		else
+			return false;
 	}
 }
 
@@ -804,6 +820,7 @@ bool c_lua::initialize() {
 	config[XorStr("antiaim_fakewalk_enabled")] = lua_config::antiaim_fakewalk_enabled;
 	config[XorStr("forcebaim_enabled")] = lua_config::forcebaim_enabled;
 	config[XorStr("slide_walk_set")] = lua_config::slide_walk_set;
+	config[XorStr("mindtrick_enabled")] = lua_config::mindtrick_enabled;
 
 
 	auto cheat = this->lua.create_table();
@@ -902,10 +919,10 @@ bool c_lua::initialize() {
 	render[XorStr("world_to_screen")] = lua_render::world_to_screen;
 
 	auto ui = this->lua.create_table();
-	ui[XorStr("keybinds_pos_x")] = lua_ui::keybinds_pos_x;
-	ui[XorStr("keybinds_pos_y")] = lua_ui::keybinds_pos_y;
-	ui[XorStr("speclist_pos_x")] = lua_ui::speclist_pos_x;
-	ui[XorStr("speclist_pos_y")] = lua_ui::speclist_pos_y;
+	ui[XorStr("keybinds_pos")] = lua_ui::keybinds_pos;
+	ui[XorStr("speclist_pos")] = lua_ui::speclist_pos;
+	ui[XorStr("keybinds_open")] = lua_ui::keybinds_open;
+	ui[XorStr("speclist_open")] = lua_ui::speclist_open;
 
 	auto clientstate = this->lua.create_table();
 	clientstate[XorStr("chokedcommands")] = lua_clientstate::chokedcommands;

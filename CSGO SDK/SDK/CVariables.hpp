@@ -496,6 +496,9 @@ public:
 		bool m_bDraggingKeyBind = false;
 		bool m_bDraggingSpecList = false;
 
+		bool m_bKeyBindOpen = false;
+		bool m_bSpecListOpen = false;
+
 		QAngle m_StoredAngle = QAngle( 0.f, 0.f, 0.f );
 		QAngle m_ShotAngle = QAngle( 0.f, 0.f, 0.f );
 		bool m_bForceFiringAnimation = false;

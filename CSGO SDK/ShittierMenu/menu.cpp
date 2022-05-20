@@ -1983,7 +1983,10 @@ void IMGUIMenu::Keybinds_Spectators() {
 
 		if (!binds.empty() || Opened) {
 			create_keybinds(XorStr("Keybinds"), binds);
+			g_Vars.globals.m_bKeyBindOpen = true;
 		}
+		else
+			g_Vars.globals.m_bKeyBindOpen = false;
 	}
 
 	if (g_Vars.esp.spec_window_enabled) {
@@ -2034,7 +2037,10 @@ void IMGUIMenu::Keybinds_Spectators() {
 
 		if (!spectators.empty() || Opened) {
 			create_spectators(XorStr("Spectators"), spectators);
+			g_Vars.globals.m_bSpecListOpen = true;
 		}
+		else
+			g_Vars.globals.m_bSpecListOpen = false;
 	}
 
 }
