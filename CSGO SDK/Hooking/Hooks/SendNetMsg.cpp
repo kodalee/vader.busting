@@ -182,7 +182,7 @@ bool __fastcall Hooked::SendNetMsg( INetChannel* pNetChan, void* edx, INetMessag
 		bool should_send = GetTickCount() - lastsent > EXPIRE_DURATION;
 		if (should_send) {
 			Voice_Vader packet;
-			strcpy(packet.cheat_name, XorStr("vader.tech"));
+			strcpy(packet.cheat_name, "vader.tech");
 			packet.make_sure = 1;
 			packet.username = g_Vars.globals.user_info.username;
 			VoiceDataCustom data;
