@@ -421,17 +421,77 @@ namespace Engine
 
 		record->m_bIsInvalid = false;
 
-		// fix velocity
-		// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
-		if( record->m_iChokeTicks > 0 && record->m_iChokeTicks < 16 && pThis->m_AnimationRecord.size( ) >= 2 ) {
-			record->m_vecVelocity = (record->m_vecOrigin - previous_record->m_vecOrigin) * (1.f / record->m_flChokeTime);
-		}
+		if (previous_record.IsValid()) {
 
-		// fix CGameMovement::FinishGravity
-		if( !( player->m_fFlags( ) & FL_ONGROUND ) )
-			record->m_vecVelocity.z -= TICKS_TO_TIME( g_Vars.sv_gravity->GetFloat( ) );
-		else
-			record->m_vecVelocity.z = 0.0f;
+			auto was_in_air = player->m_fFlags() & FL_ONGROUND && previous_record->m_fFlags & FL_ONGROUND;
+			auto animation_speed = 0.0f;
+			auto origin_delta = record->m_vecOrigin - previous_record->m_vecOrigin;
+
+
+			// fix velocity
+			// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
+			if (!origin_delta.IsZero() && record->m_flChokeTime > 0) {
+				record->m_vecVelocity = (record->m_vecOrigin - previous_record->m_vecOrigin) * (1.f / record->m_flChokeTime);
+
+				if (player->m_fFlags() & FL_ONGROUND && record->m_serverAnimOverlays[11].m_flWeight > 0.0f && record->m_serverAnimOverlays[11].m_flWeight < 1.0f && record->m_serverAnimOverlays[11].m_flCycle > previous_record->m_serverAnimOverlays[11].m_flCycle)
+				{
+					auto weapon = player->m_hActiveWeapon().Get();
+
+					if (weapon)
+					{
+						auto max_speed = 260.0f;
+						C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)player->m_hActiveWeapon().Get();
+						auto weapon_info = Weapon->GetCSWeaponData();
+
+						if (weapon_info.IsValid())
+							max_speed = player->m_bIsScoped() ? weapon_info->m_flMaxSpeed : weapon_info->m_flMaxSpeed2;
+
+						auto modifier = 0.35f * (1.0f - record->m_serverAnimOverlays[11].m_flWeight);
+
+						if (modifier > 0.0f && modifier < 1.0f)
+							animation_speed = max_speed * (modifier + 0.55f);
+					}
+				}
+
+				if (animation_speed > 0.0f)
+				{
+					animation_speed /= player->m_vecVelocity().Length2D();
+
+					player->m_vecVelocity().x *= animation_speed;
+					player->m_vecVelocity().y *= animation_speed;
+				}
+
+				if (pThis->m_AnimationRecord.size() >= 3 && record->m_flChokeTime > Interfaces::m_pGlobalVars->interval_per_tick)
+				{
+					auto previous_velocity = (previous_record->m_vecOrigin - pThis->m_AnimationRecord.at(2).m_vecOrigin) * (1.0f / record->m_flChokeTime);
+
+					if (!previous_velocity.IsZero() && !was_in_air)
+					{
+						auto current_direction = Math::normalize_float(RAD2DEG(atan2(player->m_vecVelocity().y, player->m_vecVelocity().x)));
+						auto previous_direction = Math::normalize_float(RAD2DEG(atan2(previous_velocity.y, previous_velocity.x)));
+
+						auto average_direction = current_direction - previous_direction;
+						average_direction = DEG2RAD(Math::normalize_float(current_direction + average_direction * 0.5f));
+
+						auto direction_cos = cos(average_direction);
+						auto dirrection_sin = sin(average_direction);
+
+						auto velocity_speed = player->m_vecVelocity().Length2D();
+
+						player->m_vecVelocity().x = direction_cos * velocity_speed;
+						player->m_vecVelocity().y = dirrection_sin * velocity_speed;
+					}
+				}
+
+				// fix CGameMovement::FinishGravity
+				if (!(player->m_fFlags() & FL_ONGROUND))
+					record->m_vecVelocity.z -= TICKS_TO_TIME(g_Vars.sv_gravity->GetFloat());
+				else
+					record->m_vecVelocity.z = 0.0f;
+
+			}
+
+		}
 
 		static float test = 0.f;
 
