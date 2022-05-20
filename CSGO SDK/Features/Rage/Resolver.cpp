@@ -518,18 +518,18 @@ namespace Engine {
 
 		if (m_flLastResetTime1 >= m_flMaxResetTime1 && record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 30.f) {
 			m_iFakeFlickCheck++;
-			printf(std::to_string(m_iFakeFlickCheck).c_str());
-			printf(" < fake flick check hit\n");
+			//printf(std::to_string(m_iFakeFlickCheck).c_str());
+			//printf(" < fake flick check hit\n");
 		}
 
 		if (m_iFakeFlickCheck >= 10) {
 			record->m_bIsFakeFlicking = true;
-			printf("fakeflicking \n");
+			//printf("fakeflicking \n");
 		}
 		if (record->m_vecVelocity.Length2D() >= 30.f) {
 			record->m_bIsFakeFlicking = false;
 			m_iFakeFlickCheck = 0;
-			printf("fake flick reset due to speed \n");
+			//printf("fake flick reset due to speed \n");
 			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
 		}
 
@@ -548,7 +548,7 @@ namespace Engine {
 
 		if (pLagData->m_bRoundStart) {
 			record->m_moved = false;
-			printf("move reset\n");
+			//printf("move reset\n");
 		}
 
 		float delta = record->m_anim_time - move->m_anim_time;
