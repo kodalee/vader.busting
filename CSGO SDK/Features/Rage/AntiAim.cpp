@@ -994,7 +994,7 @@ namespace Interfaces
 
 		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
 
-		if (settings->base_yaw == 3 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands()) { // jitter
+		if (settings->base_yaw == 3 && g_Vars.globals.m_bGround && !Interfaces::m_pClientState->m_nChokedCommands() && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) { // jitter
 			static auto j = false;
 
 			cmd->viewangles.y += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
