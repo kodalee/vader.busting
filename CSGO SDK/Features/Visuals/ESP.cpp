@@ -1287,8 +1287,10 @@ void CEsp::Main( ) {
 	//	SpectatorList( true );
 
 	m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
-	if( !g_Vars.globals.HackIsReady || !m_LocalPlayer || !Interfaces::m_pEngine->IsInGame( ) )
+	if( !g_Vars.globals.HackIsReady || !m_LocalPlayer || !Interfaces::m_pEngine->IsInGame( ) ) {
+		g_Vars.globals.vader_user.clear( );
 		return;
+	}
 
 	if( g_Vars.esp.remove_scope && g_Vars.esp.remove_scope_type == 0 && ( m_LocalPlayer && m_LocalPlayer->m_hActiveWeapon( ).Get( ) && ( ( C_WeaponCSBaseGun* )m_LocalPlayer->m_hActiveWeapon( ).Get( ) )->GetCSWeaponData( ).IsValid( ) && ( ( C_WeaponCSBaseGun* )m_LocalPlayer->m_hActiveWeapon( ).Get( ) )->GetCSWeaponData( )->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE && m_LocalPlayer->m_bIsScoped( ) ) ) {
 		Interfaces::m_pSurface->DrawSetColor( Color( 0, 0, 0, 255 ) );
@@ -2431,7 +2433,38 @@ void CEsp::DrawBottomInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player
 void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info ) {
 	// fix retards with their namechange meme 
 	// the point of this is overflowing unicode compares with hardcoded buffers, good hvh strat
-	std::string name{ std::string( player_info.szName ).substr( 0, 24 ) };
+
+	std::string name;
+
+	if (!g_Vars.globals.vader_user.empty()) {
+		for (int i = 0; i <= Interfaces::m_pEntList->GetHighestEntityIndex(); ++i) {
+			auto entity = (C_BaseEntity*)Interfaces::m_pEntList->GetClientEntity(i);
+
+			if (!entity)
+				continue;
+
+			if (!entity->GetClientClass())
+				continue;
+
+			//auto player = ToCSPlayer(entity);
+
+			//if (!player)
+			//	continue;
+
+			if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player->EntIndex()) != g_Vars.globals.vader_user.end()) {
+
+				//printf(player_info.szName);
+				//printf("\n");
+
+				//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
+				//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
+
+				name += player_info.steamID64 == 76561198041707533 ? XorStr("[boss] ") : XorStr("[vader] ");
+			}
+		}
+	}
+
+	name += std::string( player_info.szName ).substr( 0, 24 );
 
 	//#if defined (DEV)
 	//	name.append( XorStr( " (" ) ).append( std::to_string( player->m_entIndex ) ).append( XorStr( ")" ) );

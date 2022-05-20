@@ -520,6 +520,8 @@ public:
 		bool m_rce_forceup;
 		bool need_break_lastmove;
 
+		std::vector<int> vader_user;
+
 		std::vector<std::pair<FloatColor, std::string>> m_vecTextInfo[65];
 
 	} GLOBAL, * PGLOBAL;

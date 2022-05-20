@@ -1617,6 +1617,7 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 void IMGUIMenu::Loading()
 {
 
+	Opened = true;
 
 	static bool load = true;
 	static float flCurTime;
