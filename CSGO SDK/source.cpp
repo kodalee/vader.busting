@@ -250,10 +250,10 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 		return;
 	}
 
-	if(local->EntIndex() == sender_index) {
-		oVoiceData(ecx, msg);
-		return;
-	}
+	//if(local->EntIndex() == sender_index) {
+	//	oVoiceData(ecx, msg);
+	//	return;
+	//}
 
 	if (m->format != 0) {
 		oVoiceData(ecx, msg);
