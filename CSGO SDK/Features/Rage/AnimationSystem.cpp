@@ -444,7 +444,7 @@ namespace Engine
 						auto weapon_info = Weapon->GetCSWeaponData();
 
 						if (weapon_info.IsValid())
-							max_speed = player->m_bIsScoped() ? weapon_info->m_flMaxSpeed : weapon_info->m_flMaxSpeed2;
+							max_speed = player->m_bIsScoped() ? weapon_info->m_flMaxSpeed2 : weapon_info->m_flMaxSpeed;
 
 						auto modifier = 0.35f * (1.0f - record->m_serverAnimOverlays[11].m_flWeight);
 
