@@ -1869,7 +1869,7 @@ namespace Interfaces
 										auto max = hitbox->bbmax.Transform(matrix[hitbox->bone]);
 
 										Interfaces::m_pDebugOverlay->AddCapsuleOverlay(min, max, hitbox->m_flRadius, g_Vars.esp.hitboxes_color.r * 255, g_Vars.esp.hitboxes_color.g * 255, g_Vars.esp.hitboxes_color.b * 255, g_Vars.esp.hitboxes_color.a * 255,
-											Interfaces::m_pCvar->FindVar(XorStr("sv_showlagcompensation_duration"))->GetFloat());
+											Interfaces::m_pCvar->FindVar(XorStr("sv_showlagcompensation_duration"))->GetFloat(), 0, 1);
 									}
 								}
 							}
