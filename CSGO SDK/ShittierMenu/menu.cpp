@@ -1431,7 +1431,7 @@ void Skins()
 
 	ImGui::NewLine();
 	{
-		const char* knife_models[]{ "Bayonet", "Bowie", "Butterfly", "Falchion", "Flip", "Gut", "Tactical", "Karambit", "M9 Bayonet", "Shadow Daggers" };
+		const char* knife_models[]{ XorStr("Bayonet"), XorStr("Bowie"), XorStr("Butterfly"), XorStr("Falchion"), XorStr("Flip"), XorStr("Gut"), XorStr("Tactical"), XorStr("Karambit"), XorStr("M9 Bayonet"), XorStr("Shadow Daggers") };
 
 		
 		switch (skinsSubtabs)
