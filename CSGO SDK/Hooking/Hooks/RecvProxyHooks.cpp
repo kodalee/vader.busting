@@ -50,7 +50,7 @@ enum ESequence
 
 const static std::unordered_map<std::string, int(*)(int)> animation_fix_map
 {
-	{ "models/weapons/v_knife_butterfly.mdl", [](int sequence) -> int
+	{ XorStr("models/weapons/v_knife_butterfly.mdl"), [](int sequence) -> int
 {
 	switch (sequence)
 	{
@@ -62,7 +62,7 @@ const static std::unordered_map<std::string, int(*)(int)> animation_fix_map
 			return sequence + 1;
 	}
 } },
-{ "models/weapons/v_knife_falchion_advanced.mdl", [](int sequence) -> int
+{ XorStr("models/weapons/v_knife_falchion_advanced.mdl"), [](int sequence) -> int
 {
 	switch (sequence)
 	{
@@ -79,7 +79,7 @@ const static std::unordered_map<std::string, int(*)(int)> animation_fix_map
 			return sequence - 1;
 	}
 } },
-{ "models/weapons/v_knife_push.mdl", [](int sequence) -> int
+{ XorStr("models/weapons/v_knife_push.mdl"), [](int sequence) -> int
 {
 	switch (sequence)
 	{
@@ -101,7 +101,7 @@ const static std::unordered_map<std::string, int(*)(int)> animation_fix_map
 			return sequence + 2;
 	}
 } },
-{ "models/weapons/v_knife_survival_bowie.mdl", [](int sequence) -> int
+{ XorStr("models/weapons/v_knife_survival_bowie.mdl"), [](int sequence) -> int
 {
 	switch (sequence)
 	{
