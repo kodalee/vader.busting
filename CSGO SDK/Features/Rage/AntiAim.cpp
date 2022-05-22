@@ -1216,9 +1216,9 @@ namespace Interfaces
 				freestanding();
 				flRetValue = m_auto + g_Vars.antiaim.add_yaw;
 			}
-			else if (DoFreestanding && DoEdgeAntiAim(local, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 2) { // run edge aa
-				flRetValue = Math::AngleNormalize(ang.y);
-			}
+			//else if (DoFreestanding && DoEdgeAntiAim(local, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 2) { // run edge aa
+			//	flRetValue = Math::AngleNormalize(ang.y);
+			//}
 
 
 			//if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {

@@ -317,7 +317,7 @@ void HvH()
 
 	const char* fake_yaw[] = { XorStr("Off"), XorStr("Static") };
 
-	const char* freestand_mode[] = { XorStr("Crosshair"), XorStr("Thickness"), XorStr("Edge")};
+	const char* freestand_mode[] = { XorStr("Crosshair"), XorStr("Thickness") };
 
 	const char* mind_trick_mode[] = { XorStr("Offensive"), XorStr("Defensive") };
 
@@ -378,9 +378,7 @@ void HvH()
 						InsertSliderInt(XorStr("Timeout time"), &g_Vars.antiaim.timeout_time, 0, 10, XorStr("%d"));
 					}
 
-					if (g_Vars.antiaim.freestand_mode != 2) {
-						InsertSliderInt(XorStr("Add yaw"), &g_Vars.antiaim.add_yaw, -180.f, 180.f, XorStr("%d"));
-					}
+					InsertSliderInt(XorStr("Add yaw"), &g_Vars.antiaim.add_yaw, -180.f, 180.f, XorStr("%d"));
 
 					std::vector<MultiItem_t> freestand_disablers = {
 						{ XorStr("Fakewalking"), &g_Vars.antiaim.freestand_disable_fakewalk },
