@@ -1,6 +1,12 @@
 #pragma once
 #include "../../SDK/sdk.hpp"
 
+struct angle_data {
+	float angle;
+	float thickness;
+	angle_data(const float angle, const float thickness) : angle(angle), thickness(thickness) {}
+};
+
 class freestanding
 {
 public:
