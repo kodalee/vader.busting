@@ -462,7 +462,7 @@ namespace Engine {
 		}
 
 		// if on ground, moving, and not fakewalking.
-		else if ((record->m_fFlags & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking)
+		else if ((record->m_fFlags & FL_ONGROUND || player->m_fFlags() & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking)
 			record->m_iResolverMode = MOVING;
 
 		//if (g_Vars.rage.override_reoslver.enabled && record->m_fFlags & FL_ONGROUND && (speed <= 25.f || record->m_bFakeWalking))
@@ -473,10 +473,10 @@ namespace Engine {
 		//	record->m_iResolverMode = LASTMOVE;
 
 		// if not on ground.
-		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecVelocity.Length2D() > 45.f)
+		else if (!(player->m_fFlags() & FL_ONGROUND) && record->m_vecVelocity.Length2D() > 45.f)
 			record->m_iResolverMode = AIR;
 
-		else if (!(record->m_fFlags & FL_ONGROUND) && record->m_vecAnimationVelocity.Length2D() <= 45.f)
+		else if (!(player->m_fFlags() & FL_ONGROUND) && record->m_vecAnimationVelocity.Length2D() <= 45.f)
 			record->m_iResolverMode = AIRSTAND;
 	}
 
