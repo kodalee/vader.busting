@@ -317,7 +317,7 @@ void HvH()
 
 	const char* fake_yaw[] = { XorStr("Off"), XorStr("Static") };
 
-	const char* freestand_mode[] = { XorStr("Crosshair"), XorStr("Edge") };
+	const char* freestand_mode[] = { XorStr("Crosshair"), XorStr("Thickness") };
 
 	const char* mind_trick_mode[] = { XorStr("Offensive"), XorStr("Defensive") };
 
@@ -376,8 +376,9 @@ void HvH()
 
 					if (g_Vars.antiaim.freestand_mode == 0) {
 						InsertSliderInt(XorStr("Timeout time"), &g_Vars.antiaim.timeout_time, 0, 10, XorStr("%d"));
-						InsertSliderInt(XorStr("Add yaw"), &g_Vars.antiaim.add_yaw, -180.f, 180.f, XorStr("%d"));
 					}
+
+					InsertSliderInt(XorStr("Add yaw"), &g_Vars.antiaim.add_yaw, -180.f, 180.f, XorStr("%d"));
 
 					std::vector<MultiItem_t> freestand_disablers = {
 						{ XorStr("Fakewalking"), &g_Vars.antiaim.freestand_disable_fakewalk },
@@ -1431,7 +1432,7 @@ void Skins()
 
 	ImGui::NewLine();
 	{
-		const char* knife_models[]{ "Bayonet", "Bowie", "Butterfly", "Falchion", "Flip", "Gut", "Tactical", "Karambit", "M9 Bayonet", "Shadow Daggers" };
+		const char* knife_models[]{ XorStr("Bayonet"), XorStr("Bowie"), XorStr("Butterfly"), XorStr("Falchion"), XorStr("Flip"), XorStr("Gut"), XorStr("Tactical"), XorStr("Karambit"), XorStr("M9 Bayonet"), XorStr("Shadow Daggers") };
 
 		
 		switch (skinsSubtabs)

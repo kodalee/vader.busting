@@ -20,6 +20,67 @@
 
 #define min2(a, b) (((a) < (b)) ? (a) : (b))
 
+float quick_normalize(float degree, const float min, const float max) {
+	while (degree < min)
+		degree += max - min;
+	while (degree > max)
+		degree -= max - min;
+
+	return degree;
+}
+
+bool trace_to_exit_short(Vector& point, Vector& dir, const float step_size, float max_distance)
+{
+	float flDistance = 0;
+
+	while (flDistance <= max_distance)
+	{
+		flDistance += step_size;
+
+		point += dir * flDistance;
+		int point_contents = Interfaces::m_pEngineTrace->GetPointContents(point, MASK_SHOT_HULL);
+		if (!(point_contents & MASK_SHOT_HULL))
+		{
+			// found first free point
+			return true;
+		}
+	}
+
+	return false;
+}
+
+float get_thickness(Vector& start, Vector& end, float distance) {
+	Vector dir = end - start;
+	Vector step = start;
+	if (dir.Length() > distance && distance != -1)
+		return -1;
+	dir.Normalize();
+	CTraceFilterWorldOnly filter;
+	CGameTrace trace;
+	Ray_t ray;
+	float thickness = 0;
+	while (true) {
+		ray.Init(step, end);
+		Interfaces::m_pEngineTrace->TraceRay(ray, MASK_SHOT_HULL, &filter, &trace);
+
+		if (!trace.DidHit())
+			return thickness;
+
+		const Vector lastStep = trace.endpos;
+		step = trace.endpos;
+
+		if ((end - start).Length() <= (step - start).Length())
+			break;
+
+		if (!trace_to_exit_short(step, dir, 5, 90))
+			return FLT_MAX;
+
+		thickness += (step - lastStep).Length();
+	}
+	return thickness;
+}
+
+
 //__m128 sub_384B9090(float* fl)
 //{
 //	float* v1; // edx
@@ -310,7 +371,7 @@ namespace Interfaces
 
 		void AutoDirection(Encrypted_t<CUserCmd> cmd);
 
-		void do_at_target(Encrypted_t<CUserCmd> cmd);
+		void freestanding();
 
 		void FakeFlick(Encrypted_t<CUserCmd> cmd, bool* bSendPacket);
 
@@ -1130,10 +1191,6 @@ namespace Interfaces
 
 		}
 
-		//if (!bUsingManualAA && g_Vars.antiaim.at_targets) {
-		//	do_at_target(cmd);
-		//}
-
 		float freestandingReturnYaw = std::numeric_limits< float >::max();
 
 		if (g_Vars.antiaim.freestand) {
@@ -1155,9 +1212,13 @@ namespace Interfaces
 				AutoDirection(cmd);
 				flRetValue = m_auto + g_Vars.antiaim.add_yaw;
 			}
-			else if (DoFreestanding && DoEdgeAntiAim(local, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1) { // run edge aa
-				flRetValue = Math::AngleNormalize(ang.y);
+			else if (DoFreestanding && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1) {
+				freestanding();
+				flRetValue = m_auto + g_Vars.antiaim.add_yaw;
 			}
+			//else if (DoFreestanding && DoEdgeAntiAim(local, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 2) { // run edge aa
+			//	flRetValue = Math::AngleNormalize(ang.y);
+			//}
 
 
 			//if (!bUsingManualAA && g_Vars.antiaim.freestand_mode == 0) {
@@ -1665,49 +1726,100 @@ namespace Interfaces
 		}
 	}
 
-	void C_AntiAimbot::do_at_target(Encrypted_t<CUserCmd> cmd)
-	{
+	void C_AntiAimbot::freestanding() {
 		const auto pLocal = C_CSPlayer::GetLocalPlayer();
 		if (!pLocal) return;
 
-		C_CSPlayer* target = nullptr;
-		QAngle target_angle;
+		std::vector< angle_data > points;
 
-		QAngle original_viewangles;
-		Interfaces::m_pEngine->GetViewAngles(original_viewangles);
+		auto local_position = pLocal->GetEyePosition();
+		std::vector< float > scanned = {};
 
-		auto lowest_fov = 90.f;
-		for (auto i = 1; i < Interfaces::m_pGlobalVars->maxClients; i++)
-		{
-			auto player = C_CSPlayer::GetPlayerByIndex(i);
+		for (auto i = 0; i <= 64; i++) {
+			auto enemy = (C_CSPlayer*)(Interfaces::m_pEntList->GetClientEntity(i));
+			if (enemy == nullptr) continue;
+			if (enemy == pLocal) continue;
+			if (!enemy->IsAlive()) continue;
+			if (enemy->m_iTeamNum() == pLocal->m_iTeamNum()) continue;
+			if (enemy->IsDormant()) continue;
+			if (!enemy->IsPlayer()) continue;
 
-			//skip invalid or unwanted
-			if (!player || player->IsDormant() || player == pLocal || player->IsDead() || player->m_iTeamNum() == pLocal->m_iTeamNum())
-				continue;
+			QAngle view;
 
-			if (player->IsDormant() && (player->m_flSimulationTime() > Interfaces::m_pGlobalVars->curtime || player->m_flSimulationTime() + 5.f < Interfaces::m_pGlobalVars->curtime))
-				continue;
+			view = Math::CalcAngle(local_position, enemy->GetEyePosition());
 
-			auto enemy_pos = player->m_vecOrigin();
-			enemy_pos.z += 64.f;
+			std::vector< angle_data > angs;
 
-			const auto angle = Math::CalcAngle(pLocal->GetEyePosition(), enemy_pos);
-			const auto fov = Math::get_fov(original_viewangles, angle);
+			for (auto y = 0; y < 8; y++) {
+				auto ang = quick_normalize((y * 45) + view.yaw, -180.f, 180.f);
+				auto found = false; // check if we already have a similar angle
 
-			if (fov < lowest_fov)
-			{
-				target = player;
-				lowest_fov = fov;
-				target_angle = angle;
+				for (auto i2 : scanned)
+					if (abs(quick_normalize(i2 - ang, -180.f, 180.f)) < 20.f)
+						found = true;
+
+				if (found)
+					continue;
+
+				points.emplace_back(ang, -1.f);
+				scanned.push_back(ang);
 			}
+			//points.push_back(base_angle_data(view.y, angs)); // base yaws and angle data (base yaw needed for lby breaking etc)
 		}
 
-		if (!target)
-			return;
+		for (auto i = 0; i <= 64; i++) {
+			auto enemy = (C_CSPlayer*)(Interfaces::m_pEntList->GetClientEntity(i));
+			if (enemy == nullptr) continue;
+			if (enemy == pLocal) continue;
+			if (!enemy->IsAlive()) continue;
+			if (enemy->m_iTeamNum() == pLocal->m_iTeamNum()) continue;
+			if (enemy->IsDormant()) continue;
+			if (!enemy->IsPlayer()) continue;
 
-		cmd->viewangles.y = target_angle.y;
+			auto found = false;
+			auto points_copy = points; // copy data so that we compare it to the original later to find the lowest thickness
+			auto enemy_eyes = enemy->GetEyePosition();
+
+			for (auto& z : points_copy) // now we get the thickness for all of the data
+			{
+				const QAngle tmp(10, z.angle, 0.0f);
+				Vector head;
+				Math::AngleVectors(tmp, head);
+				head *= ((16.0f + 3.0f) + ((16.0f + 3.0f) * sin(DEG2RAD(10.0f)))) + 7.0f;
+				head += local_position;
+				float distance = -1;
+				C_WeaponCSBaseGun* enemy_weapon = (C_WeaponCSBaseGun*)enemy->m_hActiveWeapon().Get();
+				if (enemy_weapon) {
+					auto weapon_data = enemy_weapon->GetCSWeaponData();
+					if (weapon_data.IsValid())
+						distance = weapon_data->m_flWeaponRange;
+				}
+				float local_thickness = get_thickness(head, enemy_eyes, distance);
+				z.thickness = local_thickness;
+
+				if (local_thickness > 0) // if theres a thickness of 0 dont use this data
+				{
+					found = true;
+				}
+			}
+
+			if (!found) // dont use, completely visible to this player or data is invalid
+				continue;
+
+			for (unsigned int z = 0; points_copy.size() > z; z++)
+				if (points_copy[z].thickness < points[z].thickness || points[z].thickness == -1)
+					// find the lowest thickness so that we can hide our head best for all entities
+					points[z].thickness = points_copy[z].thickness;
+		}
+		float best = 0;
+		for (auto& i : points)
+			if ((i.thickness > best || i.thickness == -1) && i.thickness != 0)
+				// find the best hiding spot (highest thickness)
+			{
+				best = i.thickness;
+				m_auto = Math::NormalizedAngle(i.angle);
+			}
 	}
-
 
 
 }
