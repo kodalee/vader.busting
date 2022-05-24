@@ -347,15 +347,19 @@ namespace Engine {
 
 			//ILoggerEvent::Get()->PushEvent("shot", FloatColor(1.f, 1.f, 1.f), true, "");
 
+			if (record->m_iChokeTicks <= 2) {
+				return; // shot
+			}
+
 			// more then 1 choke, cant hit pitch, apply prev pitch.
-			if (record->m_iChokeTicks >= 2) {
+			else if (anim_data->m_AnimationRecord.size() >= 2) {
 				C_AnimationRecord* previous = &anim_data->m_AnimationRecord.at(1);
 
 				if (previous && !previous->m_bIsInvalid) {
 					//data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
 					record->m_angEyeAngles.x = previous->m_angEyeAngles.x;
-					//ILoggerEvent::Get()->PushEvent(std::to_string(previous->m_angEyeAngles.x), FloatColor(1.f, 1.f, 1.f), true, "");
-					//ILoggerEvent::Get()->PushEvent("applied prev", FloatColor(1.f, 1.f, 1.f), true, "");
+					ILoggerEvent::Get()->PushEvent(std::to_string(previous->m_angEyeAngles.x), FloatColor(1.f, 1.f, 1.f), true, "");
+					ILoggerEvent::Get()->PushEvent("applied prev", FloatColor(1.f, 1.f, 1.f), true, "");
 				}
 			}
 		}
