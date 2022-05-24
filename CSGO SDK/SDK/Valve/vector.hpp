@@ -22,6 +22,8 @@ public:
 
   float Normalize( );
 
+  QAngle AngleTo(const Vector& vOther);
+
   float Dot( const Vector& v ) const;
 
   float LengthSquared( ) const;

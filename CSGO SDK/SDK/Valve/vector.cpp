@@ -49,6 +49,22 @@ float Vector::Normalize( ) {
 	return length;
 }
 
+QAngle Vector::AngleTo(const Vector& vOther)
+{
+	Vector deltaVec = Vector(*this - vOther);
+
+	float deltaVecLength = (float)(sqrt(deltaVec.x * deltaVec.x + deltaVec.y * deltaVec.y + deltaVec.z * deltaVec.z));
+
+	float pitch = (float)(-asin(deltaVec.z / deltaVecLength) * (180 / 3.141592653589793238462643383279));
+	float yaw = (float)(atan2(deltaVec.y, deltaVec.x) * (180 / 3.141592653589793238462643383279));
+
+	if (pitch >= -89 && pitch <= 89 && yaw >= -180 && yaw <= 180)
+	{
+		return QAngle(pitch, yaw, 0);
+	}
+	return QAngle(0, 0, 0);
+}
+
 float Vector::Dot( const Vector& v ) const {
 	return ( this->x * v.x +
 		this->y * v.y +

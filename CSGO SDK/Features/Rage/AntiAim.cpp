@@ -1609,7 +1609,7 @@ namespace Interfaces
 				continue;
 
 			// get best target based on fov.
-			float fov = Math::GetFov(cmd->viewangles, pLocal->GetShootPosition(), player->WorldSpaceCenter());
+			float fov = Math::GetFov(g_Vars.globals.CurrentLocalViewAngles, pLocal->GetEyePosition(), player->WorldSpaceCenter());
 
 			if (fov < target.fov) {
 				target.fov = fov;
@@ -1655,7 +1655,7 @@ namespace Interfaces
 				pLocal->GetShootPosition().z };
 
 			// draw a line for debugging purposes.
-			//g_csgo.m_debug_overlay->AddLineOverlay( start, end, 255, 0, 0, true, 0.1f );
+			//Interfaces::m_pDebugOverlay->AddLineOverlay( start, end, 255, 0, 0, true, 0.1f );
 
 			// compute the direction.
 			Vector dir = end - start;
@@ -1745,8 +1745,7 @@ namespace Interfaces
 			if (!enemy->IsPlayer()) continue;
 
 			QAngle view;
-
-			view = Math::CalcAngle(local_position, enemy->GetEyePosition());
+			view = local_position.AngleTo(enemy->GetEyePosition());
 
 			std::vector< angle_data > angs;
 
