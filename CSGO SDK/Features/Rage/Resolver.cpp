@@ -340,27 +340,23 @@ namespace Engine {
 		if (anim_data->m_AnimationRecord.empty())
 			return;
 
-		float shoot_time = -1.f;
-
-		auto weapon = (C_WeaponCSBaseGun*)(data->m_hActiveWeapon().Get());
-
-		if (weapon) {
-			// with logging this time was always one tick behind.
-			// so add one tick to the last shoot time.
-			shoot_time = weapon->m_fLastShotTime() + Interfaces::m_pGlobalVars->interval_per_tick;
-		}
-
 		// this record has a shot on it.
-		if (TIME_TO_TICKS(shoot_time) == TIME_TO_TICKS(record->m_flSimulationTime)) {
+		if (record->m_bIsShoting) {
 			//if (record->m_iChokeTicks <= 2)
 			//	record->m_shot = true;
 
-			// more then 1 choke, cant hit pitch, apply prev pitch.
-			if (anim_data->m_AnimationRecord.size() >= 2 /*&& !record->m_iChokeTicks <= 2*/) {
-				C_AnimationRecord* previous = &anim_data->m_AnimationRecord[1];
+			//ILoggerEvent::Get()->PushEvent("shot", FloatColor(1.f, 1.f, 1.f), true, "");
 
-				if (previous && !previous->m_bIsInvalid)
-					record->m_angEyeAngles.x = data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
+			// more then 1 choke, cant hit pitch, apply prev pitch.
+			if (record->m_iChokeTicks >= 2) {
+				C_AnimationRecord* previous = &anim_data->m_AnimationRecord.at(1);
+
+				if (previous && !previous->m_bIsInvalid) {
+					//data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
+					record->m_angEyeAngles.x = previous->m_angEyeAngles.x;
+					//ILoggerEvent::Get()->PushEvent(std::to_string(previous->m_angEyeAngles.x), FloatColor(1.f, 1.f, 1.f), true, "");
+					//ILoggerEvent::Get()->PushEvent("applied prev", FloatColor(1.f, 1.f, 1.f), true, "");
+				}
 			}
 		}
 	}
@@ -401,11 +397,11 @@ namespace Engine {
 				is_flicking = false;
 
 			// LBY updated via PROXY.
-			if (pLagData->m_body != pLagData->m_old_body) {
-				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
+			//if (pLagData->m_body != pLagData->m_old_body) {
+			//	Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+			//	NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			//}
 
 			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
