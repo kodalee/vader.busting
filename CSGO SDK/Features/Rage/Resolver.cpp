@@ -356,7 +356,7 @@ namespace Engine {
 			//	record->m_shot = true;
 
 			// more then 1 choke, cant hit pitch, apply prev pitch.
-			if (anim_data->m_AnimationRecord.size() >= 2 && !record->m_iChokeTicks <= 2) {
+			if (anim_data->m_AnimationRecord.size() >= 2 /*&& !record->m_iChokeTicks <= 2*/) {
 				C_AnimationRecord* previous = &anim_data->m_AnimationRecord[1];
 
 				if (previous && !previous->m_bIsInvalid)
