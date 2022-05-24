@@ -386,6 +386,7 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 		return true;
 
 	const float flEnterPenetrationModifier = data->m_EnterSurfaceData->game.flPenetrationModifier;
+	const float flEnterDamageModifier = data->m_EnterSurfaceData->game.flDamageModifier;
 	const float flExitPenetrationModifier = pExitSurfaceData->game.flPenetrationModifier;
 	const float flExitDamageModifier = pExitSurfaceData->game.flDamageModifier;
 
@@ -470,23 +471,16 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 			flPenetrationModifier = 1.0f;
 			flDamageModifier = 0.99f;
 		}
-		else {
-			if( flExitPenetrationModifier < flPenetrationModifier ) {
-				flPenetrationModifier = flExitPenetrationModifier;
-			}
-			if( flExitDamageModifier < flDamageModifier ) {
-				flDamageModifier = flExitDamageModifier;
-			}
+		else
+		{
+			flPenetrationModifier = fminf(pExitSurfaceData->game.flPenetrationModifier, flEnterPenetrationModifier);
+			flDamageModifier = fminf(flEnterDamageModifier, flExitDamageModifier);
 		}
 
 		// if enter & exit point is wood or metal we assume this is 
 		// a hollow crate or barrel and give a penetration bonus
-		if( iEnterMaterial == iExitMaterial ) {
-			if( iExitMaterial == CHAR_TEX_WOOD ||
-				iExitMaterial == CHAR_TEX_METAL ) {
-				flPenetrationModifier *= 2;
-			}
-		}
+		if (iEnterMaterial == iExitMaterial && (iExitMaterial == CHAR_TEX_METAL || iExitMaterial == CHAR_TEX_WOOD))
+			flPenetrationModifier += flPenetrationModifier;
 
 		float flTraceDistance = ( ExitTrace.endpos - data->m_EnterTrace.endpos ).Length( );
 
