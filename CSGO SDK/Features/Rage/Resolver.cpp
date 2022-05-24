@@ -358,8 +358,8 @@ namespace Engine {
 				if (previous && !previous->m_bIsInvalid) {
 					//data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
 					record->m_angEyeAngles.x = previous->m_angEyeAngles.x;
-					ILoggerEvent::Get()->PushEvent(std::to_string(previous->m_angEyeAngles.x), FloatColor(1.f, 1.f, 1.f), true, "");
-					ILoggerEvent::Get()->PushEvent("applied prev", FloatColor(1.f, 1.f, 1.f), true, "");
+					//ILoggerEvent::Get()->PushEvent(std::to_string(previous->m_angEyeAngles.x), FloatColor(1.f, 1.f, 1.f), true, "");
+					//ILoggerEvent::Get()->PushEvent("applied prev", FloatColor(1.f, 1.f, 1.f), true, "");
 				}
 			}
 		}
