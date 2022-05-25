@@ -145,7 +145,7 @@ CUtlVector<IRefCounted*>& C_EconItemView::m_CustomMaterials( ) {
 }
 
 CUtlVector<IRefCounted*>& C_EconItemView::m_VisualsDataProcessors( ) {
-   static auto _m_CustomMaterials = Engine::Displacement.DT_BaseAttributableItem.m_Item + 0x230;
+   static auto _m_CustomMaterials = Engine::Displacement.DT_BaseAttributableItem.m_Item + 0x220;
    return *( CUtlVector< IRefCounted* >* )( ( uintptr_t ) this + _m_CustomMaterials );
 }
 

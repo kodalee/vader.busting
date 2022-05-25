@@ -7,6 +7,70 @@
 #include <unordered_map>
 #include "KitParser.hpp"
 
+uintptr_t* rel323(uintptr_t ptr) {
+	auto offset = *(uintptr_t*)(ptr + 0x1);
+	return (uintptr_t*)(ptr + 5 + offset);
+}
+
+void UpdateItem() {
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	if (!local || local->IsDead())
+		return;
+
+	if (Interfaces::m_pClientState->m_nDeltaTick() == -1)
+		return;
+
+	auto ForceUpdate = [](C_BaseCombatWeapon* item) {
+		C_EconItemView* view = &item->m_Item();
+
+		if (!view)
+			return;
+
+		if (!item->GetClientNetworkable())
+			return;
+
+		item->m_bCustomMaterialInitialized() = view->m_nFallbackPaintKit() <= 0;
+
+		item->m_CustomMaterials().RemoveAll();
+		view->m_CustomMaterials().RemoveAll();
+
+		size_t count = view->m_VisualsDataProcessors().Count();
+		for (size_t i{}; i < count; ++i) {
+			auto& elem = view->m_VisualsDataProcessors()[i];
+			if (elem) {
+				elem->unreference();
+				elem = nullptr;
+			}
+		}
+
+		view->m_VisualsDataProcessors().RemoveAll();
+
+		item->GetClientNetworkable()->PostDataUpdate(0);
+		item->GetClientNetworkable()->OnDataChanged(0);
+
+		auto SFWeaponSelection = Interfaces::m_pHud->FindHudElement<std::uintptr_t*>(XorStr("SFWeaponSelection"));
+
+		using ShowAndUpdateSelection_t = void(__thiscall*)(std::uintptr_t*, int, C_BaseCombatWeapon*, bool);
+		static auto ShowAndUpdateSelection = (ShowAndUpdateSelection_t)rel323(Memory::Scan(XorStr("client.dll"), XorStr("E8 ? ? ? ? A1 ? ? ? ? F3 0F 10 40 ? C6 83")));
+
+		ShowAndUpdateSelection(SFWeaponSelection, 0, item, false);
+	};
+
+	auto weapons = local->m_hMyWeapons();
+	for (size_t i = 0; i < 48; ++i) {
+		auto weapon_handle = weapons[i];
+		if (!weapon_handle.IsValid())
+			break;
+
+		auto weapon = (C_BaseCombatWeapon*)weapon_handle.Get();
+		if (!weapon)
+			continue;
+
+		ForceUpdate(weapon);
+	}
+}
+
 #define GET_INDEX Interfaces::m_pModelInfo->GetModelIndex
 
 using namespace std;
@@ -323,5 +387,15 @@ void skins_speedy::Skinchanger()
 			weapon->m_nFallbackSeed() = 661;
 			weapon->m_Item().m_iItemIDHigh() = -1;
 		}
+
+		auto& global = g_Vars.m_global_skin_changer;
+		static float lastSkinUpdate = 0.0f;
+
+		if (global.m_update_skins && Interfaces::m_pGlobalVars->curtime >= lastSkinUpdate) {
+			UpdateItem();
+			global.m_update_skins = false;
+			lastSkinUpdate = Interfaces::m_pGlobalVars->curtime + 1.f;
+		}
+
 	}
 }

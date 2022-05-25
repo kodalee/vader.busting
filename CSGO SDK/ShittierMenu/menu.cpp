@@ -1443,6 +1443,11 @@ void Skins()
 			if (g_Vars.misc.enable_skins) {
 				InsertCombo(XorStr("Knife Model"), &g_Vars.misc.knife_model, knife_models, []() {return vars.skins.enable; });
 				ImGui::InputInt(XorStr("Knife Skin"), &g_Vars.misc.knife_skin);
+
+				if (ImGui::Button(XorStr("Apply")))
+				{
+					g_Vars.m_global_skin_changer.m_update_skins = true;
+				}
 			}
 			break;
 		}
