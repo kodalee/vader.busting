@@ -2047,8 +2047,91 @@ void IMGUIMenu::Keybinds_Spectators() {
 
 }
 
+void create_watermark()
+{
+		if (!g_Vars.misc.watermark)
+			return;
+
+		std::string logo = XorStr("vader.tech");
+#ifdef DEV
+		logo.append(XorStr(" [debug]")); // :)
+#endif
+#ifdef BETA
+		logo.append(XorStr(" [beta]")); // :)
+#endif
+
+		const std::string user = g_Vars.globals.user_info.username;
+
+		auto watermark = logo + XorStr(" | ") + user;
+
+		if (Interfaces::m_pEngine->IsInGame())
+		{
+
+			auto netchannel = Encrypted_t<INetChannel>(Interfaces::m_pEngine->GetNetChannelInfo());
+
+			auto outgoing = std::max(0, (int)std::round(netchannel->GetLatency(FLOW_OUTGOING) * 1000.f));
+
+			if (netchannel.IsValid())
+			{
+				watermark = logo + XorStr(" | ") + user + XorStr(" | ") + std::to_string(outgoing) + XorStr(" ms");
+			}
+		}
+		ImVec2 p, s;
+		auto size_text = ImGui::CalcTextSize(watermark.c_str());
+		ImGui::SetNextWindowSize(ImVec2(size_text.x + 14, 23));
+
+		const auto margin = 10; // Padding between screen edges and watermark
+		const auto padding = 4; // Padding between watermark elements
+
+		ImGui::SetNextWindowPos(ImVec2(Render::GetScreenSize().x - margin - padding - size_text.x - padding, margin), ImGuiCond_Always);
+
+		ImGui::Begin(XorStr("watermark"), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove);
+		{
+			auto d = ImGui::GetWindowDrawList();
+			p = ImGui::GetWindowPos();
+			s = ImGui::GetWindowSize();
+			ImGui::SetWindowSize(ImVec2(s.x, 21 + 18));
+			d->AddRectFilled(p, p + ImVec2(s.x, 21), ImColor(39, 39, 39, int(50 * 1)));
+			ImColor theme;
+			ImColor theme_zero;
+			ImColor circle_color;
+
+			if (!g_Vars.misc.custom_menu) {
+				theme = ImColor(255, 0, 0, 255);
+				theme_zero = ImColor(255, 0, 0, 0);
+				circle_color = ImColor(255, 0, 0, 255);
+			}
+			else {
+				theme = (ImColor)g_Vars.misc.accent_color;
+				theme_zero = ImColor(g_Vars.misc.accent_color.r, g_Vars.misc.accent_color.g, g_Vars.misc.accent_color.b, 0.f);
+				circle_color = (ImColor)g_Vars.misc.accent_color;
+			}
+
+			ImColor black = ImColor(0, 0, 0, 210);
+			ImColor black_zero = ImColor(0, 0, 0, 0);
+			ImColor black_half = ImColor(0, 0, 0, 60);
+			ImColor theme_background = ImColor(41, 32, 59, 210);
+
+			//Background
+			d->AddRectFilledMultiColor(p, p + ImVec2(s.x / 2, 23), theme_background, theme_background, theme_background, theme_background);
+			d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 23), theme_background, theme_background, theme_background, theme_background);
+
+			//d->AddRectFilledMultiColor(p, p + ImVec2(s.x / 2, 20), main_coll, main_colf2, main_colf2, main_coll);
+			//d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 20), main_colf2, main_coll, main_coll, main_colf2);
+
+			//Lines
+			d->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
+			d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+
+			d->AddText(p + ImVec2((s.x) / 2 - size_text.x / 2, (23) / 2 - size_text.y / 2), ImColor(255, 255, 255, 255), watermark.c_str());
+		}
+		ImGui::End();
+}
+
 void IMGUIMenu::Render()
 {
+
+	create_watermark();
 
 	if (!Opened) return;
 
