@@ -1735,7 +1735,7 @@ namespace Interfaces
 		auto local_position = pLocal->GetEyePosition();
 		std::vector< float > scanned = {};
 
-		for (auto i = 0; i <= 64; i++) {
+		for (auto i = 0; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
 			auto enemy = (C_CSPlayer*)(Interfaces::m_pEntList->GetClientEntity(i));
 			if (enemy == nullptr) continue;
 			if (enemy == pLocal) continue;
@@ -1766,7 +1766,7 @@ namespace Interfaces
 			//points.push_back(base_angle_data(view.y, angs)); // base yaws and angle data (base yaw needed for lby breaking etc)
 		}
 
-		for (auto i = 0; i <= 64; i++) {
+		for (auto i = 0; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
 			auto enemy = (C_CSPlayer*)(Interfaces::m_pEntList->GetClientEntity(i));
 			if (enemy == nullptr) continue;
 			if (enemy == pLocal) continue;
