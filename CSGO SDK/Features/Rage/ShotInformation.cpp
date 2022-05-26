@@ -312,7 +312,7 @@ namespace Engine
 
 							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), !g_Vars.misc.undercover_log, XorStr(""));
 #else
-							msg << XorStr("missed ") << FixedStrLength(info.szName).data() << XorStr(" ");
+							msg << XorStr("missed ") << FixedStrLength(info.szName).data() << XorStr("'s ");
 							msg << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" ");
 							msg << XorStr("due to ") << reason.data();
 
