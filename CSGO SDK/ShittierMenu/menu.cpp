@@ -74,7 +74,7 @@ void draw_lua_items(std::string tab, std::string container) {
 			ImGui::Text(i.label.c_str());
 			break;
 		case MENUITEM_COLORPICKER:
-			if (ImGui::ColorEdit4(i.label.c_str(), LuaConfigSystem::C_COLOR[i.key])) {
+			if (ImGui::ColorEdit4(i.label.c_str(), LuaConfigSystem::C_COLOR[i.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip)) {
 				if (i.callback != sol::nil)
 					i.callback(LuaConfigSystem::C_COLOR[i.key][0] * 255, LuaConfigSystem::C_COLOR[i.key][1] * 255, LuaConfigSystem::C_COLOR[i.key][2] * 255, LuaConfigSystem::C_COLOR[i.key][3] * 255);
 			}
