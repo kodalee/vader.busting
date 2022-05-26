@@ -1827,7 +1827,7 @@ namespace Interfaces
 
 								//msg << XorStr("dmg: ") << int(bestPoint->damage) << XorStr(" | ");
 								msg << XorStr("hitgroup: ") << TranslateHitbox(bestPoint->hitboxIndex).c_str() /*<< XorStr("(") << int(bestPoint->pointscale * 100.f) << XorStr("%%%%)")*/ << XorStr(" | ");
-								msg << XorStr("lby: ") << int(bestPoint->target->record->m_iResolverMode == 6) << XorStr(" | ");
+								msg << XorStr("lby: ") << int(bestPoint->target->record->m_iResolverMode == 1) << XorStr(" | ");
 								msg << XorStr( "bt: " ) << TIME_TO_TICKS( m_lag_data->m_History.front( ).m_flSimulationTime - bestPoint->target->record->m_flSimulationTime ) << XorStr( " | " );
 								msg << XorStr("clientside: ") << int(*m_rage_data->m_pSendPacket) << XorStr(" | ");
 								msg << XorStr("hitchance: ") << int(bestPoint->hitchance) << XorStr(" | ");

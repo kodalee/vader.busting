@@ -312,9 +312,9 @@ namespace Engine
 
 							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), !g_Vars.misc.undercover_log, XorStr(""));
 #else
-							msg << XorStr("reason: ") << reason.data() << XorStr(" | ");
-							msg << XorStr("hitgroup: ") << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" | ");
-							msg << XorStr("player: ") << FixedStrLength(info.szName).data();
+							msg << XorStr("missed ") << FixedStrLength(info.szName).data() << XorStr(" ");
+							msg << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" ");
+							msg << XorStr("due to ") << reason.data();
 
 							ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(255, 128, 128), false, XorStr(""));
 #endif
