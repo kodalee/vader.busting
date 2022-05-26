@@ -32,7 +32,6 @@ void draw_lua_items(std::string tab, std::string container) {
 		switch (type)
 		{
 		case MENUITEM_CHECKBOX:
-			ImGui::NewLine(); ImGui::SameLine(19.f);
 			if (ImGui::Checkbox(i.label.c_str(), &LuaConfigSystem::C_BOOL[i.key])) {
 				if (i.callback != sol::nil)
 					i.callback(LuaConfigSystem::C_BOOL[i.key]);
@@ -1498,7 +1497,7 @@ void Misc()
 			}
 
 			ImGui::NextColumn(); ImGui::NewLine();
-			draw_lua_items(XorStr("misc"), XorStr("config"));
+			draw_lua_items(XorStr("misc"), XorStr("configs"));
 
 		}
 		}
