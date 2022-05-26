@@ -74,7 +74,13 @@ void draw_lua_items(std::string tab, std::string container) {
 			ImGui::Text(i.label.c_str());
 			break;
 		case MENUITEM_COLORPICKER:
-			if (ImGui::ColorEdit4(i.label.c_str(), LuaConfigSystem::C_COLOR[i.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip)) {
+
+			if (ImGui::CalcTextSize(i.label.c_str()).x > 0.00f)
+			{
+				ImGui::Text(i.label.c_str());
+			}
+			ImGui::SameLine(0.0f, -1.0f, 0.0f);
+			if (ImGui::ColorEdit4(std::string{ XorStr("##") }.append(i.label.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[i.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip)) {
 				if (i.callback != sol::nil)
 					i.callback(LuaConfigSystem::C_COLOR[i.key][0] * 255, LuaConfigSystem::C_COLOR[i.key][1] * 255, LuaConfigSystem::C_COLOR[i.key][2] * 255, LuaConfigSystem::C_COLOR[i.key][3] * 255);
 			}
@@ -109,7 +115,7 @@ void ColorPicker(const char* name, float* color, bool alpha, bool combo) {
 	//	ImGui::Text(name);
 	//}
 	ImGui::SameLine(combo ? 170.f : 0.0f, -1.0f, 0.0f);
-	ImGui::ColorEdit4(std::string{ "##" }.append(name).append("Picker").c_str(), color, alphaSliderFlag | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip);
+	ImGui::ColorEdit4(std::string{ XorStr("##") }.append(name).append(XorStr("Picker")).c_str(), color, alphaSliderFlag | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip);
 }
 
 void ColorPicker_w_name(const char* name, float* color, bool alpha, bool combo) {
@@ -123,7 +129,7 @@ void ColorPicker_w_name(const char* name, float* color, bool alpha, bool combo) 
 		ImGui::Text(name);
 	}
 	ImGui::SameLine(combo ? 170.f : 0.0f, -1.0f, 0.0f);
-	ImGui::ColorEdit4(std::string{ "##" }.append(name).append("Picker").c_str(), color, alphaSliderFlag | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip);
+	ImGui::ColorEdit4(std::string{ XorStr("##") }.append(name).append(XorStr("Picker")).c_str(), color, alphaSliderFlag | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip);
 }
 
 enum WeaponGroup_t {
