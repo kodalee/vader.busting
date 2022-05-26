@@ -1088,7 +1088,6 @@ bool c_lua::initialize() {
 	ui[XorStr("speclist_open")] = lua_ui::speclist_open;
 	ui[XorStr("new_checkbox")] = lua_ui::new_checkbox;
 	ui[XorStr("new_colorpicker")] = lua_ui::new_colorpicker;
-	ui[XorStr("new_keybind")] = lua_ui::new_keybind;
 	ui[XorStr("new_slider_float")] = lua_ui::new_slider_float;
 	ui[XorStr("new_slider_int")] = lua_ui::new_slider_int;
 	ui[XorStr("new_text")] = lua_ui::new_text;

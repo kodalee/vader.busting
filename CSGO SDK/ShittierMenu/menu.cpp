@@ -32,7 +32,7 @@ void draw_lua_items(std::string tab, std::string container) {
 		switch (type)
 		{
 		case MENUITEM_CHECKBOX:
-			ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(19.f);
+			ImGui::NewLine(); ImGui::SameLine(19.f);
 			if (ImGui::Checkbox(i.label.c_str(), &LuaConfigSystem::C_BOOL[i.key])) {
 				if (i.callback != sol::nil)
 					i.callback(LuaConfigSystem::C_BOOL[i.key]);
@@ -43,7 +43,7 @@ void draw_lua_items(std::string tab, std::string container) {
 
 			break;
 		case MENUITEM_SLIDERINT:
-			ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f); ImGui::PushItemWidth(159.f);
+			ImGui::NewLine(); ImGui::PushItemWidth(159.f);
 			if (ImGui::SliderInt(i.label.c_str(), &LuaConfigSystem::C_INT[i.key], i.i_min, i.i_max, i.format.c_str())) {
 				if (i.callback != sol::nil)
 					i.callback(LuaConfigSystem::C_INT[i.key]);
@@ -53,7 +53,7 @@ void draw_lua_items(std::string tab, std::string container) {
 			dmt(i.key);
 			break;
 		case MENUITEM_SLIDERFLOAT:
-			ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f); ImGui::PushItemWidth(159.f);
+			ImGui::NewLine(); ImGui::PushItemWidth(159.f);
 			if (ImGui::SliderFloat(i.label.c_str(), &LuaConfigSystem::C_FLOAT[i.key], i.f_min, i.f_max, i.format.c_str())) {
 				if (i.callback != sol::nil)
 					i.callback(LuaConfigSystem::C_FLOAT[i.key]);
