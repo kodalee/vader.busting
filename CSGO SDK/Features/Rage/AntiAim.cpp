@@ -1735,22 +1735,35 @@ namespace Interfaces
 		auto local_position = pLocal->GetEyePosition();
 		std::vector< float > scanned = {};
 
-		for (auto i = 0; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
+		AutoTarget_t target{ 180.f + 1.f, nullptr };
+
+		for (int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i) {
 			auto enemy = (C_CSPlayer*)(Interfaces::m_pEntList->GetClientEntity(i));
-			if (enemy == nullptr) continue;
-			if (enemy == pLocal) continue;
-			if (!enemy->IsAlive()) continue;
-			if (enemy->m_iTeamNum() == pLocal->m_iTeamNum()) continue;
-			if (enemy->IsDormant()) continue;
-			if (!enemy->IsPlayer()) continue;
+
+			if (!enemy || enemy->IsDormant() || enemy == pLocal || !enemy->IsAlive() || enemy->m_iTeamNum() == pLocal->m_iTeamNum())
+				continue;
+
+			// validate player.
+			auto lag_data = Engine::LagCompensation::Get()->GetLagData(enemy->m_entIndex);
+			if (!lag_data.IsValid())
+				continue;
 
 			QAngle view;
-			view = local_position.AngleTo(enemy->GetEyePosition());
+
+			// get best target based on fov.
+			float fov = Math::GetFov(g_Vars.globals.CurrentLocalViewAngles, local_position, enemy->WorldSpaceCenter());
+
+			if (fov < target.fov) {
+				target.fov = fov;
+				target.player = enemy;
+			}
+
+			view = local_position.AngleTo(target.player->GetEyePosition());
 
 			std::vector< angle_data > angs;
 
-			for (auto y = 0; y < 8; y++) {
-				auto ang = quick_normalize((y * 45) + view.yaw, -180.f, 180.f);
+			for (auto y = 1; y < 4; y++) {
+				auto ang = quick_normalize((y * 90) + view.y, -180.f, 180.f);
 				auto found = false; // check if we already have a similar angle
 
 				for (auto i2 : scanned)
@@ -1766,18 +1779,31 @@ namespace Interfaces
 			//points.push_back(base_angle_data(view.y, angs)); // base yaws and angle data (base yaw needed for lby breaking etc)
 		}
 
-		for (auto i = 0; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
+		if (!target.player) {
+			// we have a timeout.
+			if (m_auto_last > 0.f && m_auto_time > 0.f && Interfaces::m_pGlobalVars->curtime < (m_auto_last + m_auto_time))
+				return;
+
+			// set angle to backwards.
+			m_auto = Math::NormalizedAngle(m_view - 180.f);
+			m_auto_dist = -1.f;
+			return;
+		}
+
+		for (int i{ 1 }; i <= Interfaces::m_pGlobalVars->maxClients; ++i) {
 			auto enemy = (C_CSPlayer*)(Interfaces::m_pEntList->GetClientEntity(i));
-			if (enemy == nullptr) continue;
-			if (enemy == pLocal) continue;
-			if (!enemy->IsAlive()) continue;
-			if (enemy->m_iTeamNum() == pLocal->m_iTeamNum()) continue;
-			if (enemy->IsDormant()) continue;
-			if (!enemy->IsPlayer()) continue;
+
+			if (!enemy || enemy->IsDormant() || enemy == pLocal || !enemy->IsAlive() || enemy->m_iTeamNum() == pLocal->m_iTeamNum())
+				continue;
+
+			// validate player.
+			auto lag_data = Engine::LagCompensation::Get()->GetLagData(enemy->m_entIndex);
+			if (!lag_data.IsValid())
+				continue;
 
 			auto found = false;
 			auto points_copy = points; // copy data so that we compare it to the original later to find the lowest thickness
-			auto enemy_eyes = enemy->GetEyePosition();
+			auto enemy_shootpos = target.player->GetShootPosition();
 
 			for (auto& z : points_copy) // now we get the thickness for all of the data
 			{
@@ -1787,13 +1813,13 @@ namespace Interfaces
 				head *= ((16.0f + 3.0f) + ((16.0f + 3.0f) * sin(DEG2RAD(10.0f)))) + 7.0f;
 				head += local_position;
 				float distance = -1;
-				C_WeaponCSBaseGun* enemy_weapon = (C_WeaponCSBaseGun*)enemy->m_hActiveWeapon().Get();
+				C_WeaponCSBaseGun* enemy_weapon = (C_WeaponCSBaseGun*)target.player->m_hActiveWeapon().Get();
 				if (enemy_weapon) {
 					auto weapon_data = enemy_weapon->GetCSWeaponData();
 					if (weapon_data.IsValid())
 						distance = weapon_data->m_flWeaponRange;
 				}
-				float local_thickness = get_thickness(head, enemy_eyes, distance);
+				float local_thickness = get_thickness(head, enemy_shootpos, distance);
 				z.thickness = local_thickness;
 
 				if (local_thickness > 0) // if theres a thickness of 0 dont use this data
