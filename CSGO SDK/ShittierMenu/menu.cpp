@@ -15,7 +15,83 @@
 #include "../SDK/Classes/Player.hpp"
 
 //lua
+void dmt(std::string key) {
+	if (ImGui::IsItemHovered()) {
+		ImGui::BeginTooltip();
+		ImGui::Text(key.c_str());
+		ImGui::EndTooltip();
+	}
+}
 
+void draw_lua_items(std::string tab, std::string container) {
+	for (auto i : g_lua.menu_items[tab][container]) {
+		if (!i.is_visible)
+			continue;
+
+		auto type = i.type;
+		switch (type)
+		{
+		case MENUITEM_CHECKBOX:
+			ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(19.f);
+			if (ImGui::Checkbox(i.label.c_str(), &LuaConfigSystem::C_BOOL[i.key])) {
+				if (i.callback != sol::nil)
+					i.callback(LuaConfigSystem::C_BOOL[i.key]);
+			}
+
+			dmt(i.key);
+			break;
+
+			break;
+		case MENUITEM_SLIDERINT:
+			ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f); ImGui::PushItemWidth(159.f);
+			if (ImGui::SliderInt(i.label.c_str(), &LuaConfigSystem::C_INT[i.key], i.i_min, i.i_max, i.format.c_str())) {
+				if (i.callback != sol::nil)
+					i.callback(LuaConfigSystem::C_INT[i.key]);
+			}
+			ImGui::PopItemWidth();
+
+			dmt(i.key);
+			break;
+		case MENUITEM_SLIDERFLOAT:
+			ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f); ImGui::PushItemWidth(159.f);
+			if (ImGui::SliderFloat(i.label.c_str(), &LuaConfigSystem::C_FLOAT[i.key], i.f_min, i.f_max, i.format.c_str())) {
+				if (i.callback != sol::nil)
+					i.callback(LuaConfigSystem::C_FLOAT[i.key]);
+			}
+			ImGui::PopItemWidth();
+
+			dmt(i.key);
+			break;
+		case MENUITEM_KEYBIND:
+			if (ImGui::Keybind(i.label.c_str(), &LuaConfigSystem::C_INT[i.key], i.allow_style_change ? &LuaConfigSystem::C_INT[i.key + XorStr("style")] : NULL)) {
+				if (i.callback != sol::nil)
+					i.callback(LuaConfigSystem::C_INT[i.key], LuaConfigSystem::C_INT[i.key + XorStr("style")]);
+			}
+
+			dmt(i.key + (i.allow_style_change ? XorStr(" | ") + i.key + XorStr("style") : XorStr("")));
+			break;
+		case MENUITEM_TEXT:
+			ImGui::Text(i.label.c_str());
+			break;
+		case MENUITEM_COLORPICKER:
+			if (ImGui::ColorEdit4(i.label.c_str(), LuaConfigSystem::C_COLOR[i.key])) {
+				if (i.callback != sol::nil)
+					i.callback(LuaConfigSystem::C_COLOR[i.key][0] * 255, LuaConfigSystem::C_COLOR[i.key][1] * 255, LuaConfigSystem::C_COLOR[i.key][2] * 255, LuaConfigSystem::C_COLOR[i.key][3] * 255);
+			}
+
+			dmt(i.key);
+			break;
+		case MENUITEM_BUTTON:
+			if (ImGui::Button(i.label.c_str())) {
+				if (i.callback != sol::nil)
+					i.callback();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
 //
 
 IDirect3DTexture9* logo_nuts;
@@ -1414,6 +1490,9 @@ void Misc()
 
 				if (ImGui::Button(XorStr("Unload all"), ImVec2(100, 0))) g_lua.unload_all_scripts();
 			}
+
+			ImGui::NextColumn(); ImGui::NewLine();
+			draw_lua_items(XorStr("misc"), XorStr("config"));
 
 		}
 		}
