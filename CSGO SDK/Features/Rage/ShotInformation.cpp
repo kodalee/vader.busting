@@ -282,8 +282,8 @@ namespace Engine
 
 						player_info_t info;
 						if (Interfaces::m_pEngine->GetPlayerInfo(it->snapshot->playerIdx, &info)) {
-							msg << XorStr("missed shot ");
 #if defined (BETA_MODE) || defined(DEV)
+							msg << XorStr("missed shot ");
 							msg << XorStr("reason: ") << reason.data() << XorStr(" | ");
 							msg << XorStr("lby: ") << int(it->snapshot->ResolverType == EResolverModes::RESOLVE_BODY) << XorStr(" | ");
 							//msg << XorStr( "dmg: " ) << it->snapshot->m_nSelectedDamage << XorStr( " | " );
