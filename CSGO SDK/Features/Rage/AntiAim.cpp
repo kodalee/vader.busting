@@ -1116,6 +1116,17 @@ namespace Interfaces
 		if (!local || local->IsDead())
 			return FLT_MAX;
 
+		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
+		float flRetValue;
+
+		if (g_Vars.antiaim.edge_aa && !bUsingManualAA && local->m_vecVelocity().Length() < 320.f) {
+			QAngle ang;
+			if (DoEdgeAntiAim(local, ang)) {
+				flRetValue = ang.y;
+				return flRetValue;
+			}
+		}
+
 		float flViewAnlge = cmd->viewangles.y;
 
 		auto GetTargetYaw = [local, flViewAnlge]() -> float
@@ -1149,9 +1160,7 @@ namespace Interfaces
 			return Math::CalcAngle(local->GetAbsOrigin() + local->m_vecViewOffset(), pFinalPlayer->GetAbsOrigin()).yaw + 180.0f;
 		};
 
-		float flRetValue = (g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge) + 180.f;
-
-		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
+		flRetValue = (g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge) + 180.f;
 
 		if (bUsingManualAA) {
 			switch (g_Vars.globals.manual_aa) {

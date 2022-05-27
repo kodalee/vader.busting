@@ -840,6 +840,9 @@ public:
 	group_begin( ANTIAIM );
 
 	config_option( bool, enabled, false );
+
+	config_option(bool, edge_aa, false);
+
 	config_option( bool, manual, false );
 	config_option(bool, manual_arrows, false);
 	config_option( FloatColor, manual_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );

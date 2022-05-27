@@ -386,6 +386,14 @@ namespace lua_config {
 		else
 			return false;
 	}
+
+	bool fakewalk_enabled() {
+		if (g_Vars.misc.slow_walk) {
+			return g_Vars.misc.slow_walk_bind.enabled;
+		}
+		else
+			return false;
+	}
 }
 
 namespace lua_cheat {
@@ -984,7 +992,7 @@ bool c_lua::initialize() {
 	config[XorStr("forcebaim_enabled")] = lua_config::forcebaim_enabled;
 	config[XorStr("slide_walk_set")] = lua_config::slide_walk_set;
 	config[XorStr("mindtrick_enabled")] = lua_config::mindtrick_enabled;
-
+	config[XorStr("fakewalk_enabled")] = lua_config::fakewalk_enabled;
 
 	auto cheat = this->lua.create_table();
 	cheat[XorStr("set_event_callback")] = lua_cheat::set_event_callback;

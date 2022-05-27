@@ -416,6 +416,8 @@ void HvH()
 				// enable AA.
 				InsertCheckbox(AntiAim, XorStr("Anti-Aim"), &g_Vars.antiaim.enabled)
 
+				InsertCheckbox(EdgeAntiaim, XorStr("Edge antiaim"), &g_Vars.antiaim.edge_aa)
+
 				InsertCombo(XorStr("Pitch"), &settings->pitch, pitches);
 
 				InsertCombo(XorStr("Real yaw"), &settings->base_yaw, real_yaw);
