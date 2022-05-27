@@ -493,7 +493,7 @@ namespace Interfaces
 		g_Vars.globals.bInRagebot = Interfaces::Ragebot::Get( )->Run( m_movement_data->m_pCmd, m_movement_data->m_pLocal, m_movement_data->m_pSendPacket );
 
 		// don't lag when shooting, this way events are instant
-		if( g_Vars.globals.m_bOldShot ) {
+		if( g_Vars.globals.m_bOldShot && !g_Vars.globals.Fakewalking ) {
 			*m_movement_data->m_pSendPacket = true;
 		}
 		
