@@ -717,6 +717,7 @@ namespace Engine {
 			}
 			else if (record->m_moved && record->m_iDistorting[player->EntIndex()]) {
 				record->m_angEyeAngles.y = at_target_yaw + 180.f;
+				record->m_iResolverText = XorStr("DISTORTION");
 			}
 			else if (record->m_iResolverMode == ANTIFREESTAND) {
 				AntiFreestand(record, player);
