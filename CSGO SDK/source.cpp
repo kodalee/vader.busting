@@ -299,7 +299,11 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 		//printf(std::to_string(sender_index).c_str());
 		//printf("\n");
 
-		g_Vars.globals.vader_user.push_back(sender_index);
+		auto sender = Interfaces::m_pEngine->GetPlayerForUserID(sender_index);
+
+		if (sender) {
+			g_Vars.globals.vader_user.push_back(sender);
+		}
 	}
 
 	oVoiceData(ecx, msg);

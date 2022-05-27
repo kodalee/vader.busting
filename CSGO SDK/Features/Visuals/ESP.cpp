@@ -2437,7 +2437,7 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	std::string name;
 
 	if (!g_Vars.globals.vader_user.empty()) {
-		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player->EntIndex()) != g_Vars.globals.vader_user.end()) {
+		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player_info.userId) != g_Vars.globals.vader_user.end()) {
 
 			//printf(player_info.szName);
 			//printf("\n");
