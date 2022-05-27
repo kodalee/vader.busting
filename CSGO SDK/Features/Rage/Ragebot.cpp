@@ -2245,9 +2245,9 @@ namespace Interfaces
 		}
 
 		if (g_Vars.rage.auto_fire) {
-			//if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire) {
-			//	*m_rage_data->m_pSendPacket = false;
-			//}
+			if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire && !(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
+				*m_rage_data->m_pSendPacket = false;
+			}
 
 			if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
 				g_TickbaseController.m_bSupressRecharge = true;
