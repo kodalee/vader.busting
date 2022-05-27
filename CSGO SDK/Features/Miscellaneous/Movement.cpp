@@ -492,12 +492,10 @@ namespace Interfaces
 	
 		g_Vars.globals.bInRagebot = Interfaces::Ragebot::Get( )->Run( m_movement_data->m_pCmd, m_movement_data->m_pLocal, m_movement_data->m_pSendPacket );
 
-
 		// don't lag when shooting, this way events are instant
-		//if( !bDontFakelag )
-			//if( g_Vars.globals.m_bOldShot ) {
-			//	*m_movement_data->m_pSendPacket = true;
-			//}
+		if( g_Vars.globals.m_bOldShot ) {
+			*m_movement_data->m_pSendPacket = true;
+		}
 		
 		Interfaces::AntiAimbot::Get( )->Main( m_movement_data->m_pSendPacket, m_movement_data->m_pFinalPacket, m_movement_data->m_pCmd, g_Vars.globals.bInRagebot );
 
