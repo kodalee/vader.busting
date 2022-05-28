@@ -15,88 +15,88 @@
 #include "../SDK/Classes/Player.hpp"
 
 //lua
-void dmt(std::string key) {
-	if (ImGui::IsItemHovered()) {
-		ImGui::BeginTooltip();
-		ImGui::Text(key.c_str());
-		ImGui::EndTooltip();
-	}
-}
-
-void draw_lua_items(std::string tab, std::string container) {
-	for (auto i : g_lua.menu_items[tab][container]) {
-		if (!i.is_visible)
-			continue;
-
-		auto type = i.type;
-		switch (type)
-		{
-		case MENUITEM_CHECKBOX:
-			if (ImGui::Checkbox(i.label.c_str(), &LuaConfigSystem::C_BOOL[i.key])) {
-				if (i.callback != sol::nil)
-					i.callback(LuaConfigSystem::C_BOOL[i.key]);
-			}
-
-			dmt(i.key);
-			break;
-
-			break;
-		case MENUITEM_SLIDERINT:
-			ImGui::NewLine(); ImGui::PushItemWidth(159.f);
-			if (ImGui::SliderInt(i.label.c_str(), &LuaConfigSystem::C_INT[i.key], i.i_min, i.i_max, i.format.c_str())) {
-				if (i.callback != sol::nil)
-					i.callback(LuaConfigSystem::C_INT[i.key]);
-			}
-			ImGui::PopItemWidth();
-
-			dmt(i.key);
-			break;
-		case MENUITEM_SLIDERFLOAT:
-			ImGui::NewLine(); ImGui::PushItemWidth(159.f);
-			if (ImGui::SliderFloat(i.label.c_str(), &LuaConfigSystem::C_FLOAT[i.key], i.f_min, i.f_max, i.format.c_str())) {
-				if (i.callback != sol::nil)
-					i.callback(LuaConfigSystem::C_FLOAT[i.key]);
-			}
-			ImGui::PopItemWidth();
-
-			dmt(i.key);
-			break;
-		case MENUITEM_KEYBIND:
-			if (ImGui::Keybind(i.label.c_str(), &LuaConfigSystem::C_INT[i.key], i.allow_style_change ? &LuaConfigSystem::C_INT[i.key + XorStr("style")] : NULL)) {
-				if (i.callback != sol::nil)
-					i.callback(LuaConfigSystem::C_INT[i.key], LuaConfigSystem::C_INT[i.key + XorStr("style")]);
-			}
-
-			dmt(i.key + (i.allow_style_change ? XorStr(" | ") + i.key + XorStr("style") : XorStr("")));
-			break;
-		case MENUITEM_TEXT:
-			ImGui::Text(i.label.c_str());
-			break;
-		case MENUITEM_COLORPICKER:
-
-			if (ImGui::CalcTextSize(i.label.c_str()).x > 0.00f)
-			{
-				ImGui::Text(i.label.c_str());
-			}
-			ImGui::SameLine(0.0f, -1.0f, 0.0f);
-			if (ImGui::ColorEdit4(std::string{ XorStr("##") }.append(i.label.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[i.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip)) {
-				if (i.callback != sol::nil)
-					i.callback(LuaConfigSystem::C_COLOR[i.key][0] * 255, LuaConfigSystem::C_COLOR[i.key][1] * 255, LuaConfigSystem::C_COLOR[i.key][2] * 255, LuaConfigSystem::C_COLOR[i.key][3] * 255);
-			}
-
-			dmt(i.key);
-			break;
-		case MENUITEM_BUTTON:
-			if (ImGui::Button(i.label.c_str())) {
-				if (i.callback != sol::nil)
-					i.callback();
-			}
-			break;
-		default:
-			break;
-		}
-	}
-}
+//void dmt(std::string key) {
+//	if (ImGui::IsItemHovered()) {
+//		ImGui::BeginTooltip();
+//		ImGui::Text(key.c_str());
+//		ImGui::EndTooltip();
+//	}
+//}
+//
+//void draw_lua_items(std::string tab, std::string container) {
+//	for (auto i : g_lua.menu_items[tab][container]) {
+//		if (!i.is_visible)
+//			continue;
+//
+//		auto type = i.type;
+//		switch (type)
+//		{
+//		case MENUITEM_CHECKBOX:
+//			if (ImGui::Checkbox(i.label.c_str(), &LuaConfigSystem::C_BOOL[i.key])) {
+//				if (i.callback != sol::nil)
+//					i.callback(LuaConfigSystem::C_BOOL[i.key]);
+//			}
+//
+//			dmt(i.key);
+//			break;
+//
+//			break;
+//		case MENUITEM_SLIDERINT:
+//			ImGui::NewLine(); ImGui::PushItemWidth(159.f);
+//			if (ImGui::SliderInt(i.label.c_str(), &LuaConfigSystem::C_INT[i.key], i.i_min, i.i_max, i.format.c_str())) {
+//				if (i.callback != sol::nil)
+//					i.callback(LuaConfigSystem::C_INT[i.key]);
+//			}
+//			ImGui::PopItemWidth();
+//
+//			dmt(i.key);
+//			break;
+//		case MENUITEM_SLIDERFLOAT:
+//			ImGui::NewLine(); ImGui::PushItemWidth(159.f);
+//			if (ImGui::SliderFloat(i.label.c_str(), &LuaConfigSystem::C_FLOAT[i.key], i.f_min, i.f_max, i.format.c_str())) {
+//				if (i.callback != sol::nil)
+//					i.callback(LuaConfigSystem::C_FLOAT[i.key]);
+//			}
+//			ImGui::PopItemWidth();
+//
+//			dmt(i.key);
+//			break;
+//		case MENUITEM_KEYBIND:
+//			if (ImGui::Keybind(i.label.c_str(), &LuaConfigSystem::C_INT[i.key], i.allow_style_change ? &LuaConfigSystem::C_INT[i.key + XorStr("style")] : NULL)) {
+//				if (i.callback != sol::nil)
+//					i.callback(LuaConfigSystem::C_INT[i.key], LuaConfigSystem::C_INT[i.key + XorStr("style")]);
+//			}
+//
+//			dmt(i.key + (i.allow_style_change ? XorStr(" | ") + i.key + XorStr("style") : XorStr("")));
+//			break;
+//		case MENUITEM_TEXT:
+//			ImGui::Text(i.label.c_str());
+//			break;
+//		case MENUITEM_COLORPICKER:
+//
+//			if (ImGui::CalcTextSize(i.label.c_str()).x > 0.00f)
+//			{
+//				ImGui::Text(i.label.c_str());
+//			}
+//			ImGui::SameLine(0.0f, -1.0f, 0.0f);
+//			if (ImGui::ColorEdit4(std::string{ XorStr("##") }.append(i.label.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[i.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip)) {
+//				if (i.callback != sol::nil)
+//					i.callback(LuaConfigSystem::C_COLOR[i.key][0] * 255, LuaConfigSystem::C_COLOR[i.key][1] * 255, LuaConfigSystem::C_COLOR[i.key][2] * 255, LuaConfigSystem::C_COLOR[i.key][3] * 255);
+//			}
+//
+//			dmt(i.key);
+//			break;
+//		case MENUITEM_BUTTON:
+//			if (ImGui::Button(i.label.c_str())) {
+//				if (i.callback != sol::nil)
+//					i.callback();
+//			}
+//			break;
+//		default:
+//			break;
+//		}
+//	}
+//}
 //
 
 IDirect3DTexture9* logo_nuts;
@@ -1345,7 +1345,7 @@ void Misc()
 				static std::vector<std::string> cfg_list;
 				static bool initialise_configs = true;
 				bool reinit = false;
-				if (initialise_configs || (GetTickCount() % 5000) == 0) {
+				if (initialise_configs || (GetTickCount() % 10000) == 0) {
 					cfg_list = ConfigManager::GetConfigs();
 					initialise_configs = false;
 					reinit = true;
@@ -1497,7 +1497,72 @@ void Misc()
 			}
 
 			ImGui::NextColumn(); ImGui::NewLine();
-			draw_lua_items(XorStr("misc"), XorStr("configs"));
+
+
+			auto previous_check_box = false;
+
+			for (auto& current : g_lua.scripts)
+			{
+				auto& items = g_lua.items.at(g_lua.get_script_id(current));
+
+				for (auto& item : items)
+				{
+					std::string item_name;
+
+					auto first_point = false;
+					auto item_str = false;
+
+					for (auto& c : item.first)
+					{
+						if (c == '.')
+						{
+							if (first_point)
+							{
+								item_str = true;
+								continue;
+							}
+							else
+								first_point = true;
+						}
+
+						if (item_str)
+							item_name.push_back(c);
+					}
+
+					switch (item.second.type)
+					{
+					case NEXT_LINE:
+						previous_check_box = false;
+						break;
+					case CHECK_BOX:
+						previous_check_box = true;
+						ImGui::Checkbox(item_name.c_str(), &LuaConfigSystem::C_BOOL[item.second.key]);
+						break;
+					case SLIDER_INT:
+						previous_check_box = false;
+						ImGui::SliderInt(item_name.c_str(), &LuaConfigSystem::C_INT[item.second.key], item.second.slider_int_min, item.second.slider_int_max);
+						break;
+					case SLIDER_FLOAT:
+						previous_check_box = false;
+						ImGui::SliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
+						break;
+					case COLOR_PICKER:
+						if (previous_check_box)
+							previous_check_box = false;
+						else
+							ImGui::Text((item_name + ' ').c_str());
+
+						ImGui::SameLine();
+						ImGui::ColorEdit4(std::string{ XorStr("##") }.append(item_name.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[item.second.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip);
+						break;
+
+					case TEXT:
+						previous_check_box = false;
+						ImGui::Text(item_name.c_str());
+						break;
+					}
+				}
+			}
 
 		}
 		}

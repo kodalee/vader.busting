@@ -37,6 +37,11 @@ namespace LuaConfigSystem {
 		return std::to_string((int)(col[0] * 255)) + "," + std::to_string((int)(col[1] * 255)) + "," + std::to_string((int)(col[2] * 255)) + "," + std::to_string((int)(col[3] * 255));
 	}
 
+	inline static float ToFloat(int x) {
+		return (static_cast<float>(x) / 255.0f);
+	}
+
+
 	inline	float* StringToColor(std::string s) {
 		static auto split = [](std::string str, const char* del) -> std::vector<std::string>
 		{

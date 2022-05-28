@@ -5,54 +5,130 @@
 #include "lua_hooks.h"
 #include "lua_gameevents.h"
 #include "../../SDK/CLuaConfigs.h"
-
 #pragma comment(lib, "../lua-wrapper/include/luajit.lib")
 #pragma comment(lib, "../lua-wrapper/include/lua51.lib")
 
-enum MENUITEMTYPE {
-	MENUITEM_CHECKBOX = 0,
-	MENUITEM_SLIDERINT,
-	MENUITEM_SLIDERFLOAT,
-	MENUITEM_KEYBIND,
-	MENUITEM_TEXT,
-	MENUITEM_COLORPICKER,
-	MENUITEM_BUTTON
+enum menu_item_type
+{
+	NEXT_LINE,
+	CHECK_BOX,
+	SLIDER_INT,
+	SLIDER_FLOAT,
+	COLOR_PICKER,
+	TEXT
 };
 
-struct MenuItem_t {
-	MENUITEMTYPE type;
-	int script = -1;
-	std::string label = "";
-	std::string key = "";
+class menu_item
+{
+public:
+	bool check_box_value = false;
 
-	bool is_visible = true;
+	std::string key = XorStr("");
 
-	// defaults
-	bool b_default = false;
-	int i_default = 0;
-	float f_default = 0.f;
-	float c_default[4] = { 1.f, 1.f, 1.f, 1.f };
-	std::map<int, bool> m_default = {};
+	std::vector <std::string> combo_box_labels;
+	int combo_box_value = 0;
 
-	// keybinds
-	bool allow_style_change = true;
+	int slider_int_min = 0;
+	int slider_int_max = 0;
+	int slider_int_value = 0;
 
-	// singleselect & multiselect
-	std::vector<const char*> items = {};
+	float slider_float_min = 0.0f;
+	float slider_float_max = 0.0f;
+	float slider_float_value = 0.0f;
 
-	// slider_int
-	int i_min = 0;
-	int i_max = 100;
+	std::string format = XorStr("%d");
 
-	// slider_float
-	float f_min = 0.f;
-	float f_max = 1.f;
+	FloatColor color_picker_value = FloatColor(1.0f, 1.0f, 1.0f, 1.0f);
+	menu_item_type type = NEXT_LINE;
 
-	// sliders
-	std::string format = "%d";
+	menu_item()
+	{
+		type = NEXT_LINE;
+	}
 
-	// callbacks
-	sol::function callback;
+	menu_item(const menu_item& item)
+	{
+		check_box_value = item.check_box_value;
+
+		combo_box_labels = item.combo_box_labels;
+		combo_box_value = item.combo_box_value;
+
+		slider_int_min = item.slider_int_min;
+		slider_int_max = item.slider_int_max;
+		slider_int_value = item.slider_int_value;
+
+		slider_float_min = item.slider_float_min;
+		slider_float_max = item.slider_float_max;
+		slider_float_value = item.slider_float_value;
+
+		color_picker_value = item.color_picker_value;
+		type = item.type;
+		key = item.key;
+		format = item.format;
+	}
+
+	menu_item& operator=(const menu_item& item)
+	{
+		check_box_value = item.check_box_value;
+
+		combo_box_labels = item.combo_box_labels;
+		combo_box_value = item.combo_box_value;
+
+		slider_int_min = item.slider_int_min;
+		slider_int_max = item.slider_int_max;
+		slider_int_value = item.slider_int_value;
+
+		slider_float_min = item.slider_float_min;
+		slider_float_max = item.slider_float_max;
+		slider_float_value = item.slider_float_value;
+
+		color_picker_value = item.color_picker_value;
+		type = item.type;
+		key = item.key;
+		format = item.format;
+
+		return *this;
+	}
+
+	menu_item(std::string key2, bool value)
+	{
+		key = key2;
+		check_box_value = value;
+		type = CHECK_BOX;
+	}
+
+	menu_item(std::string key2, int min, int max, int value)
+	{
+		key = key2;
+		slider_int_min = min;
+		slider_int_max = max;
+		slider_int_value = value;
+
+		type = SLIDER_INT;
+	}
+
+	menu_item(std::string key2, float min, float max, float value, std::string format2 = XorStr("%d"))
+	{
+		key = key2;
+		slider_float_min = min;
+		slider_float_max = max;
+		slider_float_value = value;
+		format = format2;
+
+		type = SLIDER_FLOAT;
+	}
+
+	menu_item(std::string key2, FloatColor value) //-V818
+	{
+		key = key2;
+		color_picker_value = value;
+		type = COLOR_PICKER;
+	}
+
+	menu_item(const std::string name)
+	{
+		type = TEXT;
+	}
 };
 
 class c_lua {
@@ -73,7 +149,7 @@ public:
 	std::vector<bool> loaded;
 	std::vector<std::string> scripts;
 
-	std::map<std::string, std::map<std::string, std::vector<MenuItem_t>>> menu_items = {};
+	std::vector <std::vector <std::pair <std::string, menu_item>>> items;
 
 	sol::state lua;
 

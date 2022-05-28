@@ -26,6 +26,21 @@ int extract_owner(sol::this_state st) {
 	return g_lua.get_script_id(filename);
 }
 
+std::string get_current_script(sol::this_state s)
+{
+	sol::state_view lua_state(s);
+	sol::table rs = lua_state["debug"]["getinfo"](2, ("S"));
+	std::string source = rs["source"];
+	std::string filename = std::filesystem::path(source.substr(1)).filename().string();
+
+	return filename;
+}
+
+int get_current_script_id(sol::this_state s)
+{
+	return g_lua.get_script_id(get_current_script(s));
+}
+
 namespace lua_events {
 
 	void gameevent_callback(sol::this_state s, std::string eventname, sol::function func) {
@@ -49,6 +64,56 @@ namespace lua_events {
 
 	}
 
+}
+
+std::vector <std::pair <std::string, menu_item>>::iterator find_item(std::vector <std::pair <std::string, menu_item>>& items, const std::string& name)
+{
+	for (auto it = items.begin(); it != items.end(); ++it)
+		if (it->first == name)
+			return it;
+
+	return items.end();
+}
+
+menu_item find_item(std::vector <std::vector <std::pair <std::string, menu_item>>>& scripts, const std::string& name)
+{
+	for (auto& script : scripts)
+	{
+		for (auto& item : script)
+		{
+			std::string item_name;
+
+			auto first_point = false;
+			auto second_point = false;
+
+			for (auto& c : item.first)
+			{
+				if (c == '.')
+				{
+					if (first_point)
+					{
+						second_point = true;
+						continue;
+					}
+					else
+					{
+						first_point = true;
+						continue;
+					}
+				}
+
+				if (!second_point)
+					continue;
+
+				item_name.push_back(c);
+			}
+
+			if (item_name == name)
+				return item.second;
+		}
+	}
+
+	return menu_item();
 }
 
 namespace lua_ui {
@@ -76,168 +141,82 @@ namespace lua_ui {
 		return g_Vars.globals.m_bSpecListOpen;
 	}
 
+	auto next_line_counter = 0;
 
-	std::string new_checkbox(sol::this_state s, std::string tab, std::string container, std::string label, std::string key, std::optional<bool> def, std::optional<sol::function> cb) {
-		std::transform(tab.begin(), tab.end(), tab.begin(), ::tolower);
-		std::transform(container.begin(), container.end(), container.begin(), ::tolower);
-
-		MenuItem_t item;
-		item.type = MENUITEM_CHECKBOX;
-		item.script = extract_owner(s);
-		item.label = label;
-		item.key = key;
-		item.b_default = def.value_or(false);
-		item.callback = cb.value_or(sol::nil);
-
-		g_lua.menu_items[tab][container].push_back(item);
-		return key;
+	void next_line(sol::this_state s)
+	{
+		g_lua.items.at(get_current_script_id(s)).emplace_back(std::make_pair(XorStr("next_line_") + std::to_string(next_line_counter), menu_item()));
+		++next_line_counter;
 	}
 
-	std::string new_slider_int(sol::this_state s, std::string tab, std::string container, std::string label, std::string key, int min, int max, std::optional<std::string> format, std::optional<int> def, std::optional<sol::function> cb) {
-		std::transform(tab.begin(), tab.end(), tab.begin(), ::tolower);
-		std::transform(container.begin(), container.end(), container.begin(), ::tolower);
+	void add_check_box(sol::this_state s, std::string key, const std::string& name)
+	{
+		auto script = get_current_script(s);
+		auto script_id = g_lua.get_script_id(script);
 
-		MenuItem_t item;
-		item.type = MENUITEM_SLIDERINT;
-		item.script = extract_owner(s);
-		item.label = label;
-		item.key = key;
-		item.i_default = def.value_or(0);
-		item.i_min = min;
-		item.i_max = max;
-		item.format = format.value_or(XorStr("%d"));
-		item.callback = cb.value_or(sol::nil);
+		auto& items = g_lua.items.at(script_id);
+		auto full_name = script + '.' + name;
 
-		g_lua.menu_items[tab][container].push_back(item);
-		return key;
+		if (find_item(items, full_name) != items.end())
+			return;
+
+		items.emplace_back(std::make_pair(full_name, menu_item(key, false)));
 	}
 
-	std::string new_slider_float(sol::this_state s, std::string tab, std::string container, std::string label, std::string key, float min, float max, std::optional<std::string> format, std::optional<float> def, std::optional<sol::function> cb) {
-		std::transform(tab.begin(), tab.end(), tab.begin(), ::tolower);
-		std::transform(container.begin(), container.end(), container.begin(), ::tolower);
+	void add_slider_int(sol::this_state s, std::string key, const std::string& name, int min, int max)
+	{
+		auto script = get_current_script(s);
+		auto script_id = g_lua.get_script_id(script);
 
-		MenuItem_t item;
-		item.type = MENUITEM_SLIDERFLOAT;
-		item.script = extract_owner(s);
-		item.label = label;
-		item.key = key;
-		item.f_default = def.value_or(0.f);
-		item.f_min = min;
-		item.f_max = max;
-		item.format = format.value_or(XorStr("%.0f"));
-		item.callback = cb.value_or(sol::nil);
+		auto& items = g_lua.items.at(script_id);
+		auto full_name = script + '.' + name;
 
-		g_lua.menu_items[tab][container].push_back(item);
-		return key;
+		if (find_item(items, full_name) != items.end())
+			return;
+
+		items.emplace_back(std::make_pair(full_name, menu_item(key, min, max, min)));
 	}
 
-	std::string new_keybind(sol::this_state s, std::string tab, std::string container, std::string id, std::string key, std::optional<bool> allow_sc, std::optional<int> def, std::optional<sol::function> cb) {
-		std::transform(tab.begin(), tab.end(), tab.begin(), ::tolower);
-		std::transform(container.begin(), container.end(), container.begin(), ::tolower);
+	void add_slider_float(sol::this_state s, std::string key, const std::string& name, float min, float max, std::string format = XorStr("%d"))
+	{
+		auto script = get_current_script(s);
+		auto script_id = g_lua.get_script_id(script);
 
-		MenuItem_t item;
-		item.type = MENUITEM_KEYBIND;
-		item.script = extract_owner(s);
-		item.label = id;
-		item.key = key;
-		item.allow_style_change = allow_sc.value_or(true);
-		item.i_default = def.value_or(0);
-		item.callback = cb.value_or(sol::nil);
+		auto& items = g_lua.items.at(script_id);
+		auto full_name = script + '.' + name;
 
-		g_lua.menu_items[tab][container].push_back(item);
-		return key;
+		if (find_item(items, full_name) != items.end())
+			return;
+
+		items.emplace_back(std::make_pair(full_name, menu_item(key, min, max, min)));
 	}
 
-	std::string new_text(sol::this_state s, std::string tab, std::string container, std::string label, std::string key) {
-		std::transform(tab.begin(), tab.end(), tab.begin(), ::tolower);
-		std::transform(container.begin(), container.end(), container.begin(), ::tolower);
+	void add_color_picker(sol::this_state s, std::string key, const std::string& name)
+	{
+		auto script = get_current_script(s);
+		auto script_id = g_lua.get_script_id(script);
 
-		MenuItem_t item;
-		item.type = MENUITEM_TEXT;
-		item.script = extract_owner(s);
-		item.label = label;
-		item.key = key;
+		auto& items = g_lua.items.at(script_id);
+		auto full_name = script + '.' + name;
 
-		g_lua.menu_items[tab][container].push_back(item);
-		return key;
+		if (find_item(items, full_name) != items.end())
+			return;
+
+		items.emplace_back(std::make_pair(full_name, menu_item(key, FloatColor(1.f, 1.f, 1.f, 1.f))));
 	}
 
-	std::string new_colorpicker(sol::this_state s, std::string tab, std::string container, std::string id, std::string key, std::optional<int> r, std::optional<int> g, std::optional<int> b, std::optional<int> a, std::optional<sol::function> cb) {
-		std::transform(tab.begin(), tab.end(), tab.begin(), ::tolower);
-		std::transform(container.begin(), container.end(), container.begin(), ::tolower);
+	void add_text(sol::this_state s, const std::string& name)
+	{
+		auto script = get_current_script(s);
+		auto script_id = g_lua.get_script_id(script);
 
-		MenuItem_t item;
-		item.type = MENUITEM_COLORPICKER;
-		item.script = extract_owner(s);
-		item.label = id;
-		item.key = key;
-		item.c_default[0] = r.value_or(255) / 255.f;
-		item.c_default[1] = g.value_or(255) / 255.f;
-		item.c_default[2] = b.value_or(255) / 255.f;
-		item.c_default[3] = a.value_or(255) / 255.f;
-		item.callback = cb.value_or(sol::nil);
+		auto& items = g_lua.items.at(script_id);
+		auto full_name = script + '.' + name;
 
-		g_lua.menu_items[tab][container].push_back(item);
-		return key;
-	}
+		if (find_item(items, full_name) != items.end())
+			return;
 
-	std::string new_button(sol::this_state s, std::string tab, std::string container, std::string id, std::string key, std::optional<sol::function> cb) {
-		std::transform(tab.begin(), tab.end(), tab.begin(), ::tolower);
-		std::transform(container.begin(), container.end(), container.begin(), ::tolower);
-
-		MenuItem_t item;
-		item.type = MENUITEM_BUTTON;
-		item.script = extract_owner(s);
-		item.label = id;
-		item.key = key;
-		item.callback = cb.value_or(sol::nil);
-
-		g_lua.menu_items[tab][container].push_back(item);
-		return key;
-	}
-
-	void set_visibility(std::string key, bool v) {
-		for (auto t : g_lua.menu_items) {
-			for (auto c : t.second) {
-				for (auto& i : c.second) {
-					if (i.key == key)
-						i.is_visible = v;
-				}
-			}
-		}
-	}
-
-	void set_items(std::string key, std::vector<const char*> items) {
-		for (auto t : g_lua.menu_items) {
-			for (auto c : t.second) {
-				for (auto& i : c.second) {
-					if (i.key == key)
-						i.items = items;
-				}
-			}
-		}
-	}
-
-	void set_callback(std::string key, sol::function v) {
-		for (auto t : g_lua.menu_items) {
-			for (auto c : t.second) {
-				for (auto& i : c.second) {
-					if (i.key == key)
-						i.callback = v;
-				}
-			}
-		}
-	}
-
-	void set_label(std::string key, std::string v) {
-		for (auto t : g_lua.menu_items) {
-			for (auto c : t.second) {
-				for (auto& i : c.second) {
-					if (i.key == key)
-						i.label = v;
-				}
-			}
-		}
+		items.emplace_back(std::make_pair(full_name, name));
 	}
 }
 
@@ -1094,15 +1073,11 @@ bool c_lua::initialize() {
 	ui[XorStr("speclist_pos")] = lua_ui::speclist_pos;
 	ui[XorStr("keybinds_open")] = lua_ui::keybinds_open;
 	ui[XorStr("speclist_open")] = lua_ui::speclist_open;
-	ui[XorStr("new_checkbox")] = lua_ui::new_checkbox;
-	ui[XorStr("new_colorpicker")] = lua_ui::new_colorpicker;
-	ui[XorStr("new_slider_float")] = lua_ui::new_slider_float;
-	ui[XorStr("new_slider_int")] = lua_ui::new_slider_int;
-	ui[XorStr("new_text")] = lua_ui::new_text;
-	ui[XorStr("new_button")] = lua_ui::new_button;
-	ui[XorStr("set_callback")] = lua_ui::set_callback;
-	ui[XorStr("set_items")] = lua_ui::set_items;
-	ui[XorStr("set_label")] = lua_ui::set_label;
+	ui[XorStr("new_checkbox")] = lua_ui::add_check_box;
+	ui[XorStr("new_colorpicker")] = lua_ui::add_color_picker;
+	ui[XorStr("new_slider_float")] = lua_ui::add_slider_float;
+	ui[XorStr("new_slider_int")] = lua_ui::add_slider_int;
+	ui[XorStr("new_text")] = lua_ui::add_text;
 
 	auto clientstate = this->lua.create_table();
 	clientstate[XorStr("chokedcommands")] = lua_clientstate::chokedcommands;
@@ -1160,19 +1135,7 @@ void c_lua::unload_script(int id) {
 	if (!this->loaded.at(id))
 		return;
 
-	std::map<std::string, std::map<std::string, std::vector<MenuItem_t>>> updated_items;
-	for (auto i : this->menu_items) {
-		for (auto k : i.second) {
-			std::vector<MenuItem_t> updated_vec;
-
-			for (auto m : k.second)
-				if (m.script != id)
-					updated_vec.push_back(m);
-
-			updated_items[k.first][i.first] = updated_vec;
-		}
-	}
-	this->menu_items = updated_items;
+	items.at(id).clear();
 
 	g_luahookmanager.unregister_hooks(id);
 	g_luagameeventmanager.unregister_gameevents(id);
@@ -1225,6 +1188,8 @@ void c_lua::refresh_scripts() {
 
 			this->pathes.push_back(path);
 			this->scripts.push_back(filename);
+
+			this->items.emplace_back(std::vector <std::pair <std::string, menu_item>>());
 		}
 	}
 }
