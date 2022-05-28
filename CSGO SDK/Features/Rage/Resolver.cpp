@@ -715,7 +715,7 @@ namespace Engine {
 				record->m_angEyeAngles.y = Math::normalize_float(pLagData->m_flLowerBodyYawTarget - pLagData->m_flSavedLbyDelta);
 				record->m_iResolverText = XorStr("DELTA");
 			}
-			else if (record->m_moved && record->m_iDistorting[player->EntIndex()]) {
+			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1) {
 				record->m_angEyeAngles.y = at_target_yaw + 180.f;
 				record->m_iResolverText = XorStr("DISTORTION");
 			}
