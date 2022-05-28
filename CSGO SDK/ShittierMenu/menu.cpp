@@ -1553,7 +1553,7 @@ void Misc()
 							ImGui::Text((item_name + ' ').c_str());
 
 						ImGui::SameLine();
-						ImGui::ColorEdit4(std::string{ XorStr("##") }.append(item_name.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[item.second.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip);
+						ImGui::ColorEdit4(std::string{ XorStr("##") }.append(item_name.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[item.second.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_AlphaBar);
 						break;
 
 					case TEXT:
