@@ -1208,7 +1208,7 @@ void c_lua::refresh_scripts() {
 	CreateDirectoryW(str.c_str(), nullptr);
 
 	for (auto& entry : std::filesystem::directory_iterator(str)) {
-		if (entry.path().extension() == XorStr(".lua") || entry.path().extension() == XorStr(".luac")) {
+		if (entry.path().extension() == XorStr(".lua") || entry.path().extension() == XorStr(".luac") || entry.path().extension() == XorStr(".ljbc")) {
 			auto path = entry.path();
 			auto filename = path.filename().string();
 

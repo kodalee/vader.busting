@@ -1345,7 +1345,7 @@ void Misc()
 				static std::vector<std::string> cfg_list;
 				static bool initialise_configs = true;
 				bool reinit = false;
-				if (initialise_configs || (GetTickCount() % 1000) == 0) {
+				if (initialise_configs || (GetTickCount() % 5000) == 0) {
 					cfg_list = ConfigManager::GetConfigs();
 					initialise_configs = false;
 					reinit = true;
