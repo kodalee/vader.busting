@@ -202,7 +202,7 @@ namespace lua_ui {
 		if (find_item(items, full_name) != items.end())
 			return;
 
-		items.emplace_back(std::make_pair(full_name, menu_item(key, FloatColor(1.f, 1.f, 1.f, 1.f))));
+		items.emplace_back(std::make_pair(full_name, menu_item(key, FloatColor(255, 255, 255, 255))));
 	}
 
 	void add_text(sol::this_state s, const std::string& name)
