@@ -729,7 +729,7 @@ void Visuals()
 					InsertSliderFloat(XorStr("Prop brightness"), &g_Vars.esp.prop_adjustement_value, 1.f, 100.0f, XorStr("%.0f%%"));
 					InsertSliderFloat(XorStr("Prop transparency"), &g_Vars.esp.transparent_props, 0.f, 100.0f, XorStr("%.0f%%"));
 				}
-
+				
 
 				InsertCombo(XorStr("Override world textures"), &g_Vars.esp.custom_world_textures, override_textures);
 				if (g_Vars.esp.custom_world_textures == 3) {

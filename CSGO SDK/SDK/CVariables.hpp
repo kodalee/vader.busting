@@ -1251,7 +1251,7 @@ public:
 	config_option( FloatColor, skeleton_history_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
 	config_option( int, sky_changer, 0 );
-	config_option(std::string, custom_skybox, "skybox name");
+	config_option(std::string, custom_skybox, XorStr("skybox name"));
 
 	config_option( bool, extended_esp, false );
 
@@ -1330,7 +1330,7 @@ public:
 	config_option( FloatColor, bloom_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( bool, night_mode, false );
 	config_option(int, custom_world_textures, 0);
-	config_option(std::string, custom_world_texture_string, "custom world texture");
+	config_option(std::string, custom_world_texture_string, XorStr("dev/camo"));
 	config_option( float, world_adjustement_value, 50.f );
 	config_option( float, prop_adjustement_value, 50.f );
 	config_option( float, transparent_props, 67.f );
@@ -1453,14 +1453,14 @@ public:
 	config_option( int, hitsound_type, 0 );
 	config_option( int, hitsound_custom, 0 );
 	config_option( float, hitsound_volume, 100.f );
-	config_option(std::string, custom_hitsound, "hitsound name");
+	config_option(std::string, custom_hitsound, XorStr("hitsound name"));
 
 	config_option(bool, killsound, false);
 	config_option(float, killsound_volume, 100.f);
-	config_option(std::string, custom_killsound, "killsound name");
+	config_option(std::string, custom_killsound, XorStr("killsound name"));
 
 	config_option( int, clantag_changer, 0 );
-	config_option( std::string, custom_clantag, "vader.tech" );
+	config_option( std::string, custom_clantag, XorStr("vader.tech" ));
 
 	config_option( bool, chat_spammer, false );
 

@@ -4,7 +4,7 @@
 
 CKeyValuesSystem* CKeyValuesSystem::KeyValuesSystem()
  {
-	 static auto KeyValuesFactory = PE::GetExport(PE::GetModule(hash_32_fnv1a_const("vstdlib.dll")), hash_32_fnv1a_const("KeyValuesSystem"));
+	 static auto KeyValuesFactory = PE::GetExport(PE::GetModule(hash_32_fnv1a_const(XorStr("vstdlib.dll"))), hash_32_fnv1a_const(XorStr("KeyValuesSystem")));
 	 return KeyValuesFactory.as<CKeyValuesSystem*>();
 }
 
