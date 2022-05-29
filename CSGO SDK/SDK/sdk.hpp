@@ -840,7 +840,52 @@ public:
 		// Memory::VCall< void( __thiscall* )( void*, ITexture* ) >( this, 15 )( this, tex );
 	}
 };
-class KeyValues;
+
+typedef PVOID(__cdecl* oKeyValuesSystem)();
+class KeyValues
+{
+public:
+	PVOID operator new(size_t iAllocSize)
+	{
+		static oKeyValuesSystem KeyValuesSystemFn = reinterpret_cast<oKeyValuesSystem>(GetProcAddress(GetModuleHandle(XorStr("vstdlib.dll")), XorStr("KeyValuesSystem")));
+		auto KeyValuesSystem = KeyValuesSystemFn();
+
+		typedef PVOID(__thiscall* oAllocKeyValuesMemory)(PVOID, int);
+		return Memory::VCall<oAllocKeyValuesMemory>(KeyValuesSystem, 1)(KeyValuesSystem, iAllocSize);
+	}
+
+	void operator delete(PVOID pMem)
+	{
+		static oKeyValuesSystem KeyValuesSystemFn = reinterpret_cast<oKeyValuesSystem>(GetProcAddress(GetModuleHandle(XorStr("vstdlib.dll")), XorStr("KeyValuesSystem")));
+		auto KeyValuesSystem = KeyValuesSystemFn();
+
+		typedef void(__thiscall* oFreeKeyValuesMemory)(PVOID, PVOID);
+		Memory::VCall<oFreeKeyValuesMemory>(KeyValuesSystem, 2)(KeyValuesSystem, pMem);
+	}
+
+	KeyValues(const char* name)
+	{
+		using type = void(__thiscall*)(void* keyValues, const char* name);
+		static auto function = reinterpret_cast<type>(Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 51 33 C0 C7 45"))); // key values init
+
+		if (!function)
+			return;
+
+		function(this, name);
+	}
+
+	void FromBuffer(const char* resourceName, const char* buffer)
+	{
+		using type = void(__thiscall*)(void* keyValues, const char* resourceName, const char* buffer, void* fileSystem, const char* pathId, void* evalSymProc);
+		static auto function = reinterpret_cast<type>(Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 E4 F8 83 EC 34 53 8B 5D 0C 89"))); // load from buffer
+
+		if (!function)
+			return;
+
+		function(this, resourceName, buffer, nullptr, nullptr, nullptr);
+	}
+};
+
 class IMaterialProxyFactory;
 class IMaterialSystemHardwareConfig;
 class CShadowMgr;
@@ -849,7 +894,6 @@ class IMaterial;
 class IMatRenderContext;
 class DataCacheHandle_t;
 class CSteamAPIContext;
-class KeyValues;
 class CBaseHandle;
 class IMatRenderContext {
 public:
