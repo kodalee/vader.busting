@@ -10,11 +10,11 @@ namespace Hooked
 		oPreEntity(Interfaces::m_pClient.pointer, szMapName);
 		
 		KeyValues* pKeyValues = new KeyValues("LightmappedGeneric"); if (g_Vars.esp.custom_world_textures <= 0 || !pKeyValues) return;
-		pKeyValues->SetString("$basetexture", g_Vars.esp.custom_world_textures == 3 ? g_Vars.esp.custom_world_texture_string.c_str() : (g_Vars.esp.custom_world_textures == 2 ? "dev/dev_measuregeneric01" : "dev/dev_measuregeneric01b"));
+		pKeyValues->SetString(XorStr("$basetexture"), g_Vars.esp.custom_world_textures == 3 ? g_Vars.esp.custom_world_texture_string.c_str() : (g_Vars.esp.custom_world_textures == 2 ? XorStr("dev/dev_measuregeneric01") : XorStr("dev/dev_measuregeneric01b")));
 
 		for (MaterialHandle_t i = Interfaces::m_pMatSystem->FirstMaterial(); i != Interfaces::m_pMatSystem->InvalidMaterial(); i = Interfaces::m_pMatSystem->NextMaterial(i)) {
 			IMaterial* pMaterial = Interfaces::m_pMatSystem->GetMaterial(i);
-			if (pMaterial->IsErrorMaterial() || pMaterial->IsTranslucent() || pMaterial->IsSpriteCard() || std::string(pMaterial->GetTextureGroupName()).find("World") == std::string::npos) continue;
+			if (pMaterial->IsErrorMaterial() || pMaterial->IsTranslucent() || pMaterial->IsSpriteCard() || std::string(pMaterial->GetTextureGroupName()).find(XorStr("World")) == std::string::npos) continue;
 
 			std::string sName = std::string(pMaterial->GetName());
 				
