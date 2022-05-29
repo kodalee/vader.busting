@@ -1384,7 +1384,7 @@ void Misc()
 					{
 						if (ImGui::Button(XorStr("Are you sure?")))
 						{
-							LuaConfigSystem::Save();
+							//LuaConfigSystem::Save();
 							ConfigManager::SaveConfig(cfg_list.at(selected_cfg));
 							ILoggerEvent::Get()->PushEvent(XorStr("Saved config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
 							ImGui::CloseCurrentPopup();
@@ -1410,7 +1410,7 @@ void Misc()
 							if (selected_cfg <= cfg_list.size() && selected_cfg >= 0) {
 								ConfigManager::ResetConfig();
 
-								LuaConfigSystem::Load();
+								//LuaConfigSystem::Load();
 								ConfigManager::LoadConfig(cfg_list.at(selected_cfg));
 								ILoggerEvent::Get()->PushEvent(XorStr("Loaded config"), FloatColor(1.f, 1.f, 1.f), true, XorStr(""));
 								g_Vars.m_global_skin_changer.m_update_skins = true;
