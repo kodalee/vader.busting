@@ -1,5 +1,12 @@
 #include "sdk.hpp"
 #include "displacement.hpp"
+#include "../Utils/modules.h"
+
+CKeyValuesSystem* CKeyValuesSystem::KeyValuesSystem()
+ {
+	 static auto KeyValuesFactory = PE::GetExport(PE::GetModule(hash_32_fnv1a_const("vstdlib.dll")), hash_32_fnv1a_const("KeyValuesSystem"));
+	 return KeyValuesFactory.as<CKeyValuesSystem*>();
+}
 
 const char* string_t::ToCStr() const
 {
@@ -193,6 +200,8 @@ CRC32_t CRC32_GetTableEntry( unsigned int slot )
 {
 	return pulCRCTable[ ( unsigned char )slot ];
 }
+
+
 
 
 #pragma endregion

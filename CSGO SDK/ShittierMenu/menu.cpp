@@ -710,6 +710,7 @@ void Visuals()
 			case 1:
 			{
 				const char* skyboxes[]{ XorStr("Default"), XorStr("cs_baggage_skybox"), XorStr("cs_tibet"), XorStr("embassy"), XorStr("italy"), XorStr("jungle"), XorStr("nukeblank"), XorStr("office"), XorStr("sky_csgo_cloudy01"), XorStr("sky_csgo_night02"), XorStr("sky_csgo_night02b"), XorStr("sky_dust"), XorStr("sky_venice"), XorStr("vertigo"), XorStr("vietnamsky_descent"), XorStr("Custom")};
+				const char* override_textures[]{ XorStr("Disabled"), XorStr("Dev (White)"), XorStr("Dev (Orange)"), XorStr("Custom") };
 
 				std::vector<MultiItem_t> worldAdjustment = {
 					{ XorStr("Nightmode"), &g_Vars.esp.night_mode },
@@ -729,6 +730,12 @@ void Visuals()
 					InsertSliderFloat(XorStr("Prop transparency"), &g_Vars.esp.transparent_props, 0.f, 100.0f, XorStr("%.0f%%"));
 				}
 
+
+			//	InsertCombo(XorStr("Override world textures"), &g_Vars.esp.custom_world_textures, override_textures);
+			//	if (g_Vars.esp.custom_world_textures == 3) {
+			//		ImGui::InputText(XorStr("##CustomTexture"), &g_Vars.esp.custom_world_texture_string);
+			//	}
+				
 				//InsertCheckbox(EnableRain, XorStr("Rain"), &g_Vars.esp.weather);
 				//if (g_Vars.esp.weather) {
 				//	InsertSliderFloat(XorStr("Rain alpha"), &g_Vars.esp.weather_alpha, 0.f, 100.0f, XorStr("%.f"));

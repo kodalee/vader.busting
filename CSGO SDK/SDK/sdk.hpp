@@ -59,6 +59,11 @@ using namespace SDK;
 #define MAX(a,b)            (((a) < (b)) ? (a) : (b))
 #endif
 
+
+#define CONCAT_IMPL( x, y ) x##y
+#define MACRO_CONCAT( x, y ) CONCAT_IMPL( x, y )
+#define PAD( size ) uint8_t MACRO_CONCAT( _pad, __COUNTER__ )[ size ];
+
 // 
 // macros
 // 
@@ -257,6 +262,14 @@ using namespace SDK;
 
 __forceinline auto DotProduct( const Vector& a, const Vector& b ) -> float {
 	return ( a[ 0 ] * b[ 0 ] + a[ 1 ] * b[ 1 ] + a[ 2 ] * b[ 2 ] );
+}
+
+inline auto FindString(std::string szOriginString, std::string szString)
+{
+	for (unsigned int i = 0; i < szOriginString.size(); i++) szOriginString[i] = tolower(szOriginString[i]);
+	for (unsigned int j = 0; j < szString.size(); j++) szString[j] = tolower(szString[j]);
+
+	return strstr(szOriginString.c_str(), szString.c_str());
 }
 
 // 
@@ -841,28 +854,36 @@ public:
 	}
 };
 
+class CKeyValuesSystem {
+public:
+	virtual void		RegisterSizeofKeyValues(int size) = 0;
+	virtual void* AllocKeyValuesMemory(int size) = 0;
+	virtual void		FreeKeyValuesMemory(void* pMem) = 0;
+	virtual int			GetSymbolForString(const char* name, bool bCreate = true) = 0;
+	virtual const char* GetStringForSymbol(int symbol) = 0;
+	virtual void		AddKeyValuesToMemoryLeakList(void* pMem, int name) = 0;
+	virtual void		RemoveKeyValuesFromMemoryLeakList(void* pMem) = 0;
+
+	static CKeyValuesSystem* KeyValuesSystem();
+};
+
 typedef PVOID(__cdecl* oKeyValuesSystem)();
 class KeyValues
 {
+protected:
+	enum types_t {
+		TYPE_NONE = 0,
+		TYPE_STRING,
+		TYPE_INT,
+		TYPE_FLOAT,
+		TYPE_PTR,
+		TYPE_WSTRING,
+		TYPE_COLOR,
+		TYPE_UINT64,
+		TYPE_NUMTYPES,
+	};
+
 public:
-	PVOID operator new(size_t iAllocSize)
-	{
-		static oKeyValuesSystem KeyValuesSystemFn = reinterpret_cast<oKeyValuesSystem>(GetProcAddress(GetModuleHandle(XorStr("vstdlib.dll")), XorStr("KeyValuesSystem")));
-		auto KeyValuesSystem = KeyValuesSystemFn();
-
-		typedef PVOID(__thiscall* oAllocKeyValuesMemory)(PVOID, int);
-		return Memory::VCall<oAllocKeyValuesMemory>(KeyValuesSystem, 1)(KeyValuesSystem, iAllocSize);
-	}
-
-	void operator delete(PVOID pMem)
-	{
-		static oKeyValuesSystem KeyValuesSystemFn = reinterpret_cast<oKeyValuesSystem>(GetProcAddress(GetModuleHandle(XorStr("vstdlib.dll")), XorStr("KeyValuesSystem")));
-		auto KeyValuesSystem = KeyValuesSystemFn();
-
-		typedef void(__thiscall* oFreeKeyValuesMemory)(PVOID, PVOID);
-		Memory::VCall<oFreeKeyValuesMemory>(KeyValuesSystem, 2)(KeyValuesSystem, pMem);
-	}
-
 	KeyValues(const char* name)
 	{
 		using type = void(__thiscall*)(void* keyValues, const char* name);
@@ -884,6 +905,76 @@ public:
 
 		function(this, resourceName, buffer, nullptr, nullptr, nullptr);
 	}
+
+	__forceinline KeyValues* FindKey(uint32_t hash) {
+		KeyValues* dat;
+		CKeyValuesSystem* system;
+		const char* string;
+
+		system = CKeyValuesSystem::KeyValuesSystem();
+
+		if (!this || !hash || !system)
+			return nullptr;
+
+		for (dat = this->m_sub; dat != nullptr; dat = dat->m_peer) {
+			string = system->GetStringForSymbol(dat->m_key_name_id);
+
+			if (string && hash_32_fnv1a_const(string) == hash)
+				return dat;
+		}
+
+		return nullptr;
+	}
+
+	void __forceinline SetString(const char* keyName, const char* value)
+	{
+		KeyValues* dat = FindKey(hash_32_fnv1a_const(keyName));
+
+		if (dat)
+		{
+			if (dat->m_data_type == TYPE_STRING && dat->m_string == value)
+			{
+				return;
+			}
+
+			delete[] dat->m_string;
+			delete[] dat->m_wide_string;
+			dat->m_wide_string = NULL;
+
+			if (!value)
+			{
+				value = "";
+			}
+
+			int len = strlen(value);
+			dat->m_string = new char[len + 1];
+			memcpy(dat->m_string, value, len + 1);
+
+			dat->m_data_type = TYPE_STRING;
+		}
+	}
+
+	uint32_t m_key_name_id : 24;
+	uint32_t m_key_name_case_sensitive : 8;
+
+	char* m_string;
+	wchar_t* m_wide_string;
+
+	union {
+		int           m_int_value;
+		float         m_float_value;
+		void* m_ptr_value;
+		unsigned char m_color_value[4];
+	};
+
+	char m_data_type;
+	char m_has_escape_sequences;
+
+	PAD(0x2);
+
+	KeyValues* m_peer;
+	KeyValues* m_sub;
+	KeyValues* m_chain;
 };
 
 class IMaterialProxyFactory;
@@ -1208,10 +1299,6 @@ enum class MotionBlurMode_t {
 	MOTION_BLUR_GAME = 2,
 	MOTION_BLUR_SFM = 3
 };
-
-#define CONCAT_IMPL( x, y ) x##y
-#define MACRO_CONCAT( x, y ) CONCAT_IMPL( x, y )
-#define PAD( size ) uint8_t MACRO_CONCAT( _pad, __COUNTER__ )[ size ];
 
 class CViewSetup {
 public:

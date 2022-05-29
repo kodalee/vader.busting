@@ -1329,6 +1329,8 @@ public:
 	config_option( float, model_brightness, 0 );
 	config_option( FloatColor, bloom_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( bool, night_mode, false );
+	config_option(int, custom_world_textures, 0);
+	config_option(std::string, custom_world_texture_string, "custom world texture");
 	config_option( float, world_adjustement_value, 50.f );
 	config_option( float, prop_adjustement_value, 50.f );
 	config_option( float, transparent_props, 67.f );
