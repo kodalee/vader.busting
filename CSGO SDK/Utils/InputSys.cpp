@@ -19,10 +19,10 @@ public:
 
 	virtual void* GetMainWindow( ) const { return ( void* )m_hTargetWindow; }
 
-	virtual KeyState GetKeyState( int vk );
-	virtual bool IsKeyDown( int vk );
+	virtual KeyState GetKeyState( int vk, bool always_detect_press = false);
+	virtual bool IsKeyDown( int vk, bool always_detect_press = false);
 	virtual bool IsInBox( Vector2D box_pos, Vector2D box_size );
-	virtual bool WasKeyPressed( int vk );
+	virtual bool WasKeyPressed( int vk, bool always_detect_press = false );
 
 	virtual void RegisterHotkey( int vk, std::function< void( void ) > f );
 	virtual void RemoveHotkey( int vk );
@@ -101,9 +101,8 @@ extern LRESULT  ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wPara
 
 LRESULT __stdcall Win32InputSys::WndProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam ) {
 	auto win32input = static_cast<Win32InputSys*>(Get().Xor());
-	if (!Interfaces::m_pClient->IsChatRaised() && !Interfaces::m_pEngine->Con_IsVisible()) {
-		win32input->ProcessMessage(msg, wParam, lParam);
-	}
+
+	win32input->ProcessMessage(msg, wParam, lParam);
 
 	if (msg == WM_MOUSEMOVE) {
 		win32input->m_MousePos.x = (signed short)(lParam);
@@ -218,13 +217,14 @@ bool Win32InputSys::ProcessKeybdMessage( UINT uMsg, WPARAM wParam, LPARAM lParam
 	return true;
 }
 
-KeyState Win32InputSys::GetKeyState( int vk ) {
+KeyState Win32InputSys::GetKeyState( int vk, bool always_detect_press) {
+	if (!always_detect_press && (Interfaces::m_pClient->IsChatRaised() || Interfaces::m_pEngine->Con_IsVisible())) return KeyState::None;
 	return m_iKeyMap[ vk ];
 }
 
-bool Win32InputSys::IsKeyDown( int vk ) {
-	if( vk <= 0 || vk > 255 )
-		return false;
+bool Win32InputSys::IsKeyDown( int vk, bool always_detect_press) {
+	if (!always_detect_press && (Interfaces::m_pClient->IsChatRaised() || Interfaces::m_pEngine->Con_IsVisible())) return false;
+	if( vk <= 0 || vk > 255 ) return false;
 
 	return m_iKeyMap[ vk ] == KeyState::Down;
 }
@@ -238,7 +238,9 @@ bool Win32InputSys::IsInBox( Vector2D box_pos, Vector2D box_size ) {
 		);
 }
 
-bool Win32InputSys::WasKeyPressed( int vk ) {
+bool Win32InputSys::WasKeyPressed( int vk, bool always_detect_press) {
+	if (!always_detect_press && (Interfaces::m_pClient->IsChatRaised() || Interfaces::m_pEngine->Con_IsVisible())) return false;
+
 	if( vk <= 0 || vk > 255 )
 		return false;
 

@@ -1,5 +1,6 @@
 #include "../Hooked.hpp"
 #include "../../SDK/sdk.hpp"
+#include "../../Features/Visuals/EventLogger.hpp"
 
 
 std::vector<std::string> PrintedMats;
@@ -8,6 +9,11 @@ namespace Hooked
 	void __stdcall PreEntity(const char* szMapName)
 	{
 		oPreEntity(Interfaces::m_pClient.pointer, szMapName);
+		g_Vars.globals.m_CachedMapMaterials.clear(); PrintedMats.clear();
+		
+#ifdef DEV
+		ILoggerEvent::Get()->PushEvent("Map Material List:\n", FloatColor(0.f, 0.f, 1.f), true); 
+#endif
 		
 		KeyValues* pKeyValues = new KeyValues("LightmappedGeneric"); if (g_Vars.esp.custom_world_textures <= 0 || !pKeyValues) return;
 		pKeyValues->SetString(XorStr("$basetexture"), g_Vars.esp.custom_world_textures == 3 ? g_Vars.esp.custom_world_texture_string.c_str() : (g_Vars.esp.custom_world_textures == 2 ? XorStr("dev/dev_measuregeneric01") : XorStr("dev/dev_measuregeneric01b")));
@@ -21,7 +27,7 @@ namespace Hooked
 #ifdef DEV
 			if (std::find(std::begin(PrintedMats), std::end(PrintedMats), sName) == std::end(PrintedMats))
 			{
-				Interfaces::m_pCvar->ConsoleColorPrintf(Color::DarkGrey(), (sName + "\n").c_str());
+				ILoggerEvent::Get()->PushEvent((sName + "\n").c_str(), FloatColor(1.f, 1.f, 1.f), false);
 				PrintedMats.emplace_back(sName);
 			}
 #endif
@@ -36,6 +42,7 @@ namespace Hooked
 				continue;
 
 			pMaterial->SetShaderAndParams(pKeyValues);
+			g_Vars.globals.m_CachedMapMaterials.emplace_back(pMaterial);
 		}
 	}
 }

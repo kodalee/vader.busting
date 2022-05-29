@@ -220,9 +220,9 @@ public:
    virtual void Destroy( ) = 0;
 
    virtual void* GetMainWindow( ) const = 0;
-   virtual KeyState GetKeyState( int vk ) = 0;
-   virtual bool IsKeyDown( int vk ) = 0;
-   virtual bool WasKeyPressed( int vk ) = 0;
+   virtual KeyState GetKeyState( int vk, bool always_detect_press = false) = 0;
+   virtual bool IsKeyDown( int vk, bool always_detect_press = false) = 0;
+   virtual bool WasKeyPressed( int vk, bool always_detect_press = false) = 0;
    virtual bool IsInBox( Vector2D box_pos, Vector2D box_size ) = 0;
    virtual void RegisterHotkey( int vk, std::function< void( void ) > f ) = 0;
    virtual void RemoveHotkey( int vk ) = 0;

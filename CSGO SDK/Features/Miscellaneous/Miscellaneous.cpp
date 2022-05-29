@@ -66,6 +66,13 @@ namespace Interfaces
 		ModulateWorld( );
 		SkyboxChanger( );
 
+		// Note for exon from cal: add to menu, maybe fix it to work with night mode idk
+		//for (int i = 0; i < g_Vars.globals.m_CachedMapMaterials.size(); i++)
+		//{
+		//	g_Vars.globals.m_CachedMapMaterials.at(i)->AlphaModulate(1.f);
+		//	g_Vars.globals.m_CachedMapMaterials.at(i)->ColorModulate(1.f, 0.f, 0.f);
+		//}
+
 		if( !g_Vars.globals.HackIsReady )
 			return;
 

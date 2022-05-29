@@ -710,7 +710,7 @@ void Visuals()
 			case 1:
 			{
 				const char* skyboxes[]{ XorStr("Default"), XorStr("cs_baggage_skybox"), XorStr("cs_tibet"), XorStr("embassy"), XorStr("italy"), XorStr("jungle"), XorStr("nukeblank"), XorStr("office"), XorStr("sky_csgo_cloudy01"), XorStr("sky_csgo_night02"), XorStr("sky_csgo_night02b"), XorStr("sky_dust"), XorStr("sky_venice"), XorStr("vertigo"), XorStr("vietnamsky_descent"), XorStr("Custom")};
-				const char* override_textures[]{ XorStr("Disabled"), XorStr("Dev (White)"), XorStr("Dev (Orange)"), XorStr("Custom") };
+				const char* override_textures[]{ XorStr("Disabled"), XorStr("Dev (Grey)"), XorStr("Dev (Orange)"), XorStr("Custom") };
 
 				std::vector<MultiItem_t> worldAdjustment = {
 					{ XorStr("Nightmode"), &g_Vars.esp.night_mode },

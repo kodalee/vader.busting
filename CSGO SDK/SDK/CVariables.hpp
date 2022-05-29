@@ -340,6 +340,7 @@ struct SpreadRandom_t {
 	float flRandPi2;
 };
 
+class IMaterial;
 class CVariables : public CBaseGroup {
 public:
 	typedef struct _GLOBAL {
@@ -466,6 +467,7 @@ public:
 
 		HINSTANCE hModule;
 
+		std::vector<IMaterial*> m_CachedMapMaterials;
 		std::vector<int> m_PredictionAnimationEventQueue; // queue of animation events to run before animating the local player
 		bool m_bAllowAnimationEvents = true;
 		std::string szLastHookCalled = XorStr( "null" );
