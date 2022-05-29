@@ -731,10 +731,10 @@ void Visuals()
 				}
 
 
-			//	InsertCombo(XorStr("Override world textures"), &g_Vars.esp.custom_world_textures, override_textures);
-			//	if (g_Vars.esp.custom_world_textures == 3) {
-			//		ImGui::InputText(XorStr("##CustomTexture"), &g_Vars.esp.custom_world_texture_string);
-			//	}
+				InsertCombo(XorStr("Override world textures"), &g_Vars.esp.custom_world_textures, override_textures);
+				if (g_Vars.esp.custom_world_textures == 3) {
+					ImGui::InputText(XorStr("##CustomTexture"), &g_Vars.esp.custom_world_texture_string);
+				}
 				
 				//InsertCheckbox(EnableRain, XorStr("Rain"), &g_Vars.esp.weather);
 				//if (g_Vars.esp.weather) {

@@ -906,52 +906,22 @@ public:
 		function(this, resourceName, buffer, nullptr, nullptr, nullptr);
 	}
 
-	__forceinline KeyValues* FindKey(uint32_t hash) {
-		KeyValues* dat;
-		CKeyValuesSystem* system;
-		const char* string;
-
-		system = CKeyValuesSystem::KeyValuesSystem();
-
-		if (!this || !hash || !system)
-			return nullptr;
-
-		for (dat = this->m_sub; dat != nullptr; dat = dat->m_peer) {
-			string = system->GetStringForSymbol(dat->m_key_name_id);
-
-			if (string && hash_32_fnv1a_const(string) == hash)
-				return dat;
-		}
-
-		return nullptr;
+	__forceinline KeyValues* FindKey(const char* szKeyName, bool bCreate) {
+		using FindKeyFn = KeyValues * (__thiscall*)(KeyValues*, const char*, bool);
+		static FindKeyFn oFindKey = (FindKeyFn)(Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 EC 1C 53 8B D9 85 DB")));
+		return oFindKey(this, szKeyName, bCreate);
 	}
 
-	void __forceinline SetString(const char* keyName, const char* value)
+	void __forceinline SetString(const char* szKeyName, const char* szValue)
 	{
-		KeyValues* dat = FindKey(hash_32_fnv1a_const(keyName));
+		KeyValues* pKey = FindKey(szKeyName, true);
 
-		if (dat)
-		{
-			if (dat->m_data_type == TYPE_STRING && dat->m_string == value)
-			{
-				return;
-			}
+		if (pKey == nullptr)
+			return;
 
-			delete[] dat->m_string;
-			delete[] dat->m_wide_string;
-			dat->m_wide_string = NULL;
-
-			if (!value)
-			{
-				value = "";
-			}
-
-			int len = strlen(value);
-			dat->m_string = new char[len + 1];
-			memcpy(dat->m_string, value, len + 1);
-
-			dat->m_data_type = TYPE_STRING;
-		}
+		using SetStringFn = void(__thiscall*)(void*, const char*);
+		static auto oSetString = (SetStringFn)(Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC A1 ? ? ? ? 53 56 57 8B F9 8B 08 8B 01")));
+		oSetString(pKey, szValue);
 	}
 
 	uint32_t m_key_name_id : 24;
