@@ -1091,6 +1091,7 @@ namespace Interfaces
 		MH_EnableHook(SceneEnd_p);
 
 		oFrameStageNotify = Hooked::HooksManager.HookVirtual<decltype( oFrameStageNotify )>( m_pClient.Xor( ), &Hooked::FrameStageNotify, Index::IBaseClientDLL::FrameStageNotify );
+		oPreEntity = Hooked::HooksManager.HookVirtual<decltype(oPreEntity)>(m_pClient.Xor(), &Hooked::PreEntity, 5);
 		//oView_Render = Hooked::HooksManager.HookVirtual<decltype( oView_Render )>( m_pClient, &Hooked::View_Render, 27 );
 
 		oRunCommand = Hooked::HooksManager.HookVirtual<decltype( oRunCommand )>( m_pPrediction.Xor( ), &Hooked::RunCommand, Index::IPrediction::RunCommand );

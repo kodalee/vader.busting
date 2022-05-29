@@ -44,6 +44,10 @@ namespace Hooked
 	inline FrameStageNotifyFn oFrameStageNotify;
 	void __fastcall FrameStageNotify( void* ecx, void* edx, ClientFrameStage_t stage );
 
+	using PreEntityFn = void(__thiscall*)(IBaseClientDLL*, const char*);
+	inline PreEntityFn oPreEntity;
+	void __stdcall PreEntity( const char*);
+
 	using RunCommandFn = void( __thiscall* )( void*, C_CSPlayer*, CUserCmd*, IMoveHelper* );
 	inline RunCommandFn oRunCommand;
 	void __fastcall RunCommand( void* ecx, void* edx, C_CSPlayer* player, CUserCmd* ucmd, IMoveHelper* moveHelper );

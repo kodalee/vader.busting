@@ -24,7 +24,6 @@
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
@@ -39,3 +38,7 @@
 Developer/Intermediate/CSGO SDK.vcxproj.FileListAbsolute.txt
 .vs/slnx.sqlite
 Developer/Intermediate/vc141.idb
+*.iobj
+*.recipe
+Stable build/csgo_legacy.lib
+Developer/csgo_legacy.lib

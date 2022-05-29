@@ -71,7 +71,7 @@ namespace LuaConfigSystem {
 
 	inline void Save() {
 		char FilePath[MAX_PATH] = { 0 };
-		sprintf(FilePath, ReplaceInString(std::experimental::filesystem::current_path().string() + "\\vader.tech\\lua.ini", "\\", "/").c_str());
+		sprintf(FilePath, ReplaceInString(std::filesystem::current_path().string() + "\\vader.tech\\lua.ini", "\\", "/").c_str());
 
 		for (auto e : C_BOOL) {
 			if (!std::string(e.first).find("_")) continue;
@@ -109,7 +109,7 @@ namespace LuaConfigSystem {
 
 	inline void Load() {
 		char FilePath[MAX_PATH] = { 0 };
-		sprintf(FilePath, ReplaceInString(std::experimental::filesystem::current_path().string() + "\\vader.tech\\lua.ini", "\\", "/").c_str());
+		sprintf(FilePath, ReplaceInString(std::filesystem::current_path().string() + "\\vader.tech\\lua.ini", "\\", "/").c_str());
 
 		char b_buffer[65536], i_buffer[65536], f_buffer[65536], c_buffer[65536], m_buffer[65536] = { 0 };
 

@@ -363,6 +363,7 @@
     <ClCompile Include="Features\Miscellaneous\walkbot.cpp" />
     <ClCompile Include="Features\Game\netdata.cpp" />
     <ClCompile Include="Features\Visuals\gh.cpp" />
+    <ClCompile Include="Hooking\Hooks\PreEntity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
