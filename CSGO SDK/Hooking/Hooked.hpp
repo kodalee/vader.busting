@@ -28,6 +28,15 @@ namespace Hooked
 		const char* username;
 	};
 
+	struct Voice_Fake_Kaaba
+	{
+		uint32_t xuid_low;
+		uint32_t xuid_high;
+		uint32_t sec_bytes;
+		uint32_t sec_number;
+		uint32_t sample_offset;
+	};
+
 	extern std::map< int, Hooked::PlayerHook > player_hooks;
 
 	using CreateMoveFn = bool( __stdcall* )( float, CUserCmd* );
