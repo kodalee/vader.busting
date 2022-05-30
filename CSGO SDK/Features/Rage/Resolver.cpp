@@ -461,10 +461,6 @@ namespace Engine {
 			}
 		}
 
-		// if on ground, moving, and not fakewalking.
-		else if ((record->m_fFlags & FL_ONGROUND || player->m_fFlags() & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking)
-			record->m_iResolverMode = MOVING;
-
 		//if (g_Vars.rage.override_reoslver.enabled && record->m_fFlags & FL_ONGROUND && (speed <= 25.f || record->m_bFakeWalking))
 		//	record->m_iResolverMode = RESOLVE_OVERRIDE;
 
@@ -478,6 +474,10 @@ namespace Engine {
 
 		else if (!(player->m_fFlags() & FL_ONGROUND) && record->m_vecAnimationVelocity.Length2D() <= 45.f)
 			record->m_iResolverMode = AIRSTAND;
+
+		// if on ground, moving, and not fakewalking.
+		else if ((record->m_fFlags & FL_ONGROUND || player->m_fFlags() & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking)
+			record->m_iResolverMode = MOVING;
 	}
 
 	void CResolver::ResolveAngles(C_CSPlayer* player, C_AnimationRecord* record) {
@@ -715,7 +715,7 @@ namespace Engine {
 				record->m_angEyeAngles.y = Math::normalize_float(pLagData->m_flLowerBodyYawTarget - pLagData->m_flSavedLbyDelta);
 				record->m_iResolverText = XorStr("DELTA");
 			}
-			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1) {
+			else if (record->m_iResolverMode == DISTORTINGLMOVE) {
 				record->m_angEyeAngles.y = at_target_yaw + 180.f;
 				record->m_iResolverText = XorStr("DISTORTION");
 			}
