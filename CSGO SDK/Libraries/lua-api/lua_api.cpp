@@ -845,7 +845,7 @@ bool c_lua::initialize() {
 	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package, sol::lib::os, sol::lib::io, sol::lib::bit32, sol::lib::ffi, sol::lib::jit);
 
 	this->lua[XorStr("collectgarbage")] = sol::nil;
-	this->lua[XorStr("__nil_callback")] = []() {};
+	this->lua[XorStr("__nil_callback")] = [](){};
 
 	this->lua["print"] = [](std::string s) { engine_console(s); };
 	this->lua["error"] = [](std::string s) { engine_console_error(s); };
