@@ -842,7 +842,7 @@ namespace lua_clientstate
 c_lua g_lua;
 bool c_lua::initialize() {
 	this->lua = sol::state(sol::c_call<decltype(&lua_panic), &lua_panic>);
-	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package, sol::lib::os, sol::lib::io, sol::lib::bit32, sol::lib::ffi, sol::lib::jit);
+	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package/*, sol::lib::os*/, sol::lib::io, sol::lib::bit32, /*sol::lib::ffi,*/ sol::lib::jit);
 
 	this->lua[XorStr("collectgarbage")] = sol::nil;
 	this->lua[XorStr("__nil_callback")] = [](){};
