@@ -8,6 +8,7 @@
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
+#define engine_console_error(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 0.f, 0.f), true, "")
 void lua_panic(sol::optional<std::string> message) {
 
 	if (message) {
@@ -844,7 +845,7 @@ bool c_lua::initialize() {
 	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package, sol::lib::os, sol::lib::io, sol::lib::bit32, sol::lib::ffi, sol::lib::jit);
 
 	this->lua["print"] = [](std::string s) { engine_console(s); };
-	this->lua["error"] = [](std::string s) { engine_console(s); };
+	this->lua["error"] = [](std::string s) { engine_console_error(s); };
 
 	this->lua.new_usertype<Color>(XorStr("color"), sol::constructors <Color(), Color(int, int, int), Color(int, int, int, int)>(),
 		(std::string)XorStr("r"), &Color::r,
