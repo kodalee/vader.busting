@@ -8,6 +8,7 @@
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
+#define engine_console_error(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 0.f, 0.f), true, "")
 void lua_panic(sol::optional<std::string> message) {
 
 	if (message) {
@@ -297,7 +298,7 @@ namespace lua_config {
 			return false;
 	}
 
-	int pingspike_value() {
+	float pingspike_value() {
 		return g_Vars.misc.extended_backtrack_time;
 	}
 
@@ -351,7 +352,11 @@ namespace lua_config {
 	}
 
 	bool forcebaim_enabled() {
-		return g_Vars.rage.prefer_body.enabled;
+		if (g_Vars.rage.enabled) {
+			return g_Vars.rage.prefer_body.enabled;
+		}
+		else
+			return false;
 	}
 
 	bool slide_walk_set(bool value) {
@@ -369,6 +374,22 @@ namespace lua_config {
 	bool fakewalk_enabled() {
 		if (g_Vars.misc.slow_walk) {
 			return g_Vars.misc.slow_walk_bind.enabled;
+		}
+		else
+			return false;
+	}
+
+	bool dmgoverride_enabled() {
+		if (g_Vars.rage.enabled) {
+			return g_Vars.rage.key_dmg_override.enabled;
+		}
+		else
+			return false;
+	}
+
+	bool hitscanoverride_enabled() {
+		if (g_Vars.rage.enabled) {
+			return g_Vars.rage.override_key.enabled;
 		}
 		else
 			return false;
@@ -795,6 +816,11 @@ namespace lua_render {
 		Render::Engine::Gradient((int)x, (int)y, (int)w, (int)h, color, color2, horizontal);
 	}
 
+	void draw_world_circle(Vector origin, float radius, Color color, Color colorFill)
+	{
+		Render::Engine::WorldCircle(origin, radius, color, colorFill);
+	}
+
 	Vector world_to_screen(Vector pos) {
 		Vector2D scr;
 		Render::Engine::WorldToScreen(pos, scr);
@@ -818,8 +844,11 @@ bool c_lua::initialize() {
 	this->lua = sol::state(sol::c_call<decltype(&lua_panic), &lua_panic>);
 	this->lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::math, sol::lib::table, sol::lib::debug, sol::lib::package, sol::lib::os, sol::lib::io, sol::lib::bit32, sol::lib::ffi, sol::lib::jit);
 
+	this->lua[XorStr("collectgarbage")] = sol::nil;
+	this->lua[XorStr("__nil_callback")] = [](){};
+
 	this->lua["print"] = [](std::string s) { engine_console(s); };
-	this->lua["error"] = [](std::string s) { engine_console(s); };
+	this->lua["error"] = [](std::string s) { engine_console_error(s); };
 
 	this->lua.new_usertype<Color>(XorStr("color"), sol::constructors <Color(), Color(int, int, int), Color(int, int, int, int)>(),
 		(std::string)XorStr("r"), &Color::r,
@@ -972,6 +1001,8 @@ bool c_lua::initialize() {
 	config[XorStr("slide_walk_set")] = lua_config::slide_walk_set;
 	config[XorStr("mindtrick_enabled")] = lua_config::mindtrick_enabled;
 	config[XorStr("fakewalk_enabled")] = lua_config::fakewalk_enabled;
+	config[XorStr("hitscanoverride_enabled")] = lua_config::hitscanoverride_enabled;
+	config[XorStr("dmgoverride_enabled")] = lua_config::dmgoverride_enabled;
 
 	auto cheat = this->lua.create_table();
 	cheat[XorStr("set_event_callback")] = lua_cheat::set_event_callback;
@@ -1066,6 +1097,7 @@ bool c_lua::initialize() {
 	render[XorStr("draw_circle")] = lua_render::draw_circle;
 	render[XorStr("draw_rect_outlined")] = lua_render::draw_rect_outlined;
 	render[XorStr("draw_gradient")] = lua_render::draw_gradient;
+	render[XorStr("draw_world_circle")] = lua_render::draw_world_circle;
 	render[XorStr("world_to_screen")] = lua_render::world_to_screen;
 
 	auto ui = this->lua.create_table();
