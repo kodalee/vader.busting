@@ -283,7 +283,7 @@ void Ragebot()
 			InsertMultiCombo(XorStr("Automatic stop options"), stop_options);
 		}
 
-		InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autoscope);
+		//InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autoscope);
 
 		std::vector<MultiItem_t> stop_options = {
 			{ XorStr("Always Scope"), &rbot->always_scope },
