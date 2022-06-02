@@ -730,6 +730,10 @@ public:
 	config_option( bool, always_stop, false );
 	config_option( bool, early_stop, false );
 
+	config_option(bool, always_scope, false);
+	config_option(bool, hcFailed_scope, false);
+
+
 	config_option( bool, ignorelimbs_ifwalking, false );
 	config_option( bool, body_aim_if_lethal, false );
 	config_option( bool, between_shots, false );

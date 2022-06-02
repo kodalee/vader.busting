@@ -670,7 +670,7 @@ namespace Interfaces
 
 			bool can_scope = m_rage_data->m_pWeapon->m_zoomLevel() <= 0 && m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
 
-			if (can_scope && m_rage_data->rbot->autoscope) {
+			if (can_scope && m_rage_data->rbot->always_scope) {
 				m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
 				m_rage_data->m_pWeapon->m_zoomLevel() = 1;
 			}
@@ -713,18 +713,18 @@ namespace Interfaces
 				m_rage_data->m_bNoNeededScope = false;
 		}
 
-		//if (m_rage_data->rbot->autoscope &&
-		//	m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE &&
-		//	m_rage_data->m_pWeapon->m_zoomLevel() <= 0 &&
-		//	m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND &&
-		//	!m_rage_data->m_bNoNeededScope) {
-		//	m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-		//	m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
-		//	//m_rage_data->m_pWeapon->m_zoomLevel( ) = 1;
-		//	m_rage_data->m_bPredictedScope = true;
-		//	m_rage_data->m_bRePredict = true;
-		//	//m_rage_data->m_bResetCmd = false;
-		//}
+		if (m_rage_data->rbot->hcFailed_scope &&
+			m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE &&
+			m_rage_data->m_pWeapon->m_zoomLevel() <= 0 &&
+			m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND &&
+			!m_rage_data->m_bNoNeededScope) {
+			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+			m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
+			//m_rage_data->m_pWeapon->m_zoomLevel( ) = 1;
+			m_rage_data->m_bPredictedScope = true;
+			m_rage_data->m_bRePredict = true;
+			//m_rage_data->m_bResetCmd = false;
+		}
 
 		auto correction = m_rage_data->m_pLocal->m_aimPunchAngle() * g_Vars.weapon_recoil_scale->GetFloat();
 
@@ -2245,7 +2245,7 @@ namespace Interfaces
 		bool can_scope = !(C_CSPlayer::GetLocalPlayer()->m_bIsScoped()) && m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && (m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE);
 
 		if (can_scope) {
-			if (m_rage_data->rbot->autoscope) {
+			if (m_rage_data->rbot->hcFailed_scope) {
 				m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
 				//m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
 				m_rage_data->m_bRePredict = true;

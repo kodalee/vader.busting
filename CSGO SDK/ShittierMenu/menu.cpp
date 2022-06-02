@@ -284,6 +284,13 @@ void Ragebot()
 		}
 
 		InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autoscope);
+
+		std::vector<MultiItem_t> stop_options = {
+			{ XorStr("Always Scope"), &rbot->always_scope },
+			{ XorStr("Hitchance Fail"), &rbot->hcFailed_scope },
+		};
+
+
 		InsertCheckbox(prefer_body, XorStr("Prefer body-aim") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->prefer_body);
 
 		std::vector<MultiItem_t> prefer_body_cond = {
