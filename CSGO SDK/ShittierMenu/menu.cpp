@@ -285,7 +285,7 @@ void Ragebot()
 
 		//InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autoscope);
 
-		std::vector<MultiItem_t> stop_options = {
+		std::vector<MultiItem_t> scope_options = {
 			{ XorStr("Always Scope"), &rbot->always_scope },
 			{ XorStr("Hitchance Fail"), &rbot->hcFailed_scope },
 		};
