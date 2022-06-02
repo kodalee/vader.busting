@@ -1589,18 +1589,53 @@ void Skins()
 	ImGui::NewLine();
 	{
 		const char* knife_models[]{ XorStr("Bayonet"), XorStr("Bowie"), XorStr("Butterfly"), XorStr("Falchion"), XorStr("Flip"), XorStr("Gut"), XorStr("Tactical"), XorStr("Karambit"), XorStr("M9 Bayonet"), XorStr("Shadow Daggers") };
+		const char* glove_models[]{ XorStr("Default"), XorStr("Bloodhound"), XorStr("Sport"), XorStr("Driver"), XorStr("Hand Wraps"), XorStr("Motorcycle"), XorStr("Specialist") };
+		const char* bloodhound_skins[]{ XorStr("Charred"), XorStr("Snakebite"), XorStr("Bronzed"), XorStr("Guerilla") };
+		const char* sport_skins[]{ XorStr("Hedge Maze"), XorStr("Pandoras Box"), XorStr("Superconductor"), XorStr("Arid"), XorStr("Vice"), XorStr("Omega"), XorStr("Amphibious"), XorStr("Bronze Morph") };
+		const char* driver_skins[]{ XorStr("Lunar Weave"), XorStr("Convoy"), XorStr("Crimson Weave"), XorStr("Diamondback"), XorStr("Overtake"), XorStr("Racing Green"), XorStr("King Snake"), XorStr("Imperial Plaid") };
+		const char* handwarps_skins[]{ XorStr("Leather"), XorStr("Spruce DDPAT"), XorStr("Slaughter"), XorStr("Badlands"), XorStr("Cobalt Skulls"), XorStr("Overprint"), XorStr("Duct Tape"), XorStr("Arboreal") };
+		const char* motorcycle_skins[]{ XorStr("Eclipse"), XorStr("Spearmint"), XorStr("Boom!"), XorStr("Cool Mint"), XorStr("Turtle"), XorStr("Transport"), XorStr("Polygon"), XorStr("POW!") };
+		const char* specialist_skins[]{ XorStr("Forest DDPAT"), XorStr("Crimson Kimono"), XorStr("Emerald Web"), XorStr("Foundation"), XorStr("Crimson Web"), XorStr("Buckshot"), XorStr("Fade"), XorStr("Mogul") };
 
-		
 		switch (skinsSubtabs)
 		{
 		case 0:
 		{
 			InsertCheckbox(enableskins, XorStr("Enable"), &g_Vars.misc.enable_skins);
 			if (g_Vars.misc.enable_skins) {
-				InsertCombo(XorStr("Knife Model"), &g_Vars.misc.knife_model, knife_models, []() {return vars.skins.enable; });
+				InsertCombo(XorStr("Knife Model"), &g_Vars.misc.knife_model, knife_models);
 				ImGui::InputInt(XorStr("Knife Skin"), &g_Vars.misc.knife_skin);
 
-				if (ImGui::Button(XorStr("Apply")))
+				InsertCheckbox(enablegloves, XorStr("Enable Gloves"), &g_Vars.misc.enable_gloves);
+
+				if (g_Vars.misc.enable_gloves) {
+					InsertCombo(XorStr("Glove Model"), &g_Vars.misc.gloves_model, glove_models);
+
+					switch (g_Vars.misc.gloves_model) {
+					case 1:
+						InsertCombo(XorStr("Glove Skin"), &g_Vars.misc.gloves_skin , bloodhound_skins);
+						break;
+					case 2:
+						InsertCombo(XorStr("Glove Skin"), &g_Vars.misc.gloves_skin, sport_skins);
+						break;
+					case 3:
+						InsertCombo(XorStr("Glove Skin"), &g_Vars.misc.gloves_skin, driver_skins);
+						break;
+					case 4:
+						InsertCombo(XorStr("Glove Skin"), &g_Vars.misc.gloves_skin, handwarps_skins);
+						break;
+					case 5:
+						InsertCombo(XorStr("Glove Skin"), &g_Vars.misc.gloves_skin, motorcycle_skins);
+						break;
+					case 6:
+						InsertCombo(XorStr("Glove Skin"), &g_Vars.misc.gloves_skin, specialist_skins);
+						break;
+					}
+
+				}
+
+
+				if (ImGui::Button(XorStr("Apply Skins")))
 				{
 					g_Vars.m_global_skin_changer.m_update_skins = true;
 				}

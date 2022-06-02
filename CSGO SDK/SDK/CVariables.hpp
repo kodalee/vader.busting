@@ -1536,6 +1536,10 @@ public:
 	config_option( bool, ingame_radar, false );
 	config_option( bool, watermark, true );
 
+	config_option(bool, enable_gloves, false);
+	config_option(int, gloves_model, 0);
+	config_option(int, gloves_skin, 0);
+
 	config_option(bool, enable_skins, false);
 	config_option(int, knife_model, 0);
 	config_option(int, knife_skin, 0);
