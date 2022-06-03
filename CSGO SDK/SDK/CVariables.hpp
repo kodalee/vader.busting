@@ -721,7 +721,7 @@ public:
 	config_option( bool, compensate_spread, false );
 	config_option( bool, friendly_fire, false );
 	config_option( bool, autowall, false );
-	config_option( bool, autoscope, false );
+	config_option( int, autoscope, 0 );
 	config_option( bool, autoscope_hc, false );
 	config_option( int, target_selection, 0 );
 	config_option( int, autostop, 0 );//XD
