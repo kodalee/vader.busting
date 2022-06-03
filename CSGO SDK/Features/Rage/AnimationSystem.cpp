@@ -435,13 +435,12 @@ namespace Engine
 
 				if (player->m_fFlags() & FL_ONGROUND && record->m_serverAnimOverlays[11].m_flWeight > 0.0f && record->m_serverAnimOverlays[11].m_flWeight < 1.0f && record->m_serverAnimOverlays[11].m_flCycle > previous_record->m_serverAnimOverlays[11].m_flCycle)
 				{
-					auto weapon = player->m_hActiveWeapon().Get();
+					auto weapon = (C_WeaponCSBaseGun*)player->m_hActiveWeapon().Get();
 
 					if (weapon)
 					{
 						auto max_speed = 260.0f;
-						C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)player->m_hActiveWeapon().Get();
-						auto weapon_info = Weapon->GetCSWeaponData();
+						auto weapon_info = weapon->GetCSWeaponData();
 
 						if (weapon_info.IsValid())
 							max_speed = player->m_bIsScoped() ? weapon_info->m_flMaxSpeed2 : weapon_info->m_flMaxSpeed;
