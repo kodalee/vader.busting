@@ -171,17 +171,17 @@ namespace Engine
 		int server_tickcount = Interfaces::m_pEngine->GetServerTick() + latencyticks + 1;
 		float server_time_at_frame_end_from_last_frame = TICKS_TO_TIME(server_tickcount - 1);
 
-		int deltaticks = record.m_iLaggedTicks + 1;
-		int updatedelta = Interfaces::m_pEngine->GetServerTick() - record.m_iServerTick;
-		if (latencyticks > deltaticks - updatedelta)
-		{
-			//only check if record is deleted if enemy would have sent another tick to the server already
+		//int deltaticks = record.m_iLaggedTicks + 1;
+		//int updatedelta = Interfaces::m_pEngine->GetServerTick() - record.m_iServerTick;
+		//if (latencyticks > deltaticks - updatedelta)
+		//{
+		//	//only check if record is deleted if enemy would have sent another tick to the server already
 
-			int flDeadtime = (server_time_at_frame_end_from_last_frame - g_Vars.sv_maxunlag->GetFloat());
+		//	int flDeadtime = (server_time_at_frame_end_from_last_frame - g_Vars.sv_maxunlag->GetFloat());
 
-			if (flTargetTime2 < flDeadtime)
-				return false; //record won't be valid anymore
-		}
+		//	if (flTargetTime2 < flDeadtime)
+		//		return false; //record won't be valid anymore
+		//}
 
 		// NOTE: outgoing latency + const viewlag aka TICKS_TO_TIME(TIME_TO_TICKS(GetClientInterpAmount())) and clamp correct to sv_maxunlag
 		float correct = std::clamp(lagData.Xor()->m_flOutLatency + lagData.Xor()->m_flServerLatency + lagData.Xor()->m_flLerpTime, 0.f, g_Vars.sv_maxunlag->GetFloat());
