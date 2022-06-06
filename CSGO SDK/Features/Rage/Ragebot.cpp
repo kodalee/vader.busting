@@ -719,13 +719,6 @@ namespace Interfaces
 			return false; // return here so when scoping dont shooting!!!
 		}
 
-		bool can_scope = m_rage_data->m_pWeapon->m_zoomLevel() <= 0 && m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
-
-		if (success.second.target && success.second.target->player && can_scope && m_rage_data->rbot->autoscope == 1) {
-			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-			return false; // return here so when scoping dont shooting!!!
-		}
-
 		auto correction = m_rage_data->m_pLocal->m_aimPunchAngle() * g_Vars.weapon_recoil_scale->GetFloat();
 
 		m_rage_data->m_pCmd->viewangles -= correction;
@@ -1596,6 +1589,13 @@ namespace Interfaces
 
 		g_Vars.globals.RageBotTargetting = true;
 
+		bool can_scope = m_rage_data->m_pWeapon->m_zoomLevel() <= 0 && m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
+
+		if (g_Vars.globals.RageBotTargetting && can_scope && m_rage_data->rbot->autoscope == 1) {
+			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+			return { false, C_AimPoint() }; // return here so when scoping dont shooting!!!
+		}
+
 		//for( auto& p : m_rage_data->m_aim_points ) {
 		//	Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
 		//}
@@ -2064,7 +2064,9 @@ namespace Interfaces
 		auto record = GetBestLagRecord(player, &backup);
 		if (!record || !IsRecordValid(player, record)) {
 			backup.Apply(player);
-			return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
+			if (!(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // ghetto asf; will rework later
+				return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
+			}
 		}
 
 		backup.Apply(player);
