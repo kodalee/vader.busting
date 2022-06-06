@@ -2208,7 +2208,7 @@ namespace Interfaces
 			}
 			else if (pBestRecord != currentRecord) {
 				pBestRecord = currentRecord; // last record
-				continue; // go to next record // unsure if this is needed
+				//continue; // go to next record // unsure if this is needed
 			}
 			
 		}
