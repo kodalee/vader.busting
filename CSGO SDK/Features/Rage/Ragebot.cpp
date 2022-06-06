@@ -2065,9 +2065,9 @@ namespace Interfaces
 		auto record = GetBestLagRecord(player, &backup);
 		if (!record || !IsRecordValid(player, record)) {
 			backup.Apply(player);
-			if (!(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // ghetto asf; will rework later
-				return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
-			}
+			//if (!(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // ghetto asf; will rework later
+				//return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
+			//}
 		}
 
 		backup.Apply(player);
