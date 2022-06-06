@@ -653,7 +653,7 @@ namespace Engine
 				if ( bValid )
 				{
 					current.Xor()->m_bResolved = /*current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_BODY ||*/
-						current.Xor()->m_iResolverMode == EResolverModes::RESOLVE_WALK; /*||
+						current.Xor()->m_iResolverMode == Engine::RModes::MOVING; /*||
 						current.Xor( )->m_flLowerBodyYawTarget == previous.Xor( )->m_flLowerBodyYawTarget;*/
 				}
 				else
@@ -663,7 +663,7 @@ namespace Engine
 
 				bool bResolved = current.Xor( )->m_bResolved;
 				if( g_Vars.rage.override_resolver_flicks ) {
-					if( current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_BODY)
+					if( current.Xor( )->m_iResolverMode == Engine::RModes::FLICK)
 						bResolved = false;
 				}
 

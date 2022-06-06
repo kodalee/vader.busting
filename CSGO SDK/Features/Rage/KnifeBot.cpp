@@ -84,7 +84,7 @@ namespace Interfaces
 			Engine::C_LagRecord backup;
 			backup.Setup( Target );
 			for( auto& record : lag_data->m_History ) {
-				if( Engine::LagCompensation::Get( )->IsRecordOutOfBounds( record, 0.2f )
+				if( !Engine::LagCompensation::Get( )->IsRecordOutOfBounds( record, 0.2f )
 					|| record.m_bSkipDueToResolver
 					|| !record.m_bIsValid ) {
 					continue;

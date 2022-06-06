@@ -2064,7 +2064,7 @@ namespace Interfaces
 		auto record = GetBestLagRecord(player, &backup);
 		if (!record || !IsRecordValid(player, record)) {
 			backup.Apply(player);
-			//return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
+			return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
 		}
 
 		backup.Apply(player);
@@ -2186,18 +2186,28 @@ namespace Interfaces
 			// get current record
 			Engine::C_LagRecord* currentRecord = arrRecords[i];
 
-			// if best record null, set best record to current record
+			// if best record is null, set best record to current record
 			if (!pBestRecord) {
 				pBestRecord = currentRecord;
 				continue; // go to next record
 			}
 
-			if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {
-				if (!pBestRecord->m_bResolved) {
-					pBestRecord = currentRecord;
-					continue;
-				}
+			//if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {
+			//	if (!pBestRecord->m_bResolved) {
+			//		pBestRecord = currentRecord;
+			//		continue;
+			//	}
+			//}
+
+			// try to find a record with a lby update or moving.
+			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_iResolverMode == Engine::RModes::MOVING) {
+				return currentRecord;
 			}
+			else if (pBestRecord != currentRecord) {
+				pBestRecord = currentRecord; // last record
+				continue; // go to next record // unsure if this is needed
+			}
+			
 		}
 
 		if (!pBestRecord) {
@@ -2208,7 +2218,7 @@ namespace Interfaces
 	}
 
 	bool C_Ragebot::IsRecordValid(C_CSPlayer* player, Engine::C_LagRecord* record) {
-		return !Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
+		return Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
 	}
 
 	bool C_Ragebot::AimAtPoint(C_AimPoint* bestPoint) {
