@@ -1591,8 +1591,9 @@ namespace Interfaces
 
 		bool can_scope = m_rage_data->m_pWeapon->m_zoomLevel() <= 0 && m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
 
-		if (g_Vars.globals.RageBotTargetting && can_scope && m_rage_data->rbot->autoscope == 1) {
+		if (can_scope && m_rage_data->rbot->autoscope == 1) {
 			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+			//m_rage_data->m_bRePredict = true; // i am confused on why it does this on hc failed autoscope. is this needed here????
 			return { false, C_AimPoint() }; // return here so when scoping dont shooting!!!
 		}
 
@@ -2253,16 +2254,6 @@ namespace Interfaces
 
 		m_rage_data->m_iChokedCommands = -1;
 		m_rage_data->m_bFailedHitchance = false;
-
-		bool can_scope = !(C_CSPlayer::GetLocalPlayer()->m_bIsScoped()) && m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && (m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE);
-
-		if (can_scope) {
-			if (m_rage_data->rbot->autoscope == 2) {
-				m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-				//m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
-				m_rage_data->m_bRePredict = true;
-			}
-		}
 
 		if (g_Vars.rage.auto_fire) {
 			if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire && !(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
