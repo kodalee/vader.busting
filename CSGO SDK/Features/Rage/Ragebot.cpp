@@ -667,14 +667,6 @@ namespace Interfaces
 			auto dist = (m_rage_data->m_pLocal->m_vecOrigin().Distance(success.second.target->player->m_vecOrigin()));
 			auto meters = dist * 0.0254f;
 			feet = round_to_multiple(meters * 3.281f, 5);
-
-			bool can_scope = m_rage_data->m_pWeapon->m_zoomLevel() <= 0 && m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
-
-			if (can_scope && m_rage_data->rbot->autoscope == 1) {
-				m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-				m_rage_data->m_pWeapon->m_zoomLevel() = 1;
-			}
-
 		}
 
 		bool htcFailed = m_rage_data->m_bFailedHitchance;
@@ -709,8 +701,8 @@ namespace Interfaces
 				m_rage_data->m_bNoNeededScope = false;
 			}
 
-			if (g_Vars.misc.fakeduck && g_Vars.misc.fakeduck_bind.enabled)
-				m_rage_data->m_bNoNeededScope = false;
+			//if (g_Vars.misc.fakeduck && g_Vars.misc.fakeduck_bind.enabled) // you cant fakeduck while doubletapping -__-
+			//	m_rage_data->m_bNoNeededScope = false;
 		}
 
 		if (m_rage_data->rbot->autoscope == 2 &&
@@ -724,6 +716,14 @@ namespace Interfaces
 			m_rage_data->m_bPredictedScope = true;
 			m_rage_data->m_bRePredict = true;
 			//m_rage_data->m_bResetCmd = false;
+			return false; // return here so when scoping dont shooting!!!
+		}
+
+		bool can_scope = m_rage_data->m_pWeapon->m_zoomLevel() <= 0 && m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
+
+		if (success.second.target && success.second.target->player && can_scope && m_rage_data->rbot->autoscope == 1) {
+			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+			return false; // return here so when scoping dont shooting!!!
 		}
 
 		auto correction = m_rage_data->m_pLocal->m_aimPunchAngle() * g_Vars.weapon_recoil_scale->GetFloat();
