@@ -821,6 +821,11 @@ namespace lua_render {
 		Render::Engine::WorldCircle(origin, radius, color, colorFill);
 	}
 
+	void draw_arc(int x, int y, int radius, int start_angle, int percent, int thickness, Color color)
+	{
+		Render::Engine::draw_arc(x, y, radius, start_angle, percent, thickness, color);
+	}
+
 	Vector world_to_screen(Vector pos) {
 		Vector2D scr;
 		Render::Engine::WorldToScreen(pos, scr);
@@ -1098,6 +1103,7 @@ bool c_lua::initialize() {
 	render[XorStr("draw_rect_outlined")] = lua_render::draw_rect_outlined;
 	render[XorStr("draw_gradient")] = lua_render::draw_gradient;
 	render[XorStr("draw_world_circle")] = lua_render::draw_world_circle;
+	render[XorStr("draw_arc")] = lua_render::draw_arc;
 	render[XorStr("world_to_screen")] = lua_render::world_to_screen;
 
 	auto ui = this->lua.create_table();

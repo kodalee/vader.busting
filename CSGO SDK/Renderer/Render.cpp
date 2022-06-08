@@ -675,6 +675,28 @@ void Render::Engine::Gradient( int x, int y, int w, int h, Color color, Color co
 	Interfaces::m_pSurface->DrawFilledRectFade( x, y, x + w, y + h, 0, color2.a( ), horizontal );
 }
 
+void Render::Engine::draw_arc(int x, int y, int radius, int start_angle, int percent, int thickness, Color color)
+{
+	auto precision = (2 * 3.14159265358979323846) / 30;
+	auto step = 3.14159265358979323846 / 180;
+	auto inner = radius - thickness;
+	auto end_angle = (start_angle + percent) * step;
+	auto start_angles = (start_angle * 3.14159265358979323846) / 180;
+
+	for (; radius > inner; --radius) {
+		for (auto angle = start_angles; angle < end_angle; angle += precision) {
+			auto cx = std::round(x + radius * std::cos(angle));
+			auto cy = std::round(y + radius * std::sin(angle));
+
+			auto cx2 = std::round(x + radius * std::cos(angle + precision));
+			auto cy2 = std::round(y + radius * std::sin(angle + precision));
+
+			Interfaces::m_pSurface->DrawSetColor(color);
+			Interfaces::m_pSurface->DrawLine(cx, cy, cx2, cy2);
+		}
+	}
+}
+
 #pragma endregion
 
 Vector2D Render::GetScreenSize( ) {

@@ -108,27 +108,6 @@ void DrawBeamPaw(Vector src, Vector end, Color color)
         Interfaces::m_pRenderBeams->DrawBeam(myBeam);
 }
 
-void draw_arc(int x, int y, int radius, int start_angle, int percent, int thickness, Color color)
-{
-    auto precision = (2 * 3.14159265358979323846) / 30;
-    auto step = 3.14159265358979323846 / 180;
-    auto inner = radius - thickness;
-    auto end_angle = (start_angle + percent) * step;
-    auto start_angles = (start_angle * 3.14159265358979323846) / 180;
-
-    for (; radius > inner; --radius) {
-        for (auto angle = start_angles; angle < end_angle; angle += precision) {
-            auto cx = std::round(x + radius * std::cos(angle));
-            auto cy = std::round(y + radius * std::sin(angle));
-
-            auto cx2 = std::round(x + radius * std::cos(angle + precision));
-            auto cy2 = std::round(y + radius * std::sin(angle + precision));
-
-            Render::Engine::Line(cx, cy, cx2, cy2, color);
-        }
-    }
-}
-
 const char* index_to_grenade_name_icon(int index)
 {
     switch (index)
@@ -196,7 +175,7 @@ bool c_grenade_prediction::data_t::draw() const
     //Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
     //Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
     Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, dist > 27 ? Color(26, 26, 30, 199) : Color(232, 39, 62, 199));
-    draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
+    Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
     Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
    // }
 
@@ -246,7 +225,7 @@ bool c_grenade_prediction::data_t::draw() const
 
     //    if (dist < 45) {
     //        Render::Engine::CircleFilled(position.x, position.y - 10, 20, 360, Color(26, 26, 30, 200));
-    //        draw_arc(position.x, position.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
+    //        Render::Engine::draw_arc(position.x, position.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
     //        Render::Engine::cs_huge.string(position.x - 8, position.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
     //    }
 
