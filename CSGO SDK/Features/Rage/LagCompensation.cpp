@@ -162,7 +162,7 @@ namespace Engine
 			return false;
 
 		//use prediction curtime for this.
-		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase());
 
 		// correct is the amount of time we have to correct game time,
 		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flServerLatency;
@@ -171,6 +171,9 @@ namespace Engine
 
 		// check bounds [ 0, sv_maxunlag ]
 		std::clamp(correct, 0.f, g_Vars.sv_maxunlag->GetFloat());
+
+		if (g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
+			correct -= g_TickbaseController.s_nExtraProcessingTicks;
 
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
