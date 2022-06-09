@@ -161,100 +161,44 @@ namespace Engine
 		if (!pLocal)
 			return false;
 
-		// NOTE: predict the servertime.
-		float serverTime = pLocal->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick;
+		//use prediction curtime for this.
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
 
-		// NOTE: get the time of our target.
-		float flTargetTime2 = record.m_flSimulationTime;
+		// correct is the amount of time we have to correct game time,
+		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flServerLatency;
 
-		int latencyticks = std::max(0, TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING)));
-		int server_tickcount = Interfaces::m_pEngine->GetServerTick() + latencyticks + 1;
-		float server_time_at_frame_end_from_last_frame = TICKS_TO_TIME(server_tickcount - 1);
+		correct += lagData.Xor()->m_flOutLatency;
 
-		//int deltaticks = record.m_iLaggedTicks + 1;
-		//int updatedelta = Interfaces::m_pEngine->GetServerTick() - record.m_iServerTick;
-		//if (latencyticks > deltaticks - updatedelta)
-		//{
-		//	//only check if record is deleted if enemy would have sent another tick to the server already
+		// check bounds [ 0, sv_maxunlag ]
+		std::clamp(correct, 0.f, g_Vars.sv_maxunlag->GetFloat());
 
-		//	int flDeadtime = (server_time_at_frame_end_from_last_frame - g_Vars.sv_maxunlag->GetFloat());
-
-		//	if (flTargetTime2 < flDeadtime)
-		//		return false; //record won't be valid anymore
-		//}
-
-		// NOTE: outgoing latency + const viewlag aka TICKS_TO_TIME(TIME_TO_TICKS(GetClientInterpAmount())) and clamp correct to sv_maxunlag
-		float correct = std::clamp(lagData.Xor()->m_flOutLatency + lagData.Xor()->m_flServerLatency + lagData.Xor()->m_flLerpTime, 0.f, g_Vars.sv_maxunlag->GetFloat());
-		float delta = correct - (serverTime - flTargetTime2);
-
-		if (g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
-			delta -= g_TickbaseController.s_nExtraProcessingTicks;
-
-		return fabsf(delta) < 0.2f;
-
-
-		//static auto cvar_maxunlag = g_Vars.sv_maxunlag;
-
-		//auto time_lerp = lagData.Xor()->m_flLerpTime;
-		//auto time_outgoing = lagData.Xor()->m_flOutLatency;
-		//auto time_incoming = lagData.Xor()->m_flServerLatency;
-
-		//auto time_correct = (time_outgoing + time_incoming + time_lerp);
-		//time_correct = std::clamp(time_correct, 0.f, cvar_maxunlag->GetFloat());
-
-		//auto time_distance = time_correct - (Interfaces::m_pGlobalVars->curtime - record.m_flSimulationTime);
-
-		//if (g_Vars.misc.disablebtondt) // we dont need g_Vars.rage.key_dt.enabled check because s_nExtraProcessingTicks only applied if we shift tickbase ( have dt enabled )
-		//	time_distance -= g_TickbaseController.s_nExtraProcessingTicks;
-
-		//return (std::abs(time_distance) > flTargetTime);
+		// calculate difference between tick sent by player and our latency based tick.
+		// ensure this record isn't too old.
+		return std::fabsf(correct - (curtime - record.m_flSimulationTime)) <= flTargetTime;
 	}
-
-	ConVar* cl_interp = nullptr;
-	ConVar* cl_interp_ratio = nullptr;
-	ConVar* cl_updaterate = nullptr;
-	ConVar* sv_minupdaterate = nullptr;
-	ConVar* sv_maxupdaterate = nullptr;
-
 
 	void C_LagCompensation::SetupLerpTime( ) {
 
-		if (!cl_updaterate)
-		{
-			//decrypts(0)
-			cl_interp = g_Vars.cl_interp;
-			cl_updaterate = g_Vars.cl_updaterate;
-			cl_interp_ratio = g_Vars.cl_interp_ratio;
-			sv_minupdaterate = g_Vars.sv_minupdaterate;
-			sv_maxupdaterate = g_Vars.sv_maxupdaterate;
-			//encrypts(0)
-		}
-		float update_rate = std::clamp(cl_updaterate->GetFloat(), sv_minupdaterate->GetFloat(), sv_maxupdaterate->GetFloat());
-		float lerp_ratio = cl_interp_ratio->GetFloat();
+		int ud_rate = g_Vars.cl_updaterate->GetInt();
+		ConVar* min_ud_rate = g_Vars.sv_minupdaterate;
+		ConVar* max_ud_rate = g_Vars.sv_maxupdaterate;
 
-		if (lerp_ratio == 0.0f)
-			lerp_ratio = 1.0f;
+		if (min_ud_rate && max_ud_rate)
+			ud_rate = max_ud_rate->GetInt();
 
-		float lerp_amount = cl_interp->GetFloat();
+		float ratio = g_Vars.cl_interp_ratio->GetFloat();
 
-		//decrypts(0)
-		static ConVar* pMin = g_Vars.sv_client_min_interp_ratio;
-		static ConVar* pMax = g_Vars.sv_client_max_interp_ratio;
-		//encrypts(0)
+		if (ratio == 0)
+			ratio = 1.0f;
 
-		if (pMin && pMax && pMin->GetFloat() != -1.0f)
-		{
-			lerp_ratio = std::clamp(lerp_ratio, pMin->GetFloat(), pMax->GetFloat());
-		}
-		else
-		{
-			if (lerp_ratio == 0.0f)
-				lerp_ratio = 1.0f;
-		}
+		float lerp = g_Vars.cl_interp->GetFloat();
+		ConVar* c_min_ratio = g_Vars.sv_client_min_interp_ratio;
+		ConVar* c_max_ratio = g_Vars.sv_client_max_interp_ratio;
 
-		float ret = fmax(lerp_amount, lerp_ratio / update_rate);
+		if (c_min_ratio && c_max_ratio && c_min_ratio->GetFloat() != 1)
+			ratio = std::clamp(ratio, c_min_ratio->GetFloat(), c_max_ratio->GetFloat());
 
-		lagData->m_flLerpTime = ret;
+		lagData->m_flLerpTime = std::max(lerp, (ratio / ud_rate));
 
 		auto netchannel = Encrypted_t<INetChannel>( Interfaces::m_pEngine->GetNetChannelInfo( ) );
 		lagData->m_flOutLatency = netchannel->GetLatency( FLOW_OUTGOING );
@@ -343,7 +287,6 @@ namespace Engine
 		record->m_iLaggedTicks = TIME_TO_TICKS( player->m_flSimulationTime( ) - player->m_flOldSimulationTime( ) );
 		record->m_bResolved = anim_record->m_bResolved;
 		record->m_iResolverMode = anim_record->m_iResolverMode;
-		record->m_iServerTick = Interfaces::m_pEngine->GetServerTick();
 
 		std::memcpy( record->m_BoneMatrix, anim_data->m_Bones, player->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
 	}

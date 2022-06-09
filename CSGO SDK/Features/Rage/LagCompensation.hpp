@@ -59,7 +59,6 @@ namespace Engine
 		int m_iFlags;
 		int m_iLaggedTicks = 0;
 		int m_iResolverMode;
-		int m_iServerTick; //exact server tick from the clockdrift manager
 
 		float m_flInterpolateTime = 0.f;
 
