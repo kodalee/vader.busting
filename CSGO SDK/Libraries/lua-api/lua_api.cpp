@@ -448,6 +448,10 @@ namespace lua_cheat {
 		return false;
 	}
 
+	void* create_interface(const std::string& image_name, const std::string& name) {
+		Interfaces::CreateInterface(image_name, name);
+	}
+
 }
 
 namespace lua_math {
@@ -1017,6 +1021,7 @@ bool c_lua::initialize() {
 	cheat[XorStr("set_button")] = lua_cheat::set_button;
 	cheat[XorStr("username")] = lua_cheat::username;
 	cheat[XorStr("dt_charged")] = lua_cheat::dt_charged;
+	cheat[XorStr("create_interface")] = lua_cheat::create_interface;
 
 	auto math = this->lua.create_table();
 	math[XorStr("calc_angle")] = lua_math::calc_angle;
