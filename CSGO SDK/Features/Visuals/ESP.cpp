@@ -2074,29 +2074,12 @@ void CEsp::DrawHealthBar( C_CSPlayer* player, BBox_t bbox ) {
 	// retarded servers that go above 100 hp..
 	int hp = std::min( 100, player->m_iHealth( ) );
 
-	//https://yougame.biz/threads/252733/#post-2601993
-
-	// initialize our previous hp value ( we will use this later as this will be the value we interpolate )
-	static float m_flPreviousHP[65] = { };
-	// anim speed.
-	constexpr float SPEED_FREQ = 255 / 1.f;
-
-	// if our stored value is greater than stored hp value then we want to decrement it as shown below until we reach
-	// the current hp value giving us our super cool haxor smoothed/interpolated health value
-	if (m_flPreviousHP[player->EntIndex()] > hp)
-		m_flPreviousHP[player->EntIndex()] -= SPEED_FREQ * Interfaces::m_pGlobalVars->frametime;
-	else
-		m_flPreviousHP[player->EntIndex()] = hp;
-
-	int hp_animated = m_flPreviousHP[player->EntIndex()];
-
-
 	// calculate hp bar color.
-	int r = std::min( ( 510 * ( 100 - hp_animated ) ) / 100, 255 );
-	int g = std::min( ( 510 * hp_animated ) / 100, 255 );
+	int r = std::min( ( 510 * ( 100 - hp) ) / 100, 255 );
+	int g = std::min( ( 510 * hp) / 100, 255 );
 
 	// get hp bar height.
-	int fill = ( int )std::round( hp_animated * h / 100.f );
+	int fill = ( int )std::round(hp * h / 100.f );
 
 	// render background.
 	Render::Engine::RectFilled( bbox.x - 6, y - 1, 4, h + 2, Color( 10, 10, 10, 180 * GetAlpha( player->EntIndex( ) ) ) );
@@ -2111,8 +2094,8 @@ void CEsp::DrawHealthBar( C_CSPlayer* player, BBox_t bbox ) {
 	}
 
 	// if hp is below max, draw a string.
-	if( hp_animated < 100 )
-		Render::Engine::pixel_reg.string( bbox.x - 5, y + ( h - fill ) - 5, Color( 255, 255, 255, 200 * GetAlpha( player->EntIndex( ) ) ), std::to_string( hp ), Render::Engine::ALIGN_CENTER );
+	if(hp < 100 )
+		Render::Engine::pixel_reg.string( bbox.x - 5, y + ( h - fill ) - 5, Color( 255, 255, 255, 200 * GetAlpha( player->EntIndex( ) ) ), std::to_string(hp), Render::Engine::ALIGN_CENTER );
 }
 
 void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info ) {
