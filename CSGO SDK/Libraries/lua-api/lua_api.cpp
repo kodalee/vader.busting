@@ -448,8 +448,8 @@ namespace lua_cheat {
 		return false;
 	}
 
-	void create_interface(const std::string& image_name, const std::string& name) {
-		Interfaces::CreateInterface(image_name, name);
+	void* create_interface(const std::string& image_name, const std::string& name) {
+		return Interfaces::CreateInterface(image_name, name);
 	}
 
 }
