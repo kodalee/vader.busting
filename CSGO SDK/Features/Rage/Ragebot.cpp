@@ -2155,15 +2155,6 @@ namespace Interfaces
 			return nullptr;
 		}
 
-		if (player->IsDormant() || !player->IsAlive()) { // clear records when the player is dormant or not alive
-			lagData->m_History.clear();
-		}
-
-		//lagData->m_History.resize(64); // ensure this shit stays at 64
-
-		while (lagData->m_History.size() > 64) // ensure this shit stays at 64
-			lagData->m_History.pop_back();
-
 		int recordsCount = 0;
 		Engine::C_LagRecord* arrRecords[64] = { nullptr };
 
