@@ -353,7 +353,7 @@ namespace Engine {
 
 			// more then 1 choke, cant hit pitch, apply prev pitch.
 			else if (anim_data->m_AnimationRecord.size() >= 2) {
-				C_AnimationRecord* previous = &anim_data->m_AnimationRecord.at(2);
+				C_AnimationRecord* previous = &anim_data->m_AnimationRecord.at(1);
 
 				if (previous && !previous->m_bIsInvalid) {
 					//data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
