@@ -502,6 +502,9 @@ namespace Hooked
 		
 		g_Vars.globals.bFinalPacket = *bSendPacket;
 
+		if (!Interfaces::m_pClientState->m_nChokedCommands())
+			Interfaces::AntiAimbot::Get()->FakeFlick(_cmd, bSendPacket);
+
 		if( g_Vars.misc.anti_untrusted ) {
 			cmd->viewangles.Normalize( );
 			cmd->viewangles.Clamp( );

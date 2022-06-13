@@ -463,7 +463,7 @@ void skins_speedy::Skinchanger()
 				break;
 			}
 			//glovenet->PreDataUpdate(0);
-			*(int*)((uintptr_t)glove + 0x64) = -1;
+			*reinterpret_cast<int*>(std::uint32_t(glove) + 0x64) = -1;
 		}
 	}
 

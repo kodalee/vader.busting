@@ -353,6 +353,8 @@ namespace Interfaces
 		void Main(bool* bSendPacket, bool* bFinalPacket, Encrypted_t<CUserCmd> cmd, bool ragebot) override;
 		void PrePrediction(bool* bSendPacket, Encrypted_t<CUserCmd> cmd) override;
 		void ImposterBreaker(bool* bSendPacket, Encrypted_t<CUserCmd> cmd) override;
+		void FakeFlick(Encrypted_t<CUserCmd> cmd, bool* bSendPacket);
+
 	private:
 		virtual float GetAntiAimX(Encrypted_t<CVariables::ANTIAIM_STATE> settings);
 		virtual float GetAntiAimY(Encrypted_t<CVariables::ANTIAIM_STATE> settings, Encrypted_t<CUserCmd> cmd);
@@ -372,8 +374,6 @@ namespace Interfaces
 		void AutoDirection(Encrypted_t<CUserCmd> cmd);
 
 		void freestanding();
-
-		void FakeFlick(Encrypted_t<CUserCmd> cmd, bool* bSendPacket);
 
 		bool airstuck();
 
@@ -979,7 +979,7 @@ namespace Interfaces
 				Distort(cmd);
 			}
 
-			FakeFlick(cmd, bSendPacket);
+			//FakeFlick(cmd, bSendPacket);
 		
 			//fake_flick(cmd);
 
