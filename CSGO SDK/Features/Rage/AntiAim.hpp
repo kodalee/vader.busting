@@ -51,7 +51,6 @@ namespace Interfaces
 	  virtual void PrePrediction( bool* bSendPacket, Encrypted_t<CUserCmd> cmd ) = 0;
 	  virtual void ImposterBreaker( bool* bSendPacket, Encrypted_t<CUserCmd> cmd ) = 0;
 	  virtual void fake_duck(bool* bSendPacket, Encrypted_t<CUserCmd> cmd) = 0;
-	  virtual void FakeFlick(Encrypted_t<CUserCmd> cmd, bool* bSendPacket) = 0;
    protected:
 	  AntiAimbot( ) { };
 	  virtual ~AntiAimbot( ) { };
