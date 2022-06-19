@@ -269,6 +269,20 @@ namespace Hooked
 				g_Vars.r_rainalpha->SetValueFloat( g_Vars.esp.weather_alpha * 0.01f );
 			}
 
+			//static bool bShouldCall = false;
+			//if (bShouldCall && !g_Vars.esp.weather && g_Vars.globals.bCreatedRain) {
+			//	Engine::WeatherController::Get()->ResetWeather();
+			//	bShouldCall = false;
+			//}
+
+			//if (!bShouldCall && g_Vars.esp.weather) {
+			//	bShouldCall = true;
+			//}
+
+			//if (bShouldCall) {
+			//	Engine::WeatherController::Get()->UpdateWeather();
+			//}
+
 			for( int i = 1; i <= Interfaces::m_pGlobalVars->maxClients; ++i ) {
 				auto player = C_CSPlayer::GetPlayerByIndex( i );
 
@@ -512,23 +526,6 @@ namespace Hooked
 				Engine::LagCompensation::Get( )->Update( );
 
 				g_netdata.apply();
-
-
-				//static bool bShouldCall = false;
-				//if (bShouldCall && !g_Vars.esp.weather) {
-				//	Engine::WeatherController::Get()->ResetWeather();
-				//	bShouldCall = false;
-				//}
-
-				//if (!bShouldCall && g_Vars.esp.weather) {
-				//	g_Vars.globals.bCreatedRain = false;
-				//	bShouldCall = true;
-				//}
-
-				//if (bShouldCall) {
-				//	Engine::WeatherController::Get()->UpdateWeather();
-				//}
-				
 
 				// fix issues when players we are spectating scope in
 				if( local && local->m_iObserverMode( ) == 5 ) { 

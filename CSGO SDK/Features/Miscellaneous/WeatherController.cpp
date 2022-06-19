@@ -22,10 +22,7 @@ namespace Engine
 	}
 
 	void C_WeatherController::ResetWeather( ) {
-		if( !g_Vars.globals.bCreatedRain ) {
-			return;
-		}
-
+		g_Vars.globals.bCreatedRain = false;
 
 		for( int i = 0; i <= Interfaces::m_pEntList->GetHighestEntityIndex( ); i++ ) {
 			C_BaseEntity* pEntity = ( C_BaseEntity* )Interfaces::m_pEntList->GetClientEntity( i );
@@ -89,8 +86,8 @@ namespace Engine
 
 			// only PRECIPITATION_TYPE_RAIN and PRECIPITATION_TYPE_SNOW work..?
 			m_Precipitation->m_nPrecipType() = PrecipitationType_t::PRECIPITATION_TYPE_SNOW;
-			m_Precipitation->GetCollideable()->OBBMins() = Vector(-32768.0f, -32768.0f, -32768.0f);
-			m_Precipitation->GetCollideable()->OBBMaxs() = Vector(32768.0f, 32768.0f, 32768.0f);
+			m_Precipitation->OBBMins() = Vector(-16384.0f, -16384.0f, -16384.0f);
+			m_Precipitation->OBBMaxs() = Vector(16384.0f, 16384.0f, 16384.0f);
 
 			m_Networkable->OnDataChanged(NULL);
 			m_Networkable->PostDataUpdate(NULL);
