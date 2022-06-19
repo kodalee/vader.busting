@@ -714,6 +714,7 @@ namespace Interfaces
 	Encrypted_t<SFHudDeathNoticeAndBotStatus> g_pDeathNotices = nullptr;
 	Encrypted_t<CNetworkStringTableContainer> g_pClientStringTableContainer = nullptr;
 	Encrypted_t<IVEffects> g_IVEffects = nullptr;
+	Encrypted_t<IEffects> g_IEffects = nullptr;
 
 
 	WNDPROC oldWindowProc;
@@ -749,6 +750,11 @@ namespace Interfaces
 
 		g_IVEffects = (IVEffects*)CreateInterface(XorStr("engine.dll"), XorStr("VEngineEffects001"));
 		if (!g_IVEffects.IsValid()) {
+			return false;
+		}
+
+		g_IEffects = (IEffects*)CreateInterface(XorStr("client.dll"), XorStr("IEffects001"));
+		if (!g_IEffects.IsValid()) {
 			return false;
 		}
 

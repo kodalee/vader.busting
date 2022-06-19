@@ -85,6 +85,7 @@ namespace Interfaces
    extern Encrypted_t<SFHudDeathNoticeAndBotStatus> g_pDeathNotices;
    extern Encrypted_t<CNetworkStringTableContainer> g_pClientStringTableContainer;
    extern Encrypted_t<IVEffects> g_IVEffects;
+   extern Encrypted_t<IEffects> g_IEffects;
    extern WNDPROC oldWindowProc;
    extern HWND hWindow;
 

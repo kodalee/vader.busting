@@ -7,6 +7,7 @@
 #include "../../SDK/Classes/entity.hpp"
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
+#include "../../ShittierMenu/Menu.hpp"
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
 #define engine_console_error(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 0.f, 0.f), true, "")
 void lua_panic(sol::optional<std::string> message) {
@@ -140,6 +141,10 @@ namespace lua_ui {
 
 	bool speclist_open() {
 		return g_Vars.globals.m_bSpecListOpen;
+	}
+
+	bool menu_open() {
+		return g_IMGUIMenu.Opened;
 	}
 
 	auto next_line_counter = 0;
@@ -846,6 +851,21 @@ namespace lua_clientstate
 
 }
 
+namespace lua_effects
+{
+	void sparks(const Vector& position, int nMagnitude = 1, int nTrailLength = 1) {
+		Interfaces::g_IEffects->Sparks(position, nMagnitude, nTrailLength);
+	}
+
+	void dust(const Vector& pos, const Vector& dir, float size, float speed) {
+		Interfaces::g_IEffects->Dust(pos, dir, size, speed);
+	}
+
+	void EnergySplash(const Vector& position, const Vector& direction, bool bExplosive = false) {
+		Interfaces::g_IEffects->EnergySplash(position, direction, bExplosive);
+	}
+}
+
 // ----- lua functions -----
 
 c_lua g_lua;
@@ -976,6 +996,7 @@ bool c_lua::initialize() {
 		XorStr("is_alive"), &C_CSPlayer::IsAlive,
 		XorStr("is_dead"), &C_CSPlayer::IsDead,
 		XorStr("is_dormant"), &C_CSPlayer::IsDormant,
+		XorStr("get_vec_origin"), &C_CSPlayer::m_vecOrigin,
 		XorStr("get_abs_origin"), &C_CSPlayer::GetAbsOrigin,
 		XorStr("get_eye_position"), &C_CSPlayer::GetEyePosition,
 		XorStr("get_shoot_position"), &C_CSPlayer::GetShootPosition,
@@ -1116,6 +1137,7 @@ bool c_lua::initialize() {
 	ui[XorStr("speclist_pos")] = lua_ui::speclist_pos;
 	ui[XorStr("keybinds_open")] = lua_ui::keybinds_open;
 	ui[XorStr("speclist_open")] = lua_ui::speclist_open;
+	ui[XorStr("menu_open")] = lua_ui::menu_open;
 	ui[XorStr("new_checkbox")] = lua_ui::add_check_box;
 	ui[XorStr("new_colorpicker")] = lua_ui::add_color_picker;
 	ui[XorStr("new_slider_float")] = lua_ui::add_slider_float;
@@ -1125,6 +1147,10 @@ bool c_lua::initialize() {
 	auto clientstate = this->lua.create_table();
 	clientstate[XorStr("chokedcommands")] = lua_clientstate::chokedcommands;
 
+	auto effects = this->lua.create_table();
+	effects[XorStr("sparks")] = lua_effects::sparks;
+	effects[XorStr("dust")] = lua_effects::dust;
+	effects[XorStr("energysplash")] = lua_effects::EnergySplash;
 
 	this->lua[XorStr("event")] = events;
 	this->lua[XorStr("config")] = config;
@@ -1141,6 +1167,7 @@ bool c_lua::initialize() {
 	this->lua[XorStr("render")] = render;
 	this->lua[XorStr("ui")] = ui;
 	this->lua[XorStr("clientstate")] = clientstate;
+	this->lua[XorStr("effects")] = effects;
 
 	this->refresh_scripts();
 	//this->load_script(this->get_script_id("autorun.lua"));
