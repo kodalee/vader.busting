@@ -2345,6 +2345,8 @@ void IMGUIMenu::Render()
 	ImGui::SetNextWindowSize(ImVec2(MENU_WIDTH, MENU_HEIGHT));
 	ImGui::Begin(XorStr("##menu"), &_visible, windowFlags);
 
+	menu_position = ImGui::GetWindowPos();
+
 	style->WindowPadding = ImVec2(7.f, 7.f);
 
 	if (!g_Vars.misc.custom_menu) {

@@ -147,6 +147,18 @@ namespace lua_ui {
 		return g_IMGUIMenu.Opened;
 	}
 
+	Vector2D mouse_pos() {
+		return InputSys::Get()->GetMousePosition();
+	}
+
+	Vector2D menu_pos() {
+		float x, y;
+		x = g_IMGUIMenu.menu_position.x;
+		y = g_IMGUIMenu.menu_position.y;
+
+		return Vector2D(x, y);
+	}
+
 	auto next_line_counter = 0;
 
 	void next_line(sol::this_state s)
@@ -625,6 +637,10 @@ namespace lua_utils {
 		return true;
 	}
 
+	bool key_down(int key) {
+		return InputHelper::Down(key);
+	}
+
 }
 
 namespace lua_globals {
@@ -1097,6 +1113,7 @@ bool c_lua::initialize() {
 	utils[XorStr("color_rainbow")] = lua_utils::create_color_rainbow;
 	utils[XorStr("lowerbody_yaw")] = lua_utils::lowerbody_yaw;
 	//utils[XorStr("local_alive")] = lua_utils::local_alive;
+	utils[XorStr("key_down")] = lua_utils::key_down;
 
 	auto globals = this->lua.create_table();
 	globals[XorStr("realtime")] = lua_globals::realtime;
@@ -1138,6 +1155,8 @@ bool c_lua::initialize() {
 	ui[XorStr("keybinds_open")] = lua_ui::keybinds_open;
 	ui[XorStr("speclist_open")] = lua_ui::speclist_open;
 	ui[XorStr("menu_open")] = lua_ui::menu_open;
+	ui[XorStr("menu_pos")] = lua_ui::menu_pos;
+	ui[XorStr("mouse_pos")] = lua_ui::mouse_pos;
 	ui[XorStr("new_checkbox")] = lua_ui::add_check_box;
 	ui[XorStr("new_colorpicker")] = lua_ui::add_color_picker;
 	ui[XorStr("new_slider_float")] = lua_ui::add_slider_float;

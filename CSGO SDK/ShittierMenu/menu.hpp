@@ -41,6 +41,8 @@ public:
     bool IsVisible() const { return _visible; }
 
     bool Opened = false, Initialized = false, Loaded = false;
+
+    ImVec2 menu_position;
 private:
     void CreateStyle();
 
