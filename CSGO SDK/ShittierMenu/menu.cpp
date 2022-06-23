@@ -1097,7 +1097,7 @@ void Visuals()
 						if (g_Vars.esp.attachments_chams_mat == 3) {
 
 							InsertSliderFloat(XorStr("Attachment pearlescence"), &g_Vars.esp.chams_attachments_pearlescence, 0.f, 100.f, XorStr("%.f"));
-							ColorPicker(XorStr("Attachment pearlescence color"), g_Vars.esp.chams_attachments_pearlescence_color, true, false);
+							ColorPicker_w_name(XorStr("Attachment pearlescence color"), g_Vars.esp.chams_attachments_pearlescence_color, true, false);
 							InsertSliderFloat(XorStr("Attachment shine"), &g_Vars.esp.chams_attachments_shine, 0.f, 100.f, XorStr("%.f"));
 
 						}
