@@ -22,7 +22,9 @@ namespace Engine
 	}
 
 	void C_WeatherController::ResetWeather( ) {
-		g_Vars.globals.bCreatedRain = false;
+		if (!g_Vars.globals.bCreatedRain) {
+			return;
+		}
 
 		for( int i = 0; i <= Interfaces::m_pEntList->GetHighestEntityIndex( ); i++ ) {
 			C_BaseEntity* pEntity = ( C_BaseEntity* )Interfaces::m_pEntList->GetClientEntity( i );

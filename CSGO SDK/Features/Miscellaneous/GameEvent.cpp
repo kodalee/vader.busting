@@ -629,7 +629,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	{
 		g_Vars.globals.Fakewalking = g_Vars.misc.fakeduck_bind.enabled = false;
 		g_TickbaseController.m_bSupressRecharge = false;
-		Engine::WeatherController::Get()->ResetData();
+		//Engine::WeatherController::Get()->ResetData();
 
 		for( int i = 0; i < Interfaces::g_pDeathNotices->m_vecDeathNotices.Count( ); i++ ) {
 			auto cur = &Interfaces::g_pDeathNotices->m_vecDeathNotices[ i ];

@@ -128,7 +128,7 @@ namespace Hooked
 			Interfaces::IChams::Get()->OnPostScreenEffects();
 			//g_TickbaseController.bExploiting = false;
 
-			Engine::WeatherController::Get( )->ResetWeather( );
+			//Engine::WeatherController::Get( )->ResetWeather( );
 			g_Vars.globals.bCreatedRain = false;
 		}
 
