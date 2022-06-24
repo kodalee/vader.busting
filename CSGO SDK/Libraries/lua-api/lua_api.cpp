@@ -181,7 +181,7 @@ namespace lua_ui {
 		items.emplace_back(std::make_pair(full_name, menu_item(key, false)));
 	}
 
-	void add_slider_int(sol::this_state s, std::string key, const std::string& name, int min, int max)
+	void add_slider_int(sol::this_state s, std::string key, const std::string& name, int min, int max, std::string format = XorStr("%d"))
 	{
 		auto script = get_current_script(s);
 		auto script_id = g_lua.get_script_id(script);
@@ -192,7 +192,7 @@ namespace lua_ui {
 		if (find_item(items, full_name) != items.end())
 			return;
 
-		items.emplace_back(std::make_pair(full_name, menu_item(key, min, max, min)));
+		items.emplace_back(std::make_pair(full_name, menu_item(key, min, max, min, format)));
 	}
 
 	void add_slider_float(sol::this_state s, std::string key, const std::string& name, float min, float max, std::string format = XorStr("%d"))
@@ -1157,6 +1157,7 @@ bool c_lua::initialize() {
 	ui[XorStr("menu_open")] = lua_ui::menu_open;
 	ui[XorStr("menu_pos")] = lua_ui::menu_pos;
 	ui[XorStr("mouse_pos")] = lua_ui::mouse_pos;
+	ui[XorStr("new_line")] = lua_ui::next_line;
 	ui[XorStr("new_checkbox")] = lua_ui::add_check_box;
 	ui[XorStr("new_colorpicker")] = lua_ui::add_color_picker;
 	ui[XorStr("new_slider_float")] = lua_ui::add_slider_float;

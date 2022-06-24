@@ -1563,11 +1563,11 @@ void Misc()
 						break;
 					case SLIDER_INT:
 						previous_check_box = false;
-						ImGui::SliderInt(item_name.c_str(), &LuaConfigSystem::C_INT[item.second.key], item.second.slider_int_min, item.second.slider_int_max);
+						InsertSliderInt(item_name.c_str(), &LuaConfigSystem::C_INT[item.second.key], item.second.slider_int_min, item.second.slider_int_max, item.second.format.c_str());
 						break;
 					case SLIDER_FLOAT:
 						previous_check_box = false;
-						ImGui::SliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
+						InsertSliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
 						break;
 					case COLOR_PICKER:
 						if (previous_check_box)

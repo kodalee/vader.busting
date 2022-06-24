@@ -97,12 +97,13 @@ public:
 		type = CHECK_BOX;
 	}
 
-	menu_item(std::string key2, int min, int max, int value)
+	menu_item(std::string key2, int min, int max, int value, std::string format2 = XorStr("%d"))
 	{
 		key = key2;
 		slider_int_min = min;
 		slider_int_max = max;
 		slider_int_value = value;
+		format = format2;
 
 		type = SLIDER_INT;
 	}
