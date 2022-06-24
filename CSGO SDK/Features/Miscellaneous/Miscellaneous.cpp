@@ -333,10 +333,11 @@ namespace Interfaces
 		}
 		case 3:
 		{
-			if (g_Vars.misc.custom_model.c_str() != XorStr("") && PathFileExists(g_Vars.misc.custom_model.c_str()))
+			if (g_Vars.misc.custom_model.c_str() != XorStr("") && g_Vars.misc.custom_model.size() > 1)
 			{
 				PrecacheModels(g_Vars.misc.custom_model.c_str());
 				local->SetModelIndex(Interfaces::m_pModelInfo->GetModelIndex(g_Vars.misc.custom_model.c_str()));
+
 			}
 			break;
 		}
