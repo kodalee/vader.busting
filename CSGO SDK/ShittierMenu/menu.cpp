@@ -1238,7 +1238,18 @@ void Misc()
 
 			InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
 			InsertCheckbox(FastStop, XorStr("Fast Stop"), &g_Vars.misc.quickstop);
-			InsertCheckbox(Custom_menu, XorStr("Custom menu"), &g_Vars.misc.custom_menu); if (g_Vars.misc.custom_menu) { ImGui::SameLine(); ColorPicker(XorStr("##accent"), g_Vars.misc.accent_color, false, false); ImGui::SameLine(); ColorPicker(XorStr("##logo"), g_Vars.misc.logo_color, false, false); }
+			InsertCheckbox(Custom_menu, XorStr("Custom Menu"), &g_Vars.misc.custom_menu); if (g_Vars.misc.custom_menu) { ImGui::SameLine(); ColorPicker(XorStr("##accent"), g_Vars.misc.accent_color, false, false); ImGui::SameLine(); ColorPicker(XorStr("##logo"), g_Vars.misc.logo_color, false, false); }
+
+			const char* models[]{ XorStr("Off"), XorStr("Darth Vader"), XorStr("StormTrooper"), XorStr("Custom") };
+
+			InsertCheckbox(ModelChanger, XorStr("Model Changer"), &g_Vars.misc.model_changer);
+			if (g_Vars.misc.model_changer) {
+				InsertCombo(XorStr("Models"), &g_Vars.misc.models, models);
+
+				if (g_Vars.misc.models == 3) {
+					ImGui::InputText(XorStr("##Custom Model"), &g_Vars.misc.custom_model);
+				}
+			}
 
 			ImGui::NextColumn();
 			ImGui::NewLine();

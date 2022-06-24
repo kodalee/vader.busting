@@ -5,6 +5,23 @@
 #include "../../SDK/Classes/player.hpp"
 #include "../Game/Prediction.hpp"
 
+const unsigned short INVALID_STRING_INDEX = (unsigned short)-1;
+
+bool PrecacheModel(const char* szModelName)
+{
+	INetworkStringTable* m_pModelPrecacheTable = Interfaces::g_pClientStringTableContainer->FindTable(XorStr("modelprecache"));
+
+	if (m_pModelPrecacheTable)
+	{
+		Interfaces::m_pModelInfo->FindOrLoadModel(szModelName);
+		int idx = m_pModelPrecacheTable->AddString(false, szModelName);
+		if (idx == INVALID_STRING_INDEX)
+			return false;
+	}
+	return true;
+}
+
+
 namespace Interfaces
 {
 	inline float rgb_to_srgb( float flLinearValue ) {
@@ -55,6 +72,7 @@ namespace Interfaces
 		virtual void ViewModelChanger( );
 		virtual void SkyboxChanger( );
 		virtual void RainSoundEffects( );
+		virtual void ModelChanger( );
 	};
 
 	C_Miscellaneous g_Misc;
@@ -83,6 +101,7 @@ namespace Interfaces
 		ClantagChanger( );
 		ViewModelChanger( );
 		//RainSoundEffects( );
+		ModelChanger( );
 	}
 
 	void C_Miscellaneous::ModulateWorld( ) {
@@ -282,6 +301,44 @@ namespace Interfaces
 				choose = randomnum;
 		}
 
+
+	}
+
+	void C_Miscellaneous::ModelChanger() {
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (!local || !local->IsAlive() || !g_Vars.misc.model_changer)
+			return;
+
+		switch (g_Vars.misc.models)
+		{
+		case 0:
+		{
+			break;
+		}
+		case 1:
+		{
+			PrecacheModel(XorStr("models/player/custom_player/kuristaja/vader/vader.mdl"));
+			local->SetModelIndex(Interfaces::m_pModelInfo->GetModelIndex(XorStr("models/player/custom_player/kuristaja/vader/vader.mdl")));
+			break;
+		}
+		case 2:
+		{
+			PrecacheModel(XorStr("models/player/custom_player/kuristaja/stormtrooper/stormtrooper.mdl"));
+			local->SetModelIndex(Interfaces::m_pModelInfo->GetModelIndex(XorStr("models/player/custom_player/kuristaja/stormtrooper/stormtrooper.mdl")));
+			break;
+		}
+		case 3:
+		{
+			if (g_Vars.misc.custom_model.c_str() != XorStr(""))
+			{
+				PrecacheModel(g_Vars.misc.custom_model.c_str());
+				local->SetModelIndex(Interfaces::m_pModelInfo->GetModelIndex(g_Vars.misc.custom_model.c_str()));
+			}
+			break;
+		}
+
+		}
 
 	}
 

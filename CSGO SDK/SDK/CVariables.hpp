@@ -1474,10 +1474,11 @@ public:
 	config_option( int, lag_exploit_key, 0 );
 
 	config_option( bool, autobuy_enabled, false );
-	config_option( bool, models, false );
+	config_option( bool, model_changer, false );
 	config_option( int, autobuy_first_weapon, 0 );
 	config_option( int, autobuy_second_weapon, 0 );
-	config_option( int, model_change, 0 );
+	config_option( int, models, 0 );
+	config_option( std::string, custom_model, XorStr("model path") );
 	config_option( bool, autobuy_flashbang, false );
 	config_option( bool, autobuy_smokegreanade, false );
 	config_option( bool, autobuy_molotovgrenade, false );
