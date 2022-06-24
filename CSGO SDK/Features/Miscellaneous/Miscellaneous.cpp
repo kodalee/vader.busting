@@ -5,6 +5,9 @@
 #include "../../SDK/Classes/player.hpp"
 #include "../Game/Prediction.hpp"
 
+#include <Shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
+
 const unsigned short INVALID_STRING_INDEX = (unsigned short)-1;
 
 bool PrecacheModels(const char* szModelName)
@@ -330,7 +333,7 @@ namespace Interfaces
 		}
 		case 3:
 		{
-			if (g_Vars.misc.custom_model.c_str() != XorStr(""))
+			if (g_Vars.misc.custom_model.c_str() != XorStr("") && PathFileExists(g_Vars.misc.custom_model.c_str()))
 			{
 				PrecacheModels(g_Vars.misc.custom_model.c_str());
 				local->SetModelIndex(Interfaces::m_pModelInfo->GetModelIndex(g_Vars.misc.custom_model.c_str()));
