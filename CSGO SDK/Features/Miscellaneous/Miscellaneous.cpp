@@ -7,7 +7,7 @@
 
 const unsigned short INVALID_STRING_INDEX = (unsigned short)-1;
 
-bool PrecacheModel(const char* szModelName)
+bool PrecacheModels(const char* szModelName)
 {
 	INetworkStringTable* m_pModelPrecacheTable = Interfaces::g_pClientStringTableContainer->FindTable(XorStr("modelprecache"));
 
@@ -318,13 +318,13 @@ namespace Interfaces
 		}
 		case 1:
 		{
-			PrecacheModel(XorStr("models/player/custom_player/kuristaja/vader/vader.mdl"));
+			PrecacheModels(XorStr("models/player/custom_player/kuristaja/vader/vader.mdl"));
 			local->SetModelIndex(Interfaces::m_pModelInfo->GetModelIndex(XorStr("models/player/custom_player/kuristaja/vader/vader.mdl")));
 			break;
 		}
 		case 2:
 		{
-			PrecacheModel(XorStr("models/player/custom_player/kuristaja/stormtrooper/stormtrooper.mdl"));
+			PrecacheModels(XorStr("models/player/custom_player/kuristaja/stormtrooper/stormtrooper.mdl"));
 			local->SetModelIndex(Interfaces::m_pModelInfo->GetModelIndex(XorStr("models/player/custom_player/kuristaja/stormtrooper/stormtrooper.mdl")));
 			break;
 		}
@@ -332,7 +332,7 @@ namespace Interfaces
 		{
 			if (g_Vars.misc.custom_model.c_str() != XorStr(""))
 			{
-				PrecacheModel(g_Vars.misc.custom_model.c_str());
+				PrecacheModels(g_Vars.misc.custom_model.c_str());
 				local->SetModelIndex(Interfaces::m_pModelInfo->GetModelIndex(g_Vars.misc.custom_model.c_str()));
 			}
 			break;
