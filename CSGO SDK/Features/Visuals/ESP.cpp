@@ -1483,9 +1483,15 @@ void CEsp::Main( ) {
 			continue;
 
 		if (g_Vars.esp.nades) {
+
 			if (entity->GetClientClass()->m_ClassID == CInferno) {
 				C_Inferno* pInferno = reinterpret_cast<C_Inferno*>(entity);
 				C_CSPlayer* player = (C_CSPlayer*)entity->m_hOwnerEntity().Get();
+
+				int dist = m_LocalPlayer->GetAbsOrigin().Distance(entity->GetAbsOrigin());
+
+				if (dist > 999)
+					return;
 
 				if (player) {
 					FloatColor color;
@@ -1593,6 +1599,10 @@ void CEsp::Main( ) {
 				const Vector origin = pSmokeEffect->GetAbsOrigin();
 				Vector2D screen_origin = Vector2D();
 
+				int dist = m_LocalPlayer->GetAbsOrigin().Distance(entity->GetAbsOrigin());
+
+				if (dist > 999)
+					return;
 
 				if (WorldToScreen(origin, screen_origin)) {
 					struct s {
