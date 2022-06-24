@@ -164,6 +164,27 @@ const weapon_info* GetWeaponInfo(int defindex) {
 	return entry == end(Info) ? nullptr : &entry->second;
 }
 
+static auto get_wearable_create_fn() -> CreateClientClassFn {
+	auto client_class = Interfaces::m_pClient->GetAllClasses();
+	for (client_class = Interfaces::m_pClient->GetAllClasses();
+		client_class; client_class = client_class->m_pNext) {
+		if (client_class->m_ClassID == CEconWearable)
+			return (CreateClientClassFn)client_class->m_pCreateFn;
+	}
+}
+
+static auto make_glove(int entry, int serial) -> C_BaseAttributableItem* {
+	static auto create_wearable_fn = get_wearable_create_fn();
+	create_wearable_fn(entry, serial);
+
+	const auto glove = reinterpret_cast<C_BaseAttributableItem*>(Interfaces::m_pEntList->GetClientEntity(entry));
+	if (glove) {
+		Vector new_pos = Vector{ 10000.0f, 10000.0f, 10000.f };
+		glove->SetAbsOrigin(new_pos);
+	}
+	return glove;
+}
+
 bool apply_glove(C_BaseAttributableItem* glove, const char* model, int item_definition_index, int paint_kit, int model_index, int entity_quality, float fallback_wear) {
 	player_info_t info;
 	Interfaces::m_pEngine->GetPlayerInfo(Interfaces::m_pEngine->GetLocalPlayer(), &info);
@@ -265,51 +286,26 @@ void skins_speedy::Skinchanger()
 			const auto our_glove = (C_BaseAttributableItem*)glove_handle.Get();
 
 			if (our_glove) {
-				wearables[0] = glove_handle;
+				wearables[0] = glove_handle.Get();
 				glove = our_glove;
 			}
 		}
 		if (!local_player->IsAlive()) {
-			// We are dead but we have a glove, destroy it
 			if (glove) {
-				auto networkable = glove->GetClientNetworkable();
-				if (networkable) {
-					networkable->SetDestroyedOnRecreateEntities();
-					networkable->Release();
-				}
+				auto glovenet = glove->GetClientNetworkable();
+				glovenet->SetDestroyedOnRecreateEntities();
+				glovenet->Release();
 			}
-
 			return;
 		}
 		if (!glove) {
-			auto get_wearable_create_fn = []() -> CreateClientClassFn {
-				auto clazz = Interfaces::m_pClient->GetAllClasses();
-					while( clazz->m_ClassID != CEconWearable )
-						clazz = clazz->m_pNext;
-
-				return (CreateClientClassFn)clazz->m_pCreateFn;
-			};
-
-			static auto create_wearable_fn = get_wearable_create_fn();
-
 			const auto entry = Interfaces::m_pEntList->GetHighestEntityIndex() + 1;
 			const auto serial = rand() % 0x1000;
-			create_wearable_fn(entry, serial);
-
-			glove = static_cast<C_BaseAttributableItem*>(Interfaces::m_pEntList->GetClientEntity(entry));
-
-			if (!glove)
-				return;
-
-			Vector new_pos = Vector{ 10000.0f, 10000.0f, 10000.f };
-			glove->SetAbsOrigin(new_pos);
-
+			glove = make_glove(entry, serial);
 			wearables[0] = CBaseHandle(entry | (serial << 16));
 			glove_handle = wearables[0];
 		}
 		if (glove) {
-			*(int*)((uintptr_t)glove + 0x64) = -1;
-
 			auto g_wear = 0.01f;
 
 			int paintkit = 1;
@@ -467,6 +463,7 @@ void skins_speedy::Skinchanger()
 				break;
 			}
 			//glovenet->PreDataUpdate(0);
+			*(int*)((uintptr_t)glove + 0x64) = -1;
 		}
 	}
 
@@ -630,7 +627,6 @@ void skins_speedy::Skinchanger()
 		}
 
 		auto& global = g_Vars.m_global_skin_changer;
-
 		static float lastSkinUpdate = 0.0f;
 
 		if (global.m_update_skins && Interfaces::m_pGlobalVars->curtime >= lastSkinUpdate) {
