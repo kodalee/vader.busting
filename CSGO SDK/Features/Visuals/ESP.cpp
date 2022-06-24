@@ -1490,7 +1490,7 @@ void CEsp::Main( ) {
 
 				int dist = m_LocalPlayer->GetAbsOrigin().Distance(entity->GetAbsOrigin());
 
-				if (dist > 999)
+				if (dist > 2000)
 					return;
 
 				if (player) {
@@ -1601,7 +1601,7 @@ void CEsp::Main( ) {
 
 				int dist = m_LocalPlayer->GetAbsOrigin().Distance(entity->GetAbsOrigin());
 
-				if (dist > 999)
+				if (dist > 2000)
 					return;
 
 				if (WorldToScreen(origin, screen_origin)) {
