@@ -8,6 +8,62 @@
 
 #define MT_SETUP_BONES
 
+void extrapolate(C_BasePlayer* player, Vector& origin, Vector& velocity, int& flags, bool on_ground)
+{
+	static const auto sv_gravity = g_Vars.sv_gravity;
+	static const auto sv_jump_impulse = g_Vars.sv_jump_impulse;
+
+	if (!(flags & FL_ONGROUND))
+		velocity.z -= TICKS_TO_TIME(sv_gravity->GetFloat());
+	else if (player->m_fFlags() & FL_ONGROUND && !on_ground)
+		velocity.z = sv_jump_impulse->GetFloat();
+
+	const auto src = origin;
+	auto end = src + velocity * Interfaces::m_pGlobalVars->interval_per_tick;
+
+	Ray_t r;
+	r.Init(src, end, player->OBBMins(), player->OBBMaxs());
+
+	CGameTrace t;
+	CTraceFilter filter;
+	filter.pSkip = player;
+
+	Interfaces::m_pEngineTrace->TraceRay(r, MASK_PLAYERSOLID, &filter, &t);
+
+	if (t.fraction != 1.f)
+	{
+		for (auto i = 0; i < 2; i++)
+		{
+			velocity -= t.plane.normal * velocity.Dot(t.plane.normal);
+
+			const auto dot = velocity.Dot(t.plane.normal);
+			if (dot < 0.f)
+				velocity -= Vector(dot * t.plane.normal.x,
+					dot * t.plane.normal.y, dot * t.plane.normal.z);
+
+			end = t.endpos + velocity * TICKS_TO_TIME(1.f - t.fraction);
+
+			r.Init(t.endpos, end, player->OBBMins(), player->OBBMaxs());
+			Interfaces::m_pEngineTrace->TraceRay(r, MASK_PLAYERSOLID, &filter, &t);
+
+			if (t.fraction == 1.f)
+				break;
+		}
+	}
+
+	origin = end = t.endpos;
+	end.z -= 2.f;
+
+	r.Init(origin, end, player->OBBMins(), player->OBBMaxs());
+	Interfaces::m_pEngineTrace->TraceRay(r, MASK_PLAYERSOLID, &filter, &t);
+
+	flags &= FL_ONGROUND;
+
+	if (t.DidHit() && t.plane.normal.z > .7f)
+		flags |= FL_ONGROUND;
+}
+
+
 namespace Engine
 {
 	struct SimulationRestore {
@@ -647,6 +703,13 @@ namespace Engine
 			if( !player->IsTeammate( C_CSPlayer::GetLocalPlayer( ) ) && !IsPlayerBot( ) ) {
 				// predict lby updates
 				g_Resolver.ResolveAngles( player, current.Xor( ) );
+
+				if (previous.IsValid()) {
+					auto old_origin = previous->m_vecOrigin;
+					auto old_flags = previous->m_fFlags;
+					extrapolate(player, old_origin, player->m_vecVelocity(), player->m_fFlags(), old_flags & FL_ONGROUND);
+					old_flags = player->m_fFlags();
+				}
 
 				bool bValid = previous.Xor( );
 
