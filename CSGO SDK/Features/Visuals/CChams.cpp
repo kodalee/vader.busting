@@ -10,6 +10,7 @@
 #include "../../SDK/displacement.hpp"
 #include "../Rage/ShotInformation.hpp"
 #include "../Game/Prediction.hpp"
+#include "../Rage/Resolver.hpp"
 
 extern C_AnimationLayer FakeAnimLayers[ 13 ];
 
@@ -1862,7 +1863,7 @@ namespace Interfaces
 				if( LastInvalid->m_flSimulationTime - FirstInvalid->m_flSimulationTime > 0.5f )
 					continue;
 
-				if( ( FirstInvalid->m_vecOrigin - entity->m_vecOrigin( ) ).Length( ) < 2.5f )
+				if( ( FirstInvalid->m_vecOrigin - entity->m_vecOrigin( ) ).Length( ) < 2.5f && FirstInvalid->m_iResolverMode != Engine::RModes::FLICK )
 					return false;
 
 				const auto NextOrigin = LastInvalid->m_vecOrigin;
