@@ -8,5 +8,5 @@ ClientClass* IBaseClientDLL::GetAllClasses()
 
 bool IBaseClientDLL::IsChatRaised( ) {
    using Fn = bool( __thiscall* )( void* );
-   return Memory::VCall<Fn>( this, 90 )( this );
+   return Memory::VCall<Fn>( this, 89 )( this );
 }
