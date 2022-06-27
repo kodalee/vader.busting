@@ -528,33 +528,38 @@ namespace Interfaces
 
 			switch (g_Vars.misc.mind_trick_mode) {
 			case 0: {
-				if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
+				if (localPlayer->m_vecVelocity().Length2D() < 14.f) {
 					static bool FlickCheck = false;
+					static bool FlickCheckSide = false;
+					static bool FlickCheckSide2 = false;
 					static bool MicroMoveSide = false;
 					*bSendPacket = !(cmd->tick_count % 2 == 0);
 					if (cmd->tick_count % 2 == 0) {
 						if (FlickCheck) {
-							cmd->viewangles.y += 120;
+							FlickCheckSide2 = !FlickCheckSide2;
+							cmd->viewangles.y -= FlickCheckSide2 ? 120 : -120;
 							FlickCheck = false;
-							if (cmd->sidemove == 0) {
+							if (cmd->forwardmove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 11 : -11;
+								cmd->forwardmove = MicroMoveSide ? 13.37 : -13.37;
 							}
 							return;
 						}
-						if (cmd->tick_count % 18 == 0) {
+						if (cmd->tick_count % 8 == 0) {
 							FlickCheck = true;
-							if (cmd->sidemove == 0) {
+							FlickCheckSide = !FlickCheckSide;
+							if (cmd->forwardmove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 11 : -11;
+								cmd->forwardmove = MicroMoveSide ? 13.37 : -13.37;
 							}
-							cmd->viewangles.y -= 115;
+							cmd->viewangles.y += FlickCheckSide ? -115 : 115;
 							return;
 						}
 					}
-					else if (cmd->sidemove == 0) {
-						MicroMoveSide = !MicroMoveSide;
-						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+					else if (cmd->forwardmove == 0) {
+						static bool retard = false;
+						retard = !retard;
+						cmd->forwardmove = retard ? 1.1 : -1.1;
 					}
 				}
 
@@ -570,25 +575,26 @@ namespace Interfaces
 							g_Vars.globals.shift_amount = 12;
 							cmd->viewangles.y += 180;
 							FlickCheck = false;
-							if (cmd->sidemove == 0) {
+							if (cmd->forwardmove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 11 : -11;
+								cmd->forwardmove = MicroMoveSide ? 13.37 : -13.37;
 							}
 							return;
 						}
 						if (cmd->tick_count % 18 == 0) {
 							FlickCheck = true;
-							if (cmd->sidemove == 0) {
+							if (cmd->forwardmove == 0) {
 								MicroMoveSide = !MicroMoveSide;
-								cmd->sidemove = MicroMoveSide ? 11 : -11;
+								cmd->forwardmove = MicroMoveSide ? 13.37 : -13.37;
 							}
 							cmd->viewangles.y += 115; // -
 							return;
 						}
 					}
-					else if (cmd->sidemove == 0) {
-						MicroMoveSide = !MicroMoveSide;
-						cmd->sidemove = MicroMoveSide ? 1.1 : -1.1;
+					else if (cmd->forwardmove == 0) {
+						static bool retard = false;
+						retard = !retard;
+						cmd->forwardmove = retard ? 1.1 : -1.1;
 					}
 				}
 
