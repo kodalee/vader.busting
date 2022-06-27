@@ -76,7 +76,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		}
 
 		// chat isn't open && console isn't open
-		if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) && !g_Vars.globals.menuOpen ) {
+		if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) && !g_IMGUIMenu.Opened ) {
 			// we aren't tabbed out
 				// shit compiler, that's why no ternary operators
 			if( InputHelper::Pressed( g_Vars.antiaim.manual_left_bind.key ) ) {
