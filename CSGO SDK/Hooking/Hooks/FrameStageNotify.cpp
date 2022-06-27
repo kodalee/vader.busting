@@ -132,48 +132,48 @@ namespace Hooked
 			g_Vars.globals.bCreatedRain = false;
 		}
 
-		if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_END) {
-			for (int i = 0; i < Interfaces::m_pEngine->GetMaxClients(); i++)
-			{
-				auto localPlayer = C_CSPlayer::GetLocalPlayer();
-				if (!localPlayer)
-					continue;
+		//if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_END) {
+		//	for (int i = 0; i < Interfaces::m_pEngine->GetMaxClients(); i++)
+		//	{
+		//		auto localPlayer = C_CSPlayer::GetLocalPlayer();
+		//		if (!localPlayer)
+		//			continue;
 
-				auto player = reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(i));
+		//		auto player = reinterpret_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(i));
 
-				if (!player)
-					continue;
+		//		if (!player)
+		//			continue;
 
-				if (player == localPlayer)
-					continue;
+		//		if (player == localPlayer)
+		//			continue;
 
-				if (!player->IsPlayer())
-					continue;
+		//		if (!player->IsPlayer())
+		//			continue;
 
-				if (player->IsTeammate(localPlayer))
-					continue;
+		//		if (player->IsTeammate(localPlayer))
+		//			continue;
 
-				if (!player->IsAlive())
-					continue;
+		//		if (!player->IsAlive())
+		//			continue;
 
-				if (player->EntIndex() == localPlayer->EntIndex())
-					continue;
+		//		if (player->EntIndex() == localPlayer->EntIndex())
+		//			continue;
 
-				//if (!player->IsValidEnemy(localPlayer, true, false))
-				//	continue;
+		//		//if (!player->IsValidEnemy(localPlayer, true, false))
+		//		//	continue;
 
-				VarMapping_t* map = player->VarMapping();
-				if (map)
-				{
-					for (int j = 0; j < map->m_nInterpolatedEntries; j++)
-					{
-						map->m_Entries[j].m_bNeedsToInterpolate = false;
-					}
-				}
-			}
+		//		VarMapping_t* map = player->VarMapping();
+		//		if (map)
+		//		{
+		//			for (int j = 0; j < map->m_nInterpolatedEntries; j++)
+		//			{
+		//				map->m_Entries[j].m_bNeedsToInterpolate = false;
+		//			}
+		//		}
+		//	}
 
-			Interfaces::Miscellaneous::Get()->Main();
-		}
+		//	Interfaces::Miscellaneous::Get()->Main();
+		//}
 
 		if( g_Vars.esp.remove_post_proccesing ) {
 			static auto PostProcessParameters = *reinterpret_cast< PostProcessParameters_t** >( ( uintptr_t )Memory::Scan( ( "client.dll" ), ( "0F 11 05 ? ? ? ? 0F 10 87" ) ) + 3 );
