@@ -132,7 +132,7 @@ namespace Hooked
 			g_Vars.globals.bCreatedRain = false;
 		}
 
-		//if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_END) {
+		if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_END) {
 		//	for (int i = 0; i < Interfaces::m_pEngine->GetMaxClients(); i++)
 		//	{
 		//		auto localPlayer = C_CSPlayer::GetLocalPlayer();
@@ -172,8 +172,8 @@ namespace Hooked
 		//		}
 		//	}
 
-		//	Interfaces::Miscellaneous::Get()->Main();
-		//}
+			Interfaces::Miscellaneous::Get()->Main();
+		}
 
 		if( g_Vars.esp.remove_post_proccesing ) {
 			static auto PostProcessParameters = *reinterpret_cast< PostProcessParameters_t** >( ( uintptr_t )Memory::Scan( ( "client.dll" ), ( "0F 11 05 ? ? ? ? 0F 10 87" ) ) + 3 );
