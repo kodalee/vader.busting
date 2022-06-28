@@ -1564,7 +1564,7 @@ void Misc()
 						InsertSliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
 						break;
 					case COLOR_PICKER:
-						ColorPicker_w_name(std::string{ XorStr("##") }.append(item_name.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[item.second.key], true, false);
+						ColorPicker_w_name(item_name.c_str(), LuaConfigSystem::C_COLOR[item.second.key], true, false);
 						break;
 					case TEXT:
 						ImGui::Text(item_name.c_str());
