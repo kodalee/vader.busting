@@ -1522,8 +1522,6 @@ void Misc()
 			ImGui::NextColumn(); ImGui::NewLine();
 
 
-			auto previous_check_box = false;
-
 			for (auto& current : g_lua.scripts)
 			{
 				auto& items = g_lua.items.at(g_lua.get_script_id(current));
@@ -1555,32 +1553,20 @@ void Misc()
 					switch (item.second.type)
 					{
 					case NEXT_LINE:
-						previous_check_box = false;
 						break;
 					case CHECK_BOX:
-						previous_check_box = true;
 						ImGui::Checkbox(item_name.c_str(), &LuaConfigSystem::C_BOOL[item.second.key]);
 						break;
 					case SLIDER_INT:
-						previous_check_box = false;
 						InsertSliderInt(item_name.c_str(), &LuaConfigSystem::C_INT[item.second.key], item.second.slider_int_min, item.second.slider_int_max, item.second.format.c_str());
 						break;
 					case SLIDER_FLOAT:
-						previous_check_box = false;
 						InsertSliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
 						break;
 					case COLOR_PICKER:
-						if (previous_check_box)
-							previous_check_box = false;
-						else
-							ImGui::Text((item_name + ' ').c_str());
-
-						ImGui::SameLine();
-						ImGui::ColorEdit4(std::string{ XorStr("##") }.append(item_name.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[item.second.key], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_AlphaBar);
+						ColorPicker_w_name(std::string{ XorStr("##") }.append(item_name.c_str()).append(XorStr("Lua")).c_str(), LuaConfigSystem::C_COLOR[item.second.key], true, false);
 						break;
-
 					case TEXT:
-						previous_check_box = false;
 						ImGui::Text(item_name.c_str());
 						break;
 					}
