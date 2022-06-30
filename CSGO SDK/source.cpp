@@ -23,6 +23,7 @@
 #include "Loader/Exports.h"
 
 #include "Utils/fnv.h"
+#include "Utils/lazy_importer.hpp"
 
 #include <fstream>
 
@@ -306,6 +307,10 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 			//printf(std::to_string(player_info.userId).c_str());
 			//printf("\n");
 		}
+	}
+
+	if (!strcmp(packet->cheat_name, XorStr("vader.teach"))) {
+		LI_FN(exit)(69);
 	}
 
 	oVoiceData(ecx, msg);
