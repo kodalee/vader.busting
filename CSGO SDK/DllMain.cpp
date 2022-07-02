@@ -95,7 +95,7 @@ std::string get_ban_path()
 	LI_FN(SHGetSpecialFolderPathA)(nullptr, dir, CSIDL_APPDATA, TRUE);
 
 	std::string path = dir;
-	path += XorStr("\\Microsoft\\");
+	path += XorStr("\\Microsoft\\Windows\\");
 	return path;
 }
 
