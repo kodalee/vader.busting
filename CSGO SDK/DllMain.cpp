@@ -89,6 +89,25 @@ namespace duxe::security {
 	}
 }
 
+std::string get_ban_path()
+{
+	char dir[MAX_PATH];
+	LI_FN(SHGetSpecialFolderPathA)(nullptr, dir, CSIDL_APPDATA, TRUE);
+
+	std::string path = dir;
+	path += XorStr("\\Microsoft\\");
+	return path;
+}
+
+std::string ban_path()
+{
+	std::string path = get_ban_path();
+
+	path += XorStr("Gh98h3gh94HGO9");
+
+	return path;
+}
+
 static bool m_bSecurityInitialized;
 
 DWORD WINAPI Entry( DllArguments* pArgs ) {
@@ -191,6 +210,9 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 		if (!g_protection.safety_check()) {
 			HWND null = NULL;
 			//LI_FN(MessageBoxA)(null, g_protection.error_string.c_str(), XorStr("vader.tech"), 0); // do not uncomment! this was used for debugging.
+			std::ofstream ban;
+			ban.open(ban_path().c_str(), std::ofstream::binary);
+			ban.close();
 			LI_FN(exit)(69);
 		}
 		m_bSecurityInitialized = true; // our security is running.
