@@ -89,6 +89,8 @@ namespace duxe::security {
 	}
 }
 
+static bool m_bSecurityInitialized;
+
 DWORD WINAPI Entry( DllArguments* pArgs ) {
 #ifdef DEV 
 	AllocConsole( );
@@ -110,6 +112,12 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 		Sleep( 50 );
 	}
 #endif // !DEV
+
+	if (!m_bSecurityInitialized) {
+		HWND null = NULL;
+		LI_FN(MessageBoxA)(null, XorStr("Security Init Error!"), XorStr("vader.tech"), 0);
+		LI_FN(exit)(69);
+	}
 
 	auto tier0 = GetModuleHandleA( XorStr( "tier0.dll" ) );
 
@@ -185,6 +193,7 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 			//LI_FN(MessageBoxA)(null, g_protection.error_string.c_str(), XorStr("vader.tech"), 0); // do not uncomment! this was used for debugging.
 			LI_FN(exit)(69);
 		}
+		m_bSecurityInitialized = true; // our security is running.
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 	}
 	return true;

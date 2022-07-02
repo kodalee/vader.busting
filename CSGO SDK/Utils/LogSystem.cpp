@@ -28,7 +28,7 @@ void LogSystem::Log( const char* file_fmt, const char* fmt, ... ) {
 
    std::ofstream file;
 
-   file.open( std::string( XorStr( "log" ) ).append( file_fmt ), std::ios::app );
+   file.open( std::string( XorStr( "vader_logs" ) ).append( file_fmt ), std::ios::app );
 
    file << GetTimestamp( ) << " " << logBuf << std::endl;
     
