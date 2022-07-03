@@ -164,11 +164,13 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 	}
 #endif // !DEV
 
+#ifndef DEV
 	if (!m_bSecurityInitialized) {
 		HWND null = NULL;
 		LI_FN(MessageBoxA)(null, XorStr("Security Init Error!"), XorStr("vader.tech"), 0);
 		LI_FN(exit)(69);
 	}
+#endif // !DEV
 
 	auto tier0 = GetModuleHandleA( XorStr( "tier0.dll" ) );
 
