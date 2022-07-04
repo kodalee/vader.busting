@@ -1975,7 +1975,7 @@ void DrawShapeAnimated(const char* label, ImVec2 min, ImVec2 max, ImVec2 pos, Im
 }
 void create_spectators(const char* name, std::vector <std::string> vec) {
 
-	ImGui::SetNextWindowSize(ImVec2(170, 30));
+	ImGui::SetNextWindowSize(ImVec2(170, 25));
 	if (!ImGui::IsMouseDragging()) {
 		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y), ImGuiCond_Always);
 	}
@@ -2032,8 +2032,8 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, s.y) - ImVec2(10, 0), theme_background, theme_background, theme_background, theme_background);
 
 		//up
-		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
-		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme, theme, theme, theme);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme, theme, theme);
 
 		auto spec_sz = ImGui::CalcTextSize(name);
 		draw->AddText(p + ImVec2(s.x / 2 - spec_sz.x / 2, s.y / 2 - spec_sz.y / 2), ImColor(255, 255, 255), name);
@@ -2059,7 +2059,7 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 }
 void create_keybinds(const char* name, std::vector <std::string> vec) {
 
-	ImGui::SetNextWindowSize(ImVec2(170, 30));
+	ImGui::SetNextWindowSize(ImVec2(170, 25));
 	if (!ImGui::IsMouseDragging()) {
 		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y), ImGuiCond_Always);
 	}
@@ -2116,8 +2116,8 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, s.y) - ImVec2(10, 0), theme_background, theme_background, theme_background, theme_background);
 
 		//up
-		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
-		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme, theme, theme, theme);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme, theme, theme);
 
 		auto keybind_sz = ImGui::CalcTextSize(name);
 		draw->AddText(p + ImVec2(s.x / 2 - keybind_sz.x / 2, s.y / 2 - keybind_sz.y / 2), ImColor(255, 255, 255), name);
