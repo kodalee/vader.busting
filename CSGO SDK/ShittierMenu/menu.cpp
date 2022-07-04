@@ -2318,8 +2318,9 @@ void create_watermark()
 			//d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 20), main_colf2, main_coll, main_coll, main_colf2);
 
 			//Lines
-			d->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
-			d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+			//d->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
+			//d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
+			d->AddRectFilledMultiColor(p, p + ImVec2(s.x, 2), theme, theme, theme, theme);
 
 			d->AddText(p + ImVec2((s.x) / 2 - size_text.x / 2, (23) / 2 - size_text.y / 2), ImColor(255, 255, 255, 255), watermark.c_str());
 		}
