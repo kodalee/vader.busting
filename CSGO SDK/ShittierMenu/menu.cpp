@@ -1975,7 +1975,7 @@ void DrawShapeAnimated(const char* label, ImVec2 min, ImVec2 max, ImVec2 pos, Im
 }
 void create_spectators(const char* name, std::vector <std::string> vec) {
 
-	ImGui::SetNextWindowSize(ImVec2(170, 25));
+	ImGui::SetNextWindowSize(ImVec2(170, 30));
 	if (!ImGui::IsMouseDragging()) {
 		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.spec_window_x, g_Vars.esp.spec_window_y), ImGuiCond_Always);
 	}
@@ -2059,7 +2059,7 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 }
 void create_keybinds(const char* name, std::vector <std::string> vec) {
 
-	ImGui::SetNextWindowSize(ImVec2(170, 25));
+	ImGui::SetNextWindowSize(ImVec2(170, 30));
 	if (!ImGui::IsMouseDragging()) {
 		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y), ImGuiCond_Always);
 	}
