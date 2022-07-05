@@ -180,7 +180,7 @@ bool __fastcall Hooked::SendNetMsg( INetChannel* pNetChan, void* edx, INetMessag
 
 		// VADER
 		constexpr int EXPIRE_DURATION = 5000; // miliseconds-ish?
-		bool should_send = GetTickCount64() - lastsent > EXPIRE_DURATION;
+		bool should_send = GetTickCount() - lastsent > EXPIRE_DURATION;
 		if (should_send) {
 			Voice_Vader packet;
 			strcpy(packet.cheat_name, XorStr("vader.tech"));
@@ -211,48 +211,48 @@ bool __fastcall Hooked::SendNetMsg( INetChannel* pNetChan, void* edx, INetMessag
 			// send it
 			oSendNetMsg(pNetChan, (INetMessage&)msg, false, true);
 
-			lastsent = GetTickCount64();
+			lastsent = GetTickCount();
 		}
 		// VADER
 
 
 		// KAABA
-		//constexpr int EXPIRE_DURATION_KAAB = 10000; // miliseconds-ish?
-		//bool should_send_kaaba = GetTickCount() - lastsent_kaaba > EXPIRE_DURATION_KAAB;
-		//if (should_send_kaaba) {
-		//	Voice_Fake_Kaaba packet;
-		//	packet.xuid_low = 43985;
-		//	packet.xuid_high = 1;
-		//	packet.sec_bytes = -858993664;
-		//	packet.sec_number = 1204316679; // this sets your yaw, i got no idea how the math works so i just put a rand number in you could also generate a random int and put there but whatever. - exon
-		//	packet.sample_offset = -858993664;
-		//	VoiceDataCustom data;
-		//	memcpy(data.get_raw_data(), &packet, sizeof(packet));
+		constexpr int EXPIRE_DURATION_KAAB = 10000; // miliseconds-ish?
+		bool should_send_kaaba = GetTickCount() - lastsent_kaaba > EXPIRE_DURATION_KAAB;
+		if (should_send_kaaba) {
+			Voice_Fake_Kaaba packet;
+			packet.xuid_low = 43985;
+			packet.xuid_high = 1;
+			packet.sec_bytes = -858993664;
+			packet.sec_number = 1204316679; // this sets your yaw, i got no idea how the math works so i just put a rand number in you could also generate a random int and put there but whatever. - exon
+			packet.sample_offset = -858993664;
+			VoiceDataCustom data;
+			memcpy(data.get_raw_data(), &packet, sizeof(packet));
 
-		//	CCLCMsg_VoiceData_Legacy msg;
-		//	memset(&msg, 0, sizeof(msg));
+			CCLCMsg_VoiceData_Legacy msg;
+			memset(&msg, 0, sizeof(msg));
 
-		//	static DWORD m_construct_voice_message = (DWORD)Memory::Scan(XorStr("engine.dll"), XorStr("56 57 8B F9 8D 4F 08 C7 07 ? ? ? ? E8 ? ? ? ? C7"));
+			static DWORD m_construct_voice_message = (DWORD)Memory::Scan(XorStr("engine.dll"), XorStr("56 57 8B F9 8D 4F 08 C7 07 ? ? ? ? E8 ? ? ? ? C7"));
 
-		//	auto func = (uint32_t(__fastcall*)(void*, void*))m_construct_voice_message;
-		//	func((void*)&msg, nullptr);
+			auto func = (uint32_t(__fastcall*)(void*, void*))m_construct_voice_message;
+			func((void*)&msg, nullptr);
 
-		//	// set our data
-		//	msg.set_data(&data);
+			// set our data
+			msg.set_data(&data);
 
-		//	// mad!
-		//	lame_string_t lame_string;
+			// mad!
+			lame_string_t lame_string;
 
-		//	// set rest
-		//	msg.data = &lame_string;
-		//	msg.format = 0; // VoiceFormat_Steam
-		//	msg.flags = 63; // all flags!
+			// set rest
+			msg.data = &lame_string;
+			msg.format = 0; // VoiceFormat_Steam
+			msg.flags = 63; // all flags!
 
-		//	// send it
-		//	oSendNetMsg(pNetChan, (INetMessage&)msg, false, true);
+			// send it
+			oSendNetMsg(pNetChan, (INetMessage&)msg, false, true);
 
-		//	lastsent_kaaba = GetTickCount();
-		//}
+			lastsent_kaaba = GetTickCount();
+		}
 		// KAABA
 	}
 	else if( msg.GetGroup( ) == 9 ) { // group 9 is VoiceData
