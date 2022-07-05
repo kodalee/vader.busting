@@ -6,6 +6,17 @@
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
 
+// Max Possible Splitpacket Count (-1 as it sets up the transfer)
+#define MAX_VOICETRANSFER_SPLITPACKET 255
+// Max Possible Data Per 1 voicepacket
+#define MAX_VOICETRANSFER_PACKET_SIZE 24
+// Max Possible Data we can send with 1 non-splitpacket packet
+#define MAX_VOICETRANSFER_PACKET_DATA (MAX_VOICETRANSFER_PACKET_SIZE - 5)
+// Max Possible Data we can send per split packet
+#define MAX_VOICETRANSFER_SPLITPACKET_DATA (MAX_VOICETRANSFER_PACKET_DATA - 1)
+// Max Possible Amount we can network
+#define MAX_VOICETRANSFER_NETWORKABLE (MAX_VOICETRANSFER_SPLITPACKET_DATA * MAX_VOICETRANSFER_SPLITPACKET)
+
 int lastsent = 0;
 int lastsent_kaaba = 0;
 
@@ -181,13 +192,13 @@ bool __fastcall Hooked::SendNetMsg( INetChannel* pNetChan, void* edx, INetMessag
 		// VADER
 		constexpr int EXPIRE_DURATION = 5000; // miliseconds-ish?
 		bool should_send = GetTickCount() - lastsent > EXPIRE_DURATION;
-		if (should_send) {
-			Voice_Vader packet;
-			strcpy(packet.cheat_name, XorStr("vader.tech"));
-			packet.make_sure = 1;
-			packet.username = g_Vars.globals.user_info.username;
+		Voice_Vader vader_packet;
+		if (should_send && (sizeof(vader_packet) < MAX_VOICETRANSFER_PACKET_DATA)) {
+			strcpy(vader_packet.cheat_name, XorStr("vader.tech"));
+			vader_packet.make_sure = 1;
+			vader_packet.username = g_Vars.globals.user_info.username;
 			VoiceDataCustom data;
-			memcpy(data.get_raw_data(), &packet, sizeof(packet));
+			memcpy(data.get_raw_data(), &vader_packet, sizeof(vader_packet));
 
 			CCLCMsg_VoiceData_Legacy msg;
 			memset(&msg, 0, sizeof(msg));
@@ -219,15 +230,15 @@ bool __fastcall Hooked::SendNetMsg( INetChannel* pNetChan, void* edx, INetMessag
 		// KAABA
 		constexpr int EXPIRE_DURATION_KAAB = 10000; // miliseconds-ish?
 		bool should_send_kaaba = GetTickCount() - lastsent_kaaba > EXPIRE_DURATION_KAAB;
-		if (should_send_kaaba) {
-			Voice_Fake_Kaaba packet;
-			packet.xuid_low = 43985;
-			packet.xuid_high = 1;
-			packet.sec_bytes = -858993664;
-			packet.sec_number = 1204316679; // this sets your yaw, i got no idea how the math works so i just put a rand number in you could also generate a random int and put there but whatever. - exon
-			packet.sample_offset = -858993664;
+		Voice_Fake_Kaaba kaaba_packet;
+		if (should_send_kaaba && (sizeof(kaaba_packet) < MAX_VOICETRANSFER_PACKET_DATA)) {
+			kaaba_packet.xuid_low = 43985;
+			kaaba_packet.xuid_high = 1;
+			kaaba_packet.sec_bytes = -858993664;
+			kaaba_packet.sec_number = 1204316679; // this sets your yaw, i got no idea how the math works so i just put a rand number in you could also generate a random int and put there but whatever. - exon
+			kaaba_packet.sample_offset = -858993664;
 			VoiceDataCustom data;
-			memcpy(data.get_raw_data(), &packet, sizeof(packet));
+			memcpy(data.get_raw_data(), &kaaba_packet, sizeof(kaaba_packet));
 
 			CCLCMsg_VoiceData_Legacy msg;
 			memset(&msg, 0, sizeof(msg));
