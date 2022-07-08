@@ -333,6 +333,8 @@ namespace Engine
 							lag_data->m_last_move++;
 						else if (it->snapshot->ResolverType == STAND)
 							lag_data->m_iMissedBruteShots++;
+						else if (it->snapshot->ResolverType == DESYNCWALK)
+							lag_data->m_iMissedDesyncWalkShots++;
 						else if (it->snapshot->ResolverType == ANTIFREESTAND)
 							lag_data->m_iMissedShotsFreestand++;
 						else if (it->snapshot->ResolverType == DISTORTINGLMOVE)
@@ -485,6 +487,7 @@ namespace Engine
 				lagData->m_delta_index = 0;
 				lagData->m_stand_index2 = 0;
 				lagData->m_unknown_move = 0;
+				lagData->m_iMissedDesyncWalkShots = 0;
 				lagData->m_iMissedShotsDistort = 0;
 				lagData->m_iMissedBruteShots = 0;
 				lagData->m_lby_index = 0;
@@ -503,6 +506,7 @@ namespace Engine
 					lagData->m_iMissedShots = 0;
 					lagData->m_iMissedShotsLBY = 0;
 					lagData->m_body_index = 0;
+					lagData->m_iMissedDesyncWalkShots = 0;
 					lagData->m_delta_index = 0;
 					lagData->m_iMissedShotsDistort = 0;
 					lagData->m_iMissedBruteShots = 0;

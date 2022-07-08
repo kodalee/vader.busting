@@ -382,7 +382,8 @@ namespace Engine {
 		float speed = record->m_vecVelocity.Length2D();
 
 		// predict LBY flicks.
-		if (!player->IsDormant() && !record->dormant()) {
+		if (!player->IsDormant() && !record->dormant() && !record->m_bDesyncWalking[player->EntIndex()]) {
+			printf("hey retard dont use ent index here\n");
 			// since we null velocity when they fakewalk, no need to check for it.
 			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
 			//	Add[player->EntIndex()] = 0.22f;
@@ -419,8 +420,10 @@ namespace Engine {
 			record->m_body_update = 0.f;
 			NextLBYUpdate[player->EntIndex()] = 0.f;
 		}
-
-		if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
+		if (record->m_bDesyncWalking[player->EntIndex()]) {
+			record->m_iResolverMode = DESYNCWALK;
+		}
+		else if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
 
 			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking && pLagData->m_iMissedShotsLBY < 2) {
 				record->m_iResolverMode = FLICK;
@@ -636,6 +639,91 @@ namespace Engine {
 			//printf("Player is distorting\n");
 		}
 
+		static bool m_iFirstCheck3 = true;
+		static bool m_iRestartDesyncWalkCheck = true;
+		static int m_iDesyncWalkCheck = 0;
+		static int m_iResetCheck3 = 0;
+		static float m_flLastDesyncWalkTime = 0.f;
+		static float m_flMaxDesyncWalkTime = Interfaces::m_pGlobalVars->curtime + 0.10f;
+		static float m_flLastResetTime3 = 0.f;
+		static float m_flMaxResetTime3 = Interfaces::m_pGlobalVars->curtime + 0.85f;
+		static bool sugma3 = false;
+		static bool balls3 = false;
+
+		if ((m_iRestartDesyncWalkCheck || m_iFirstCheck3) && local->IsAlive()) {
+			//printf(std::to_string(m_iDistortCheck).c_str());
+			//printf(" < Restart check ran\n");
+			m_iRestartDesyncWalkCheck = false;
+			m_iFirstCheck = false;
+		}
+
+		if ((player->m_AnimOverlay()[3].m_flWeightDeltaRate == -5.f || (player->m_AnimOverlay()[3].m_flWeightDeltaRate <= 15.9918f && player->m_AnimOverlay()[3].m_flWeightDeltaRate >= 15.68424f)) &&
+			player->m_vecVelocity().Length2D() < 140.f && !m_iRestartDesyncWalkCheck) {
+			if (!sugma3) {
+				m_flMaxDesyncWalkTime = Interfaces::m_pGlobalVars->curtime + 0.10f;
+				sugma3 = true;
+			}
+
+			m_flLastDesyncWalkTime = Interfaces::m_pGlobalVars->curtime;
+
+			if (m_flLastDesyncWalkTime >= m_flMaxDesyncWalkTime) {
+				m_iDesyncWalkCheck++;
+				printf(std::to_string(m_iDesyncWalkCheck).c_str());
+				printf(" << desync walk check increases\n");
+				m_iResetCheck3 = 0;
+				//m_iRestartDistortCheck = true;
+				sugma3 = false;
+			}
+
+			//printf(std::to_string(m_iDistortCheck).c_str());
+			//printf(" < animlayer check ran\n");
+		}
+		else {
+			sugma3 = false;
+		}
+
+		if (player->m_AnimOverlay()[3].m_flWeightDeltaRate >= -4.999999f && player->m_AnimOverlay()[3].m_flWeightDeltaRate < 15.67f) {
+			if (!balls3) {
+				m_flMaxResetTime3 = Interfaces::m_pGlobalVars->curtime + 0.85f;
+				balls3 = true;
+			}
+
+			m_flLastResetTime3 = Interfaces::m_pGlobalVars->curtime;
+
+			if (m_flLastResetTime3 >= m_flMaxResetTime3 && m_iResetCheck3 < 10) {
+				m_iResetCheck3++;
+				printf(std::to_string(m_iResetCheck3).c_str());
+				printf(" << m_iResetCheck3 was increased \n");
+			}
+		}
+		else {
+			balls3 = false;
+		}
+
+		if (player->m_vecVelocity().Length2D() >= 140.f || record->m_vecVelocity.Length2D() >= 140.f && m_iResetCheck3 < 10) {
+			m_iResetCheck3++;
+		}
+
+
+
+		if (m_iResetCheck3 >= 3) {
+			m_iRestartDesyncWalkCheck = true;
+			m_iDesyncWalkCheck = 0;
+			record->m_bDesyncWalking[player->EntIndex()] = false;
+		}
+
+		//if (record->m_vecVelocity.Length2D() > 0.1f) {
+		//	m_iDistortCheck = 0;
+		//	m_iRestartDistortCheck = true;
+		//}
+
+		if (m_iDesyncWalkCheck >= 3) {
+			record->m_bDesyncWalking[player->EntIndex()] = true;
+			printf("Player is Desync Walking\n");
+			//printf("Player is distorting\n");
+		}
+
+
 		const auto simtime = record->m_flSimulationTime;
 
 		if (!local->IsAlive() || !player->IsAlive() || player->IsDormant())
@@ -661,7 +749,7 @@ namespace Engine {
 		//printf(std::to_string(record->m_anim_time > record->m_body_update).c_str());
 
 		// we arrived here we can do the acutal resolve.
-		if (record->m_iResolverMode == MOVING && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition)
+		if (record->m_iResolverMode == MOVING && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bDesyncWalking)
 			ResolveWalk(player, record);
 
 		//else if (record->m_iResolverMode == RESOLVE_OVERRIDE || g_Vars.rage.override_reoslver.enabled)
@@ -693,7 +781,7 @@ namespace Engine {
 
 		const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-		if (is_flicking && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 0.01f /* && !record->m_bFakeWalking*/)
+		if (is_flicking && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 0.01f /* && !record->m_bFakeWalking*/ && !record->m_bDesyncWalking[player->EntIndex()])
 		{
 			//m_iMode = 0;
 			record->m_angEyeAngles.y = pLagData->m_body;
@@ -702,10 +790,27 @@ namespace Engine {
 
 			record->m_iResolverMode = FLICK;
 			record->m_iResolverText = XorStr("UPDATE");
+			printf("Flicking\n");
 		}
 		else {
-			if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
+			if (record->m_bDesyncWalking[player->EntIndex()]) {
+				record->m_iResolverText = XorStr("DESYNC WALK");
+				switch (pLagData->m_iMissedDesyncWalkShots % 2) {
+				case 0:
+					printf(std::to_string(pLagData->m_iMissedDesyncWalkShots).c_str());
+					printf(" << Current missed shot counter\n");
+					record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget) + 58.f;
+					break;
+				case 1:
+					printf(std::to_string(pLagData->m_iMissedDesyncWalkShots).c_str());
+					printf(" << Current missed shot counter\n");
+					record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget) - 58.f;
+					break;
+				}
+			}
+			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
 				AntiFreestand(record, player);
+				record->m_iResolverText = XorStr("FAKEFLICK");
 			}
 			else if (record->m_iResolverMode == LASTMOVE) {
 				record->m_angEyeAngles.y = move->m_body;

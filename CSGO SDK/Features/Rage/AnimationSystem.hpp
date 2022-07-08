@@ -80,6 +80,7 @@ namespace Engine
 
 		int m_iResolverMode;
 		bool m_iDistorting[65];
+		bool m_bDesyncWalking[65];
 		bool m_moved;
 		int m_iDistortCheck;
 		bool m_iRestartDistortCheck;

@@ -33,6 +33,7 @@ namespace Engine {
 		LBYDELTA = 0,
 		FLICK,
 		LASTMOVE,
+		DESYNCWALK,
 		DISTORTINGLMOVE,
 		STAND,
 		MOVING,
