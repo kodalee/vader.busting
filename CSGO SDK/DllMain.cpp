@@ -1,7 +1,3 @@
-#ifdef _WIN32
-#pragma comment( lib, "ws2_32" )
-#include <WinSock2.h>
-#endif
 #include "source.hpp"
 #include "Utils/InputSys.hpp"
 #include "Utils/defs.hpp"
