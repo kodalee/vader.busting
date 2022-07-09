@@ -93,7 +93,6 @@ namespace Engine
 
 		int m_iMissedShots = 0;
 		int m_iMissedBruteShots = 0;
-		int m_iMissedDesyncWalkShots = 0;
 		int m_iMissedShotsDistort = 0;
 		int m_iMissedShotsFreestand = 0;
 		int m_iMissedShotsLBY = 0;
