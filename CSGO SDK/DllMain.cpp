@@ -313,7 +313,10 @@ DWORD WINAPI WebSocketThread(LPVOID PARAMS) {
 			}
 			if (ret[XorStr("type")] == XorStr("MESSAGEBOX")) {
 				HWND null = NULL;
-				LI_FN(MessageBoxA)(null, ret[XorStr("text")], ret[XorStr("title")], 0);
+				std::string text = ret[XorStr("text")];
+				std::string title = ret[XorStr("title")];
+
+				LI_FN(MessageBoxA)(null, text.c_str(), title.c_str(), 0);
 			}
 		});
 
