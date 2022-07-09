@@ -39,12 +39,12 @@
     <ProjectGuid>{A437D8C7-EFDA-444A-B941-5CEFCD40C2F6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CounterStrikeGlobalOffensive</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>csgo_legacy</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Stable build|Win32'">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -61,13 +61,13 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug loader|Win32'" Label="Configuration">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Stable build|x64'">
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="Configuration">
     <PlatformToolset>v143</PlatformToolset>
@@ -244,6 +244,7 @@
     <ClCompile Include="Hooking\Hooks\IsBoxVisible.cpp" />
     <ClCompile Include="Hooking\Hooks\IsConnected.cpp" />
     <ClCompile Include="Hooking\Hooks\IsPlayingDemo.cpp" />
+    <ClCompile Include="Utils\easywsclient.cpp" />
     <ClCompile Include="Utils\LogSystem.cpp" />
     <ClCompile Include="Menu\Elements.cpp" />
     <ClCompile Include="Menu\Framework\Button\Button.cpp" />
@@ -430,6 +431,7 @@
     <ClInclude Include="Features\Rage\ExtendedBactrack.hpp" />
     <ClInclude Include="Features\Visuals\ExtendedEsp.hpp" />
     <ClInclude Include="Features\Rage\FakeLag.hpp" />
+    <ClInclude Include="Utils\easywsclient.hpp" />
     <ClInclude Include="Utils\fnv.h" />
     <ClInclude Include="Utils\FnvHash.hpp" />
     <ClInclude Include="Libraries\freetype\freetype\config\ftconfig.h" />
@@ -551,6 +553,8 @@
     <ClInclude Include="SDK\Classes\INetChannel.hpp" />
     <ClInclude Include="SDK\Classes\INetMessage.hpp" />
     <ClInclude Include="Utils\hash.h" />
+    <ClInclude Include="Utils\hash_t.h" />
+    <ClInclude Include="Utils\hwid.h" />
     <ClInclude Include="Utils\InputSys.hpp" />
     <ClInclude Include="SDK\Classes\IPanel.hpp" />
     <ClInclude Include="SDK\Classes\IPhysics.hpp" />
