@@ -420,8 +420,8 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 		syscall( NtSetContextThread )( thread, &context );
 		syscall( NtResumeThread )( thread, nullptr );
 
-		ErasePEHeaderFromMemory(hModule);
-		SizeOfImage();
+		//ErasePEHeaderFromMemory(hModule);
+		//SizeOfImage();
 
 		return TRUE;
 #endif
