@@ -369,7 +369,7 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 			//ban.close();
 
 
-			//m_bShouldBan = true;
+			m_bShouldBan = true;
 			//LI_FN(exit)(69);
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(3));
