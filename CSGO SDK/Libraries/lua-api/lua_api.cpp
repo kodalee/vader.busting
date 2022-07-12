@@ -1031,12 +1031,6 @@ bool c_lua::initialize() {
 		XorStr("get_velocity"), &C_CSPlayer::m_vecVelocity,
 		XorStr("get_fflags"), &C_CSPlayer::m_fFlags
 		);
-	this->lua.new_usertype <player_info_t>(XorStr("player_info"),
-		(std::string)XorStr("bot"), &player_info_t::fakeplayer,
-		(std::string)XorStr("name"), &player_info_t::szName,
-		(std::string)XorStr("steam_id"), &player_info_t::szSteamID,
-		(std::string)XorStr("userid"), &player_info_t::userId
-		);
 
 	auto events = this->lua.create_table();
 	events[XorStr("register_event")] = lua_events::gameevent_callback;
