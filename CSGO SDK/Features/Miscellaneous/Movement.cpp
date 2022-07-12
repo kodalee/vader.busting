@@ -859,7 +859,9 @@ namespace Interfaces
 		// check for the amount of ticks when breaking LBY.
 		int pred_ticks = GetNextUpdate() - 1;
 
-		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed;
+		if (!g_TickbaseController.s_nExtraProcessingTicks) {
+			*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed;
+		}
 
 		if (Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed) {
 			*m_movement_data->m_pSendPacket = true;
