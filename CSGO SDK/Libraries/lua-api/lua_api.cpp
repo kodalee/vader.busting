@@ -553,6 +553,14 @@ namespace lua_engine {
 	void execute_client_cmd(std::string cmd) {
 		Interfaces::m_pEngine->ClientCmd_Unrestricted(cmd.c_str());
 	}
+
+	player_info_t get_player_info(int i)
+	{
+		player_info_t player_info;
+		Interfaces::m_pEngine->GetPlayerInfo(i, &player_info);
+
+		return player_info;
+	}
 }
 namespace lua_entitylist {
 	C_CSPlayer* get_client_entity(int idx) {
@@ -1023,6 +1031,12 @@ bool c_lua::initialize() {
 		XorStr("get_velocity"), &C_CSPlayer::m_vecVelocity,
 		XorStr("get_fflags"), &C_CSPlayer::m_fFlags
 		);
+	this->lua.new_usertype <player_info_t>(XorStr("player_info"),
+		(std::string)XorStr("bot"), &player_info_t::fakeplayer,
+		(std::string)XorStr("name"), &player_info_t::szName,
+		(std::string)XorStr("steam_id"), &player_info_t::szSteamID,
+		(std::string)XorStr("userid"), &player_info_t::userId
+		);
 
 	auto events = this->lua.create_table();
 	events[XorStr("register_event")] = lua_events::gameevent_callback;
@@ -1097,6 +1111,7 @@ bool c_lua::initialize() {
 	engine[XorStr("set_view_angles")] = lua_engine::set_view_angles;
 	engine[XorStr("is_connected")] = lua_engine::is_connected;
 	engine[XorStr("is_in_game")] = lua_engine::is_in_game;
+	engine[XorStr("get_player_info")] = lua_engine::get_player_info;
 
 	auto entity_list = this->lua.create_table();
 	entity_list[XorStr("get_client_entity")] = lua_entitylist::get_client_entity;
