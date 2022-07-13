@@ -340,8 +340,6 @@ namespace Engine
 							lag_data->m_iMissedShotsFreestand++;
 						else if (it->snapshot->ResolverType == DISTORTINGLMOVE)
 							lag_data->m_iMissedShotsDistort++;
-						else if (it->snapshot->ResolverType == LBYTEST)
-							lag_data->m_iMissedShotsLBYTEST++;
 						else
 							lag_data->m_iMissedShots++;
 
