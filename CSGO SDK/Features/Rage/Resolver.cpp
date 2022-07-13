@@ -395,6 +395,7 @@ namespace Engine {
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
 				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			else
@@ -410,6 +411,7 @@ namespace Engine {
 			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
 				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 
@@ -418,6 +420,7 @@ namespace Engine {
 			is_flicking = false;
 			record->m_body_update = 0.f;
 			NextLBYUpdate[player->EntIndex()] = 0.f;
+			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
 		}
 
 		if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
