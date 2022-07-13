@@ -1585,7 +1585,8 @@ public:
 
 	config_option(bool, balls, false);
 
-
+	
+	config_option(bool, resolver_flags, false);
 #if defined(BETA_MODE) || defined(DEV)
 	config_option( bool, undercover_log, false );
 	config_option( bool, undercover_watermark, false );

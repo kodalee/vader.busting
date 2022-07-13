@@ -322,8 +322,11 @@ namespace Engine
 					};
 
 					if (td->is_resolver_issue) {
-						if(g_ResolverData->m_iMode == 32)
-							g_ResolverData->hitPlayer[player->EntIndex()] = false;
+
+						//if (it->snapshot->ResolverType == LBYTEST) {
+						//	g_ResolverData->hitPlayer[player->EntIndex()] = false;
+						//	g_ResolverData->sideLogged[player->EntIndex()] = -1;
+						//}
 
 						if (it->snapshot->ResolverType == FLICK)
 							lag_data->m_iMissedShotsLBY++;
@@ -337,6 +340,8 @@ namespace Engine
 							lag_data->m_iMissedShotsFreestand++;
 						else if (it->snapshot->ResolverType == DISTORTINGLMOVE)
 							lag_data->m_iMissedShotsDistort++;
+						else if (it->snapshot->ResolverType == LBYTEST)
+							lag_data->m_iMissedShotsLBYTEST++;
 						else
 							lag_data->m_iMissedShots++;
 
@@ -487,6 +492,7 @@ namespace Engine
 				lagData->m_unknown_move = 0;
 				lagData->m_iMissedShotsDistort = 0;
 				lagData->m_iMissedBruteShots = 0;
+				lagData->m_iMissedShotsLBYTEST = 0;
 				lagData->m_lby_index = 0;
 				lagData->m_iMissedShotsFreestand = 0;
 				g_Vars.globals.m_iFiredShots = 0;
@@ -507,6 +513,7 @@ namespace Engine
 					lagData->m_iMissedShotsDistort = 0;
 					lagData->m_iMissedBruteShots = 0;
 					lagData->m_stand_index2 = 0;
+					lagData->m_iMissedShotsLBYTEST = 0;
 					lagData->m_unknown_move = 0;
 					lagData->m_iMissedShotsFreestand = 0;
 					lagData->m_lby_index = 0;

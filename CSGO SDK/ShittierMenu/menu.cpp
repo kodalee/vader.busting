@@ -1300,6 +1300,8 @@ void Misc()
 
 			InsertCheckbox(ExploitThingLOL, XorStr("Instant bomb defuse"), &g_Vars.misc.balls);
 
+			InsertCheckbox(resolverflags, XorStr("Resolver Flags"), &g_Vars.misc.resolver_flags);
+
 #if defined(BETA_MODE) || defined(DEV)
 			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log);
 			InsertCheckbox(hideflags, XorStr("Hide Debug Flags"), &g_Vars.misc.undercover_flags);

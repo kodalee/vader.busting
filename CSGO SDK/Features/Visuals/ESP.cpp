@@ -2224,10 +2224,8 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		player->m_bSpotted() = true;
 	}
 
-#ifdef DEV 
-
-	if (anim_data && lag_data.IsValid()) {
-		if (!anim_data->m_AnimationRecord.empty()) {
+	if (g_Vars.misc.resolver_flags) {
+		if (anim_data && lag_data.IsValid() && !anim_data->m_AnimationRecord.empty()) {
 			auto current = &anim_data->m_AnimationRecord.front();
 			if (current) {
 				g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 0, 0, (int)(180 * m_flAlpha[player->EntIndex()])), current->m_iResolverText); // draw resolver mode
@@ -2238,9 +2236,10 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(0, 255, 0, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("MICROMOVE")); // draw micromove
 				}
 			}
-
 		}
 	}
+
+#ifdef DEV 
 
 	if (!g_Vars.misc.undercover_flags) {
 		//g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), std::to_string(player->m_AnimOverlay()[12].m_flWeight));
