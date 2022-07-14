@@ -442,7 +442,7 @@ void HvH()
 				if (settings->yaw == 1) {
 					InsertSliderInt(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -180, 180, XorStr("%d"));
 					InsertSliderInt(XorStr("First break angle"), &g_Vars.antiaim.break_lby_first, -180, 180, XorStr("%d"));
-					//InsertCheckbox(StaticAngle, XorStr("Static angle"), &g_Vars.antiaim.static_angle)
+					InsertCheckbox(StaticAngle, XorStr("Static angle"), &g_Vars.antiaim.static_angle)
 				}
 
 				//InsertCheckbox(FlickUp, XorStr("Flick LBY Up"), &g_Vars.antiaim.flickup);

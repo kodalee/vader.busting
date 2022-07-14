@@ -501,9 +501,17 @@ namespace Interfaces
 			cmd->viewangles.Clamp();
 			update_lby = false;
 
-			if (secondupdate)
+			if (secondupdate || !g_Vars.antiaim.static_angle)
 			{
-				initial_lby = angles + g_Vars.antiaim.break_lby;
+
+				if (g_Vars.antiaim.static_angle)
+				{
+					initial_lby += -g_Vars.antiaim.break_lby_first + g_Vars.antiaim.break_lby;
+				}
+				else
+				{
+					initial_lby = angles + g_Vars.antiaim.break_lby;
+				}
 
 				secondupdate = false;
 			}
