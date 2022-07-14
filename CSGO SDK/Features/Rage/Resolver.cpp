@@ -723,27 +723,34 @@ namespace Engine {
 				record->m_iResolverText = XorStr("DISTORTION");
 			}
 			else if (record->m_iResolverMode == ANTIFREESTAND) {
+				record->m_iResolverText = XorStr("FREESTAND");
 				AntiFreestand(record, player);
 			}
 			else if(record->m_iResolverMode == STAND) {
 				switch (pLagData->m_iMissedBruteShots % 6) {
 				case 0:
 					record->m_angEyeAngles.y = at_target_yaw + 180.f;
+					record->m_iResolverText = XorStr("BACKWARDS");
 					break;
 				case 1:
 					record->m_angEyeAngles.y = at_target_yaw - 70.f;
+					record->m_iResolverText = XorStr("LEFT");
 					break;
 				case 2:
 					record->m_angEyeAngles.y = at_target_yaw + 70.f;
+					record->m_iResolverText = XorStr("RIGHT");
 					break;
 				case 3:
 					record->m_angEyeAngles.y = at_target_yaw;
+					record->m_iResolverText = XorStr("FORWARDS");
 					break;
 				case 4:
 					record->m_angEyeAngles.y = at_target_yaw - 120.f;
+					record->m_iResolverText = XorStr("-120");
 					break;
 				case 5:
 					record->m_angEyeAngles.y = at_target_yaw + 120.f;
+					record->m_iResolverText = XorStr("+120");
 					break;
 				}
 			}
