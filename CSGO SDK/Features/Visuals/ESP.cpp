@@ -1968,7 +1968,13 @@ void CEsp::AmmoBar( C_CSPlayer* player, BBox_t bbox ) {
 		// draw.
 		Render::Engine::RectFilled( bbox.x, bbox.y + bbox.h + 2 + index, bbox.w, 4, Color( 0, 0, 0, 180 * this->m_flAlpha[ player->EntIndex( ) ] ) );
 
-		Color clr = g_Vars.esp.lby_color.ToRegularColor( );
+		Color clr;
+		if (!player->IsDormant()) {
+			clr = g_Vars.esp.lby_color.ToRegularColor( );
+		}
+		else
+			clr = Color(112, 112, 112, 180);
+
 		clr.RGBA[ 3 ] *= this->m_flAlpha[ player->EntIndex( ) ];
 
 		Render::Engine::Rect( bbox.x + 1, bbox.y + bbox.h + 3 + index, bar, 2, clr );
