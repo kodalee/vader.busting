@@ -1029,7 +1029,9 @@ bool c_lua::initialize() {
 		XorStr("get_team"), &C_CSPlayer::m_iTeamNum,
 		XorStr("set_clientside_angle"), &C_CSPlayer::ForceAngleTo,
 		XorStr("get_velocity"), &C_CSPlayer::m_vecVelocity,
-		XorStr("get_fflags"), &C_CSPlayer::m_fFlags
+		XorStr("get_fflags"), &C_CSPlayer::m_fFlags,
+		XorStr("is_scoped"), &C_CSPlayer::m_bIsScoped,
+		XorStr("get_velmodifer"), &C_CSPlayer::m_flVelocityModifier
 		);
 
 	auto events = this->lua.create_table();
