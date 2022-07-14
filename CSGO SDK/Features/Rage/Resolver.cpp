@@ -98,7 +98,7 @@ namespace Engine {
 
 			//if (g_ResolverData[player->EntIndex()].m_iMode == 1)
 			//{
-			auto at_target_angle = Math::CalcAngle(player->m_vecOrigin(), last_eye);
+			const auto at_target_angle = Math::CalcAngle(player->m_vecOrigin(), last_eye);
 
 			//Vector left_dir, right_dir, back_dir;
 			//Math::angle_vectors(Vector(0.f, at_target_angle.y - 90.f, 0.f), &left_dir);
@@ -182,7 +182,7 @@ namespace Engine {
 
 		//printf("BALLS\n");
 
-		auto at_target_angle = Math::CalcAngle(record->m_vecOrigin, last_eye);
+		const auto at_target_angle = Math::CalcAngle(record->m_vecOrigin, last_eye);
 
 		auto set = false;
 
@@ -694,7 +694,7 @@ namespace Engine {
 
 		C_AnimationRecord* move = &pLagData->m_walk_record;
 
-		float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+		const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 		if (is_flicking && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 0.01f /* && !record->m_bFakeWalking*/)
 		{
@@ -1163,7 +1163,7 @@ namespace Engine {
 
 		auto index = player->EntIndex();
 
-		float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+		const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 		const auto freestanding_record = player_resolve_records[player->EntIndex()].m_sAntiEdge;
 
@@ -1248,7 +1248,7 @@ namespace Engine {
 				//record->m_iResolverText = XorStr("STAND");
 
 
-				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 				if (is_flicking && pLagData->m_iMissedShotsLBY < 2 /* && !record->m_bFakeWalking*/)
 				{
@@ -1329,7 +1329,7 @@ namespace Engine {
 				record->m_iResolverMode = LASTMOVE;
 				//record->m_iResolverText = XorStr("LASTMOVE");
 
-				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 				if (is_flicking && pLagData->m_iMissedShotsLBY < 2/* && !record->m_bFakeWalking*/)
 				{
