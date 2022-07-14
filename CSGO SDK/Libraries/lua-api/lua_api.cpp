@@ -1031,7 +1031,8 @@ bool c_lua::initialize() {
 		XorStr("get_velocity"), &C_CSPlayer::m_vecVelocity,
 		XorStr("get_fflags"), &C_CSPlayer::m_fFlags,
 		XorStr("is_scoped"), &C_CSPlayer::m_bIsScoped,
-		XorStr("get_velmodifer"), &C_CSPlayer::m_flVelocityModifier
+		XorStr("get_velmodifer"), &C_CSPlayer::m_flVelocityModifier,
+		XorStr("get_health"), &C_CSPlayer::m_iHealth
 		);
 
 	auto events = this->lua.create_table();
