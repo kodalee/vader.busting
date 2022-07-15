@@ -204,6 +204,7 @@ void Ragebot()
 
 			InsertCheckbox(SilentAim, XorStr("Silent aim"), &g_Vars.rage.silent_aim);
 			InsertCheckbox(Autoshoot, XorStr("Automatic fire"), &g_Vars.rage.auto_fire);
+			InsertCheckbox(NoSpreadMode, XorStr("No-spread Mode"), &g_Vars.rage.nospread_mode);
 		}
 
 		InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->active);
@@ -269,7 +270,7 @@ void Ragebot()
 			InsertSliderFloat(std::string(XorStr("Extended backtrack##amt") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack_time, 0.f, 1.f, XorStr("%.2fs"));
 		}
 
-		InsertCheckbox(CompensateSpreadRage, std::string(XorStr("Compensate spread") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->compensate_spread);
+		//InsertCheckbox(CompensateSpreadRage, std::string(XorStr("Compensate spread") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->compensate_spread);
 
 		InsertCheckbox(Autostop, XorStr("Automatic stop"), &rbot->autostop_check);
 		std::vector<MultiItem_t> stop_options = {
@@ -674,7 +675,7 @@ void Visuals()
 
 				InsertCheckbox(Hitsound, XorStr("Hitsound"), &g_Vars.misc.hitsound);
 				if (g_Vars.misc.hitsound) {
-					const char* hitsounds[] = { XorStr("Default"), XorStr("Custom") };
+					const char* hitsounds[] = { XorStr("Default"), XorStr("Custom"), XorStr("Bameware"), XorStr("Vader")};
 					InsertCombo(XorStr("Type"), &g_Vars.misc.hitsound_type, hitsounds);
 
 					if (g_Vars.misc.hitsound_type == 1) {
@@ -1300,9 +1301,9 @@ void Misc()
 
 			InsertCheckbox(ExploitThingLOL, XorStr("Instant bomb defuse"), &g_Vars.misc.balls);
 
-			InsertCheckbox(resolverflags, XorStr("Resolver Flags"), &g_Vars.misc.resolver_flags);
 
 #if defined(BETA_MODE) || defined(DEV)
+			InsertCheckbox(resolverflags, XorStr("Resolver Flags"), &g_Vars.misc.resolver_flags);
 			InsertCheckbox(hidebetalogs, XorStr("Hide Beta Logs"), &g_Vars.misc.undercover_log);
 			InsertCheckbox(hideflags, XorStr("Hide Debug Flags"), &g_Vars.misc.undercover_flags);
 

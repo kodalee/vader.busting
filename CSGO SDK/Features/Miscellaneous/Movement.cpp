@@ -859,9 +859,9 @@ namespace Interfaces
 		// check for the amount of ticks when breaking LBY.
 		int pred_ticks = GetNextUpdate() - 1;
 
-		if (!(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
-			*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed;
-		}
+		//if (!(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed;
+		//}
 
 		if (Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed) {
 			*m_movement_data->m_pSendPacket = true;

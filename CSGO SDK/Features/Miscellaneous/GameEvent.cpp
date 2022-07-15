@@ -17,6 +17,7 @@
 #include "../Rage/TickbaseShift.hpp"
 #include "../Visuals/IVEffects.h"
 #include "walkbot.h"
+#include "hitsounds.h"
 
 #include <fstream>
 #include <Shlwapi.h>
@@ -343,7 +344,13 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				}
 
 				if( g_Vars.misc.hitsound ) {
-					if( g_Vars.misc.hitsound_type == 1 ) {
+					if (g_Vars.misc.hitsound_type == 3) {
+						PlaySoundA(reinterpret_cast<char*>(hitsound_wav), nullptr, SND_ASYNC | SND_MEMORY);
+					}
+					else if (g_Vars.misc.hitsound_type == 2) {
+						PlaySoundA(reinterpret_cast<char*>(bameware), nullptr, SND_ASYNC | SND_MEMORY);
+					}
+					else if( g_Vars.misc.hitsound_type == 1 ) {
 						if (g_Vars.misc.custom_hitsound.c_str() != XorStr(""))
 						{
 							if (PathFileExists(g_Vars.misc.custom_hitsound.c_str())) {

@@ -21,6 +21,7 @@ namespace Interfaces
 		 SELECT_LOWEST_HP,
 		 SELECT_LOWEST_DISTANCE,
 		 SELECT_LOWEST_PING,
+		 SELECT_OPTIMIZED,
 	  };
 
 	  static Encrypted_t<Ragebot> Get( );

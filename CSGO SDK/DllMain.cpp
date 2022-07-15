@@ -172,11 +172,11 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 #endif // !DEV
 
 #ifndef DEV
-	if (!m_bSecurityInitialized) {
-		HWND null = NULL;
-		LI_FN(MessageBoxA)(null, XorStr("Error Code: 0x3552A!\n Report this to a developer!"), XorStr("vader.tech"), 0);
-		LI_FN(exit)(69);
-	}
+	//if (!m_bSecurityInitialized) {
+	//	HWND null = NULL;
+	//	LI_FN(MessageBoxA)(null, XorStr("Error Code: 0x3552A!\n Report this to a developer!"), XorStr("vader.tech"), 0);
+	//	LI_FN(exit)(69);
+	//}
 #endif // !DEV
 	auto tier0 = GetModuleHandleA( XorStr( "tier0.dll" ) );
 

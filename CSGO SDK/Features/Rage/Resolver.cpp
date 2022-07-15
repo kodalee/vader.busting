@@ -377,6 +377,8 @@ namespace Engine {
 		if (!anim_data)
 			return;
 
+		C_AnimationRecord* move = &pLagData->m_walk_record;
+
 		const auto simtime = record->m_flSimulationTime;
 
 		float speed = record->m_vecVelocity.Length2D();
@@ -429,7 +431,7 @@ namespace Engine {
 				record->m_iResolverMode = FLICK;
 			}
 
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && fabsf(move->m_body - player->m_flLowerBodyYawTarget()) > 35.f) {
 				record->m_iResolverMode = LASTMOVE;
 			}
 

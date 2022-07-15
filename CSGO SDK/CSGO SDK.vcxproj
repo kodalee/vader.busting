@@ -359,6 +359,7 @@
   <ItemGroup>
     <ClInclude Include="Features\Game\netdata.h" />
     <ClInclude Include="Features\Game\SimulationContext.hpp" />
+    <ClInclude Include="Features\Miscellaneous\hitsounds.h" />
     <ClInclude Include="Features\Miscellaneous\skinchanger2.h" />
     <ClInclude Include="Features\Miscellaneous\walkbot.h" />
     <ClInclude Include="Features\Miscellaneous\WeatherController.hpp" />

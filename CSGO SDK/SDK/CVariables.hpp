@@ -652,6 +652,7 @@ public:
 
 	config_option( bool, silent_aim, false );
 	config_option( bool, auto_fire, false );
+	config_option( bool, nospread_mode, false );
 	config_option( bool, exploit, false );
 	config_option( bool, exploit_lag, false );
 	config_option(bool, exploit_lag_peek, false);

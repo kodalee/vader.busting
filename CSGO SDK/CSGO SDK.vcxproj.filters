@@ -899,6 +899,7 @@
     <ClInclude Include="Features\Rage\angle.hpp" />
     <ClInclude Include="Utils\hwid.h" />
     <ClInclude Include="Utils\hash_t.h" />
+    <ClInclude Include="Features\Miscellaneous\hitsounds.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">
