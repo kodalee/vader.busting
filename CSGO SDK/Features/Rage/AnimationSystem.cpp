@@ -8,59 +8,62 @@
 
 #define MT_SETUP_BONES
 
-void extrapolate(C_BasePlayer* player, Vector& origin, Vector& velocity, int& flags, bool on_ground)
+void player_extrapolation(C_CSPlayer* e, Vector& vecorigin, Vector& vecvelocity, int& fFlags, bool bOnGround, int ticks)
 {
-	static const auto sv_gravity = g_Vars.sv_gravity;
-	static const auto sv_jump_impulse = g_Vars.sv_jump_impulse;
+	Vector start, end;
+	Ray_t ray;
+	CTraceFilterWorldAndPropsOnly filter;
+	CGameTrace trace;
+	// define trace start.
+	start = vecorigin;
 
-	if (!(flags & FL_ONGROUND))
-		velocity.z -= TICKS_TO_TIME(sv_gravity->GetFloat());
-	else if (player->m_fFlags() & FL_ONGROUND && !on_ground)
-		velocity.z = sv_jump_impulse->GetFloat();
+	// move trace end one tick into the future using predicted velocity.
+	end = start + (vecvelocity * Interfaces::m_pGlobalVars->interval_per_tick);
 
-	const auto src = origin;
-	auto end = src + velocity * Interfaces::m_pGlobalVars->interval_per_tick;
+	// trace.
+	ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
+	Interfaces::m_pEngineTrace->TraceRay(ray, MASK_PLAYERSOLID, &filter, &trace);
 
-	Ray_t r;
-	r.Init(src, end, player->OBBMins(), player->OBBMaxs());
+	// we hit shit
+	// we need to fix shit.
+	if (trace.fraction != 1.f) {
 
-	CGameTrace t;
-	CTraceFilter filter;
-	filter.pSkip = player;
+		// fix sliding on planes.
+		for (int i{ }; i < ticks; ++i) {
+			vecvelocity -= trace.plane.normal * vecvelocity.Dot(trace.plane.normal);
 
-	Interfaces::m_pEngineTrace->TraceRay(r, MASK_PLAYERSOLID, &filter, &t);
+			float adjust = vecvelocity.Dot(trace.plane.normal);
+			if (adjust < 0.f)
+				vecvelocity -= (trace.plane.normal * adjust);
 
-	if (t.fraction != 1.f)
-	{
-		for (auto i = 0; i < 2; i++)
-		{
-			velocity -= t.plane.normal * velocity.Dot(t.plane.normal);
+			start = trace.endpos;
+			end = start + (vecvelocity * (Interfaces::m_pGlobalVars->interval_per_tick * (1.f - trace.fraction)));
 
-			const auto dot = velocity.Dot(t.plane.normal);
-			if (dot < 0.f)
-				velocity -= Vector(dot * t.plane.normal.x,
-					dot * t.plane.normal.y, dot * t.plane.normal.z);
+			ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
+			Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, &filter, &trace);
 
-			end = t.endpos + velocity * TICKS_TO_TIME(1.f - t.fraction);
-
-			r.Init(t.endpos, end, player->OBBMins(), player->OBBMaxs());
-			Interfaces::m_pEngineTrace->TraceRay(r, MASK_PLAYERSOLID, &filter, &t);
-
-			if (t.fraction == 1.f)
+			if (trace.fraction == 1.f)
 				break;
 		}
 	}
 
-	origin = end = t.endpos;
+	// set new final origin.
+	start = end = vecorigin = trace.endpos;
+
+	// move endpos 2 units down.
+	// this way we can check if we are in/on the ground.
 	end.z -= 2.f;
 
-	r.Init(origin, end, player->OBBMins(), player->OBBMaxs());
-	Interfaces::m_pEngineTrace->TraceRay(r, MASK_PLAYERSOLID, &filter, &t);
+	// trace.
+	ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
+	Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, &filter, &trace);
 
-	flags &= FL_ONGROUND;
+	// strip onground flag.
+	fFlags &= ~FL_ONGROUND;
 
-	if (t.DidHit() && t.plane.normal.z > .7f)
-		flags |= FL_ONGROUND;
+	// add back onground flag if we are onground.
+	if (trace.fraction != 1.f && trace.plane.normal.z > 0.7f)
+		fFlags |= FL_ONGROUND;
 }
 
 
@@ -483,11 +486,24 @@ namespace Engine
 			auto animation_speed = 0.0f;
 			auto origin_delta = record->m_vecOrigin - previous_record->m_vecOrigin;
 
+			Vector vecPreviousOrigin = previous_record->m_vecOrigin;
+			int fPreviousFlags = previous_record->m_fFlags;
+			auto velocity = player->m_vecVelocity();
+			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, player->m_flSimulationTime() - previous_record->m_flSimulationTime);
 
 			// fix velocity
 			// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
-			if (!origin_delta.IsZero() && record->m_flChokeTime > 0) {
+			if (!origin_delta.IsZero() && TIME_TO_TICKS(time_difference) > 0) {
 				record->m_vecVelocity = (record->m_vecOrigin - previous_record->m_vecOrigin) * (1.f / record->m_flChokeTime);
+
+				if (player->m_vecVelocity().Length2D() >= 100.f)
+				{
+					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, fPreviousFlags & FL_ONGROUND, 8);
+				}
+				if (player->m_vecVelocity().z > 0)
+				{
+					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, !(fPreviousFlags & FL_ONGROUND), 3);
+				}
 
 				if (player->m_fFlags() & FL_ONGROUND && record->m_serverAnimOverlays[11].m_flWeight > 0.0f && record->m_serverAnimOverlays[11].m_flWeight < 1.0f && record->m_serverAnimOverlays[11].m_flCycle > previous_record->m_serverAnimOverlays[11].m_flCycle)
 				{
@@ -540,8 +556,11 @@ namespace Engine
 				}
 
 				// fix CGameMovement::FinishGravity
-				if (!(player->m_fFlags() & FL_ONGROUND))
-					record->m_vecVelocity.z -= TICKS_TO_TIME(g_Vars.sv_gravity->GetFloat());
+				if (!(player->m_fFlags() & FL_ONGROUND)) {
+					static auto sv_gravity = g_Vars.sv_gravity;
+					auto fixed_timing = Math::Clamp(time_difference, Interfaces::m_pGlobalVars->interval_per_tick, 1.0f);
+					record->m_vecVelocity.z -= sv_gravity->GetFloat() * fixed_timing * 0.5f;
+				}
 				else
 					record->m_vecVelocity.z = 0.0f;
 
@@ -703,13 +722,6 @@ namespace Engine
 			if( !player->IsTeammate( C_CSPlayer::GetLocalPlayer( ) ) && !IsPlayerBot( ) ) {
 				// predict lby updates
 				g_Resolver.ResolveAngles( player, current.Xor( ) );
-
-				if (previous.IsValid()) {
-					auto old_origin = previous->m_vecOrigin;
-					auto old_flags = previous->m_fFlags;
-					extrapolate(player, old_origin, player->m_vecVelocity(), player->m_fFlags(), old_flags & FL_ONGROUND);
-					old_flags = player->m_fFlags();
-				}
 
 				bool bValid = previous.Xor( );
 
