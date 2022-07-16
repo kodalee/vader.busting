@@ -2257,7 +2257,7 @@ void create_watermark()
 #ifdef DEV
 		logo.append(XorStr(" [debug]")); // :)
 #endif
-#ifdef BETA
+#ifdef BETA_MODE
 		logo.append(XorStr(" [beta]")); // :)
 #endif
 

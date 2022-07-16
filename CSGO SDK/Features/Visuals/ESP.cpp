@@ -248,7 +248,7 @@ void DrawWatermark() {
 #ifdef DEV
 	logo.append(XorStr(" [debug]")); // :)
 #endif
-#ifdef BETA
+#ifdef BETA_MODE
 	logo.append(XorStr(" [beta]")); // :)
 #endif
 	const std::string user = g_Vars.globals.user_info.username; /*g_cl.m_user*/
@@ -2229,7 +2229,7 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	if (g_Vars.misc.ingame_radar) {
 		player->m_bSpotted() = true;
 	}
-
+#ifdef BETA_MODE
 	if (g_Vars.misc.resolver_flags) {
 		if (anim_data && lag_data.IsValid() && !anim_data->m_AnimationRecord.empty()) {
 			auto current = &anim_data->m_AnimationRecord.front();
@@ -2244,6 +2244,7 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 			}
 		}
 	}
+#endif
 
 #ifdef DEV 
 
