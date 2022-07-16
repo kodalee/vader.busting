@@ -1952,7 +1952,7 @@ void CEsp::AmmoBar( C_CSPlayer* player, BBox_t bbox ) {
 		}
 	}
 
-	if( g_Vars.esp.draw_lby_bar ) {
+	if( g_Vars.esp.draw_lby_bar && Engine::g_ResolverData[ player->EntIndex( ) ].m_bPredictingUpdates ) {
 		int current = pWeapon->m_iClip1( );
 		int max = pWeaponData->m_iMaxClip;
 		float scale;
@@ -2436,7 +2436,7 @@ void CEsp::DrawBottomInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player
 	if( g_Vars.esp.draw_ammo_bar && ( pWeaponData->m_iWeaponType != WEAPONTYPE_GRENADE && pWeaponData->m_iWeaponType != WEAPONTYPE_KNIFE && pWeaponData->m_iWeaponType != WEAPONTYPE_C4 ) )
 		i += 6.f;
 
-	if( g_Vars.esp.draw_lby_bar )
+	if( g_Vars.esp.draw_lby_bar && Engine::g_ResolverData[ player->EntIndex( ) ].m_bPredictingUpdates )
 		i += 6.f;
 
 	if( g_Vars.esp.weapon_icon ) {

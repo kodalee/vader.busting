@@ -634,10 +634,10 @@ void Visuals()
 				if (g_Vars.esp.draw_ammo_bar) {
 					ColorPicker(XorStr("##AmmoColor"), g_Vars.esp.ammo_color, false, false);
 				}
-				InsertCheckbox(lby_timer, XorStr("LBY timer"), &g_Vars.esp.draw_lby_bar);
-				if (g_Vars.esp.draw_lby_bar) {
-					ColorPicker("##LBYColor", g_Vars.esp.lby_color, false, false);
-				}
+				//InsertCheckbox(lby_timer, XorStr("LBY timer"), &g_Vars.esp.draw_lby_bar);
+				//if (g_Vars.esp.draw_lby_bar) {
+				//	ColorPicker("##LBYColor", g_Vars.esp.lby_color, false, false);
+				//}
 
 				InsertCheckbox(weapon, XorStr("Weapon"), &g_Vars.esp.weapon);
 				if (g_Vars.esp.weapon) {
