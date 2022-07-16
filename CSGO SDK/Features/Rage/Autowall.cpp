@@ -440,7 +440,7 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 		// calculate damage  
 		const float flTraceDistance = ( ExitTrace.endpos - data->m_EnterTrace.endpos ).Length( );
 		const float flPenetrationMod = fmaxf( 1.0 / flPenetrationModifier, 0.0f );
-		const float flTotalLostDamage = ( fmaxf( 3.f / data->m_WeaponData->m_flPenetration, 0.f ) *
+		const float flTotalLostDamage = ( fmaxf( ( ( 3.f / data->m_WeaponData->m_flPenetration ) * 1.25f ), 0.f ) *
 			( flPenetrationMod * 3.f ) + ( data->m_flCurrentDamage * flDamageModifier ) ) +
 			( ( ( flTraceDistance * flTraceDistance ) * flPenetrationMod ) / 24 );
 
