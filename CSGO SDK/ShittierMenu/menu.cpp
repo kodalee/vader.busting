@@ -2119,8 +2119,8 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, s.y) - ImVec2(10, 0), theme_background, theme_background, theme_background, theme_background);
 
 		//up
-		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 10), theme, theme, theme, theme);
-		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 10) - ImVec2(10, 0), theme, theme, theme, theme);
+		draw->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme, theme, theme, theme);
+		draw->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme, theme, theme);
 
 		auto keybind_sz = ImGui::CalcTextSize(name);
 		draw->AddText(p + ImVec2(s.x / 2 - keybind_sz.x / 2, s.y / 2 - keybind_sz.y / 2), ImColor(255, 255, 255), name);
