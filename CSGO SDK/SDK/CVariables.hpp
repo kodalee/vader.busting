@@ -30,7 +30,7 @@ namespace KeyBindType
 struct KeyBind_t {
 	KeyBind_t( ) { }
 
-	int key = 0, cond = 0;
+	int key = 0, cond = 2;
 	bool enabled = false;
 
 	void to_json( nlohmann::json& j ) {
