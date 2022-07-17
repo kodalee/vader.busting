@@ -340,8 +340,8 @@ namespace Engine
 							lag_data->m_iMissedShotsFreestand++;
 						else if (it->snapshot->ResolverType == DISTORTINGLMOVE)
 							lag_data->m_iMissedShotsDistort++;
-						else
-							lag_data->m_iMissedShots++;
+						//else
+						lag_data->m_iMissedShots++;
 
 						if (g_Vars.esp.event_resolver) {
 							AddMissLog(XorStr("resolver"));

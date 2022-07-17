@@ -98,7 +98,7 @@ namespace Engine {
 
 			//if (g_ResolverData[player->EntIndex()].m_iMode == 1)
 			//{
-			const auto at_target_angle = Math::CalcAngle(player->m_vecOrigin(), last_eye);
+			QAngle at_target_angle = Math::CalcAngle(player->m_vecOrigin(), last_eye);
 
 			//Vector left_dir, right_dir, back_dir;
 			//Math::angle_vectors(Vector(0.f, at_target_angle.y - 90.f, 0.f), &left_dir);
@@ -182,7 +182,7 @@ namespace Engine {
 
 		//printf("BALLS\n");
 
-		const auto at_target_angle = Math::CalcAngle(record->m_vecOrigin, last_eye);
+		QAngle at_target_angle = Math::CalcAngle(record->m_vecOrigin, last_eye);
 
 		auto set = false;
 
@@ -397,6 +397,7 @@ namespace Engine {
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
 				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 			}
@@ -413,6 +414,7 @@ namespace Engine {
 			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
 				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 			}
@@ -421,6 +423,7 @@ namespace Engine {
 		else {
 			is_flicking = false;
 			record->m_body_update = 0.f;
+			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
 			NextLBYUpdate[player->EntIndex()] = 0.f;
 			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
 		}
@@ -696,7 +699,7 @@ namespace Engine {
 
 		C_AnimationRecord* move = &pLagData->m_walk_record;
 
-		const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+		auto at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 		if (is_flicking && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 0.01f /* && !record->m_bFakeWalking*/)
 		{
@@ -993,7 +996,7 @@ namespace Engine {
 		if (!local_player)
 			return false;
 
-		const float at_target_yaw = Math::CalcAngle(local_player->m_vecOrigin(), entity->m_vecOrigin()).y;
+		float at_target_yaw = Math::CalcAngle(local_player->m_vecOrigin(), entity->m_vecOrigin()).y;
 
 		if (freestanding_record.left_damage >= 20 && freestanding_record.right_damage >= 20)
 			yaw = at_target_yaw;
@@ -1165,7 +1168,7 @@ namespace Engine {
 
 		auto index = player->EntIndex();
 
-		const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+		float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 		const auto freestanding_record = player_resolve_records[player->EntIndex()].m_sAntiEdge;
 
@@ -1250,7 +1253,7 @@ namespace Engine {
 				//record->m_iResolverText = XorStr("STAND");
 
 
-				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 				if (is_flicking && pLagData->m_iMissedShotsLBY < 2 /* && !record->m_bFakeWalking*/)
 				{
@@ -1331,7 +1334,7 @@ namespace Engine {
 				record->m_iResolverMode = LASTMOVE;
 				//record->m_iResolverText = XorStr("LASTMOVE");
 
-				const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
+				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 				if (is_flicking && pLagData->m_iMissedShotsLBY < 2/* && !record->m_bFakeWalking*/)
 				{
