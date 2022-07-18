@@ -296,7 +296,7 @@ void Ragebot()
 
 			const char* autoscopeoptions[] = { XorStr("Off"), XorStr("Always Scope"), XorStr("Hitchance Fail") };
 
-			if (rageTab == WEAPONGROUP_RIFLE || rageTab == WEAPONGROUP_SNIPER + 1 || rageTab == WEAPONGROUP_AUTOSNIPER + 1 || rageTab == WEAPONGROUP_SNIPER) {
+			if (rageTab == WEAPONGROUP_RIFLE || rageTab == WEAPONGROUP_SNIPER + 1 || rageTab == WEAPONGROUP_AUTOSNIPER + 1 || rageTab == WEAPONGROUP_SNIPER || rageTab == 0) {
 				InsertCombo(XorStr("Automatic Scope Options"), &rbot->autoscope, autoscopeoptions);
 			}
 
