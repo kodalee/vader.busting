@@ -101,7 +101,7 @@
 
 IDirect3DTexture9* logo_nuts;
  
-int tab = 0, aimbotTab = 1, rageTab = 0, legitTab = 0, AAtab = 0, visualsSubTab = 0, miscSubtabs = 0, skinsSubtabs = 0;
+int tab = 0, aimbotTab = 1, rageTab = -1, legitTab = 0, AAtab = 0, visualsSubTab = 0, miscSubtabs = 0, skinsSubtabs = 0, scriptsSubtabs = 0;
 
 void ColorPicker(const char* name, float* color, bool alpha, bool combo) {
 
@@ -199,7 +199,7 @@ void Ragebot()
 			break;
 		}
 
-		if (rageTab == 0) {
+		if (rageTab == -1) {
 			InsertCheckbox(EnableRagebot, XorStr("Aimbot"), &g_Vars.rage.enabled);
 
 			InsertCheckbox(SilentAim, XorStr("Silent aim"), &g_Vars.rage.silent_aim);
@@ -207,185 +207,213 @@ void Ragebot()
 			InsertCheckbox(NoSpreadMode, XorStr("No-spread Mode"), &g_Vars.rage.nospread_mode);
 		}
 
-		InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->active);
-		const char* TargetSelection[] = { XorStr("Highest damage"), XorStr("Nearest to crosshair"), XorStr("Lowest health"), XorStr("Lowest distance"), XorStr("Lowest latency") };
-		InsertCombo(std::string(XorStr("Target selection") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->target_selection, TargetSelection);
+		if (rageTab != -1) {
 
-		std::vector<MultiItem_t> hitboxes = {
-			{ XorStr("Head"), &rbot->hitboxes_head },
-			{ XorStr("Neck"), &rbot->hitboxes_neck },
-			{ XorStr("Chest"), &rbot->hitboxes_chest },
-			{ XorStr("Stomach"), &rbot->hitboxes_stomach },
-			{ XorStr("Pelvis"), &rbot->hitboxes_pelvis },
-			{ XorStr("Arms"), &rbot->hitboxes_arms },
-			{ XorStr("Legs"), &rbot->hitboxes_legs },
-			{ XorStr("Feet"), &rbot->hitboxes_feets },
-		};
+			InsertCheckbox(OverrideWeaponGroup, XorStr("Enable") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->active);
+			const char* TargetSelection[] = { XorStr("Highest damage"), XorStr("Nearest to crosshair"), XorStr("Lowest health"), XorStr("Lowest distance"), XorStr("Lowest latency") };
+			InsertCombo(std::string(XorStr("Target selection") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->target_selection, TargetSelection);
 
-		std::vector<MultiItem_t> multipoints = {
-			{ XorStr("Head"), &rbot->mp_hitboxes_head },
-			{ XorStr("Chest"), &rbot->mp_hitboxes_chest },
-			{ XorStr("Stomach"), &rbot->mp_hitboxes_stomach },
-			{ XorStr("Legs"), &rbot->mp_hitboxes_legs },
-			{ XorStr("Feet"), &rbot->mp_hitboxes_feets },
-		};
+			std::vector<MultiItem_t> hitboxes = {
+				{ XorStr("Head"), &rbot->hitboxes_head },
+				{ XorStr("Neck"), &rbot->hitboxes_neck },
+				{ XorStr("Chest"), &rbot->hitboxes_chest },
+				{ XorStr("Stomach"), &rbot->hitboxes_stomach },
+				{ XorStr("Pelvis"), &rbot->hitboxes_pelvis },
+				{ XorStr("Arms"), &rbot->hitboxes_arms },
+				{ XorStr("Legs"), &rbot->hitboxes_legs },
+				{ XorStr("Feet"), &rbot->hitboxes_feets },
+			};
 
-		InsertMultiCombo(std::string(XorStr("Hitboxes") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), hitboxes);
+			std::vector<MultiItem_t> multipoints = {
+				{ XorStr("Head"), &rbot->mp_hitboxes_head },
+				{ XorStr("Chest"), &rbot->mp_hitboxes_chest },
+				{ XorStr("Stomach"), &rbot->mp_hitboxes_stomach },
+				{ XorStr("Legs"), &rbot->mp_hitboxes_legs },
+				{ XorStr("Feet"), &rbot->mp_hitboxes_feets },
+			};
 
-		InsertMultiCombo(std::string(XorStr("Multipoints") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), multipoints);
+			InsertMultiCombo(std::string(XorStr("Hitboxes") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), hitboxes);
 
-		InsertCheckbox(IgnoreLimbs, XorStr("Ignore limbs when moving") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->ignorelimbs_ifwalking);
+			InsertMultiCombo(std::string(XorStr("Multipoints") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), multipoints);
 
-		std::vector<MultiItem_t> mp_safety_hitboxes = {
-			{ XorStr("Head"), &rbot->mp_hitboxes_head },
-			{ XorStr("Chest"), &rbot->mp_hitboxes_chest },
-			{ XorStr("Stomach"), &rbot->mp_hitboxes_stomach },
-			{ XorStr("Legs"), &rbot->mp_hitboxes_legs },
-			{ XorStr("Feet"), &rbot->mp_hitboxes_feets },
-		};
+			InsertCheckbox(IgnoreLimbs, XorStr("Ignore limbs when moving") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->ignorelimbs_ifwalking);
 
-		//	if (!mp_safety_hitboxes.empty())
-		//		GUI::Controls::MultiDropdown(XorStr("Multipoints") + std::string(XorStr("#") + std::to_string(rage_current_group)), mp_safety_hitboxes);
+			std::vector<MultiItem_t> mp_safety_hitboxes = {
+				{ XorStr("Head"), &rbot->mp_hitboxes_head },
+				{ XorStr("Chest"), &rbot->mp_hitboxes_chest },
+				{ XorStr("Stomach"), &rbot->mp_hitboxes_stomach },
+				{ XorStr("Legs"), &rbot->mp_hitboxes_legs },
+				{ XorStr("Feet"), &rbot->mp_hitboxes_feets },
+			};
 
-		InsertCheckbox(StaticPointscale, XorStr("Static pointscale") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->static_point_scale);
-		if (rbot->static_point_scale) {
-			InsertSliderFloat(std::string(XorStr("Point scale##687687675") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
-			InsertSliderFloat(std::string(XorStr("Stomach scale##68776678") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->body_point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
-		}
-		InsertSliderFloat(std::string(XorStr("Minimum hitchance") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance, 0.f, 100.f, XorStr("%.0f%%"));
-		InsertSliderInt(std::string(XorStr("Minimum dmg") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage_visible, 1, 130, std::string(rbot->min_damage_visible > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_visible - 100)))) : XorStr("%d hp")).c_str());
-		InsertCheckbox(AutomaticPenetration, XorStr("Automatic penetration") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autowall);
-		if (rbot->autowall) {
-			InsertSliderInt(std::string(XorStr("Minimum penetration") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage, 1.f, 130.f, std::string(rbot->min_damage > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage - 100)))) : XorStr("%d hp")).c_str());
+			//	if (!mp_safety_hitboxes.empty())
+			//		GUI::Controls::MultiDropdown(XorStr("Multipoints") + std::string(XorStr("#") + std::to_string(rage_current_group)), mp_safety_hitboxes);
+
+			InsertCheckbox(StaticPointscale, XorStr("Static pointscale") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->static_point_scale);
+			if (rbot->static_point_scale) {
+				InsertSliderFloat(std::string(XorStr("Point scale##687687675") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
+				InsertSliderFloat(std::string(XorStr("Stomach scale##68776678") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->body_point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
+			}
+			InsertSliderFloat(std::string(XorStr("Minimum hitchance") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance, 0.f, 100.f, XorStr("%.0f%%"));
+			InsertSliderInt(std::string(XorStr("Minimum dmg") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage_visible, 1, 130, std::string(rbot->min_damage_visible > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_visible - 100)))) : XorStr("%d hp")).c_str());
+			InsertCheckbox(AutomaticPenetration, XorStr("Automatic penetration") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autowall);
+			if (rbot->autowall) {
+				InsertSliderInt(std::string(XorStr("Minimum penetration") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage, 1.f, 130.f, std::string(rbot->min_damage > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage - 100)))) : XorStr("%d hp")).c_str());
+			}
 		}
 
 		ImGui::NextColumn();
 		ImGui::NewLine();
 
-		InsertCheckbox(ExtendedBT, std::string(XorStr("Extended backtrack") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack);
-		if (g_Vars.misc.extended_backtrack) {
-			ImGui::SameLine();
-			biggestMeme2();
-			ImGui::Hotkey(std::string(XorStr("##Extended backtrack Key") + std::to_string(rageTab)).c_str(), &g_Vars.misc.extended_backtrack_key.key, &g_Vars.misc.extended_backtrack_key.cond, ImVec2{ 40,20 });
-			InsertSliderFloat(std::string(XorStr("Extended backtrack##amt") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack_time, 0.f, 1.f, XorStr("%.2fs"));
+		if (rageTab == -1) {
+			InsertCheckbox(ExtendedBT, std::string(XorStr("Extended backtrack") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack);
+			if (g_Vars.misc.extended_backtrack) {
+				ImGui::SameLine();
+				biggestMeme2();
+				ImGui::Hotkey(std::string(XorStr("##Extended backtrack Key") + std::to_string(rageTab)).c_str(), &g_Vars.misc.extended_backtrack_key.key, &g_Vars.misc.extended_backtrack_key.cond, ImVec2{ 40,20 });
+				InsertSliderFloat(std::string(XorStr("Extended backtrack##amt") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack_time, 0.f, 1.f, XorStr("%.2fs"));
+			}
 		}
 
 		//InsertCheckbox(CompensateSpreadRage, std::string(XorStr("Compensate spread") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->compensate_spread);
 
-		InsertCheckbox(Autostop, XorStr("Automatic stop"), &rbot->autostop_check);
-		std::vector<MultiItem_t> stop_options = {
-			{ XorStr("Always stop"), &rbot->always_stop },
-			{ XorStr("Between shots"), &rbot->between_shots },
-			{ XorStr("Early"), &rbot->early_stop },
+		if (rageTab != -1) {
 
-		};
 
-		if (rbot->autostop_check) {
-			InsertMultiCombo(XorStr("Automatic stop options"), stop_options);
+			InsertCheckbox(Autostop, XorStr("Automatic stop"), &rbot->autostop_check);
+			std::vector<MultiItem_t> stop_options = {
+				{ XorStr("Always stop"), &rbot->always_stop },
+				{ XorStr("Between shots"), &rbot->between_shots },
+				{ XorStr("Early"), &rbot->early_stop },
+
+			};
+
+			if (rbot->autostop_check) {
+				InsertMultiCombo(XorStr("Automatic stop options"), stop_options);
+			}
+
+			//InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autoscope);
+
+			const char* autoscopeoptions[] = { XorStr("Off"), XorStr("Always Scope"), XorStr("Hitchance Fail") };
+
+			if (rageTab == WEAPONGROUP_RIFLE || rageTab == WEAPONGROUP_SNIPER + 1 || rageTab == WEAPONGROUP_AUTOSNIPER + 1 || rageTab == WEAPONGROUP_SNIPER || rageTab == 0) {
+				InsertCombo(XorStr("Automatic Scope Options"), &rbot->autoscope, autoscopeoptions);
+			}
+
+			InsertCheckbox(prefer_body, XorStr("Prefer body-aim") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->prefer_body);
+
+			std::vector<MultiItem_t> prefer_body_cond = {
+				//	{ XorStr( "Target firing" ), &rbot->prefer_body_disable_shot },
+				{ XorStr("Target resolved"), &rbot->prefer_body_disable_resolved },
+				//	{ XorStr( "Safe point headshot" ), &rbot->prefer_body_disable_safepoint_head }
+			};
+
+			if (rbot->prefer_body) {
+				InsertMultiCombo(XorStr("Prefer body-aim disablers##PreferBody"), prefer_body_cond);
+			}
+
+			InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->accry_boost_on_shot);
+
+			const char* accuracyonshotmodes[] = { XorStr("Off"), XorStr("Low"), XorStr("Medium"), XorStr("High") };
+			if (rbot->accry_boost_on_shot) {
+				InsertCombo(XorStr("Accuracy boost modes"), &rbot->accry_boost_on_shot_modes, accuracyonshotmodes);
+			}
+
+			InsertCheckbox(shotdelay, XorStr("Delay hitbox selection") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->shotdelay);
+			InsertCheckbox(delay_shot_on_unducking, XorStr("Delay shot on unduck") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->delay_shot_on_unducking);
 		}
 
-		//InsertCheckbox(Autoscope, XorStr("Automatic scope") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->autoscope);
+		if (rageTab == -1) {
 
-		const char* autoscopeoptions[] = { XorStr("Off"), XorStr("Always Scope"), XorStr("Hitchance Fail")};
+			InsertCheckbox(knife_bot, XorStr("Knife bot"), &g_Vars.misc.knife_bot);
+			const char* knife_bot_type[] = { XorStr("Default"), XorStr("Backstab"), XorStr("Quick") };
+			if (g_Vars.misc.knife_bot) {
+				InsertCombo(XorStr("Knifebot type##Knife bot type"), &g_Vars.misc.knife_bot_type, knife_bot_type);
+			}
 
-		InsertCombo(XorStr("Automatic Scope Options"), &rbot->autoscope, autoscopeoptions);
-
-		InsertCheckbox(prefer_body, XorStr("Prefer body-aim") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->prefer_body);
-
-		std::vector<MultiItem_t> prefer_body_cond = {
-			//	{ XorStr( "Target firing" ), &rbot->prefer_body_disable_shot },
-			{ XorStr("Target resolved"), &rbot->prefer_body_disable_resolved },
-			//	{ XorStr( "Safe point headshot" ), &rbot->prefer_body_disable_safepoint_head }
-		};
-
-		if (rbot->prefer_body) {
-			InsertMultiCombo(XorStr("Prefer body-aim disablers##PreferBody"), prefer_body_cond);
-		}
-
-		InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->accry_boost_on_shot);
-
-		const char* accuracyonshotmodes[] = {XorStr("Off"), XorStr("Low"), XorStr("Medium"), XorStr("High")};
-		if (rbot->accry_boost_on_shot) {
-			InsertCombo(XorStr("Accuracy boost modes"), &rbot->accry_boost_on_shot_modes, accuracyonshotmodes);
-		}
-
-		InsertCheckbox(shotdelay, XorStr("Delay hitbox selection") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->shotdelay);
-		InsertCheckbox(delay_shot_on_unducking, XorStr("Delay shot on unduck") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->delay_shot_on_unducking);
-
-		InsertCheckbox(knife_bot, XorStr("Knife bot"), &g_Vars.misc.knife_bot);
-		const char* knife_bot_type[] = { XorStr("Default"), XorStr("Backstab"), XorStr("Quick") };
-		if (g_Vars.misc.knife_bot) {
-			InsertCombo(XorStr("Knifebot type##Knife bot type"), &g_Vars.misc.knife_bot_type, knife_bot_type);
-		}
-
-		InsertCheckbox(zeus_bot, XorStr("Zeus bot"), &g_Vars.misc.zeus_bot);
-		if (g_Vars.misc.zeus_bot) {
-			InsertSliderFloat(XorStr("Zeus bot hitchance"), &g_Vars.misc.zeus_bot_hitchance, 1.f, 80.f, XorStr("%.0f%%"));
+			InsertCheckbox(zeus_bot, XorStr("Zeus bot"), &g_Vars.misc.zeus_bot);
+			if (g_Vars.misc.zeus_bot) {
+				InsertSliderFloat(XorStr("Zeus bot hitchance"), &g_Vars.misc.zeus_bot_hitchance, 1.f, 80.f, XorStr("%.0f%%"));
+			}
 		}
 
 		ImGui::NextColumn();
 		ImGui::NewLine();
 
-		ImGui::Text(XorStr("Force bodyaim"));
-		ImGui::SameLine();
-		biggestMeme2();
-		ImGui::Hotkey(std::string(XorStr("##Force bodyaim key") + std::to_string(rageTab)).c_str(), &g_Vars.rage.prefer_body.key, &g_Vars.rage.prefer_body.cond, ImVec2{ 40,20 });
+		if (rageTab == -1) {
+			ImGui::Text(XorStr("Force bodyaim"));
+			ImGui::SameLine();
+			biggestMeme2();
+			ImGui::Hotkey(std::string(XorStr("##Force bodyaim key") + std::to_string(rageTab)).c_str(), &g_Vars.rage.prefer_body.key, &g_Vars.rage.prefer_body.cond, ImVec2{ 40,20 });
 
 
-		ImGui::Text(std::string(XorStr("Override resolver")).c_str());
-		ImGui::SameLine();
-		biggestMeme2();
-		ImGui::Hotkey(std::string(XorStr("##Override resolver key") + std::to_string(rageTab)).c_str(), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond, ImVec2{ 40,20 });
+			ImGui::Text(std::string(XorStr("Override resolver")).c_str());
+			ImGui::SameLine();
+			biggestMeme2();
+			ImGui::Hotkey(std::string(XorStr("##Override resolver key") + std::to_string(rageTab)).c_str(), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond, ImVec2{ 40,20 });
+		}
 
-		InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rageTab)), &g_Vars.rage.exploit);
-		ImGui::SameLine();
-		biggestMeme2();
-		ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
+		if (rageTab == -1) {
+			InsertCheckbox(Doubletap, XorStr("Doubletap") + std::string(XorStr("##") + std::to_string(rageTab)), &g_Vars.rage.exploit);
+			ImGui::SameLine();
+			biggestMeme2();
+			ImGui::Hotkey("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond, ImVec2{ 40,20 });
+		}
+
 		if (g_Vars.rage.exploit) {
-			InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
-			InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, XorStr("%d"));
-			InsertSliderInt(XorStr("Doubletap Speed"), &rbot->doubletap_speed, 11, 18, XorStr("%d"));
-			InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rageTab)), &g_Vars.misc.disablebtondt);
-			InsertCheckbox(exploits_enable, XorStr("DT Exploits"), &g_Vars.rage.dt_exploits);
+			if (rageTab != -1) {
+				InsertSliderFloat(XorStr("Doubletap Hitchance"), &rbot->doubletap_hitchance, 1.f, 100.f, XorStr("%.0f%%"));
+				InsertSliderInt(XorStr("Doubletap Minimum Dmg"), &rbot->doubletap_dmg, 1, 100, XorStr("%d"));
+				InsertSliderInt(XorStr("Doubletap Speed"), &rbot->doubletap_speed, 11, 18, XorStr("%d"));
+			}
 
-			if (g_Vars.rage.dt_exploits) {
-				std::vector<MultiItem_t> exploits = {
-					{ XorStr("Lag exploit"), &g_Vars.rage.exploit_lag },
-					{ XorStr("Lag peek"), &g_Vars.rage.exploit_lag_peek },
-					{ XorStr("Break Lag Compensation"), &g_Vars.rage.exploit_lagcomp },
-				};
+			if (rageTab == -1) {
 
-				InsertMultiCombo(XorStr("Exploits"), exploits);
+				InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rageTab)), &g_Vars.misc.disablebtondt);
+				InsertCheckbox(exploits_enable, XorStr("DT Exploits"), &g_Vars.rage.dt_exploits);
+
+				if (g_Vars.rage.dt_exploits) {
+					std::vector<MultiItem_t> exploits = {
+						{ XorStr("Lag exploit"), &g_Vars.rage.exploit_lag },
+						{ XorStr("Lag peek"), &g_Vars.rage.exploit_lag_peek },
+						{ XorStr("Break Lag Compensation"), &g_Vars.rage.exploit_lagcomp },
+					};
+
+					InsertMultiCombo(XorStr("Exploits"), exploits);
+				}
 			}
 		}
+		
 
-		InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->min_damage_override);
-		ImGui::SameLine();
-		biggestMeme2();
-		ImGui::Hotkey(XorStr("##MinDamageOverride"), &g_Vars.rage.key_dmg_override.key, &g_Vars.rage.key_dmg_override.cond, ImVec2{ 40,20 });
-		//ImGui::Keybind(std::string(XorStr("Minimum dmg override key#key") + std::string(XorStr("#") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.key_dmg_override.key);
-		if (rbot->min_damage_override) {
-			InsertSliderInt(std::string(XorStr("Dmg override amount##slider") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
-		}
+		if (rageTab != -1) {
+			InsertCheckbox(MinDmgOverride, XorStr("Damage override") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->min_damage_override);
+			ImGui::SameLine();
+			biggestMeme2();
+			ImGui::Hotkey(XorStr("##MinDamageOverride"), &g_Vars.rage.key_dmg_override.key, &g_Vars.rage.key_dmg_override.cond, ImVec2{ 40,20 });
+			//ImGui::Keybind(std::string(XorStr("Minimum dmg override key#key") + std::string(XorStr("#") + std::to_string(rage_current_group))).c_str(), &g_Vars.rage.key_dmg_override.key);
+			if (rbot->min_damage_override) {
+				InsertSliderInt(std::string(XorStr("Dmg override amount##slider") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
+			}
 
-		InsertCheckbox(OverrideHitscan, XorStr("Override hitscan") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->override_hitscan);
-		ImGui::SameLine();
-		biggestMeme2();
-		ImGui::Hotkey(XorStr("##OverrideHitscanKey"), &g_Vars.rage.override_key.key, &g_Vars.rage.override_key.cond, ImVec2{ 40,20 });
+			InsertCheckbox(OverrideHitscan, XorStr("Override hitscan") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->override_hitscan);
+			ImGui::SameLine();
+			biggestMeme2();
+			ImGui::Hotkey(XorStr("##OverrideHitscanKey"), &g_Vars.rage.override_key.key, &g_Vars.rage.override_key.cond, ImVec2{ 40,20 });
 
-		if (rbot->override_hitscan) {
-			std::vector<MultiItem_t> override_hitboxes = {
-				{ XorStr("Head"), &rbot->bt_hitboxes_head },
-				{ XorStr("Neck"), &rbot->bt_hitboxes_neck },
-				{ XorStr("Chest"), &rbot->bt_hitboxes_chest },
-				{ XorStr("Stomach"), &rbot->bt_hitboxes_stomach },
-				{ XorStr("Pelvis"), &rbot->bt_hitboxes_pelvis },
-				{ XorStr("Arms"), &rbot->bt_hitboxes_arms },
-				{ XorStr("Legs"), &rbot->bt_hitboxes_legs },
-				{ XorStr("Feet"), &rbot->bt_hitboxes_feets },
-			};
+			if (rbot->override_hitscan) {
+				std::vector<MultiItem_t> override_hitboxes = {
+					{ XorStr("Head"), &rbot->bt_hitboxes_head },
+					{ XorStr("Neck"), &rbot->bt_hitboxes_neck },
+					{ XorStr("Chest"), &rbot->bt_hitboxes_chest },
+					{ XorStr("Stomach"), &rbot->bt_hitboxes_stomach },
+					{ XorStr("Pelvis"), &rbot->bt_hitboxes_pelvis },
+					{ XorStr("Arms"), &rbot->bt_hitboxes_arms },
+					{ XorStr("Legs"), &rbot->bt_hitboxes_legs },
+					{ XorStr("Feet"), &rbot->bt_hitboxes_feets },
+				};
 
-			InsertMultiCombo(std::string(XorStr("Override hitboxes") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), override_hitboxes);
+				InsertMultiCombo(std::string(XorStr("Override hitboxes") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), override_hitboxes);
+			}
 		}
 
 	}
@@ -1344,27 +1372,10 @@ void Misc()
 			if (ImGui::Button(XorStr("Clear path"), ImVec2(100, 0)))
 				walkbot::Instance().clear_dots();
 
-
-
 			break;
 		}
-
 		case 1:
 		{
-			//ImGui::Text("scripts");
-
-			//for (auto s : g_lua.scripts)
-			//{
-			//	ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
-			//	if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-			//		auto scriptId = g_lua.get_script_id(s);
-			//		if (g_lua.loaded.at(scriptId))
-			//			g_lua.unload_script(scriptId);
-			//		else
-			//			g_lua.load_script(scriptId);
-			//	}
-			//}
-
 			ImGui::NewLine();
 			{
 				static int selected_cfg;
@@ -1499,83 +1510,7 @@ void Misc()
 				}
 			}
 
-			ImGui::NextColumn(); ImGui::NewLine();
-
-			ImGui::Text(XorStr("Scripts"));
-			ImGui::NewLine();
-
-			{
-				for (auto s : g_lua.scripts)
-				{
-					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-						auto scriptId = g_lua.get_script_id(s);
-						if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
-					}
-				}
-
-				ImGui::NewLine();
-
-				if (ImGui::Button(XorStr("Refresh scripts"), ImVec2(100, 0))) g_lua.refresh_scripts();
-
-				if (ImGui::Button(XorStr("Reload active"), ImVec2(100, 0))) g_lua.reload_all_scripts();
-
-				if (ImGui::Button(XorStr("Unload all"), ImVec2(100, 0))) g_lua.unload_all_scripts();
-			}
-
-			ImGui::NextColumn(); ImGui::NewLine();
-
-
-			for (auto& current : g_lua.scripts)
-			{
-				auto& items = g_lua.items.at(g_lua.get_script_id(current));
-
-				for (auto& item : items)
-				{
-					std::string item_name;
-
-					auto first_point = false;
-					auto item_str = false;
-
-					for (auto& c : item.first)
-					{
-						if (c == '.')
-						{
-							if (first_point)
-							{
-								item_str = true;
-								continue;
-							}
-							else
-								first_point = true;
-						}
-
-						if (item_str)
-							item_name.push_back(c);
-					}
-
-					switch (item.second.type)
-					{
-					case NEXT_LINE:
-						break;
-					case CHECK_BOX:
-						ImGui::Checkbox(item_name.c_str(), &LuaConfigSystem::C_BOOL[item.second.key]);
-						break;
-					case SLIDER_INT:
-						InsertSliderInt(item_name.c_str(), &LuaConfigSystem::C_INT[item.second.key], item.second.slider_int_min, item.second.slider_int_max, item.second.format.c_str());
-						break;
-					case SLIDER_FLOAT:
-						InsertSliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
-						break;
-					case COLOR_PICKER:
-						ColorPicker_w_name(item_name.c_str(), LuaConfigSystem::C_COLOR[item.second.key], true, false);
-						break;
-					case TEXT:
-						ImGui::Text(item_name.c_str());
-						break;
-					}
-				}
-			}
-
+			break;
 		}
 		}
 	}
@@ -1689,7 +1624,7 @@ void Skins()
 			}
 
 
-
+			break;
 		}
 
 		//std::string base_string = XorStr("skins_");
@@ -1722,6 +1657,102 @@ void Skins()
 
 
 		
+	}
+	ImGui::EndColumns();
+}
+
+void Scripts()
+{
+	ImGuiStyle* style = &ImGui::GetStyle();
+	float group_w = ImGui::GetCurrentWindow()->Size.x - style->WindowPadding.x * 2;
+	ImGui::Columns(3, nullptr, false);
+	ImGui::SetColumnOffset(1, group_w / 3.0f);
+	ImGui::SetColumnOffset(2, 2 * group_w / 2.9f);
+	ImGui::SetColumnOffset(3, group_w);
+
+	ImGui::NewLine();
+	{
+		switch (scriptsSubtabs)
+		{
+		case 0:
+		{
+			ImGui::Text(XorStr("Scripts"));
+			ImGui::NewLine();
+
+			{
+				for (auto s : g_lua.scripts)
+				{
+					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
+						auto scriptId = g_lua.get_script_id(s);
+						if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
+					}
+				}
+
+				ImGui::NewLine();
+
+				if (ImGui::Button(XorStr("Refresh scripts"), ImVec2(100, 0))) g_lua.refresh_scripts();
+
+				if (ImGui::Button(XorStr("Reload active"), ImVec2(100, 0))) g_lua.reload_all_scripts();
+
+				if (ImGui::Button(XorStr("Unload all"), ImVec2(100, 0))) g_lua.unload_all_scripts();
+			}
+
+			ImGui::NextColumn(); ImGui::NewLine();
+
+
+			for (auto& current : g_lua.scripts)
+			{
+				auto& items = g_lua.items.at(g_lua.get_script_id(current));
+
+				for (auto& item : items)
+				{
+					std::string item_name;
+
+					auto first_point = false;
+					auto item_str = false;
+
+					for (auto& c : item.first)
+					{
+						if (c == '.')
+						{
+							if (first_point)
+							{
+								item_str = true;
+								continue;
+							}
+							else
+								first_point = true;
+						}
+
+						if (item_str)
+							item_name.push_back(c);
+					}
+
+					switch (item.second.type)
+					{
+					case NEXT_LINE:
+						break;
+					case CHECK_BOX:
+						ImGui::Checkbox(item_name.c_str(), &LuaConfigSystem::C_BOOL[item.second.key]);
+						break;
+					case SLIDER_INT:
+						InsertSliderInt(item_name.c_str(), &LuaConfigSystem::C_INT[item.second.key], item.second.slider_int_min, item.second.slider_int_max, item.second.format.c_str());
+						break;
+					case SLIDER_FLOAT:
+						InsertSliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
+						break;
+					case COLOR_PICKER:
+						ColorPicker_w_name(item_name.c_str(), LuaConfigSystem::C_COLOR[item.second.key], true, false);
+						break;
+					case TEXT:
+						ImGui::Text(item_name.c_str());
+						break;
+					}
+				}
+			}
+			break;
+		}
+		}
 	}
 	ImGui::EndColumns();
 }
@@ -2052,7 +2083,7 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 20 * i);
 			//draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
 			//draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
-			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
+			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(0, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
 		}
 
 	}
@@ -2388,6 +2419,7 @@ void IMGUIMenu::Render()
 		ImGui::TrueTab(XorStr("  VISUALS  "), tab, 2, ImVec2(0.f, 35.f)); ImGui::SameLine();
 		ImGui::TrueTab(XorStr("  MISC  "), tab, 3, ImVec2(0.f, 35.f)); ImGui::SameLine();
 		ImGui::TrueTab(XorStr("  SKINS  "), tab, 4, ImVec2(0.f, 35.f)); ImGui::SameLine();
+		ImGui::TrueTab(XorStr("  SCRIPTS  "), tab, 5, ImVec2(0.f, 35.f)); ImGui::SameLine();
 
 		ImGui::EndChild();
 	}
@@ -2406,6 +2438,7 @@ void IMGUIMenu::Render()
 		{
 			case 0:
 			{
+				ImGui::TrueSubTab(XorStr("  Main  "), rageTab, -1, ImVec2(0.f, 25.f)); ImGui::SameLine();
 				ImGui::TrueSubTab(XorStr("  Other  "), rageTab, 0, ImVec2(0.f, 25.f)); ImGui::SameLine();
 				ImGui::TrueSubTab(XorStr("  Pistols  "), rageTab, 1, ImVec2(0.f, 25.f)); ImGui::SameLine();
 				ImGui::TrueSubTab(XorStr("  Heavy Pistols  "), rageTab, 2, ImVec2(0.f, 25.f)); ImGui::SameLine();
@@ -2415,8 +2448,7 @@ void IMGUIMenu::Render()
 				ImGui::TrueSubTab(XorStr("  Auto  "), rageTab, 6, ImVec2(0.f, 25.f)); ImGui::SameLine();
 				ImGui::TrueSubTab(XorStr("  SMG  "), rageTab, 7, ImVec2(0.f, 25.f)); ImGui::SameLine();
 				ImGui::TrueSubTab(XorStr("  Heavys  "), rageTab, 8, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Shotguns  "), rageTab, 9, ImVec2(0.f, 25.f)); ImGui::SameLine();
-
+				ImGui::TrueSubTab(XorStr("  Shotguns  "), rageTab, 9, ImVec2(0.f, 25.f));
 				break;
 			}
 			case 1:
@@ -2445,6 +2477,11 @@ void IMGUIMenu::Render()
 				ImGui::TrueSubTab(XorStr("  Weapons  "), skinsSubtabs, 1, ImVec2(0.f, 25.f));
 				break;
 			}
+			case 5:
+			{
+				ImGui::TrueSubTab(XorStr("  Main  "), scriptsSubtabs, 0, ImVec2(0.f, 25.f));
+				break;
+			}
 		}
 
 		ImGui::EndChild();
@@ -2471,6 +2508,10 @@ void IMGUIMenu::Render()
 			break;
 		case 4:
 			Skins();
+			break;
+		case 5:
+			Scripts();
+			break;
 		default:
 			break;
 	}

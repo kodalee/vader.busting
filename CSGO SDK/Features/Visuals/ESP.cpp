@@ -2489,11 +2489,22 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	//#endif
 
 	Color clr;
-	if (!player->IsDormant()) {
-		clr = g_Vars.esp.name_color.ToRegularColor().OverrideAlpha(180, true);
+
+	if (player_info.steamID64 == 76561199057465290) {
+		static float rainbow;
+		rainbow += 0.001f;
+		if (rainbow > 1.f)
+			rainbow = 0.f;
+
+		clr = Color::HSBtoRGB(rainbow, 1.0f, 1.0f);
 	}
-	else
-		clr = Color(112, 112, 112, 180);
+	else {
+		if (!player->IsDormant()) {
+			clr = g_Vars.esp.name_color.ToRegularColor().OverrideAlpha(180, true);
+		}
+		else
+			clr = Color(112, 112, 112, 180);
+	}
 
 	clr.RGBA[3] *= m_flAlpha[player->EntIndex()];
 

@@ -710,8 +710,8 @@ namespace Interfaces
 			m_rage_data->m_pWeapon->m_zoomLevel() <= 0 &&
 			m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND &&
 			!m_rage_data->m_bNoNeededScope) {
-			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
 			m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
+			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
 			//m_rage_data->m_pWeapon->m_zoomLevel( ) = 1;
 			m_rage_data->m_bPredictedScope = true;
 			m_rage_data->m_bRePredict = true;
@@ -1593,7 +1593,7 @@ namespace Interfaces
 
 		if (can_scope && m_rage_data->rbot->autoscope == 1) {
 			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-			//m_rage_data->m_bRePredict = true; // i am confused on why it does this on hc failed autoscope. is this needed here????
+			m_rage_data->m_bRePredict = true; // i am confused on why it does this on hc failed autoscope. is this needed here????
 			return { false, C_AimPoint() }; // return here so when scoping dont shooting!!!
 		}
 
@@ -1844,7 +1844,7 @@ namespace Interfaces
 								msg << XorStr( "flag: " ) << buffer.data( ) << XorStr( " | " );
 								msg << FixedStrLength(info.szName).data() << XorStr(" | ");
 
-								ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(0.f, 0.518f, 1.f), !g_Vars.misc.undercover_log, XorStr("shot packet sent "));
+								ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(0.f, 0.518f, 1.f), false, XorStr("shot packet sent "));
 								//ILoggerEvent::Get()->PushEvent(std::to_string(m_lag_data->m_iMissedShots), FloatColor(0.8f, 0.8f, 0.0f), !g_Vars.misc.undercover_log, XorStr(""));
 							}
 #endif
