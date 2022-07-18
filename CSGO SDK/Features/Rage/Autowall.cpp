@@ -31,17 +31,10 @@ bool Autowall::IsBreakable( C_BaseEntity* pEntity ) {
 		//	*( uint8_t* )( ( uintptr_t )pEntity + uTakeDamage ) = 2; /*DAMAGE_YES*/
 		//}
 
-		//if (!strcmp(name, "CBreakableSurface"))
-		//	*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 2; /*DAMAGE_YES*/
-		//else if (!strcmp(name, "CBaseDoor") || !strcmp(name, "CDynamicProp"))
-		//	*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 0; /*DAMAGE_NO*/
-
-		if (name[1] != 'F'
-			|| name[4] != 'c'
-			|| name[5] != 'B'
-			|| name[9] != 'h') {
+		if (!strcmp(name, "CBreakableSurface"))
 			*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 2; /*DAMAGE_YES*/
-		}
+		else if (!strcmp(name, "CBaseDoor") || !strcmp(name, "CDynamicProp"))
+			*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 0; /*DAMAGE_NO*/
 
 	}
 
