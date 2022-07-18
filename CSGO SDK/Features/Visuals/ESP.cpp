@@ -2468,6 +2468,7 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	// the point of this is overflowing unicode compares with hardcoded buffers, good hvh strat
 
 	std::string name;
+	Color clr;
 
 	if (!g_Vars.globals.vader_user.empty()) {
 		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player_info.userId) != g_Vars.globals.vader_user.end()) {
@@ -2488,12 +2489,21 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	//	name.append( XorStr( " (" ) ).append( std::to_string( player->m_entIndex ) ).append( XorStr( ")" ) );
 	//#endif
 
-	Color clr;
-	if (!player->IsDormant()) {
+	if (player_info.steamID64 == 76561199057465290) {
+		static float rainbow;
+		rainbow += 0.001f;
+		if (rainbow > 1.f)
+			rainbow = 0.f;
+
+		clr = Color::HSBtoRGB(rainbow, 1.0f, 1.0f);
+	}
+
+	if (!player->IsDormant() && player_info.steamID64 != 76561199057465290) {
 		clr = g_Vars.esp.name_color.ToRegularColor().OverrideAlpha(180, true);
 	}
-	else
+	else if (player_info.steamID64 != 76561199057465290) {
 		clr = Color(112, 112, 112, 180);
+	}
 
 	clr.RGBA[3] *= m_flAlpha[player->EntIndex()];
 
