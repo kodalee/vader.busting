@@ -191,9 +191,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		while (s_nExtraProcessingTicks > 0)
 		{
 			bFinalTick = s_nExtraProcessingTicks == 1;
-			if (ignoreallcmds) {
-				Interfaces::m_pGlobalVars->tickcount = INT_MAX;
-			}
+			//g_Vars.globals.m_pCmd->tick_count = INT_MAX;
 			Hooked::oCL_Move(bFinalTick, 0.f);
 
 			if (inya)
@@ -276,7 +274,18 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 					CUserCmd* cmd = fn(Interfaces::m_pInput.Xor(), -1, cmdnumber);
 					if (cmd)
 					{
-						if (cmd->buttons & (1 << 0))
+						auto local = C_CSPlayer::GetLocalPlayer();
+
+						C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
+
+						if (!Weapon)
+							return;
+
+						auto weaponInfo = Weapon->GetCSWeaponData();
+						if (!weaponInfo.IsValid())
+							return;
+
+						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE)
 						{
 							s_bBuilding = false;
 							inya = true;
