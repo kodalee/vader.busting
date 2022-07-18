@@ -101,7 +101,7 @@
 
 IDirect3DTexture9* logo_nuts;
  
-int tab = 0, aimbotTab = 1, rageTab = -1, legitTab = 0, AAtab = 0, visualsSubTab = 0, miscSubtabs = 0, skinsSubtabs = 0;
+int tab = 0, aimbotTab = 1, rageTab = -1, legitTab = 0, AAtab = 0, visualsSubTab = 0, miscSubtabs = 0, skinsSubtabs = 0, scriptsSubtabs = 0;
 
 void ColorPicker(const char* name, float* color, bool alpha, bool combo) {
 
@@ -1372,27 +1372,10 @@ void Misc()
 			if (ImGui::Button(XorStr("Clear path"), ImVec2(100, 0)))
 				walkbot::Instance().clear_dots();
 
-
-
 			break;
 		}
-
 		case 1:
 		{
-			//ImGui::Text("scripts");
-
-			//for (auto s : g_lua.scripts)
-			//{
-			//	ImGui::Spacing(); ImGui::NewLine(); ImGui::SameLine(42.f);
-			//	if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-			//		auto scriptId = g_lua.get_script_id(s);
-			//		if (g_lua.loaded.at(scriptId))
-			//			g_lua.unload_script(scriptId);
-			//		else
-			//			g_lua.load_script(scriptId);
-			//	}
-			//}
-
 			ImGui::NewLine();
 			{
 				static int selected_cfg;
@@ -1527,83 +1510,7 @@ void Misc()
 				}
 			}
 
-			ImGui::NextColumn(); ImGui::NewLine();
-
-			ImGui::Text(XorStr("Scripts"));
-			ImGui::NewLine();
-
-			{
-				for (auto s : g_lua.scripts)
-				{
-					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
-						auto scriptId = g_lua.get_script_id(s);
-						if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
-					}
-				}
-
-				ImGui::NewLine();
-
-				if (ImGui::Button(XorStr("Refresh scripts"), ImVec2(100, 0))) g_lua.refresh_scripts();
-
-				if (ImGui::Button(XorStr("Reload active"), ImVec2(100, 0))) g_lua.reload_all_scripts();
-
-				if (ImGui::Button(XorStr("Unload all"), ImVec2(100, 0))) g_lua.unload_all_scripts();
-			}
-
-			ImGui::NextColumn(); ImGui::NewLine();
-
-
-			for (auto& current : g_lua.scripts)
-			{
-				auto& items = g_lua.items.at(g_lua.get_script_id(current));
-
-				for (auto& item : items)
-				{
-					std::string item_name;
-
-					auto first_point = false;
-					auto item_str = false;
-
-					for (auto& c : item.first)
-					{
-						if (c == '.')
-						{
-							if (first_point)
-							{
-								item_str = true;
-								continue;
-							}
-							else
-								first_point = true;
-						}
-
-						if (item_str)
-							item_name.push_back(c);
-					}
-
-					switch (item.second.type)
-					{
-					case NEXT_LINE:
-						break;
-					case CHECK_BOX:
-						ImGui::Checkbox(item_name.c_str(), &LuaConfigSystem::C_BOOL[item.second.key]);
-						break;
-					case SLIDER_INT:
-						InsertSliderInt(item_name.c_str(), &LuaConfigSystem::C_INT[item.second.key], item.second.slider_int_min, item.second.slider_int_max, item.second.format.c_str());
-						break;
-					case SLIDER_FLOAT:
-						InsertSliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
-						break;
-					case COLOR_PICKER:
-						ColorPicker_w_name(item_name.c_str(), LuaConfigSystem::C_COLOR[item.second.key], true, false);
-						break;
-					case TEXT:
-						ImGui::Text(item_name.c_str());
-						break;
-					}
-				}
-			}
-
+			break;
 		}
 		}
 	}
@@ -1717,7 +1624,7 @@ void Skins()
 			}
 
 
-
+			break;
 		}
 
 		//std::string base_string = XorStr("skins_");
@@ -1750,6 +1657,102 @@ void Skins()
 
 
 		
+	}
+	ImGui::EndColumns();
+}
+
+void Scripts()
+{
+	ImGuiStyle* style = &ImGui::GetStyle();
+	float group_w = ImGui::GetCurrentWindow()->Size.x - style->WindowPadding.x * 2;
+	ImGui::Columns(3, nullptr, false);
+	ImGui::SetColumnOffset(1, group_w / 3.0f);
+	ImGui::SetColumnOffset(2, 2 * group_w / 2.9f);
+	ImGui::SetColumnOffset(3, group_w);
+
+	ImGui::NewLine();
+	{
+		switch (scriptsSubtabs)
+		{
+		case 0:
+		{
+			ImGui::Text(XorStr("Scripts"));
+			ImGui::NewLine();
+
+			{
+				for (auto s : g_lua.scripts)
+				{
+					if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
+						auto scriptId = g_lua.get_script_id(s);
+						if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
+					}
+				}
+
+				ImGui::NewLine();
+
+				if (ImGui::Button(XorStr("Refresh scripts"), ImVec2(100, 0))) g_lua.refresh_scripts();
+
+				if (ImGui::Button(XorStr("Reload active"), ImVec2(100, 0))) g_lua.reload_all_scripts();
+
+				if (ImGui::Button(XorStr("Unload all"), ImVec2(100, 0))) g_lua.unload_all_scripts();
+			}
+
+			ImGui::NextColumn(); ImGui::NewLine();
+
+
+			for (auto& current : g_lua.scripts)
+			{
+				auto& items = g_lua.items.at(g_lua.get_script_id(current));
+
+				for (auto& item : items)
+				{
+					std::string item_name;
+
+					auto first_point = false;
+					auto item_str = false;
+
+					for (auto& c : item.first)
+					{
+						if (c == '.')
+						{
+							if (first_point)
+							{
+								item_str = true;
+								continue;
+							}
+							else
+								first_point = true;
+						}
+
+						if (item_str)
+							item_name.push_back(c);
+					}
+
+					switch (item.second.type)
+					{
+					case NEXT_LINE:
+						break;
+					case CHECK_BOX:
+						ImGui::Checkbox(item_name.c_str(), &LuaConfigSystem::C_BOOL[item.second.key]);
+						break;
+					case SLIDER_INT:
+						InsertSliderInt(item_name.c_str(), &LuaConfigSystem::C_INT[item.second.key], item.second.slider_int_min, item.second.slider_int_max, item.second.format.c_str());
+						break;
+					case SLIDER_FLOAT:
+						InsertSliderFloat(item_name.c_str(), &LuaConfigSystem::C_FLOAT[item.second.key], item.second.slider_float_min, item.second.slider_float_max, item.second.format.c_str());
+						break;
+					case COLOR_PICKER:
+						ColorPicker_w_name(item_name.c_str(), LuaConfigSystem::C_COLOR[item.second.key], true, false);
+						break;
+					case TEXT:
+						ImGui::Text(item_name.c_str());
+						break;
+					}
+				}
+			}
+			break;
+		}
+		}
 	}
 	ImGui::EndColumns();
 }
@@ -2080,7 +2083,7 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 20 * i);
 			//draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
 			//draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
-			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
+			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(0, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
 		}
 
 	}
@@ -2416,6 +2419,7 @@ void IMGUIMenu::Render()
 		ImGui::TrueTab(XorStr("  VISUALS  "), tab, 2, ImVec2(0.f, 35.f)); ImGui::SameLine();
 		ImGui::TrueTab(XorStr("  MISC  "), tab, 3, ImVec2(0.f, 35.f)); ImGui::SameLine();
 		ImGui::TrueTab(XorStr("  SKINS  "), tab, 4, ImVec2(0.f, 35.f)); ImGui::SameLine();
+		ImGui::TrueTab(XorStr("  SCRIPTS  "), tab, 5, ImVec2(0.f, 35.f)); ImGui::SameLine();
 
 		ImGui::EndChild();
 	}
@@ -2444,8 +2448,7 @@ void IMGUIMenu::Render()
 				ImGui::TrueSubTab(XorStr("  Auto  "), rageTab, 6, ImVec2(0.f, 25.f)); ImGui::SameLine();
 				ImGui::TrueSubTab(XorStr("  SMG  "), rageTab, 7, ImVec2(0.f, 25.f)); ImGui::SameLine();
 				ImGui::TrueSubTab(XorStr("  Heavys  "), rageTab, 8, ImVec2(0.f, 25.f)); ImGui::SameLine();
-				ImGui::TrueSubTab(XorStr("  Shotguns  "), rageTab, 9, ImVec2(0.f, 25.f)); ImGui::SameLine();
-
+				ImGui::TrueSubTab(XorStr("  Shotguns  "), rageTab, 9, ImVec2(0.f, 25.f));
 				break;
 			}
 			case 1:
@@ -2474,6 +2477,11 @@ void IMGUIMenu::Render()
 				ImGui::TrueSubTab(XorStr("  Weapons  "), skinsSubtabs, 1, ImVec2(0.f, 25.f));
 				break;
 			}
+			case 5:
+			{
+				ImGui::TrueSubTab(XorStr("  Main  "), scriptsSubtabs, 0, ImVec2(0.f, 25.f));
+				break;
+			}
 		}
 
 		ImGui::EndChild();
@@ -2500,6 +2508,10 @@ void IMGUIMenu::Render()
 			break;
 		case 4:
 			Skins();
+			break;
+		case 5:
+			Scripts();
+			break;
 		default:
 			break;
 	}
