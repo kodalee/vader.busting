@@ -2046,12 +2046,12 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 
 		//DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
 
-		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
+		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 22 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
 
 		for (auto i = 0; i < vec.size(); i++) {
-			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 25 * i);
-			draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
-			draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
+			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 20 * i);
+			//draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
+			//draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
 			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
 		}
 
@@ -2062,7 +2062,7 @@ void create_spectators(const char* name, std::vector <std::string> vec) {
 }
 void create_keybinds(const char* name, std::vector <std::string> vec) {
 
-	ImGui::SetNextWindowSize(ImVec2(170, 30));
+	ImGui::SetNextWindowSize(ImVec2(170, 10));
 	if (!ImGui::IsMouseDragging()) {
 		ImGui::SetNextWindowPos(ImVec2(g_Vars.esp.keybind_window_x, g_Vars.esp.keybind_window_y), ImGuiCond_Always);
 	}
@@ -2130,13 +2130,13 @@ void create_keybinds(const char* name, std::vector <std::string> vec) {
 
 		//DrawShapeAnimated(name, shape_pos, shape_pos + shape_sz, shape_pos, theme);
 
-		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 25 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
+		draw->AddRectFilled(p + ImVec2(10, s.y), p + ImVec2(s.x - 10, 4 + s.y + 22 * vec.size()), ImColor(0, 0, 0, 100), 0, 15);
 
 		for (auto i = 0; i < vec.size(); i++) {
-			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 25 * i);
-			draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
-			draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
-			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(10, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
+			auto first_circle_pos = ImVec2(p.x + 20, p.y + s.y + 15 + 20 * i);
+			//draw->AddCircleFilled(first_circle_pos, 2.3f, circle_color, 5.f * 15.f);
+			//draw->AddCircleFilled(first_circle_pos, 2.f, circle_color, 5.f * 15.f);
+			draw->AddText(NULL, 12.f, first_circle_pos + ImVec2(0, -7), ImColor(255, 255, 255, 255), vec[i].c_str());
 		}
 
 	}
@@ -2333,7 +2333,7 @@ void create_watermark()
 void IMGUIMenu::Render()
 {
 
-	create_watermark();
+	//create_watermark();
 
 	if (!Opened) return;
 
