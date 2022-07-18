@@ -288,7 +288,9 @@ void Ragebot()
 
 		const char* autoscopeoptions[] = { XorStr("Off"), XorStr("Always Scope"), XorStr("Hitchance Fail")};
 
-		InsertCombo(XorStr("Automatic Scope Options"), &rbot->autoscope, autoscopeoptions);
+		if (rageTab == WEAPONGROUP_RIFLE || rageTab == WEAPONGROUP_SNIPER + 1 || rageTab == WEAPONGROUP_AUTOSNIPER + 1 || rageTab == WEAPONGROUP_SNIPER) {
+			InsertCombo(XorStr("Automatic Scope Options"), &rbot->autoscope, autoscopeoptions);
+		}
 
 		InsertCheckbox(prefer_body, XorStr("Prefer body-aim") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->prefer_body);
 
