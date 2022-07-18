@@ -8,6 +8,8 @@
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
 #include "../../ShittierMenu/Menu.hpp"
+#include<fstream>
+
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
 #define engine_console_error(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 0.f, 0.f), true, "")
 void lua_panic(sol::optional<std::string> message) {
@@ -890,6 +892,51 @@ namespace lua_effects
 	}
 }
 
+namespace lua_file
+{
+	void append(sol::this_state s, std::string& path, std::string& data)
+	{
+		std::ofstream out(path, std::ios::app | std::ios::binary);
+
+		if (out.is_open())
+			out << data;
+		else
+			engine_console_error(XorStr("Can't append to file: ") + path);
+
+		out.close();
+	}
+	void write(sol::this_state s, std::string& path, std::string& data)
+	{
+		std::ofstream out(path, std::ios::binary);
+
+		if (out.is_open())
+			out << data;
+		else
+			engine_console_error(XorStr("Can't write to file: ") + path);
+
+		out.close();
+	}
+	std::string read(sol::this_state s, std::string& path)
+	{
+
+		std::ifstream file(path, std::ios::binary);
+
+		if (file.is_open())
+		{
+			std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+			file.close();
+			return content;
+		}
+		else
+		{
+			engine_console_error(XorStr("Can't read file: ") + path);
+			file.close();
+			return "";
+		}
+	}
+}
+
+
 // ----- lua functions -----
 
 c_lua g_lua;
@@ -1184,6 +1231,11 @@ bool c_lua::initialize() {
 	effects[XorStr("dust")] = lua_effects::dust;
 	effects[XorStr("energysplash")] = lua_effects::EnergySplash;
 
+	auto file = this->lua.create_table();
+	file[XorStr("append")] = lua_file::append;
+	file[XorStr("write")] = lua_file::write;
+	file[XorStr("read")] = lua_file::read;
+
 	this->lua[XorStr("event")] = events;
 	this->lua[XorStr("config")] = config;
 	this->lua[XorStr("cheat")] = cheat;
@@ -1200,9 +1252,10 @@ bool c_lua::initialize() {
 	this->lua[XorStr("ui")] = ui;
 	this->lua[XorStr("clientstate")] = clientstate;
 	this->lua[XorStr("effects")] = effects;
+	this->lua[XorStr("file")] = file;
 
 	this->refresh_scripts();
-	//this->load_script(this->get_script_id("autorun.lua"));
+	this->load_script(this->get_script_id("autorun.lua"));
 
 	return true;
 }
@@ -1269,8 +1322,10 @@ void c_lua::refresh_scripts() {
 
 	std::filesystem::path full_path(std::filesystem::current_path());
 	std::wstring str = full_path.wstring() + XorStr(L"\\vader.tech\\scripts");
+	std::wstring str2 = full_path.wstring() + XorStr(L"\\vader.tech\\scripts\\autorun.lua");
 
 	CreateDirectoryW(str.c_str(), nullptr);
+	CreateFileW(str2.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	for (auto& entry : std::filesystem::directory_iterator(str)) {
 		if (entry.path().extension() == XorStr(".lua") || entry.path().extension() == XorStr(".luac") || entry.path().extension() == XorStr(".ljbc")) {
