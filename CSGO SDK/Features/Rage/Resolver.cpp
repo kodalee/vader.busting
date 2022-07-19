@@ -434,7 +434,7 @@ namespace Engine {
 				record->m_iResolverMode = FLICK;
 			}
 
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && fabsf(move->m_body - player->m_flLowerBodyYawTarget()) > 35.f) {
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition /*&& fabsf(move->m_body - player->m_flLowerBodyYawTarget()) > 35.f*/) {
 				record->m_iResolverMode = LASTMOVE;
 			}
 
@@ -701,7 +701,7 @@ namespace Engine {
 
 		auto at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-		if (is_flicking && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 0.01f /* && !record->m_bFakeWalking*/)
+		if (is_flicking && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f  || record->m_bFakeWalking))
 		{
 			//m_iMode = 0;
 			record->m_angEyeAngles.y = pLagData->m_body;
