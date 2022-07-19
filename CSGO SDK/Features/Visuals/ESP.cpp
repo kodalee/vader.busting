@@ -1289,6 +1289,7 @@ void CEsp::Main( ) {
 	m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
 	if( !g_Vars.globals.HackIsReady || !m_LocalPlayer || !Interfaces::m_pEngine->IsInGame( ) ) {
 		g_Vars.globals.vader_user.clear( );
+		g_Vars.globals.vader_crack.clear( );
 		return;
 	}
 
@@ -2479,6 +2480,19 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
 
 			name += player_info.steamID64 == 76561198041707533 ? XorStr("[boss] ") : XorStr("[vader] ");
+		}
+	}
+
+	if (!g_Vars.globals.vader_crack.empty()) {
+		if (std::find(g_Vars.globals.vader_crack.begin(), g_Vars.globals.vader_crack.end(), player_info.userId) != g_Vars.globals.vader_crack.end()) {
+
+			//printf(player_info.szName);
+			//printf("\n");
+
+			//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
+			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
+
+			name += XorStr("[crack] ");
 		}
 	}
 

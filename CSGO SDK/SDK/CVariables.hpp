@@ -523,6 +523,7 @@ public:
 		bool need_break_lastmove;
 
 		std::vector<int> vader_user;
+		std::vector<int> vader_crack;
 
 		std::vector<std::pair<FloatColor, std::string>> m_vecTextInfo[65];
 

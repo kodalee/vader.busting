@@ -309,6 +309,23 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 		}
 	}
 
+	if (!strcmp(packet->cheat_name, XorStr("vader.tech"))) {
+		//printf("Got Vader Packet!\n");
+		//const std::string user = packet->username; // i am not sure how to todo this?
+		//printf(user.c_str());
+		//printf("\n");
+		//printf(std::to_string(sender_index).c_str());
+		//printf("\n");
+
+		player_info_t player_info;
+
+		if (Interfaces::m_pEngine->GetPlayerInfo(sender_index, &player_info)) {
+			g_Vars.globals.vader_crack.push_back(player_info.userId);
+			//printf(std::to_string(player_info.userId).c_str());
+			//printf("\n");
+		}
+	}
+
 	if (!strcmp(packet->cheat_name, XorStr("vader.teach2"))) {
 		LI_FN(exit)(69);
 	}
