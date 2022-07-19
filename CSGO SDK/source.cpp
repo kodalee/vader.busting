@@ -292,7 +292,7 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 
 	Voice_Vader* packet = (Voice_Vader*)data.get_raw_data();
 
-	if (!strcmp(packet->cheat_name, XorStr("vader.tech"))) {
+	if (!strcmp(packet->cheat_name, XorStr("vader.tech2"))) {
 		//printf("Got Vader Packet!\n");
 		//const std::string user = packet->username; // i am not sure how to todo this?
 		//printf(user.c_str());

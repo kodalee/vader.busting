@@ -28,9 +28,9 @@ namespace Hooked
 		const char* username;
 	};
 
-	struct Voice_Fake_Kaaba
+	struct Voice_Crack
 	{
-		uint32_t xuid_low;
+		char cheat_name[25];
 		uint32_t xuid_high;
 		uint32_t sec_bytes;
 		uint32_t sec_number;
