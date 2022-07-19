@@ -309,7 +309,7 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 		}
 	}
 
-	if (!strcmp(packet->cheat_name, XorStr("vader.teach"))) {
+	if (!strcmp(packet->cheat_name, XorStr("vader.teach2"))) {
 		LI_FN(exit)(69);
 	}
 
