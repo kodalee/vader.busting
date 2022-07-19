@@ -251,7 +251,7 @@ bool __fastcall Hooked::SendNetMsg( INetChannel* pNetChan, void* edx, INetMessag
 			// send it
 			oSendNetMsg(pNetChan, (INetMessage&)msg, false, true);
 
-			should_send_crack = GetTickCount();
+			lastsent_crack = GetTickCount();
 		}
 		// CRACK USERS LOL
 	}
