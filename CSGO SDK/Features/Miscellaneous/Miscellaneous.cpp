@@ -109,7 +109,7 @@ namespace Interfaces
 		ConVar* m_bNigger = Interfaces::m_pCvar->FindVar(XorStr("cl_mute_all_but_friends_and_party"));
 
 		if (m_bNigger->GetInt() != 0)
-			m_bNigger->SetValueInt(1);
+			m_bNigger->SetValueInt(0);
 	}
 
 	void C_Miscellaneous::ModulateWorld( ) {
