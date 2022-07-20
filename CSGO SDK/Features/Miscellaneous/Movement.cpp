@@ -842,70 +842,102 @@ namespace Interfaces
 			return;
 		}
 
-		Vector velocity{ LocalPlayer->m_vecVelocity() };
-		int    ticks{ };
+		if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
 
-		auto sv_friction = Interfaces::m_pCvar->FindVar(XorStr("sv_friction"));
-		auto sv_stopspeed = Interfaces::m_pCvar->FindVar(XorStr("sv_stopspeed"));
+			Vector velocity{ LocalPlayer->m_vecVelocity() };
+			int    ticks{ };
 
-		//if( g_TickbaseController.s_nExtraProcessingTicks ) {
-		//	g_Vars.globals.Fakewalking = false;
-		//	return;
-		//}
+			auto sv_friction = Interfaces::m_pCvar->FindVar(XorStr("sv_friction"));
+			auto sv_stopspeed = Interfaces::m_pCvar->FindVar(XorStr("sv_stopspeed"));
 
-	    // calculate friction.
-		float friction = sv_friction->GetFloat() * LocalPlayer->m_surfaceFriction();
+			//if( g_TickbaseController.s_nExtraProcessingTicks ) {
+			//	g_Vars.globals.Fakewalking = false;
+			//	return;
+			//}
 
-		// check for the amount of ticks when breaking LBY.
-		int pred_ticks = GetNextUpdate() - 1;
+			// calculate friction.
+			float friction = sv_friction->GetFloat() * LocalPlayer->m_surfaceFriction();
 
-		//if (!(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
-		*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed;
-		//}
+			// check for the amount of ticks when breaking LBY.
+			int pred_ticks = GetNextUpdate() - 1;
 
-		if (Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed) {
-			*m_movement_data->m_pSendPacket = true;
-			g_Vars.globals.bCanWeaponFire = false;
-			//printf("sent packet\n");
-		}
+			//if (!(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+			*m_movement_data->m_pSendPacket = Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed;
+			//}
 
-		m_movement_data->m_pCmd->buttons &= ~IN_SPEED;
-
-		for (ticks; ticks < g_Vars.misc.slow_walk_speed; ++ticks) {
-			// calculate speed.
-			float speed = velocity.Length();
-
-			// if too slow return.
-			if (speed <= 0.1f)
-				break;
-
-			// bleed off some speed, but if we have less than the bleed, threshold, bleed the threshold amount.
-			float control = std::max(speed, sv_stopspeed->GetFloat());
-
-			// calculate the drop amount.
-			float drop = control * friction * Interfaces::m_pGlobalVars->interval_per_tick;
-
-			// scale the velocity.
-			float newspeed = std::max(0.f, speed - drop);
-
-			if (newspeed != speed) {
-				// determine proportion of old speed we are using.
-				newspeed /= speed;
-
-				// adjust velocity according to proportion.
-				velocity *= newspeed;
+			if (Interfaces::m_pClientState->m_nChokedCommands() > g_Vars.misc.slow_walk_speed) {
+				*m_movement_data->m_pSendPacket = true;
+				g_Vars.globals.bCanWeaponFire = false;
+				//printf("sent packet\n");
 			}
-		}
 
-		g_Vars.globals.Fakewalking = true;
+			m_movement_data->m_pCmd->buttons &= ~IN_SPEED;
 
-		// zero forwardmove and sidemove.
-		if (ticks > ((g_Vars.misc.slow_walk_speed - 1) - Interfaces::m_pClientState->m_nChokedCommands()) || !Interfaces::m_pClientState->m_nChokedCommands()) {
-			InstantStop();
-			g_Vars.globals.updatingPacket = true;
+			for (ticks; ticks < g_Vars.misc.slow_walk_speed; ++ticks) {
+				// calculate speed.
+				float speed = velocity.Length();
+
+				// if too slow return.
+				if (speed <= 0.1f)
+					break;
+
+				// bleed off some speed, but if we have less than the bleed, threshold, bleed the threshold amount.
+				float control = std::max(speed, sv_stopspeed->GetFloat());
+
+				// calculate the drop amount.
+				float drop = control * friction * Interfaces::m_pGlobalVars->interval_per_tick;
+
+				// scale the velocity.
+				float newspeed = std::max(0.f, speed - drop);
+
+				if (newspeed != speed) {
+					// determine proportion of old speed we are using.
+					newspeed /= speed;
+
+					// adjust velocity according to proportion.
+					velocity *= newspeed;
+				}
+			}
+
+			g_Vars.globals.Fakewalking = true;
+
+			// zero forwardmove and sidemove.
+			if (ticks > ((g_Vars.misc.slow_walk_speed - 1) - Interfaces::m_pClientState->m_nChokedCommands()) || !Interfaces::m_pClientState->m_nChokedCommands()) {
+				InstantStop();
+				g_Vars.globals.updatingPacket = true;
+			}
+			else
+				g_Vars.globals.updatingPacket = false;
 		}
-		else
-			g_Vars.globals.updatingPacket = false;
+		else {
+			C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)LocalPlayer->m_hActiveWeapon().Get();
+			auto weapon_info = Weapon->GetCSWeaponData();
+
+			if (weapon_info.IsValid()) {
+				auto modifier = g_Vars.misc.slowwalk_speed == -1.0f ? 0.3f : g_Vars.misc.slowwalk_speed; //-V550
+				auto max_speed = modifier * (LocalPlayer->m_bIsScoped() ? weapon_info->m_flMaxSpeed2 : weapon_info->m_flMaxSpeed);
+
+				auto move_length = sqrt(m_movement_data->m_pCmd->sidemove * m_movement_data->m_pCmd->sidemove + m_movement_data->m_pCmd->forwardmove * m_movement_data->m_pCmd->forwardmove);
+
+				auto forwardmove = m_movement_data->m_pCmd->forwardmove / move_length;
+				auto sidemove = m_movement_data->m_pCmd->sidemove / move_length;
+
+				if (move_length > max_speed)
+				{
+					if (max_speed + 1.0f < LocalPlayer->m_vecVelocity().Length2D())
+					{
+						m_movement_data->m_pCmd->forwardmove = 0.0f;
+						m_movement_data->m_pCmd->sidemove = 0.0f;
+					}
+					else
+					{
+						m_movement_data->m_pCmd->sidemove = max_speed * sidemove;
+						m_movement_data->m_pCmd->forwardmove = max_speed * forwardmove;
+					}
+				}
+			}
+
+		}
 	}
 
 	void C_Movement::ThirdPerson( ) {

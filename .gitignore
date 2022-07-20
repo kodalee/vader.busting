@@ -42,3 +42,4 @@ Developer/Intermediate/vc141.idb
 *.recipe
 Stable build/csgo_legacy.lib
 Developer/csgo_legacy.lib
+Beta/csgo_legacy_beta.lib

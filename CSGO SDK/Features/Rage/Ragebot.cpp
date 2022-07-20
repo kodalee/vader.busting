@@ -2204,7 +2204,8 @@ namespace Interfaces
 
 			// try to find a record with a lby update or moving.
 			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_iResolverMode == Engine::RModes::MOVING) {
-				return currentRecord;
+				pBestRecord = currentRecord;
+				continue; // go to next record
 			}
 			//else if (pBestRecord != currentRecord) {
 			//	pBestRecord = currentRecord; // last record
