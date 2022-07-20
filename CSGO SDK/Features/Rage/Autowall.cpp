@@ -595,7 +595,7 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 
 		// check if we reach penetration distance, no more penetrations after that
 		// or if our modifier is super low, just stop the bullet
-		if( ( data->m_flTraceLength > 3150.f && data->m_WeaponData->m_flPenetration > 0.f ) ||
+		if( ( data->m_flTraceLength > 3000.f && data->m_WeaponData->m_flPenetration > 0.f ) ||
 			data->m_EnterSurfaceData->game.flPenetrationModifier < 0.1f ) {
 			data->m_iPenetrationCount = 0;
 			break;

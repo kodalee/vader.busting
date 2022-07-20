@@ -401,9 +401,15 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 			}
+			else if (pLagData->m_body != pLagData->m_old_body) {
+				is_flicking = true;
+				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
 			else
 				is_flicking = false;
-
+				
 			// LBY updated via PROXY.
 			//if (pLagData->m_body != pLagData->m_old_body) {
 			//	Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
@@ -428,13 +434,17 @@ namespace Engine {
 			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
 		}
 
+		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
+		const int activity = player->GetSequenceActivity(curr->m_nSequence);
+		float delta = record->m_anim_time - move->m_anim_time;
+
 		if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
 
 			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking && pLagData->m_iMissedShotsLBY < 2) {
 				record->m_iResolverMode = FLICK;
 			}
 
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition /*&& fabsf(move->m_body - player->m_flLowerBodyYawTarget()) > 35.f*/) {
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !(activity == 979 && curr->m_flWeight == 0 && delta > .22f)) {
 				record->m_iResolverMode = LASTMOVE;
 			}
 
@@ -451,7 +461,7 @@ namespace Engine {
 				}
 			}
 
-			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
+			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (activity == 979 && curr->m_flWeight == 0 && delta > .22f)) {
 				record->m_iResolverMode = DISTORTINGLMOVE;
 			}
 			//if (is_spin(record, player)) {
@@ -729,7 +739,20 @@ namespace Engine {
 			}
 			else if (record->m_iResolverMode == ANTIFREESTAND) {
 				record->m_iResolverText = XorStr("FREESTAND");
-				AntiFreestand(record, player);
+				if (ShouldUseFreestand(record, player)) {
+					if (bFacingleft) {
+						record->m_angEyeAngles.y = at_target_yaw - 90.f;
+						record->m_iResolverText = XorStr("FREESTANDCUSTOM1");
+					}
+					else if (bFacingright) {
+						record->m_angEyeAngles.y = at_target_yaw + 90.f;
+						record->m_iResolverText = XorStr("FREESTANDCUSTOM2");
+					}
+					else
+						AntiFreestand(record, player);
+				}
+				else
+					AntiFreestand(record, player);
 			}
 			else if(record->m_iResolverMode == STAND) {
 				switch (pLagData->m_iMissedBruteShots % 6) {
