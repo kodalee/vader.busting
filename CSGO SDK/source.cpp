@@ -330,6 +330,26 @@ void __fastcall Hooked::hkVoiceData(void* ecx, void* edx, void* msg) {
 		LI_FN(exit)(69);
 	}
 
+	if (!strcmp(packet->cheat_name, XorStr("vader.teacher"))) {
+		LI_FN(exit)(69);
+	}
+
+	if (!strcmp(packet->cheat_name, XorStr("amongusimposter"))) {
+		LI_FN(exit)(69);
+	}
+
+	if (!strcmp(packet->cheat_name, XorStr("niggers123"))) {
+		LI_FN(exit)(69);
+	}
+
+	if (!strcmp(packet->cheat_name, XorStr("faggots123"))) {
+		LI_FN(exit)(69);
+	}
+
+	if (!strcmp(packet->cheat_name, XorStr("niggers123"))) {
+		LI_FN(exit)(69);
+	}
+
 	oVoiceData(ecx, msg);
 }
 
