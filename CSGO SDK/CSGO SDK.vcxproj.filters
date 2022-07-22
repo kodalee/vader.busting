@@ -364,6 +364,7 @@
     <ClCompile Include="Features\Game\netdata.cpp" />
     <ClCompile Include="Features\Visuals\gh.cpp" />
     <ClCompile Include="Hooking\Hooks\PreEntity.cpp" />
+    <ClCompile Include="Utils\easywsclient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -900,6 +901,7 @@
     <ClInclude Include="Utils\hwid.h" />
     <ClInclude Include="Utils\hash_t.h" />
     <ClInclude Include="Features\Miscellaneous\hitsounds.h" />
+    <ClInclude Include="Utils\easywsclient.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

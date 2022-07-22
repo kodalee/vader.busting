@@ -778,6 +778,11 @@ namespace Interfaces
 	}
 
 	bool Create( void* reserved ) {
+#ifndef DEV
+		if (!g_Vars.globals.m_bUserValidated)
+			return false;
+#endif // !DEV
+
 		auto& pPropManager = Engine::PropManager::Instance( );
 
 		m_pClient = ( IBaseClientDLL* )CreateInterface( XorStr( "client.dll" ), XorStr( "VClient018" ) );
@@ -975,6 +980,11 @@ namespace Interfaces
 		g_pDeathNotices = m_pHud->FindHudElement< SFHudDeathNoticeAndBotStatus* >( XorStr( "SFHudDeathNoticeAndBotStatus" ) );
 		if( !g_pDeathNotices.IsValid( ) )
 			return false;
+
+#ifndef DEV
+		if (!g_Vars.globals.m_bUserValidated)
+			return false;
+#endif // !DEV
 
 		// pMethod
 		D3DDEVICE_CREATION_PARAMETERS params;
