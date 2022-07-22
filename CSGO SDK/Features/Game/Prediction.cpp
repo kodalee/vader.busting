@@ -393,16 +393,16 @@ namespace Engine
 			return;
 		}
 
-		//if( chan->m_nChokedPackets > 0 && !( chan->m_nChokedPackets % 4 ) ) {
-		//	//const auto choked = chan->m_nChokedPackets;
-		//	//chan->m_nChokedPackets = 0;
-		//	//chan->SendDatagram( );
-		//	//--chan->m_nOutSequenceNr;
-		//	//chan->m_nChokedPackets = choked;
-		//}
-		//else { 
-		//	g_Vars.globals.cmds.push_back( command_number );
-		//}
+		if( chan->m_nChokedPackets > 0 && !( chan->m_nChokedPackets % 4 ) ) {
+			const auto choked = chan->m_nChokedPackets;
+			chan->m_nChokedPackets = 0;
+			chan->SendDatagram( );
+			--chan->m_nOutSequenceNr;
+			chan->m_nChokedPackets = choked;
+		}
+		else { 
+			g_Vars.globals.cmds.push_back( command_number );
+		}
 	}
 
 	void Prediction::StoreNetvarCompression( CUserCmd* cmd )
