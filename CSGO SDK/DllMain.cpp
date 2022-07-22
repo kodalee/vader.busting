@@ -28,42 +28,42 @@
 static Semaphore dispatchSem;
 static SharedMutex smtx;
 
-using ThreadIDFn = int( _cdecl* )( );
+using ThreadIDFn = int(_cdecl*)();
 
 ThreadIDFn AllocateThreadID;
 ThreadIDFn FreeThreadID;
 
-int AllocateThreadIDWrapper( ) {
-	return AllocateThreadID( );
+int AllocateThreadIDWrapper() {
+	return AllocateThreadID();
 }
 
-int FreeThreadIDWrapper( ) {
-	return FreeThreadID( );
+int FreeThreadIDWrapper() {
+	return FreeThreadID();
 }
 
 template<typename T, T& Fn>
-static void AllThreadsStub( void* ) {
-	dispatchSem.Post( );
-	smtx.rlock( );
-	smtx.runlock( );
-	Fn( );
+static void AllThreadsStub(void*) {
+	dispatchSem.Post();
+	smtx.rlock();
+	smtx.runlock();
+	Fn();
 }
 
 
 // TODO: Build this into the threading library
 template<typename T, T& Fn>
-static void DispatchToAllThreads( void* data ) {
-	smtx.wlock( );
+static void DispatchToAllThreads(void* data) {
+	smtx.wlock();
 
-	for( size_t i = 0; i < Threading::numThreads; i++ )
-		Threading::QueueJobRef( AllThreadsStub<T, Fn>, data );
+	for (size_t i = 0; i < Threading::numThreads; i++)
+		Threading::QueueJobRef(AllThreadsStub<T, Fn>, data);
 
-	for( size_t i = 0; i < Threading::numThreads; i++ )
-		dispatchSem.Wait( );
+	for (size_t i = 0; i < Threading::numThreads; i++)
+		dispatchSem.Wait();
 
-	smtx.wunlock( );
+	smtx.wunlock();
 
-	Threading::FinishQueue( false );
+	Threading::FinishQueue(false);
 }
 
 struct DllArguments {
@@ -72,24 +72,24 @@ struct DllArguments {
 };
 
 namespace duxe::security {
-	uintptr_t* rel32( uintptr_t ptr ) {
-		auto offset = *( uintptr_t* )( ptr + 0x1 );
-		return ( uintptr_t* )( ptr + 5 + offset );
+	uintptr_t* rel32(uintptr_t ptr) {
+		auto offset = *(uintptr_t*)(ptr + 0x1);
+		return (uintptr_t*)(ptr + 5 + offset);
 	}
 
-	void bypass_mmap_detection( void* address, uint32_t region_size ) {
-		const auto client_dll = ( uint32_t )GetModuleHandleA( XorStr( "client.dll" ) );
+	void bypass_mmap_detection(void* address, uint32_t region_size) {
+		const auto client_dll = (uint32_t)GetModuleHandleA(XorStr("client.dll"));
 
 		const auto valloc_call = client_dll + 0x90DC60;
 
-		using add_allocation_to_list_t = int( __thiscall* )(
-			uint32_t list, LPVOID alloc_base, SIZE_T alloc_size, DWORD alloc_type, DWORD alloc_protect, LPVOID ret_alloc_base, DWORD last_error, int return_address, int a8 );
+		using add_allocation_to_list_t = int(__thiscall*)(
+			uint32_t list, LPVOID alloc_base, SIZE_T alloc_size, DWORD alloc_type, DWORD alloc_protect, LPVOID ret_alloc_base, DWORD last_error, int return_address, int a8);
 
-		auto add_allocation_to_list = ( add_allocation_to_list_t )( rel32( Memory::Scan( XorStr( "gameoverlayrenderer.dll" ), XorStr( "E8 ? ? ? ? 53 FF 15 ? ? ? ? 8B C7" ) ) ) );
+		auto add_allocation_to_list = (add_allocation_to_list_t)(rel32(Memory::Scan(XorStr("gameoverlayrenderer.dll"), XorStr("E8 ? ? ? ? 53 FF 15 ? ? ? ? 8B C7"))));
 
-		const auto list = *( uint32_t* )( Memory::Scan( XorStr( "gameoverlayrenderer.dll" ), XorStr( "56 B9 ? ? ? ? E8 ? ? ? ? 84 C0 74 1C" ) ) + 2 );
+		const auto list = *(uint32_t*)(Memory::Scan(XorStr("gameoverlayrenderer.dll"), XorStr("56 B9 ? ? ? ? E8 ? ? ? ? 84 C0 74 1C")) + 2);
 
-		add_allocation_to_list( list, address, region_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, address, 0, valloc_call, 0 );
+		add_allocation_to_list(list, address, region_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, address, 0, valloc_call, 0);
 	}
 }
 
@@ -148,12 +148,12 @@ static bool m_bWebSocketInitialized;
 static bool m_bShouldBan;
 static bool m_bUserValidated;
 
-DWORD WINAPI Entry( DllArguments* pArgs ) {
+DWORD WINAPI Entry(DllArguments* pArgs) {
 #ifdef DEV 
-	AllocConsole( );
-	freopen_s( ( FILE** )stdin, XorStr( "CONIN$" ), XorStr( "r" ), stdin );
-	freopen_s( ( FILE** )stdout, XorStr( "CONOUT$" ), XorStr( "w" ), stdout );
-	SetConsoleTitleA( XorStr( " " ) );
+	AllocConsole();
+	freopen_s((FILE**)stdin, XorStr("CONIN$"), XorStr("r"), stdin);
+	freopen_s((FILE**)stdout, XorStr("CONOUT$"), XorStr("w"), stdout);
+	SetConsoleTitleA(XorStr(" "));
 #endif
 
 #ifndef DEV
@@ -165,19 +165,19 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
-	g_Vars.globals.user_info = *( CVariables::GLOBAL::cheat_header_t* )pArgs->hModule;
+	g_Vars.globals.user_info = *(CVariables::GLOBAL::cheat_header_t*)pArgs->hModule;
 	g_Vars.globals.c_login = g_Vars.globals.user_info.username;
 	g_Vars.globals.hModule = pArgs->hModule;
 
 	ErasePEHeaderFromMemory(pArgs->hModule);
 	SizeOfImage();
 #else
-	g_Vars.globals.c_login = XorStr( "admin" );
+	g_Vars.globals.c_login = XorStr("admin");
 
 	g_Vars.globals.hModule = pArgs->hModule;
 
-	while( !GetModuleHandleA( XorStr( "serverbrowser.dll" ) ) ) {
-		Sleep( 50 );
+	while (!GetModuleHandleA(XorStr("serverbrowser.dll"))) {
+		Sleep(50);
 	}
 #endif // !DEV
 
@@ -198,36 +198,36 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 		LI_FN(exit)(69);
 	}
 #endif // !DEV
-	auto tier0 = GetModuleHandleA( XorStr( "tier0.dll" ) );
+	auto tier0 = GetModuleHandleA(XorStr("tier0.dll"));
 
-	AllocateThreadID = ( ThreadIDFn )GetProcAddress( tier0, XorStr( "AllocateThreadID" ) );
-	FreeThreadID = ( ThreadIDFn )GetProcAddress( tier0, XorStr( "FreeThreadID" ) );
+	AllocateThreadID = (ThreadIDFn)GetProcAddress(tier0, XorStr("AllocateThreadID"));
+	FreeThreadID = (ThreadIDFn)GetProcAddress(tier0, XorStr("FreeThreadID"));
 
-	Threading::InitThreads( );
+	Threading::InitThreads();
 
-	DispatchToAllThreads<decltype( AllocateThreadIDWrapper ), AllocateThreadIDWrapper>( nullptr );
+	DispatchToAllThreads<decltype(AllocateThreadIDWrapper), AllocateThreadIDWrapper>(nullptr);
 
 	// b1g alpha.
 	static bool bDownloaded = false;
-	if( !bDownloaded ) {
+	if (!bDownloaded) {
 		g_IMGUIMenu.Opened = true;
 		bDownloaded = true;
 	}
 
-	if( Interfaces::Create( pArgs->lpReserved ) ) {
-		Interfaces::m_pInputSystem->EnableInput( true );
+	if (Interfaces::Create(pArgs->lpReserved)) {
+		Interfaces::m_pInputSystem->EnableInput(true);
 
-		for( auto& child : g_Vars.m_children ) {
-			child->Save( );
+		for (auto& child : g_Vars.m_children) {
+			child->Save();
 
-			auto json = child->GetJson( );
-			g_Vars.m_json_default_cfg[ child->GetName( ) ] = ( json );
+			auto json = child->GetJson();
+			g_Vars.m_json_default_cfg[child->GetName()] = (json);
 		}
 
 
 #ifndef DEV
-		while( true ) {
-			std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
+		while (true) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 #endif // !DEV
 	}
@@ -260,8 +260,8 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 #endif
 }
 
-LONG WINAPI CrashHandlerWrapper( struct _EXCEPTION_POINTERS* exception ) {
-	auto ret = ICrashHandler::Get( )->OnCrashProgramm( exception );
+LONG WINAPI CrashHandlerWrapper(struct _EXCEPTION_POINTERS* exception) {
+	auto ret = ICrashHandler::Get()->OnCrashProgramm(exception);
 	return ret;
 }
 
@@ -321,7 +321,7 @@ DWORD WINAPI WebSocketThread(LPVOID PARAMS) {
 
 				LI_FN(MessageBoxA)(null, text.c_str(), title.c_str(), 0);
 			}
-		});
+			});
 
 		if (m_bShouldBan && m_bUserValidated) {
 			nlohmann::json j3 = {
@@ -384,22 +384,22 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 	return true;
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
-	if( dwReason == DLL_PROCESS_ATTACH ) {
-		DllArguments* args = new DllArguments( );
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved) {
+	if (dwReason == DLL_PROCESS_ATTACH) {
+		DllArguments* args = new DllArguments();
 		args->hModule = hModule;
 		args->lpReserved = lpReserved;
 
-		SetUnhandledExceptionFilter( CrashHandlerWrapper );
+		SetUnhandledExceptionFilter(CrashHandlerWrapper);
 		//AddVectoredExceptionHandler( 1, CrashHandlerWrapper );
 
 #ifdef DEV
-		auto thread = CreateThread( nullptr, NULL, LPTHREAD_START_ROUTINE( Entry ), args, NULL, nullptr );
-		if( thread ) {
-			strcpy( g_Vars.globals.user_info.username, XorStr( "admin" ) );
+		auto thread = CreateThread(nullptr, NULL, LPTHREAD_START_ROUTINE(Entry), args, NULL, nullptr);
+		if (thread) {
+			strcpy(g_Vars.globals.user_info.username, XorStr("admin"));
 			//g_Vars.globals.user_info.sub_expiration = 99999999999999999; // sencible date
 
-			CloseHandle( thread );
+			CloseHandle(thread);
 
 			return TRUE;
 		}
@@ -408,20 +408,20 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 		CreateThread(0, 0, &Security, 0, 0, 0);
 		CreateThread(0, 0, &WebSocketThread, 0, 0, 0);
 
-//#ifdef BETA_MODE
-//		SetUnhandledExceptionFilter( CrashHandlerWrapper );
-//#endif
+		//#ifdef BETA_MODE
+		//		SetUnhandledExceptionFilter( CrashHandlerWrapper );
+		//#endif
 
 		HANDLE thread;
 
-		syscall( NtCreateThreadEx )( &thread, THREAD_ALL_ACCESS, nullptr, current_process,
-			nullptr, args, THREAD_CREATE_FLAGS_CREATE_SUSPENDED | THREAD_CREATE_FLAGS_HIDE_FROM_DEBUGGER, NULL, NULL, NULL, nullptr );
+		syscall(NtCreateThreadEx)(&thread, THREAD_ALL_ACCESS, nullptr, current_process,
+			nullptr, args, THREAD_CREATE_FLAGS_CREATE_SUSPENDED | THREAD_CREATE_FLAGS_HIDE_FROM_DEBUGGER, NULL, NULL, NULL, nullptr);
 		CONTEXT context;
 		context.ContextFlags = CONTEXT_FULL;
-		syscall( NtGetContextThread )( thread, &context );
-		context.Eax = reinterpret_cast< uint32_t >( &Entry );
-		syscall( NtSetContextThread )( thread, &context );
-		syscall( NtResumeThread )( thread, nullptr );
+		syscall(NtGetContextThread)(thread, &context);
+		context.Eax = reinterpret_cast<uint32_t>(&Entry);
+		syscall(NtSetContextThread)(thread, &context);
+		syscall(NtResumeThread)(thread, nullptr);
 
 		return TRUE;
 #endif
