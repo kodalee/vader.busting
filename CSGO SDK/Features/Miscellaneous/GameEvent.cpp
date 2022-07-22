@@ -80,6 +80,7 @@ void C_GameEvent::Register( ) {
 	ADD_GAMEEVENT( grenade_thrown );
 	ADD_GAMEEVENT( buytime_ended );
 	ADD_GAMEEVENT( round_end );
+	ADD_GAMEEVENT( round_prestart );
 	ADD_GAMEEVENT( game_newmap );
 	ADD_GAMEEVENT( bomb_beep );
 	ADD_GAMEEVENT( bomb_defused );
