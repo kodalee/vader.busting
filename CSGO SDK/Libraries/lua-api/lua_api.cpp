@@ -685,6 +685,24 @@ namespace lua_globals {
 	float tickinterval() {
 		return Interfaces::m_pGlobalVars->interval_per_tick;
 	}
+
+	std::string get_server_address()
+	{
+		if (!Interfaces::m_pEngine->IsInGame())
+			return XorStr("Unknown");
+
+		auto nci = Interfaces::m_pEngine->GetNetChannelInfo();
+
+		if (!nci)
+			return XorStr("Unknown");
+
+		auto server = nci->GetAddress();
+
+		if (!strcmp(server, XorStr("loopback")))
+			server = XorStr("Local server");
+
+		return server;
+	}
 }
 
 namespace lua_cvar {
@@ -1183,6 +1201,7 @@ bool c_lua::initialize() {
 	globals[XorStr("maxclients")] = lua_globals::maxclients;
 	globals[XorStr("tickcount")] = lua_globals::tickcount;
 	globals[XorStr("tickinterval")] = lua_globals::tickinterval;
+	globals[XorStr("get_server_address")] = lua_globals::get_server_address;
 
 	auto cvar = this->lua.create_table();
 	cvar[XorStr("console_print")] = lua_cvar::console_print;
