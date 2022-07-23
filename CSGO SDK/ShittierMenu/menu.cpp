@@ -2206,7 +2206,11 @@ void IMGUIMenu::Keybinds_Spectators() {
 				binds.push_back(XorStr("Auto-Peek"));
 			}
 			if (g_Vars.misc.slow_walk && g_Vars.misc.slow_walk_bind.enabled) {
-				binds.push_back(XorStr("Fake-walk"));
+				if (!(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+					binds.push_back(XorStr("Fake-walk"));
+				}
+				else
+					binds.push_back(XorStr("Slow-walk"));
 			}
 			if (g_Vars.misc.extended_backtrack && g_Vars.misc.extended_backtrack_key.enabled) {
 				binds.push_back(XorStr("Ping-spike"));
