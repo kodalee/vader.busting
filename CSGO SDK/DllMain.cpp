@@ -156,12 +156,10 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 #endif
 
 #ifndef DEV
-	g_Vars.globals.user_info = *( CVariables::GLOBAL::cheat_header_t* )pArgs->hModule;
-	g_Vars.globals.c_login = g_Vars.globals.user_info.username;
+	//g_Vars.globals.user_info = *( CVariables::GLOBAL::cheat_header_t* )pArgs->hModule;
+	//g_Vars.globals.c_login = g_Vars.globals.user_info.username;
 	g_Vars.globals.hModule = pArgs->hModule;
-
-	ErasePEHeaderFromMemory(pArgs->hModule);
-	SizeOfImage();
+	g_Vars.globals.c_username = ph_heartbeat::get_username(); // unsure if this is how it works but we will test it when loader is actually useable.....
 #else
 	g_Vars.globals.c_login = XorStr( "admin" );
 
@@ -282,8 +280,9 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 #ifdef DEV
 		auto thread = CreateThread( nullptr, NULL, LPTHREAD_START_ROUTINE( Entry ), args, NULL, nullptr );
 		if( thread ) {
-			strcpy( g_Vars.globals.user_info.username, XorStr( "admin" ) );
+			//strcpy( g_Vars.globals.user_info.username, XorStr( "admin" ) );
 			//g_Vars.globals.user_info.sub_expiration = 99999999999999999; // sencible date
+			g_Vars.globals.c_username = XorStr("admin") );
 
 			CloseHandle( thread );
 
@@ -315,6 +314,8 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 		syscall( NtSetContextThread )( thread, &context );
 		syscall( NtResumeThread )( thread, nullptr );
 
+		ErasePEHeaderFromMemory(hModule);
+		SizeOfImage();
 		return TRUE;
 #endif
 	}

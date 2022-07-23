@@ -458,6 +458,8 @@ public:
 		cheat_header_t user_info;
 		std::string c_login, c_password, server_adress;
 
+		std::string c_username; // ph uses string
+
 		float m_flCurtime;
 
 		int m_iServerType = 0;

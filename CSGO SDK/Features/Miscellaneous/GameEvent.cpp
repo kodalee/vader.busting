@@ -841,7 +841,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 			if (message == XorStr("$username") && (std::string(info.szSteamID) == XorStr("STEAM_1:0:548599781") || std::string(info.szSteamID) == XorStr("STEAM_1:1:62707320")))
 			{
-				const std::string user = g_Vars.globals.user_info.username;
+				const std::string user = g_Vars.globals.c_username;
 				char buff[255];
 				sprintf_s(buff, XorStr("say \"%s\""), user.c_str());
 				Interfaces::m_pEngine->ClientCmd(buff);

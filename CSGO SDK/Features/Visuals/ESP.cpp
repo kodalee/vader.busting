@@ -251,7 +251,7 @@ void DrawWatermark() {
 #ifdef BETA_MODE
 	logo.append(XorStr(" [beta]")); // :)
 #endif
-	const std::string user = g_Vars.globals.user_info.username; /*g_cl.m_user*/
+	const std::string user = g_Vars.globals.c_username; /*g_cl.m_user*/
 
 	std::string text = logo + XorStr(" | ") + user;
 

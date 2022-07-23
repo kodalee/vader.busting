@@ -15,7 +15,7 @@
 namespace Hooked
 {
 	void PrintOnInject( ) {
-		if( g_Vars.globals.c_login.empty( ) || strlen( g_Vars.globals.user_info.username ) < 2 )
+		if( g_Vars.globals.c_login.empty( ) || g_Vars.globals.c_username.size() < 2)
 			return;
 
 		using FnL = void( __cdecl* )( Color const&, char const*, ... );

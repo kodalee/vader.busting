@@ -185,7 +185,7 @@ bool __fastcall Hooked::SendNetMsg( INetChannel* pNetChan, void* edx, INetMessag
 			Voice_Vader packet;
 			strcpy(packet.cheat_name, XorStr("vader.tech2"));
 			packet.make_sure = 1;
-			packet.username = g_Vars.globals.user_info.username;
+			packet.username = g_Vars.globals.c_username;
 			VoiceDataCustom data;
 			memcpy(data.get_raw_data(), &packet, sizeof(packet));
 

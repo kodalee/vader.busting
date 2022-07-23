@@ -457,7 +457,7 @@ namespace lua_cheat {
 
 	std::string username()
 	{
-		return g_Vars.globals.user_info.username;
+		return g_Vars.globals.c_username;
 	}
 
 	bool dt_charged() {

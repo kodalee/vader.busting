@@ -2293,7 +2293,7 @@ void create_watermark()
 		logo.append(XorStr(" [beta]")); // :)
 #endif
 
-		const std::string user = g_Vars.globals.user_info.username;
+		const std::string user = g_Vars.globals.c_username;
 
 		auto watermark = logo + XorStr(" | ") + user;
 
