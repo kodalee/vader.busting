@@ -9,6 +9,7 @@
 #include "../../Features/Visuals/ExtendedEsp.hpp"
 #include "../../Features/Miscellaneous/BulletBeamTracer.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
+#include "../../Utils/lazy_importer.hpp"
 
 //#define TICKBASE_DEBUG 
 
@@ -33,6 +34,13 @@ namespace Hooked
 		//	exit( 69 );
 		//	return;
 		//}
+
+#ifndef DEV
+		if (!g_Vars.globals.m_bUserValidated) {
+			LI_FN(exit)( 69 );
+			return;
+		}
+#endif // !DEV
 
 		static int aaa = -1;
 		if( aaa == -1 ) {

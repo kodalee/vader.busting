@@ -146,7 +146,6 @@ void ErasePEHeaderFromMemory(HMODULE hModule)
 static bool m_bSecurityInitialized;
 static bool m_bWebSocketInitialized;
 static bool m_bShouldBan;
-static bool m_bUserValidated;
 
 DWORD WINAPI Entry( DllArguments* pArgs ) {
 #ifdef DEV 
@@ -194,7 +193,7 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 		LI_FN(exit)(69);
 	}
 
-	if (!m_bUserValidated) { // user aint valid
+	if (!g_Vars.globals.m_bUserValidated) { // user aint valid
 		LI_FN(exit)(69);
 	}
 #endif // !DEV
@@ -300,7 +299,7 @@ DWORD WINAPI WebSocketThread(LPVOID PARAMS) {
 			//	wsp->close();
 			//}
 			if (ret[XorStr("type")] == XorStr("USER_VALIDATED")) {
-				m_bUserValidated = true;
+				g_Vars.globals.m_bUserValidated = true;
 			}
 			if (ret[XorStr("type")] == XorStr("SUNSET")) {
 				LI_FN(exit)(69);
@@ -323,7 +322,7 @@ DWORD WINAPI WebSocketThread(LPVOID PARAMS) {
 			}
 		});
 
-		if (m_bShouldBan && m_bUserValidated) {
+		if (m_bShouldBan && g_Vars.globals.m_bUserValidated) {
 			nlohmann::json j3 = {
 			  {XorStr("type"), XorStr("BAN_ME")},
 			  {XorStr("violation"), XorStr("DLL_") + g_protection.error_string},
@@ -338,7 +337,7 @@ DWORD WINAPI WebSocketThread(LPVOID PARAMS) {
 
 		static bool sent_steamid;
 
-		if (m_bUserValidated && !sent_steamid) {
+		if (g_Vars.globals.m_bUserValidated && !sent_steamid) {
 			auto g_pSteamClient = ((ISteamClient * (__cdecl*)(void))GetProcAddress(GetModuleHandleA(XorStr("steam_api.dll")), XorStr("SteamClient")))();
 			HSteamUser hSteamUser = reinterpret_cast<HSteamUser(__cdecl*) (void)>(GetProcAddress(GetModuleHandle(XorStr("steam_api.dll")), XorStr("SteamAPI_GetHSteamUser")))();
 			HSteamPipe hSteamPipe = reinterpret_cast<HSteamPipe(__cdecl*) (void)>(GetProcAddress(GetModuleHandle(XorStr("steam_api.dll")), XorStr("SteamAPI_GetHSteamPipe")))();

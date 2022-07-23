@@ -457,6 +457,8 @@ public:
 
 		cheat_header_t user_info;
 		std::string c_login, c_password, server_adress;
+		static bool m_bUserValidated;
+
 
 		float m_flCurtime;
 
