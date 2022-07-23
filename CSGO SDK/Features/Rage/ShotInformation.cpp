@@ -285,8 +285,8 @@ namespace Engine
 #if defined (BETA_MODE) || defined(DEV)
 							msg << XorStr("missed shot ");
 							msg << XorStr("reason: ") << reason.data() << XorStr(" | ");
-							msg << XorStr("lby: ") << int(it->snapshot->ResolverType == EResolverModes::RESOLVE_BODY) << XorStr(" | ");
-							//msg << XorStr( "dmg: " ) << it->snapshot->m_nSelectedDamage << XorStr( " | " );
+							msg << XorStr("lby: ") << int(it->snapshot->ResolverType == RModes::FLICK) << XorStr(" | ");
+							msg << XorStr("dmg: " ) << it->snapshot->m_nSelectedDamage << XorStr( " | " );
 
 #ifdef DEV 
 

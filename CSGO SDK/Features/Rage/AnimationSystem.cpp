@@ -729,7 +729,7 @@ namespace Engine
 				if ( bValid )
 				{
 					current.Xor()->m_bResolved = /*current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_BODY ||*/
-						current.Xor()->m_iResolverMode == Engine::RModes::MOVING; /*||
+						current.Xor()->m_iResolverMode == Engine::RModes::MOVING || current.Xor()->m_iResolverMode == Engine::RModes::FLICK; /*||
 						current.Xor( )->m_flLowerBodyYawTarget == previous.Xor( )->m_flLowerBodyYawTarget;*/
 				}
 				else
