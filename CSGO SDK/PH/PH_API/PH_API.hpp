@@ -36,7 +36,7 @@ namespace ph_heartbeat {
 		Set this value to 0 to not print any information about the heartbeat.
 	*/
 
-	#define PH_HEARTBEAT_DEBUG 1
+	#define PH_HEARTBEAT_DEBUG 0
 
 	/*
 		DO NOT change these values unless advised to by the owner of Project Hades.
