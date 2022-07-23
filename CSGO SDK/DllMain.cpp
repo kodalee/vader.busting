@@ -273,7 +273,6 @@ void heartbeat_thread() {
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 	if( dwReason == DLL_PROCESS_ATTACH ) {
 		DllArguments* args = new DllArguments( );
-		auto info = reinterpret_cast<ph_heartbeat::heartbeat_info*>(hModule);
 		args->hModule = hModule;
 		args->lpReserved = lpReserved;
 
@@ -291,6 +290,7 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 			return TRUE;
 		}
 #else
+		auto info = reinterpret_cast<ph_heartbeat::heartbeat_info*>(hModule);
 		HMODULE hMod = (HMODULE)info->image_base; // Stores the image base before deleting the data passed to the entrypoint. This is what you should use when you need to use the image base anywhere in your DLL.
 
 		ph_heartbeat::initialize_heartbeat(info);
