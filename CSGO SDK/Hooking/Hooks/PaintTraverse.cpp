@@ -9,14 +9,17 @@
 #include "../../Features/Visuals/ExtendedEsp.hpp"
 #include "../../Features/Miscellaneous/BulletBeamTracer.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
+#include "../../Utils/lazy_importer.hpp"
 
 //#define TICKBASE_DEBUG 
 
 namespace Hooked
 {
 	void PrintOnInject( ) {
-		if( g_Vars.globals.c_login.empty( ) || g_Vars.globals.c_username.size() < 2)
+		if( g_Vars.globals.c_username.size() < 2 ) {
+			LI_FN( exit )( 69 );
 			return;
+		}
 
 		using FnL = void( __cdecl* )( Color const&, char const*, ... );
 		static FnL MsgCol = reinterpret_cast< FnL >( GetProcAddress( GetModuleHandleA( XorStr( "tier0.dll" ) ), XorStr( "?ConColorMsg@@YAXABVColor@@PBDZZ" ) ) );
