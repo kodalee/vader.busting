@@ -245,7 +245,6 @@
     <ClCompile Include="Hooking\Hooks\IsBoxVisible.cpp" />
     <ClCompile Include="Hooking\Hooks\IsConnected.cpp" />
     <ClCompile Include="Hooking\Hooks\IsPlayingDemo.cpp" />
-    <ClCompile Include="Utils\easywsclient.cpp" />
     <ClCompile Include="Utils\LogSystem.cpp" />
     <ClCompile Include="Menu\Elements.cpp" />
     <ClCompile Include="Menu\Framework\Button\Button.cpp" />
@@ -433,7 +432,6 @@
     <ClInclude Include="Features\Rage\ExtendedBactrack.hpp" />
     <ClInclude Include="Features\Visuals\ExtendedEsp.hpp" />
     <ClInclude Include="Features\Rage\FakeLag.hpp" />
-    <ClInclude Include="Utils\easywsclient.hpp" />
     <ClInclude Include="Utils\fnv.h" />
     <ClInclude Include="Utils\FnvHash.hpp" />
     <ClInclude Include="Libraries\freetype\freetype\config\ftconfig.h" />
