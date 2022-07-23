@@ -226,6 +226,9 @@
     <ClCompile Include="Libraries\lua-api\lua_hooks.cpp" />
     <ClCompile Include="Loader\Exports.cpp" />
     <ClCompile Include="Loader\Security\Security.cpp" />
+    <ClCompile Include="PH\AES\AES.cpp" />
+    <ClCompile Include="PH\cJSON\cJSON.c" />
+    <ClCompile Include="PH\socket\socket.cpp" />
     <ClCompile Include="Renderer\Wrapper\sprite\sprite.cpp" />
     <ClCompile Include="SDK\Classes\CClientState.cpp" />
     <ClCompile Include="SDK\Classes\CCSGO_HudDeathNotice.cpp" />
@@ -384,6 +387,12 @@
     <ClInclude Include="Libraries\sol\sol.hpp" />
     <ClInclude Include="Loader\Exports.h" />
     <ClInclude Include="Loader\Security\Security.hpp" />
+    <ClInclude Include="PH\AES\AES.h" />
+    <ClInclude Include="PH\Base64\Base64.h" />
+    <ClInclude Include="PH\cJSON\cJSON.h" />
+    <ClInclude Include="PH\PH_API\PH_API.hpp" />
+    <ClInclude Include="PH\picosha2\picosha2.h" />
+    <ClInclude Include="PH\socket\socket.hpp" />
     <ClInclude Include="Renderer\Textures\weaponicons.h" />
     <ClInclude Include="Renderer\Wrapper\font\font.h" />
     <ClInclude Include="Renderer\Wrapper\sprite\sprite.h" />

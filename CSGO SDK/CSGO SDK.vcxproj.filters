@@ -364,6 +364,9 @@
     <ClCompile Include="Features\Game\netdata.cpp" />
     <ClCompile Include="Features\Visuals\gh.cpp" />
     <ClCompile Include="Hooking\Hooks\PreEntity.cpp" />
+    <ClCompile Include="PH\cJSON\cJSON.c" />
+    <ClCompile Include="PH\socket\socket.cpp" />
+    <ClCompile Include="PH\AES\AES.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -900,6 +903,12 @@
     <ClInclude Include="Utils\hwid.h" />
     <ClInclude Include="Utils\hash_t.h" />
     <ClInclude Include="Features\Miscellaneous\hitsounds.h" />
+    <ClInclude Include="PH\cJSON\cJSON.h" />
+    <ClInclude Include="PH\PH_API\PH_API.hpp" />
+    <ClInclude Include="PH\picosha2\picosha2.h" />
+    <ClInclude Include="PH\socket\socket.hpp" />
+    <ClInclude Include="PH\AES\AES.h" />
+    <ClInclude Include="PH\Base64\Base64.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">
