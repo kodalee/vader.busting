@@ -397,7 +397,7 @@ namespace Hooked
 				}
 			}
 
-
+			//GEICO FROM FUTURE
 			// fix netvar compression
 			//auto& prediction = Engine::Prediction::Instance( );
 			//if( Interfaces::m_pEngine->IsInGame( ) )

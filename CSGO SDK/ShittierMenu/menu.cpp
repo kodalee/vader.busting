@@ -314,10 +314,16 @@ void Ragebot()
 
 			InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->accry_boost_on_shot);
 
+			if (rbot->accry_boost_on_shot) {
+				InsertSliderFloat(std::string(XorStr("Accuracy Boost Chance##amt") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance_accuracy, 0.f, 100.f, XorStr("%.0f%%"));
+			}
+
 			const char* accuracyonshotmodes[] = { XorStr("Off"), XorStr("Low"), XorStr("Medium"), XorStr("High") };
 			if (rbot->accry_boost_on_shot) {
 				InsertCombo(XorStr("Accuracy boost modes"), &rbot->accry_boost_on_shot_modes, accuracyonshotmodes);
 			}
+
+			InsertCheckbox(PrioritizeOldest, XorStr("Prioritize Oldest Record") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->prioritize_oldest);
 
 			InsertCheckbox(shotdelay, XorStr("Delay hitbox selection") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->shotdelay);
 			InsertCheckbox(delay_shot_on_unducking, XorStr("Delay shot on unduck") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->delay_shot_on_unducking);
