@@ -798,7 +798,6 @@ public:
 	config_option( bool, delay_shot_on_unducking, false );
 	config_option( bool, delay_shot_on_peek, false );
 	config_option( bool, accry_boost_on_shot, false );
-	config_option( bool, prioritize_oldest, false );
 	config_option( int, accry_boost_on_shot_modes, 0 );
 
 	config_option( bool, shotdelay, 0 );

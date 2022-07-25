@@ -294,8 +294,6 @@ namespace Engine
 		std::memcpy( record->m_BoneMatrix, anim_data->m_Bones, player->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
 	}
 
-
-	// GEICO FROM FUTURE, the fuck is this
 	bool Engine::C_EntityLagData::DetectAutoDirerction( Encrypted_t< C_EntityLagData > pThis, C_CSPlayer* player ) {
 		if( !player || player->IsDead( ) )
 			return false;
