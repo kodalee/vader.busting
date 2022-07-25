@@ -790,7 +790,6 @@ namespace Interfaces
 			m_rage_data->m_pCmd->viewangles = angles_spread;
 		}
 
-
 		if (!g_TickbaseController.Using() && !g_TickbaseController.Building()) {
 			if (m_rage_data->m_bResetCmd) {
 				*m_rage_data->m_pCmd.Xor() = cmd_backup;
@@ -1567,6 +1566,18 @@ namespace Interfaces
 			}
 		}
 
+		if (g_Vars.globals.m_bGround && m_rage_data->m_pBestTarget) {
+
+			if (m_rage_data->rbot->autoscope == 1 &&
+				m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE &&
+				m_rage_data->m_pWeapon->m_zoomLevel() <= 0) {
+				m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
+				m_rage_data->m_bPredictedScope = true;
+				m_rage_data->m_bRePredict = true;
+			}
+
+		}
 	}
 
 	std::pair<bool, C_AimPoint> C_Ragebot::RunHitscan() {
@@ -1589,14 +1600,6 @@ namespace Interfaces
 
 		g_Vars.globals.RageBotTargetting = true;
 
-		bool can_scope = m_rage_data->m_pWeapon->m_zoomLevel() <= 0 && m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
-
-		if (can_scope && m_rage_data->rbot->autoscope == 1) {
-			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-			m_rage_data->m_bRePredict = true; // i am confused on why it does this on hc failed autoscope. is this needed here????
-			return { false, C_AimPoint() }; // return here so when scoping dont shooting!!!
-		}
-
 		//for( auto& p : m_rage_data->m_aim_points ) {
 		//	Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
 		//}
@@ -1609,10 +1612,7 @@ namespace Interfaces
 		C_AimPoint* bestPoint = nullptr;
 		bool doubleTap = /*( g_TickbaseController.bExploiting || g_TickbaseController.bUseDoubletapHitchance ) && */g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit;
 		for (auto& p : m_rage_data->m_aim_points) {
-			if (p.damage < 1.0f)
-				continue;
-
-			if (p.target->player->IsTeammate(m_rage_data->m_pLocal))
+			if (p.damage < 1.f)
 				continue;
 
 			// if we got no bestPoint yet, we should always take the first point
@@ -1621,89 +1621,63 @@ namespace Interfaces
 				continue;
 			}
 
-			// get vars.
-			int iHealth = p.target->player->m_iHealth();
-			float flMaxBodyDamage = Autowall::ScaleDamage(p.target->player, m_rage_data->m_pWeaponInfo->m_iWeaponDamage, m_rage_data->m_pWeaponInfo->m_flArmorRatio, Hitgroup_Stomach);
-			float flMaxHeadDamage = Autowall::ScaleDamage(p.target->player, m_rage_data->m_pWeaponInfo->m_iWeaponDamage, m_rage_data->m_pWeaponInfo->m_flArmorRatio, Hitgroup_Head);
 
 			if (p.isLethal) {
 				// don't shoot at head if we can shoot body and kill enemy
-				if (!p.isBody) {
+				if (p.isHead) {
 					continue; // go to next point
 				}
 
 				// we always want this point, due to it being either choosen by bShouldBaim or p.is_should_baim
-				if (bestPoint->isHead || (int)p.damage > int(bestPoint->damage + 5))
+				if (bestPoint->isHead || !bestPoint->isLethal || (int)p.damage >= int(bestPoint->damage) || bestPoint->center) {
 					bestPoint = &p;
-
-				// if this damage is lethal, we actually want to break.
-				if (bestPoint->damage >= iHealth) {
-					break;
-				}
-
-				// let's continue searching for a better point instead of possibly overriding the current one later on.
-				continue;
-			}
-			else {
-				// if damage to body higher than hp, prioritize body or safe points
-				if (int(flMaxBodyDamage) >= (iHealth / 2) || (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) || !(bestPoint->target->player->m_fFlags() & FL_ONGROUND)) {
-					// don't shoot at head if we can shoot body and kill enemy
-					if (!p.isBody) {
-						continue; // go to next point
-					}
-
-					// possibly good body point?
-					if ((!bestPoint->center && p.target->hasCenter) || (!p.target->hasCenter && (int)p.damage > (int)bestPoint->damage))
-						bestPoint = &p;
-
-					// basically, if this is lethal, we take it.
-					if (bestPoint->damage >= iHealth) {
-						break;
-					}
-				}
-				// run head aim after baim conditions (body > head)
-				else {
-					// if damage to the head is higher than hp, prioritize head or safe points
-					if (int(flMaxHeadDamage) > iHealth) {
-						//// don't shoot at body if we can shoot head and kill enemy
-						// GEICO FROM FUTURE
-						if (!p.isHead) {
-							continue; // go to next point
-						}
-
-						// possibly good head point?
-						if ((!bestPoint->center && p.target->hasCenter) || (!p.target->hasCenter && (int)p.damage > (int)bestPoint->damage))
-							bestPoint = &p;
-
-						// basically, if this is lethal, we take it.
-						if (bestPoint->damage >= iHealth) {
-							break;
-						}
-					}
-
-				}
-			}
-
-			auto bestTarget = bestPoint->target;
-			if (bestTarget->preferBody) {
-				if (bestPoint->isBody != p.isBody) {
-					bestPoint = bestPoint->isBody ? bestPoint : &p;
 					continue;
 				}
-			}
-			else {
-				if (bestTarget->preferHead) {
-					if (bestPoint->isHead != p.isHead) {
-						bestPoint = bestPoint->isHead ? bestPoint : &p;
-						continue;
-					}
+
+				if (bestPoint->damage >= bestPoint->target->player->m_iHealth() + 5) {
+					break;
 				}
 			}
 
-			if ((bestPoint->center && (int)p.damage > (int)bestPoint->damage + 5) || (!bestPoint->center && (int)p.damage > (int)bestPoint->damage)) {
+
+			if (p.isHead && (p.damage >= p.target->player->m_iHealth()) && p.record->m_bResolved) {
 				bestPoint = &p;
 				continue;
 			}
+
+			auto bestTarget = p.target;
+
+
+
+			if (!bestPoint->isLethal) {
+
+				if (bestTarget->preferBody) {
+					// x2 lethal!!
+					if (p.isBody && (p.damage * 2.f >= p.target->player->m_iHealth())) {
+						bestPoint = &p;
+						break;
+					}
+				}
+
+				// we want to kill him with 1 shot
+				if (bestTarget->preferHead) {
+					// oneshot!!
+					if (p.isHead && (p.damage >= p.target->player->m_iHealth())) {
+						bestPoint = &p;
+						break;
+					}
+
+				}
+
+				if (int(p.damage) >= int(bestPoint->damage)) {
+					bestPoint = &p;
+					continue;
+				}
+			}
+
+
+			if (bestPoint->damage >= bestPoint->target->player->m_iHealth() && (bestPoint->isBody || bestPoint->record->m_bResolved))
+				break;
 		}
 
 		bool result = false;
@@ -1834,7 +1808,7 @@ namespace Interfaces
 									buffer = XorStr("none");
 								}
 
-								//msg << XorStr("dmg: ") << int(bestPoint->damage) << XorStr(" | ");
+								msg << XorStr("dmg: ") << int(bestPoint->damage) << XorStr(" | ");
 								msg << XorStr("hitgroup: ") << TranslateHitbox(bestPoint->hitboxIndex).c_str() /*<< XorStr("(") << int(bestPoint->pointscale * 100.f) << XorStr("%%%%)")*/ << XorStr(" | ");
 								msg << XorStr("lby: ") << int(bestPoint->target->record->m_iResolverMode == 1) << XorStr(" | ");
 								msg << XorStr( "bt: " ) << TIME_TO_TICKS( m_lag_data->m_History.front( ).m_flSimulationTime - bestPoint->target->record->m_flSimulationTime ) << XorStr( " | " );
@@ -1914,11 +1888,6 @@ namespace Interfaces
 		if (!pPoint || !pPoint->target || !pPoint->target->player)
 			return;
 
-		// no do
-		if (pPoint->hitboxIndex == HITBOX_HEAD && m_rage_data->m_bDelayedHeadAim) {
-			return;
-		}
-
 		Autowall::C_FireBulletData fireData;
 		fireData.m_bPenetration = this->m_rage_data->rbot->autowall;
 
@@ -1936,6 +1905,10 @@ namespace Interfaces
 		pPoint->damage = Autowall::FireBullets(&fireData);
 		pPoint->penetrated = fireData.m_iPenetrationCount < 4;
 
+		if (pPoint->hitboxIndex == HITBOX_HEAD && this->m_rage_data->m_bDelayedHeadAim && pPoint->penetrated && pPoint->target->preferBody) {
+			return;
+		}
+
 		int hp = pPoint->target->player->m_iHealth();
 		float mindmg = (m_rage_data->rbot->min_damage > 100 ? hp + (m_rage_data->rbot->min_damage - 100) : m_rage_data->rbot->min_damage);
 		if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled && !g_Vars.globals.OverridingMinDmg) {
@@ -1948,86 +1921,54 @@ namespace Interfaces
 			mindmg = m_rage_data->rbot->min_damage_visible > 100 ? hp + (m_rage_data->rbot->min_damage_visible - 100) : m_rage_data->rbot->min_damage_visible;
 		}
 
-		// if lethal, we still want to shoot
-		if (pPoint->damage >= 20 && pPoint->damage >= (hp + 2))
-			mindmg = hp;
-
-		if ((convert_hitbox_to_hitgroup(pPoint->hitboxIndex) == Hitgroup_Head) && fireData.m_iHitgroup != Hitgroup_Head) {
+		// we did not hit head
+		if ((pPoint->hitboxIndex) == HITBOX_HEAD && fireData.m_iHitgroup != Hitgroup_Head) {
+			pPoint->hitchance = 0.0f;
 			pPoint->damage = 0.f;
 			return;
 		}
 
-		if (pPoint->damage >= mindmg) {
-			pPoint->hitgroup = fireData.m_EnterTrace.hitgroup;
-			pPoint->healthRatio = int(float(pPoint->target->player->m_iHealth()) / pPoint->damage) + 1;
+		if (mindmg < 100.f && hp > 40.f)
+			mindmg = std::ceil((mindmg / 100.f) * hp);
+		else if (mindmg == 100) {
 
-			auto hitboxSet = (*(studiohdr_t**)pPoint->target->player->m_pStudioHdr())->pHitboxSet(pPoint->target->player->m_nHitboxSet());
-			auto hitbox = hitboxSet->pHitbox(pPoint->hitboxIndex);
+			mindmg = hp;
 
-			pPoint->isHead = pPoint->hitboxIndex == HITBOX_HEAD || pPoint->hitboxIndex == HITBOX_NECK;
-			pPoint->isBody = pPoint->hitboxIndex == HITBOX_PELVIS || pPoint->hitboxIndex == HITBOX_STOMACH || pPoint->hitboxIndex == HITBOX_CHEST ||
-				pPoint->hitboxIndex == HITBOX_UPPER_CHEST || pPoint->hitboxIndex == HITBOX_LOWER_CHEST || pPoint->hitboxIndex == HITBOX_LEFT_CALF ||
-				pPoint->hitboxIndex == HITBOX_RIGHT_CALF || pPoint->hitboxIndex == HITBOX_LEFT_FOOT || pPoint->hitboxIndex == HITBOX_RIGHT_FOOT ||
-				pPoint->hitboxIndex == HITBOX_RIGHT_THIGH || pPoint->hitboxIndex == HITBOX_LEFT_THIGH;
+			if (fireData.m_Weapon->m_iItemDefinitionIndex() == WEAPON_AWP && hp < 97) {
 
-			// nospread enabled
-			if (m_rage_data->m_flSpread != 0.0f && m_rage_data->m_flInaccuracy != 0.0f) {
-				auto pHitboxSet = (*(studiohdr_t**)pPoint->target->player->m_pStudioHdr())->pHitboxSet(pPoint->target->player->m_nHitboxSet());
-				auto pHitbox = pHitboxSet->pHitbox(pPoint->hitboxIndex);
+				mindmg = hp + 3;
 
-				const bool bIsCapsule = pHitbox->m_flRadius != -1.0f;
-				const float flRadius = pHitbox->m_flRadius;
-
-				float flSpread = m_rage_data->m_flSpread + m_rage_data->m_flInaccuracy;
-
-				Vector right, up;
-				dir.GetVectors(right, up);
-
-				int iHits = 0;
-
-				Vector vecMin = pHitbox->bbmin.Transform(pPoint->target->player->m_CachedBoneData().Element(pHitbox->bone));
-				Vector vecMax = pHitbox->bbmax.Transform(pPoint->target->player->m_CachedBoneData().Element(pHitbox->bone));
-
-				for (int x = 1; x <= 4; x++) {
-					for (int j = 0; j < x * 5; ++j) {
-						float flCalculatedSpread = flSpread * float(float(x) / 4.f);
-
-						float flDirCos, flDirSin;
-						DirectX::XMScalarSinCos(&flDirCos, &flDirSin, DirectX::XM_2PI * float(float(j) / float(x * 5)));
-
-						// calculate spread vector
-						Vector2D vecSpread;
-						vecSpread.x = flDirCos * flCalculatedSpread;
-						vecSpread.y = flDirSin * flCalculatedSpread;
-
-						// calculate direction
-						Vector vecDir;
-						vecDir.x = dir.x + (vecSpread.x * right.x) + (vecSpread.y * up.x);
-						vecDir.y = dir.y + (vecSpread.x * right.y) + (vecSpread.y * up.y);
-						vecDir.z = dir.z + (vecSpread.x * right.z) + (vecSpread.y * up.z);
-
-						// calculate end point
-						Vector vecEnd = m_rage_data->m_vecEyePos + vecDir * m_rage_data->m_pWeaponInfo->m_flWeaponRange;
-
-						// use intersection for check hit
-						bool bHit = bIsCapsule ?
-							Math::IntersectSegmentToSegment(m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax, flRadius) :
-							Math::IntersectionBoundingBox(m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax);
-
-						//did we hit
-						if (bHit)
-							iHits++;
-					}
+				if (pPoint->hitboxIndex == HITBOX_HEAD && !pPoint->record->m_bResolved && pPoint->damage < hp) {
+					pPoint->hitchance = 0.0f;
+					pPoint->damage = 0.f;
+					return;
 				}
 
-				pPoint->hitchance = float(iHits) / 0.5f;
+
+
 			}
-			else {
-				pPoint->hitchance = 0.f;
-			}
+			else if (hp <= 89)
+				mindmg = hp + 1;
+
+
+		}
+
+
+		// we did not hit head
+		if ((pPoint->hitboxIndex) == HITBOX_HEAD && fireData.m_iHitgroup != Hitgroup_Head) {
+			pPoint->hitchance = 0.0f;
+			pPoint->damage = 0.f;
+			return;
+		}
+
+		bool done = pPoint->damage >= mindmg;
+
+		if (done) {
+			pPoint->hitgroup = fireData.m_EnterTrace.hitgroup;
+			pPoint->isHead = pPoint->hitboxIndex <= 2;
+			pPoint->isBody = pPoint->hitboxIndex > 2;
 		}
 		else {
-			pPoint->healthRatio = int(float(pPoint->target->player->m_iHealth()) / pPoint->damage) + 1;
 			pPoint->hitchance = 0.0f;
 			pPoint->damage = 0.f;
 		}
@@ -2170,9 +2111,8 @@ namespace Interfaces
 			arrRecords[recordsCount] = &*it;
 			recordsCount++;
 
-			if (it->m_bTeleportDistance) {
-				break;
-			}
+			if (it->m_bTeleportDistance)
+				continue;
 
 			if (recordsCount + 1 >= 64)
 				break;
@@ -2195,12 +2135,12 @@ namespace Interfaces
 				continue; // go to next record
 			}
 
-			//if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {
-			//	if (!pBestRecord->m_bResolved) {
-			//		pBestRecord = currentRecord;
-			//		continue;
-			//	}
-			//}
+			if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {
+				if (!pBestRecord->m_bResolved) {
+					pBestRecord = currentRecord;
+					continue;
+				}
+			}
 
 			// try to find a record with a lby update or moving.
 			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_iResolverMode == Engine::RModes::MOVING) {
@@ -2214,7 +2154,7 @@ namespace Interfaces
 			
 		}
 
-		if (!pBestRecord) {
+		if (!pBestRecord || record.m_bTeleportDistance) {
 			return &record;
 		}
 
