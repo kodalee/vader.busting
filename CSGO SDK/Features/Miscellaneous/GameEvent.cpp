@@ -323,7 +323,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 					if( g_Vars.esp.event_harm ) {
 						std::stringstream msg;
 
-						msg << XorStr( "harmed by " ) << attacker_info.szName << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
+						msg << XorStr( "harmed by " ) << std::string(attacker_info.szName).substr(0, 24) << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
 
 						ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "" ) );
 					}
@@ -335,7 +335,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				if( g_Vars.esp.event_dmg ) {
 					std::stringstream msg;
 
-					msg << XorStr( "hit " ) << enemy_info.szName << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
+					msg << XorStr( "hit " ) << std::string(enemy_info.szName).substr(0, 24) << XorStr( " for " ) << dmg_to_health << XorStr( " in " ) << HitgroupToString( hitgroup ).data( );
 
 					ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "" ) );
 				}
