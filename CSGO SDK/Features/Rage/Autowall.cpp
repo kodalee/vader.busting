@@ -24,17 +24,17 @@ bool Autowall::IsBreakable( C_BaseEntity* pEntity ) {
 		const char* name = pClientClass->m_pNetworkName;
 
 		// CBreakableSurface, CBaseDoor, ...
-		//if( name[ 1 ] != 'F'
-		//	|| name[ 4 ] != 'c'
-		//	|| name[ 5 ] != 'B'
-		//	|| name[ 9 ] != 'h' ) {
-		//	*( uint8_t* )( ( uintptr_t )pEntity + uTakeDamage ) = 2; /*DAMAGE_YES*/
-		//}
+		if( name[ 1 ] != 'F'
+			|| name[ 4 ] != 'c'
+			|| name[ 5 ] != 'B'
+			|| name[ 9 ] != 'h' ) {
+			*( uint8_t* )( ( uintptr_t )pEntity + uTakeDamage ) = 2; /*DAMAGE_YES*/
+		}
 
-		if (!strcmp(name, "CBreakableSurface"))
-			*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 2; /*DAMAGE_YES*/
-		else if (!strcmp(name, "CBaseDoor") || !strcmp(name, "CDynamicProp"))
-			*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 0; /*DAMAGE_NO*/
+		//if (!strcmp(name, "CBreakableSurface"))
+		//	*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 2; /*DAMAGE_YES*/
+		//else if (!strcmp(name, "CBaseDoor") || !strcmp(name, "CDynamicProp"))
+		//	*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 0; /*DAMAGE_NO*/
 
 	}
 
@@ -152,47 +152,6 @@ void Autowall::TraceLine( const Vector& start, const Vector& end, uint32_t mask,
 	Interfaces::m_pEngineTrace->TraceRay( ray, mask, ignore, ptr );
 }
 
-__forceinline float DistanceToRay( const Vector& vecPosition, const Vector& vecRayStart, const Vector& vecRayEnd, float* flAlong = NULL, Vector* vecPointOnRay = NULL ) {
-	Vector vecTo = vecPosition - vecRayStart;
-	Vector vecDir = vecRayEnd - vecRayStart;
-	float flLength = vecDir.Normalize( );
-
-	float flRangeAlong = DotProduct( vecDir, vecTo );
-	if( flAlong ) {
-		*flAlong = flRangeAlong;
-	}
-
-	float flRange;
-
-	if( flRangeAlong < 0.0f ) {
-		// off start point
-		flRange = -vecTo.Length( );
-
-		if( vecPointOnRay ) {
-			*vecPointOnRay = vecRayStart;
-		}
-	}
-	else if( flRangeAlong > flLength ) {
-		// off end point
-		flRange = -( vecPosition - vecRayEnd ).Length( );
-
-		if( vecPointOnRay ) {
-			*vecPointOnRay = vecRayEnd;
-		}
-	}
-	else { // within ray bounds
-		Vector vecOnRay = vecRayStart + vecDir * flRangeAlong;
-		flRange = ( vecPosition - vecOnRay ).Length( );
-
-		if( vecPointOnRay ) {
-			*vecPointOnRay = vecOnRay;
-		}
-	}
-
-	return flRange;
-}
-
-
 void Autowall::ClipTraceToPlayer( const Vector vecAbsStart, const Vector& vecAbsEnd, uint32_t iMask, ITraceFilter* pFilter, CGameTrace* pGameTrace, Encrypted_t<Autowall::C_FireBulletData> pData ) {
 	constexpr float flMaxRange = 60.0f, flMinRange = 0.0f;
 
@@ -212,14 +171,30 @@ void Autowall::ClipTraceToPlayer( const Vector vecAbsStart, const Vector& vecAbs
 	Ray_t Ray;
 	Ray.Init( vecAbsStart, vecAbsEnd );
 
+	const Vector vecTo = vecPosition - vecAbsStart;
+	Vector vecDirection = vecAbsEnd - vecAbsStart;
+	const float flLength = vecDirection.Normalize( );
+
+	// YOU DONT NEED TO MAKE THIS A TRANNY CODED FUNCTION!!!!!!
+	const float flRangeAlong = vecDirection.Dot( vecTo );
+	float flRange = 0.0f;
+
 	// calculate distance to ray
-	const float flRange = DistanceToRay( vecPosition, vecAbsStart, vecAbsEnd );
+	if ( flRangeAlong < 0.0f )
+		// off start point
+		flRange = -vecTo.Length( );
+	else if ( flRangeAlong > flLength )
+		// off end point
+		flRange = -( vecPosition - vecAbsEnd ).Length( );
+	else
+		// within ray bounds
+		flRange = ( vecPosition - ( vecDirection * flRangeAlong + vecAbsStart ) ).Length( );
 
 	if( flRange < 0.0f || flRange > 60.0f )
 		return;
 
 	CGameTrace playerTrace;
-	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask, pData->m_TargetPlayer, &playerTrace );
+	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask | CONTENTS_HITBOX, pData->m_TargetPlayer, &playerTrace );
 	if( pData->m_EnterTrace.fraction > playerTrace.fraction )
 		pData->m_EnterTrace = playerTrace;
 }
@@ -251,16 +226,32 @@ void Autowall::ClipTraceToPlayers( const Vector& vecAbsStart, const Vector& vecA
 		const Vector vecObbCenter = ( vecObbMaxs + vecObbMins ) / 2.f;
 
 		// calculate world space center
-		const Vector vecPosition = vecObbCenter + pPlayer->GetAbsOrigin( );
+		const Vector vecPosition = vecObbCenter + pPlayer->m_vecOrigin( );
+
+		const Vector vecTo = vecPosition - vecAbsStart;
+		Vector vecDirection = vecAbsEnd - vecAbsStart;
+		const float flLength = vecDirection.Normalize( );
+
+		// YOU DONT NEED TO MAKE THIS A TRANNY CODED FUNCTION!!!!!!
+		const float flRangeAlong = vecDirection.Dot( vecTo );
+		float flRange = 0.0f;
 
 		// calculate distance to ray
-		const float flRange = DistanceToRay( vecPosition, vecAbsStart, vecAbsEnd );
+		if ( flRangeAlong < 0.0f )
+			// off start point
+			flRange = -vecTo.Length( );
+		else if ( flRangeAlong > flLength )
+			// off end point
+			flRange = -( vecPosition - vecAbsEnd ).Length( );
+		else
+			// within ray bounds
+			flRange = ( vecPosition - ( vecDirection * flRangeAlong + vecAbsStart ) ).Length( );
 
 		if( flRange < flMinRange || flRange > flMaxRange )
 			return;
 
 		CGameTrace playerTrace;
-		Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask, pPlayer, &playerTrace );
+		Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask | CONTENTS_HITBOX, pPlayer, &playerTrace );
 		if( playerTrace.fraction < flSmallestFraction ) {
 			// we shortened the ray - save off the trace
 			*pGameTrace = playerTrace;
@@ -295,11 +286,7 @@ bool Autowall::TraceToExit( CGameTrace* pEnterTrace, Vector vecStartPos, Vector 
 			Vector vecStart = vecEnd - ( vecDirection * flStepSize );
 
 			// this gets a bit more complicated and expensive when we have to deal with displacements
-			TraceLine( vecEnd, vecStart, MASK_SHOT_PLAYER, nullptr, pExitTrace );
-
-			// note - dex; this is some new stuff added sometime around late 2017 ( 10.31.2017 update? ).
-			//if ( g_Vars.sv_clip_penetration_traces_to_players->GetInt( ) )
-			//	ClipTraceToPlayers( vecEnd, vecStart, MASK_SHOT_PLAYER, nullptr, pExitTrace, -60.f, -1.f );
+			TraceLine( vecEnd, vecStart, MASK_SHOT, nullptr, pExitTrace ); // was MASK_SHOT_HULL should just be MASK_SHOT
 
 			// we hit an ent's hitbox, do another trace.
 			if( pExitTrace->startsolid && pExitTrace->surface.flags & SURF_HITBOX ) {
@@ -385,7 +372,6 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 		return true;
 
 	const float flEnterPenetrationModifier = data->m_EnterSurfaceData->game.flPenetrationModifier;
-	const float flEnterDamageModifier = data->m_EnterSurfaceData->game.flDamageModifier;
 	const float flExitPenetrationModifier = pExitSurfaceData->game.flPenetrationModifier;
 	const float flExitDamageModifier = pExitSurfaceData->game.flDamageModifier;
 
@@ -439,7 +425,7 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 		// calculate damage  
 		const float flTraceDistance = ( ExitTrace.endpos - data->m_EnterTrace.endpos ).Length( );
 		const float flPenetrationMod = fmaxf( 1.0 / flPenetrationModifier, 0.0f );
-		const float flTotalLostDamage = ( fmaxf( ( ( 3.f / data->m_WeaponData->m_flPenetration ) * 1.25f ), 0.f ) *
+		const float flTotalLostDamage = ( fmaxf( 3.f / data->m_WeaponData->m_flPenetration, 0.f ) *
 			( flPenetrationMod * 3.f ) + ( data->m_flCurrentDamage * flDamageModifier ) ) +
 			( ( ( flTraceDistance * flTraceDistance ) * flPenetrationMod ) / 24 );
 
@@ -470,16 +456,23 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 			flPenetrationModifier = 1.0f;
 			flDamageModifier = 0.99f;
 		}
-		else
-		{
-			flPenetrationModifier = fminf(pExitSurfaceData->game.flPenetrationModifier, flEnterPenetrationModifier);
-			flDamageModifier = fminf(flEnterDamageModifier, flExitDamageModifier);
+		else {
+			if( flExitPenetrationModifier < flPenetrationModifier ) {
+				flPenetrationModifier = flExitPenetrationModifier;
+			}
+			if( flExitDamageModifier < flDamageModifier ) {
+				flDamageModifier = flExitDamageModifier;
+			}
 		}
 
 		// if enter & exit point is wood or metal we assume this is 
 		// a hollow crate or barrel and give a penetration bonus
-		if (iEnterMaterial == iExitMaterial && (iExitMaterial == CHAR_TEX_METAL || iExitMaterial == CHAR_TEX_WOOD))
-			flPenetrationModifier += flPenetrationModifier;
+		if( iEnterMaterial == iExitMaterial ) {
+			if( iExitMaterial == CHAR_TEX_WOOD ||
+				iExitMaterial == CHAR_TEX_METAL ) {
+				flPenetrationModifier *= 2;
+			}
+		}
 
 		float flTraceDistance = ( ExitTrace.endpos - data->m_EnterTrace.endpos ).Length( );
 
@@ -526,7 +519,8 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 
 	g_Vars.globals.m_InHBP = true;
 
-	while( data->m_flCurrentDamage > 0.f ) {
+	while( data->m_flCurrentDamage > 0.f &&
+		   data->m_iPenetrationCount > 0 ) {
 		// calculate max bullet range
 		data->m_flMaxLength -= data->m_flTraceLength;
 
@@ -575,6 +569,10 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 				data->m_flCurrentDamage = ScaleDamage( pHittedPlayer, data->m_flCurrentDamage, data->m_WeaponData->m_flArmorRatio, data->m_Weapon->m_iItemDefinitionIndex( ) == WEAPON_ZEUS ? Hitgroup_Generic : nHitGroup );
 				data->m_iHitgroup = nHitGroup;
 
+				// very big brain
+				if (data->m_flCurrentDamage < 1.f)
+					return 0;
+
 
 				g_Vars.globals.m_InHBP = false;
 				return data->m_flCurrentDamage;
@@ -595,7 +593,7 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 
 		// check if we reach penetration distance, no more penetrations after that
 		// or if our modifier is super low, just stop the bullet
-		if( ( data->m_flTraceLength > 3000.f && data->m_WeaponData->m_flPenetration > 0.f ) ||
+		if( ( data->m_flTraceLength > 3000.f && data->m_WeaponData->m_flPenetration > 0.f ) || // was 3150 no idea why when pen distance is 3000
 			data->m_EnterSurfaceData->game.flPenetrationModifier < 0.1f ) {
 			data->m_iPenetrationCount = 0;
 			break;
