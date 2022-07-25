@@ -261,13 +261,6 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 	return true;
 }
 
-void heartbeat_thread() {
-	while (true) {
-		std::this_thread::sleep_for(std::chrono::seconds(ph_heartbeat::PH_SECONDS_INTERVAL));
-		ph_heartbeat::send_heartbeat();
-	}
-}
-
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 	if( dwReason == DLL_PROCESS_ATTACH ) {
 		DllArguments* args = new DllArguments( );
@@ -293,8 +286,6 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 		HMODULE hMod = (HMODULE)info->image_base; // Stores the image base before deleting the data passed to the entrypoint. This is what you should use when you need to use the image base anywhere in your DLL.
 
 		ph_heartbeat::initialize_heartbeat(info);
-
-		CloseHandle(CreateThread(0, 0, (LPTHREAD_START_ROUTINE)heartbeat_thread, 0, 0, nullptr));
 
 		//start security and websocket thread
 		CreateThread(0, 0, &Security, 0, 0, 0);
