@@ -104,13 +104,13 @@ int convert_hitbox_to_hitgroup(int hitbox) {
 	case HITBOX_RIGHT_UPPER_ARM:
 		return Hitgroup_Chest;
 	case HITBOX_PELVIS:
-	case HITBOX_LEFT_THIGH:
-	case HITBOX_RIGHT_THIGH:
 	case HITBOX_STOMACH:
 		return Hitgroup_Stomach;
+	case HITBOX_LEFT_THIGH:
 	case HITBOX_LEFT_CALF:
 	case HITBOX_LEFT_FOOT:
 		return Hitgroup_LeftLeg;
+	case HITBOX_RIGHT_THIGH:
 	case HITBOX_RIGHT_CALF:
 	case HITBOX_RIGHT_FOOT:
 		return Hitgroup_RightLeg;
@@ -285,54 +285,46 @@ namespace Interfaces
 		// only sanity checks, etc.
 		virtual bool Run(Encrypted_t<CUserCmd> cmd, C_CSPlayer* local, bool* sendPacket);
 
-		virtual bool GetBoxOption(mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& ps, bool override_hitscan) {
-			if (!hitbox)
+		virtual bool GetBoxOption(int hitbox, float& ps, bool override_hitscan) {
+
+
+			if (override_hitscan && hitbox == HITBOX_HEAD)
 				return false;
 
-			if (!hitboxSet)
-				return false;
+			ps = m_rage_data->rbot->point_scale;
 
-			if (hitboxSet->pHitbox(HITBOX_PELVIS) == hitbox) {
+			switch (hitbox) {
+			case HITBOX_HEAD:
+			case HITBOX_NECK:
+			case HITBOX_LOWER_NECK:
+				return m_rage_data->rbot->hitboxes_head;
+				break;
+			case HITBOX_UPPER_CHEST:
+			case HITBOX_CHEST:
+			case HITBOX_LOWER_CHEST:
+				return m_rage_data->rbot->hitboxes_chest;
+				break;
+			case HITBOX_STOMACH:
+			case HITBOX_PELVIS:
 				ps = m_rage_data->rbot->body_point_scale;
-				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_pelvis : m_rage_data->rbot->hitboxes_pelvis;
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_RIGHT_FOOT) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_FOOT) == hitbox) {
-				ps = m_rage_data->rbot->point_scale;
-				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_feets : m_rage_data->rbot->hitboxes_feets;
-			}
-
-			switch (hitbox->group) {
-			case Hitgroup_Head:
-				ps = m_rage_data->rbot->point_scale;
-				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_head : m_rage_data->rbot->hitboxes_head) && !g_Vars.rage.prefer_body.enabled;
+				return m_rage_data->rbot->hitboxes_stomach;
 				break;
-			case Hitgroup_Neck: // just neck
-				ps = m_rage_data->rbot->point_scale;
-				return  (override_hitscan ? m_rage_data->rbot->bt_hitboxes_neck : m_rage_data->rbot->hitboxes_neck) && !g_Vars.rage.prefer_body.enabled;
+			case HITBOX_LEFT_UPPER_ARM:
+			case HITBOX_RIGHT_UPPER_ARM:
+				return m_rage_data->rbot->hitboxes_arms;
 				break;
-			case Hitgroup_Chest:
-				ps = m_rage_data->rbot->point_scale;
-				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_chest : m_rage_data->rbot->hitboxes_chest;
+			case HITBOX_LEFT_CALF:
+			case HITBOX_RIGHT_CALF:
+			case HITBOX_LEFT_THIGH:
+			case HITBOX_RIGHT_THIGH:
+				return m_rage_data->rbot->hitboxes_legs;
 				break;
-			case Hitgroup_Stomach:
-				ps = m_rage_data->rbot->body_point_scale;
-				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_stomach : m_rage_data->rbot->hitboxes_stomach;
-				break;
-			case Hitgroup_RightLeg:
-			case Hitgroup_LeftLeg:
-				if (hitboxSet->pHitbox(HITBOX_RIGHT_FOOT) != hitbox && hitboxSet->pHitbox(HITBOX_LEFT_FOOT) != hitbox) {
-					ps = m_rage_data->rbot->point_scale;
-					return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_legs : m_rage_data->rbot->hitboxes_legs;
-				}
-				break;
-			case Hitgroup_RightArm:
-			case Hitgroup_LeftArm:
-				ps = m_rage_data->rbot->point_scale;
-				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_arms : m_rage_data->rbot->hitboxes_arms;
+			case HITBOX_LEFT_FOOT:
+			case HITBOX_RIGHT_FOOT:
+				return m_rage_data->rbot->hitboxes_feets;
 				break;
 			default:
-				return false;
+				return true;
 				break;
 			}
 		};
@@ -642,6 +634,23 @@ namespace Interfaces
 	}
 
 	bool C_Ragebot::RunInternal() {
+		//auto cmd_backup = *m_rage_data->m_pCmd.Xor();
+
+		////m_rage_data->m_bResetCmd = true;
+		//m_rage_data->m_bRePredict = false;
+		//m_rage_data->m_bPredictedScope = false;
+		//m_rage_data->m_bNoNeededScope = true;
+
+		//m_rage_data->m_flSpread = Engine::Prediction::Instance()->GetSpread();
+		//m_rage_data->m_flInaccuracy = Engine::Prediction::Instance()->GetInaccuracy();
+
+		////ILoggerEvent::Get( )->PushEvent( std::to_string( m_rage_data->m_flInaccuracy ), FloatColor::White, true, "debug" );
+
+		//auto success = RunHitscan();
+		////if( success.first ) {
+		////	m_rage_data->m_bResetCmd = false;
+		////}
+
 		auto cmd_backup = *m_rage_data->m_pCmd.Xor();
 
 		//m_rage_data->m_bResetCmd = true;
@@ -649,17 +658,17 @@ namespace Interfaces
 		m_rage_data->m_bPredictedScope = false;
 		m_rage_data->m_bNoNeededScope = true;
 
-		m_rage_data->m_flSpread = Engine::Prediction::Instance()->GetSpread();
-		m_rage_data->m_flInaccuracy = Engine::Prediction::Instance()->GetInaccuracy();
+		C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)m_rage_data->m_pLocal->m_hActiveWeapon().Get();
+		auto weaponInfo = Weapon->GetCSWeaponData();
 
-		//ILoggerEvent::Get( )->PushEvent( std::to_string( m_rage_data->m_flInaccuracy ), FloatColor::White, true, "debug" );
+		m_rage_data->m_flSpread = Weapon->GetSpread();
+		m_rage_data->m_flInaccuracy = Weapon->GetInaccuracy();
 
 		auto success = RunHitscan();
-		//if( success.first ) {
-		//	m_rage_data->m_bResetCmd = false;
-		//}
 
-		const bool bOnLand = !(Engine::Prediction::Instance().GetFlags() & FL_ONGROUND) && m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND;
+		const bool bOnLand = m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND;
+
+		bool htcFailed = m_rage_data->m_bFailedHitchance;
 
 		// if failed at hitchancing or aimbot good
 		float feet = 0.f;
@@ -669,7 +678,6 @@ namespace Interfaces
 			feet = round_to_multiple(meters * 3.281f, 5);
 		}
 
-		bool htcFailed = m_rage_data->m_bFailedHitchance;
 		if (m_rage_data->m_bFailedHitchance) {
 
 			if (m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && !bOnLand) {
@@ -719,76 +727,89 @@ namespace Interfaces
 			return false; // return here so when scoping dont shooting!!!
 		}
 
-		auto correction = m_rage_data->m_pLocal->m_aimPunchAngle() * g_Vars.weapon_recoil_scale->GetFloat();
+		//auto correction = m_rage_data->m_pLocal->m_aimPunchAngle() * g_Vars.weapon_recoil_scale->GetFloat();
 
-		m_rage_data->m_pCmd->viewangles -= correction;
-		m_rage_data->m_pCmd->viewangles.Normalize();
+		//m_rage_data->m_pCmd->viewangles -= correction;
+		//m_rage_data->m_pCmd->viewangles.Normalize();
 
-		if (m_rage_data->rbot->compensate_spread && !g_Vars.misc.anti_untrusted
-			&& (g_Vars.globals.m_iServerType > 7) && m_rage_data->m_pLocal->CanShoot() && m_rage_data->m_pCmd->buttons & IN_ATTACK) {
-			m_rage_data->m_bResetCmd = false;
+		//if (m_rage_data->rbot->compensate_spread && !g_Vars.misc.anti_untrusted
+		//	&& (g_Vars.globals.m_iServerType > 7) && m_rage_data->m_pLocal->CanShoot() && m_rage_data->m_pCmd->buttons & IN_ATTACK) {
+		//	m_rage_data->m_bResetCmd = false;
 
-			auto weapon_inaccuracy = Engine::Prediction::Instance()->GetInaccuracy();
-			auto weapon_spread = Engine::Prediction::Instance()->GetSpread();
+		//	auto weapon_inaccuracy = Engine::Prediction::Instance()->GetInaccuracy();
+		//	auto weapon_spread = Engine::Prediction::Instance()->GetSpread();
 
-			auto random_seed = m_rage_data->m_pCmd->random_seed & 149;
+		//	auto random_seed = m_rage_data->m_pCmd->random_seed & 149;
 
-			auto rand1 = g_Vars.globals.SpreadRandom[random_seed].flRand1;
-			auto rand_pi1 = g_Vars.globals.SpreadRandom[random_seed].flRandPi1;
-			auto rand2 = g_Vars.globals.SpreadRandom[random_seed].flRand2;
-			auto rand_pi2 = g_Vars.globals.SpreadRandom[random_seed].flRandPi2;
+		//	auto rand1 = g_Vars.globals.SpreadRandom[random_seed].flRand1;
+		//	auto rand_pi1 = g_Vars.globals.SpreadRandom[random_seed].flRandPi1;
+		//	auto rand2 = g_Vars.globals.SpreadRandom[random_seed].flRand2;
+		//	auto rand_pi2 = g_Vars.globals.SpreadRandom[random_seed].flRandPi2;
 
-			int id = m_rage_data->m_pWeapon->m_iItemDefinitionIndex();
-			auto recoil_index = m_rage_data->m_pWeapon->m_flRecoilIndex();
+		//	int id = m_rage_data->m_pWeapon->m_iItemDefinitionIndex();
+		//	auto recoil_index = m_rage_data->m_pWeapon->m_flRecoilIndex();
 
-			if (id == 64) {
-				if (m_rage_data->m_pCmd->buttons & IN_ATTACK2) {
-					rand1 = 1.0f - rand1 * rand1;
-					rand2 = 1.0f - rand2 * rand2;
-				}
-			}
-			else if (id == 28 && recoil_index < 3.0f) {
-				for (int i = 3; i > recoil_index; i--) {
-					rand1 *= rand1;
-					rand2 *= rand2;
-				}
+		//	if (id == 64) {
+		//		if (m_rage_data->m_pCmd->buttons & IN_ATTACK2) {
+		//			rand1 = 1.0f - rand1 * rand1;
+		//			rand2 = 1.0f - rand2 * rand2;
+		//		}
+		//	}
+		//	else if (id == 28 && recoil_index < 3.0f) {
+		//		for (int i = 3; i > recoil_index; i--) {
+		//			rand1 *= rand1;
+		//			rand2 *= rand2;
+		//		}
 
-				rand1 = 1.0f - rand1;
-				rand2 = 1.0f - rand2;
-			}
+		//		rand1 = 1.0f - rand1;
+		//		rand2 = 1.0f - rand2;
+		//	}
 
-			auto rand_inaccuracy = rand1 * weapon_inaccuracy;
-			auto rand_spread = rand2 * weapon_spread;
+		//	auto rand_inaccuracy = rand1 * weapon_inaccuracy;
+		//	auto rand_spread = rand2 * weapon_spread;
 
-			Vector2D spread =
-			{
-				std::cos(rand_pi1) * rand_inaccuracy + std::cos(rand_pi2) * rand_spread,
-				std::sin(rand_pi1) * rand_inaccuracy + std::sin(rand_pi2) * rand_spread,
-			};
+		//	Vector2D spread =
+		//	{
+		//		std::cos(rand_pi1) * rand_inaccuracy + std::cos(rand_pi2) * rand_spread,
+		//		std::sin(rand_pi1) * rand_inaccuracy + std::sin(rand_pi2) * rand_spread,
+		//	};
 
-			// 
-			// pitch/yaw/roll
-			// 
+		//	// 
+		//	// pitch/yaw/roll
+		//	// 
 
-			Vector side, up;
-			Vector forward = QAngle::Zero.ToVectors(&side, &up);
+		//	Vector side, up;
+		//	Vector forward = QAngle::Zero.ToVectors(&side, &up);
 
-			Vector direction = (forward + (side * spread.x) + (up * spread.y));
+		//	Vector direction = (forward + (side * spread.x) + (up * spread.y));
 
-			QAngle angles_spread = direction.ToEulerAngles();
+		//	QAngle angles_spread = direction.ToEulerAngles();
 
-			angles_spread.x -= m_rage_data->m_pCmd->viewangles.x;
-			angles_spread.Normalize();
+		//	angles_spread.x -= m_rage_data->m_pCmd->viewangles.x;
+		//	angles_spread.Normalize();
 
-			forward = angles_spread.ToVectorsTranspose(&side, &up);
+		//	forward = angles_spread.ToVectorsTranspose(&side, &up);
 
-			angles_spread = (forward.ToEulerAngles(&up));
+		//	angles_spread = (forward.ToEulerAngles(&up));
 
-			angles_spread.y += m_rage_data->m_pCmd->viewangles.y;
-			angles_spread.Normalize();
+		//	angles_spread.y += m_rage_data->m_pCmd->viewangles.y;
+		//	angles_spread.Normalize();
 
-			m_rage_data->m_pCmd->viewangles = angles_spread;
+		//	m_rage_data->m_pCmd->viewangles = angles_spread;
+		//}
+
+		if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
+			auto correction = m_rage_data->m_pLocal->m_aimPunchAngle() * g_Vars.weapon_recoil_scale->GetFloat();
+
+			m_rage_data->m_pCmd->viewangles -= correction;
+			m_rage_data->m_pCmd->viewangles.Normalize();
 		}
+
+		if (m_rage_data->m_bResetCmd)
+			*m_rage_data->m_pCmd.Xor() = cmd_backup;
+
+		return success.first;
+
 
 
 		if (!g_TickbaseController.Using() && !g_TickbaseController.Building()) {
@@ -800,8 +821,6 @@ namespace Interfaces
 					Engine::Prediction::Instance()->Repredict(m_rage_data->m_pCmd.Xor());
 			}
 		}
-
-		return success.first;
 	}
 
 	void C_Ragebot::AddPoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, const Vector& point, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, bool isMultipoint) {
@@ -835,7 +854,7 @@ namespace Interfaces
 		if (!pPoint)
 			return false;
 
-		if (m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_SCAR20 || m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_G3SG1) {
+		if (m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_SCAR20 || m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_G3SG1 && m_rage_data->rbot->autoscope == 0) {
 			if ((m_rage_data->m_flInaccuracy <= 0.0380f) && m_rage_data->m_pWeapon->m_zoomLevel() == 0) {
 				pPoint->hitchance = 50.f;
 				return true;
@@ -844,7 +863,7 @@ namespace Interfaces
 
 		if ((m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_SSG08 || m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) && (!m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND)) {
 			if ((m_rage_data->m_flInaccuracy < 0.009f)) {
-				pPoint->hitchance = 75.f;
+				pPoint->hitchance = 65.f;
 				return true;
 			}
 		}
@@ -965,7 +984,7 @@ namespace Interfaces
 			return true;
 
 		if (m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_SCAR20 || m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_G3SG1) {
-			if ((m_rage_data->m_flInaccuracy <= 0.0380f) && m_rage_data->m_pWeapon->m_zoomLevel() == 0) {
+			if ((m_rage_data->m_flInaccuracy <= 0.0380f) && m_rage_data->m_pWeapon->m_zoomLevel() == 0 && m_rage_data->rbot->autoscope == 0) {
 				return true;
 			}
 		}
@@ -1064,14 +1083,13 @@ namespace Interfaces
 
 					const float flDamage = Autowall::FireBullets(&fireData);
 					if (flDamage >= 1.0f) {
-						if (this->m_rage_data->m_pWeapon->m_iItemDefinitionIndex() != WEAPON_SSG08 && this->m_rage_data->m_pWeapon->m_iItemDefinitionIndex() != WEAPON_AWP) {
-							iAutowalledHits++;
-							continue;
-						}
+						float damage_add = 0.f;
+						if (pPoint->damage > 1)
+							damage_add = 5.f;
 
-						int iHealthRatio = int(float(pPoint->target->player->m_iHealth()) / flDamage) + 1;
-						if (iHealthRatio <= pPoint->healthRatio) {
-							iAutowalledHits++;
+						bool accurate = (((flDamage + damage_add) >= pPoint->damage && pPoint->penetrated) || (!pPoint->penetrated && (flDamage + damage_add) > pPoint->damage * 0.5));
+						if (accurate) {
+							++iAutowalledHits;
 						}
 					}
 				}
@@ -1117,42 +1135,65 @@ namespace Interfaces
 			}
 		}
 
+		//auto dist = (m_rage_data->m_pLocal->m_vecOrigin().Distance(point->target->player->m_vecOrigin()));
+		//auto meters = dist * 0.0254f;
+		//float flDistanceInFeet = round_to_multiple(meters * 3.281f, 5);
+
+		//int iHealth = point->target->player->m_iHealth();
+		//bool bOnLand = !(Engine::Prediction::Instance().GetFlags() & FL_ONGROUND) && m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND;
+
+		//auto ShouldHitchance = [&]() {
+		//	// nospread enabled
+		//	if (m_rage_data->m_flSpread == 0.0f || m_rage_data->m_flInaccuracy == 0.0f)
+		//		return false;
+
+		//	const auto weapon_id = m_rage_data->m_pWeapon->m_iItemDefinitionIndex();
+		//	const auto crouched = m_rage_data->m_pLocal->m_fFlags() & FL_DUCKING;
+		//	const auto sniper = m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
+		//	const auto round_acc = [](const float accuracy) { return roundf(accuracy * 1000.f) / 1000.f; };
+
+		//	float rounded_acc = round_acc(m_rage_data->m_flInaccuracy);
+		//	float maxSpeed = m_rage_data->m_pLocal->GetMaxSpeed();
+
+		//	// no need for hitchance, if we can't increase it anyway.
+		//	if (crouched) {
+		//		if (rounded_acc == round_acc(sniper ? m_rage_data->m_pWeaponInfo->m_flInaccuracyCrouchAlt : m_rage_data->m_pWeaponInfo->m_flInaccuracyCrouch)) {
+		//			return false;
+		//		}
+		//	}
+		//	else {
+		//		if (m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && !bOnLand) {
+
+		//			if (rounded_acc == round_acc(sniper ? m_rage_data->m_pWeaponInfo->m_flInaccuracyStandAlt : m_rage_data->m_pWeaponInfo->m_flInaccuracyStand)) {
+		//				return false;
+		//			}
+		//		}
+		//	}
+
+		//	return true;
+		//};
+
+		//float hitchance = m_rage_data->rbot->hitchance;
+
 		auto dist = (m_rage_data->m_pLocal->m_vecOrigin().Distance(point->target->player->m_vecOrigin()));
 		auto meters = dist * 0.0254f;
 		float flDistanceInFeet = round_to_multiple(meters * 3.281f, 5);
 
+
+		if (!m_rage_data->m_pLocal->m_PlayerAnimState())
+			return false;
+
 		int iHealth = point->target->player->m_iHealth();
-		bool bOnLand = !(Engine::Prediction::Instance().GetFlags() & FL_ONGROUND) && m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND;
+		bool bOnLand = m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && m_rage_data->m_pLocal->m_PlayerAnimState()->m_bHitground;
+
+
+		if (bOnLand)
+			return false;
 
 		auto ShouldHitchance = [&]() {
 			// nospread enabled
 			if (m_rage_data->m_flSpread == 0.0f || m_rage_data->m_flInaccuracy == 0.0f)
 				return false;
-
-			const auto weapon_id = m_rage_data->m_pWeapon->m_iItemDefinitionIndex();
-			const auto crouched = m_rage_data->m_pLocal->m_fFlags() & FL_DUCKING;
-			const auto sniper = m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
-			const auto round_acc = [](const float accuracy) { return roundf(accuracy * 1000.f) / 1000.f; };
-
-			float rounded_acc = round_acc(m_rage_data->m_flInaccuracy);
-			float maxSpeed = m_rage_data->m_pLocal->GetMaxSpeed();
-
-			// no need for hitchance, if we can't increase it anyway.
-			if (crouched) {
-				if (rounded_acc == round_acc(sniper ? m_rage_data->m_pWeaponInfo->m_flInaccuracyCrouchAlt : m_rage_data->m_pWeaponInfo->m_flInaccuracyCrouch)) {
-					return false;
-				}
-			}
-			else {
-				if (m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && !bOnLand) {
-
-					if (rounded_acc == round_acc(sniper ? m_rage_data->m_pWeaponInfo->m_flInaccuracyStandAlt : m_rage_data->m_pWeaponInfo->m_flInaccuracyStand)) {
-						return false;
-					}
-				}
-			}
-
-			return true;
 		};
 
 		float hitchance = m_rage_data->rbot->hitchance;
@@ -1202,14 +1243,30 @@ namespace Interfaces
 		// we can hitchance them & check if accry boost is valid.
 		if (hitchance > 0.0f && ShouldHitchance()) {
 			// we cannot hitchance the player or no valid acrry boost then we failed hitchance.
-			if (!Hitchance(point, start, hitchance * 0.01f) /*|| AccuracyBoost( point, start, m_flAccuracyBoostHitchance * 0.01f ) )*/ || ((m_rage_data->m_flInaccuracy + m_rage_data->m_flSpread > (0.04f - (m_rage_data->rbot->doubletap_hitchance / 3000)) && !m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE))) {
+			if (!Hitchance(point, start, hitchance * 0.01f)) {
 				m_rage_data->m_bFailedHitchance = true;
 				return false;
 			}
 		}
 
-		m_rage_data->m_bFailedHitchance = false;
-		return true;
+		bool accurate = true;
+
+		if (m_rage_data->rbot->accry_boost_on_shot) {
+			accurate = false;
+
+			if (AccuracyBoost(point, start, m_rage_data->rbot->hitchance_accuracy * 0.01f))
+				accurate = true;
+
+		}
+
+
+		if (accurate) {
+			m_rage_data->m_bFailedHitchance = false;
+			return true;
+		}
+
+		m_rage_data->m_bFailedHitchance = true;
+		return false;
 	}
 
 	void C_Ragebot::Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& pointScale, int hitboxIndex) {
@@ -1238,7 +1295,7 @@ namespace Interfaces
 			return;
 
 		if (!m_rage_data->rbot->static_point_scale && m_rage_data->m_pWeapon && hitbox->m_flRadius > 0.0f) {
-			pointScale = 0.91f; // we can go high here because the new multipoint is perfect
+			pointScale = 0.70f; // we can go high here because the new multipoint is perfect
 
 			float spreadCone = Engine::Prediction::Instance()->GetSpread() + Engine::Prediction::Instance()->GetInaccuracy();
 			float dist = centerTrans.Distance(m_rage_data->m_vecEyePos);
@@ -1267,6 +1324,8 @@ namespace Interfaces
 				if (hitboxIndex == HITBOX_LEFT_FOOT)
 					d1 *= -1.f;
 
+				pointScale = 0.625f;
+
 				// optimal point for feet
 				/*AddPoint( player, record, side, points,
 					Vector( center.x, center.y, center.z + d1 ).Transform( boneMatrix[ hitbox->bone ] ),
@@ -1291,29 +1350,33 @@ namespace Interfaces
 		else {
 			float r = hitbox->m_flRadius * pointScale;
 
-			if (hitboxIndex == HITBOX_HEAD && !m_rage_data->m_bDelayedHeadAim) {
-
-				// always adding these (they suck)
-				Vector right{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z + (hitbox->m_flRadius * 0.5f) };
-				AddPoint(player, record, side, points,
-					right.Transform(boneMatrix[hitbox->bone]),
-					hitbox, hitboxSet, true
-				);
-
-				Vector left{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z - (hitbox->m_flRadius * 0.5f) };
-				AddPoint(player, record, side, points,
-					left.Transform(boneMatrix[hitbox->bone]),
-					hitbox, hitboxSet, true
-				);
-
-				//Interfaces::m_pDebugOverlay->AddTextOverlay( front.Transform( boneMatrix[ hitbox->bone ] ), Interfaces::m_pGlobalVars->interval_per_tick * 2, "front" );
-
+			if (hitboxIndex == HITBOX_HEAD) {
 				if (m_rage_data->rbot->mp_hitboxes_head) {
-					constexpr float rotation = 0.70710678f;
+
+
 
 					// ok, this looks ghetto as shit but we have to clamp these to not have these be off too much
-					pointScale = std::clamp<float>(pointScale, 0.1f, 0.95f);
+					pointScale = Math::Clamp<float>(pointScale, 0.1f, 0.95f);
 					r = hitbox->m_flRadius * pointScale;
+
+					// always adding these (they suck)
+					Vector right{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z + r };
+					AddPoint(player, record, side, points,
+						right.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+					Vector left{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z - r };
+					AddPoint(player, record, side, points,
+						left.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+					//Interfaces::m_pDebugOverlay->AddTextOverlay( front.Transform( boneMatrix[ hitbox->bone ] ), Interfaces::m_pGlobalVars->interval_per_tick * 2, "front" );
+
+
+					constexpr float rotation = 0.70710678f;
+
 
 					// top/back 45 deg.
 					// this is the best spot to shoot at (when peeking, when RESOLVED XD!)
@@ -1325,7 +1388,7 @@ namespace Interfaces
 					//Interfaces::m_pDebugOverlay->AddTextOverlay( Vector( hitbox->bbmax.x + ( rotation * r ), hitbox->bbmax.y + ( -rotation * r ), hitbox->bbmax.z ).Transform( boneMatrix[ hitbox->bone ] ), Interfaces::m_pGlobalVars->interval_per_tick * 2, "front" );
 
 					// ok, this looks ghetto as shit but we have to clamp these to not have these be off too much
-					pointScale = std::clamp<float>(pointScale, 0.1f, 0.95f);
+					pointScale = Math::Clamp<float>(pointScale, 0.1f, 0.95f);
 					r = hitbox->m_flRadius * pointScale;
 
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
@@ -1336,21 +1399,22 @@ namespace Interfaces
 				}
 			}
 
-			else if (hitboxIndex == HITBOX_STOMACH || hitboxIndex == HITBOX_PELVIS) {
+			else if (hitboxIndex == HITBOX_STOMACH) {
 				if (m_rage_data->rbot->mp_hitboxes_stomach) {
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
+					Vector left{ center.x, center.y, hitbox->bbmax.z - r };
+					Vector right{ center.x, center.y, hitbox->bbmin.z + r };
+
 					AddPoint(player, record, side, points,
 						back.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
 					);
 
-					Vector right{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z + (hitbox->m_flRadius * 0.5f) };
 					AddPoint(player, record, side, points,
 						right.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
 					);
 
-					Vector left{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z - (hitbox->m_flRadius * 0.5f) };
 					AddPoint(player, record, side, points,
 						left.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
@@ -1358,16 +1422,59 @@ namespace Interfaces
 				}
 			}
 
-			else if (hitboxIndex == HITBOX_LOWER_CHEST || hitboxIndex == HITBOX_CHEST || hitboxIndex == HITBOX_UPPER_CHEST) {
+			else if (hitboxIndex == HITBOX_PELVIS) {
+				if (m_rage_data->rbot->mp_hitboxes_stomach) {
+
+					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
+					Vector left{ center.x, center.y, hitbox->bbmax.z + r };
+					Vector right{ center.x, center.y, hitbox->bbmin.z - r };
+
+
+					AddPoint(player, record, side, points,
+						back.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+					AddPoint(player, record, side, points,
+						right.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+					AddPoint(player, record, side, points,
+						left.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+				}
+			}
+
+			else if (hitboxIndex == HITBOX_LOWER_CHEST || hitboxIndex == HITBOX_CHEST) {
 				if (m_rage_data->rbot->mp_hitboxes_chest) {
+
+
+
+					if (hitboxIndex == HITBOX_CHEST)
+						r = hitbox->m_flRadius * (pointScale * 0.75f);
+
+					Vector left{ center.x, center.y, hitbox->bbmax.z + r };
+					Vector right{ center.x, center.y, hitbox->bbmin.z - r };
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
 					AddPoint(player, record, side, points,
 						back.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
 					);
+
+					AddPoint(player, record, side, points,
+						left.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+					AddPoint(player, record, side, points,
+						right.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
 				}
 			}
-			else if (hitboxIndex == HITBOX_RIGHT_THIGH || hitboxIndex == HITBOX_LEFT_THIGH) {
+			else if (hitboxIndex == HITBOX_RIGHT_THIGH || hitboxIndex == HITBOX_LEFT_THIGH || hitboxIndex == HITBOX_LEFT_CALF || hitboxIndex == HITBOX_RIGHT_CALF) {
 				if (m_rage_data->rbot->mp_hitboxes_legs) {
 
 					Vector half_bottom{ hitbox->bbmax.x - (hitbox->m_flRadius * 0.5f), hitbox->bbmax.y, hitbox->bbmax.z };
@@ -1378,6 +1485,21 @@ namespace Interfaces
 				}
 			}
 		}
+	}
+
+	bool IsBadReadPtrAlt(void* p)
+	{
+		MEMORY_BASIC_INFORMATION mbi = { 0 };
+		if (::VirtualQuery(p, &mbi, sizeof(mbi)))
+		{
+			DWORD mask = (PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
+			bool b = !(mbi.Protect & mask);
+			// check the page is not a guard page
+			if (mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS)) b = true;
+
+			return b;
+		}
+		return true;
 	}
 
 	bool C_Ragebot::SetupTargets() {
@@ -1499,7 +1621,7 @@ namespace Interfaces
 			if (!a || !b)
 				goto fuck_yeah;
 
-			if (m_rage_data->m_pLastTarget != nullptr && !m_rage_data->m_pLastTarget->IsDead() && a->player->EntIndex() == m_rage_data->m_pLastTarget->EntIndex() && !m_rage_data->m_pLastTarget->IsTeammate(m_rage_data->m_pLocal))
+			if (m_rage_data->m_pLastTarget != nullptr && !m_rage_data->m_pLastTarget->IsDead() && a->player->EntIndex() == m_rage_data->m_pLastTarget->EntIndex())
 				return true;
 
 			switch (m_rage_data->rbot->target_selection) {
@@ -1567,6 +1689,20 @@ namespace Interfaces
 			}
 		}
 
+
+
+		if (g_Vars.globals.m_bGround && m_rage_data->m_pBestTarget) {
+
+			if (m_rage_data->rbot->autoscope &&
+				m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE &&
+				m_rage_data->m_pWeapon->m_zoomLevel() <= 0) {
+				m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
+				m_rage_data->m_bPredictedScope = true;
+				m_rage_data->m_bRePredict = true;
+			}
+
+		}
 	}
 
 	std::pair<bool, C_AimPoint> C_Ragebot::RunHitscan() {
@@ -1628,99 +1764,69 @@ namespace Interfaces
 
 			if (p.isLethal) {
 				// don't shoot at head if we can shoot body and kill enemy
-				if (!p.isBody) {
+				if (p.isHead) {
 					continue; // go to next point
 				}
 
 				// we always want this point, due to it being either choosen by bShouldBaim or p.is_should_baim
-				if (bestPoint->isHead || (int)p.damage > int(bestPoint->damage + 5))
+				if (bestPoint->isHead || !bestPoint->isLethal || (int)p.damage >= int(bestPoint->damage) || bestPoint->center) {
 					bestPoint = &p;
-
-				// if this damage is lethal, we actually want to break.
-				if (bestPoint->damage >= iHealth) {
-					break;
-				}
-
-				// let's continue searching for a better point instead of possibly overriding the current one later on.
-				continue;
-			}
-			else {
-				// if damage to body higher than hp, prioritize body or safe points
-				if (int(flMaxBodyDamage) >= (iHealth / 2) || (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) || !(bestPoint->target->player->m_fFlags() & FL_ONGROUND)) {
-					// don't shoot at head if we can shoot body and kill enemy
-					if (!p.isBody) {
-						continue; // go to next point
-					}
-
-					// possibly good body point?
-					if ((!bestPoint->center && p.target->hasCenter) || (!p.target->hasCenter && (int)p.damage > (int)bestPoint->damage))
-						bestPoint = &p;
-
-					// basically, if this is lethal, we take it.
-					if (bestPoint->damage >= iHealth) {
-						break;
-					}
-				}
-				// run head aim after baim conditions (body > head)
-				else {
-					// if damage to the head is higher than hp, prioritize head or safe points
-					if (int(flMaxHeadDamage) > iHealth) {
-						//// don't shoot at body if we can shoot head and kill enemy
-						// GEICO FROM FUTURE
-						if (!p.isHead) {
-							continue; // go to next point
-						}
-
-						// possibly good head point?
-						if ((!bestPoint->center && p.target->hasCenter) || (!p.target->hasCenter && (int)p.damage > (int)bestPoint->damage))
-							bestPoint = &p;
-
-						// basically, if this is lethal, we take it.
-						if (bestPoint->damage >= iHealth) {
-							break;
-						}
-					}
-
-				}
-			}
-
-			auto bestTarget = bestPoint->target;
-			if (bestTarget->preferBody) {
-				if (bestPoint->isBody != p.isBody) {
-					bestPoint = bestPoint->isBody ? bestPoint : &p;
 					continue;
 				}
-			}
-			else {
-				if (bestTarget->preferHead) {
-					if (bestPoint->isHead != p.isHead) {
-						bestPoint = bestPoint->isHead ? bestPoint : &p;
-						continue;
-					}
+
+				if (bestPoint->damage >= bestPoint->target->player->m_iHealth() + 5) {
+					break;
 				}
 			}
 
-			if ((bestPoint->center && (int)p.damage > (int)bestPoint->damage + 5) || (!bestPoint->center && (int)p.damage > (int)bestPoint->damage)) {
+			if (p.isHead && (p.damage >= p.target->player->m_iHealth()) && p.record->m_bResolved) {
 				bestPoint = &p;
 				continue;
 			}
+
+			auto bestTarget = p.target;
+
+			if (!bestPoint->isLethal) {
+
+				if (bestTarget->preferBody) {
+					// x2 lethal!!
+					if (p.isBody && (p.damage * 2.f >= p.target->player->m_iHealth())) {
+						bestPoint = &p;
+						break;
+					}
+				}
+
+				// we want to kill him with 1 shot
+				if (bestTarget->preferHead) {
+					// oneshot!!
+					if (p.isHead && (p.damage >= p.target->player->m_iHealth())) {
+						bestPoint = &p;
+						break;
+					}
+
+				}
+
+				if (int(p.damage) >= int(bestPoint->damage)) {
+					bestPoint = &p;
+					continue;
+				}
+			}
+
+			if (bestPoint->damage >= bestPoint->target->player->m_iHealth() && (bestPoint->isBody || bestPoint->record->m_bResolved))
+				break;
 		}
 
 		bool result = false;
 		if (bestPoint) {
 			if (IsPointAccurate(bestPoint, m_rage_data->m_vecEyePos)) {
-				bool bDidDelayHeadShot = m_rage_data->m_bDelayedHeadAim;
-				m_rage_data->m_bDelayedHeadAim = false;
+
 				g_Vars.globals.m_bDelayingShot[bestPoint->target->record->player->EntIndex()] = false;
 
 				if (AimAtPoint(bestPoint)) {
 					if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
-						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
-						auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
-						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
 
-						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
-						//	targedt -= 3;
+						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
+						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
 
 						m_rage_data->m_pCmd->tick_count = targedt;
 
@@ -1731,7 +1837,7 @@ namespace Interfaces
 
 							auto FixedStrLength = [](std::string str) -> std::string {
 								if ((int)str[0] > 255)
-									return XorStr("");
+									return ("");
 
 								if (str.size() < 15)
 									return str;
@@ -1746,39 +1852,41 @@ namespace Interfaces
 								std::string result = { };
 								switch (hitbox) {
 								case HITBOX_HEAD:
-									result = XorStr("head"); break;
+									result = ("head"); break;
 								case HITBOX_NECK:
 								case HITBOX_LOWER_NECK:
-									result = XorStr("neck"); break;
+									result = ("neck"); break;
 								case HITBOX_CHEST:
 								case HITBOX_LOWER_CHEST:
 								case HITBOX_UPPER_CHEST:
-									result = XorStr("chest"); break;
+									result = ("chest"); break;
 								case HITBOX_RIGHT_FOOT:
 								case HITBOX_RIGHT_CALF:
 								case HITBOX_RIGHT_THIGH:
+									result = ("right leg"); break;
 								case HITBOX_LEFT_FOOT:
 								case HITBOX_LEFT_CALF:
 								case HITBOX_LEFT_THIGH:
-									result = XorStr("leg"); break;
+									result = ("left leg"); break;
 								case HITBOX_LEFT_FOREARM:
 								case HITBOX_LEFT_HAND:
 								case HITBOX_LEFT_UPPER_ARM:
+									result = ("left arm"); break;
 								case HITBOX_RIGHT_FOREARM:
 								case HITBOX_RIGHT_HAND:
 								case HITBOX_RIGHT_UPPER_ARM:
-									result = XorStr("arm"); break;
+									result = ("right arm"); break;
 								case HITBOX_STOMACH:
 								case HITBOX_PELVIS: // there is no pelvis hitgroup
-									result = XorStr("stomach"); break;
+									result = ("stomach"); break;
 								default:
-									result = XorStr("-");
+									result = ("-");
 								}
 
 								return result;
 							};
 
-#if defined(BETA_MODE) || defined(DEV)
+
 							player_info_t info;
 							if (Interfaces::m_pEngine->GetPlayerInfo(bestPoint->target->player->EntIndex(), &info)) {
 								int ping = 0;
@@ -1814,9 +1922,6 @@ namespace Interfaces
 								if (info.fakeplayer) // bot
 									flags.push_back(XorStr("B"));
 
-								if (bDidDelayHeadShot)
-									flags.push_back(XorStr("DH"));
-
 								if (g_Vars.rage.prefer_body.enabled)
 									flags.push_back(XorStr("FB"));
 
@@ -1837,32 +1942,28 @@ namespace Interfaces
 								//msg << XorStr("dmg: ") << int(bestPoint->damage) << XorStr(" | ");
 								msg << XorStr("hitgroup: ") << TranslateHitbox(bestPoint->hitboxIndex).c_str() /*<< XorStr("(") << int(bestPoint->pointscale * 100.f) << XorStr("%%%%)")*/ << XorStr(" | ");
 								msg << XorStr("lby: ") << int(bestPoint->target->record->m_iResolverMode == 1) << XorStr(" | ");
-								msg << XorStr( "bt: " ) << TIME_TO_TICKS( m_lag_data->m_History.front( ).m_flSimulationTime - bestPoint->target->record->m_flSimulationTime ) << XorStr( " | " );
+								msg << XorStr("bt: ") << TIME_TO_TICKS(m_lag_data->m_History.front().m_flSimulationTime - bestPoint->target->record->m_flSimulationTime) << XorStr(" | ");
 								msg << XorStr("clientside: ") << int(*m_rage_data->m_pSendPacket) << XorStr(" | ");
 								msg << XorStr("hitchance: ") << int(bestPoint->hitchance) << XorStr(" | ");
-								msg << XorStr( "miss: " ) << m_lag_data->m_iMissedShots << XorStr( ":" ) << m_lag_data->m_iMissedShotsLBY << XorStr( ":" ) << bestPoint->target->record->m_iResolverMode << XorStr( " | " );
-								msg << XorStr( "flag: " ) << buffer.data( ) << XorStr( " | " );
+								msg << XorStr("miss: ") << m_lag_data->m_iMissedShots << XorStr(":") << m_lag_data->m_iMissedShotsLBY << XorStr(":") << bestPoint->target->record->m_iResolverMode << XorStr(" | ");
+								msg << XorStr("flag: ") << buffer.data() << XorStr(" | ");
 								msg << FixedStrLength(info.szName).data() << XorStr(" | ");
 
 								ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(0.f, 0.518f, 1.f), false, XorStr("shot packet sent "));
 								//ILoggerEvent::Get()->PushEvent(std::to_string(m_lag_data->m_iMissedShots), FloatColor(0.8f, 0.8f, 0.0f), !g_Vars.misc.undercover_log, XorStr(""));
 							}
-#endif
+
 						}
 
 						m_rage_data->m_pLastTarget = m_rage_data->m_pBestTarget->player;
 
 						Engine::C_ShotInformation::Get()->CreateSnapshot(bestPoint->target->player, m_rage_data->m_vecEyePos, bestPoint->position, bestPoint->target->record, bestPoint->target->record->m_iResolverMode, bestPoint->hitgroup, bestPoint->hitboxIndex, int(bestPoint->damage));
 
-						if (g_Vars.esp.esp_enable) {
-							if (g_Vars.esp.shot_visualization == 2)
-								IChams::Get()->AddHitmatrix(bestPoint->target->player, bestPoint->target->record->GetBoneMatrix());
 
-							//if(g_Vars.esp.shot_visualization == 3)
-								//IEsp::Get( )->AddSkeletonMatrix( bestPoint->target->player, bestPoint->target->record->GetBoneMatrix( ) );
-						}
+						if (g_Vars.esp.hitmatrix)
+							IChams::Get()->AddHitmatrix(bestPoint->target->player, bestPoint->target->record->GetBoneMatrix());
 
-						if (g_Vars.esp.shot_visualization == 1) {
+						if (g_Vars.esp.draw_hitboxes) {
 							auto matrix = bestPoint->target->record->GetBoneMatrix();
 
 							auto hdr = Interfaces::m_pModelInfo->GetStudiomodel(bestPoint->target->player->GetModel());
@@ -1878,7 +1979,7 @@ namespace Interfaces
 										auto max = hitbox->bbmax.Transform(matrix[hitbox->bone]);
 
 										Interfaces::m_pDebugOverlay->AddCapsuleOverlay(min, max, hitbox->m_flRadius, g_Vars.esp.hitboxes_color.r * 255, g_Vars.esp.hitboxes_color.g * 255, g_Vars.esp.hitboxes_color.b * 255, g_Vars.esp.hitboxes_color.a * 255,
-											Interfaces::m_pCvar->FindVar(XorStr("sv_showlagcompensation_duration"))->GetFloat(), 0, 1);
+											Interfaces::m_pCvar->FindVar(("sv_showlagcompensation_duration"))->GetFloat(), 0, 1);
 									}
 								}
 							}
@@ -1900,6 +2001,9 @@ namespace Interfaces
 	bool C_Ragebot::OverrideHitscan(C_CSPlayer* player, Engine::C_LagRecord* record) {
 		auto local = C_CSPlayer::GetLocalPlayer();
 		if (!local)
+			return false;
+
+		if (!record)
 			return false;
 
 		if (m_rage_data->rbot->prefer_body_disable_resolved) {
@@ -1948,89 +2052,143 @@ namespace Interfaces
 			mindmg = m_rage_data->rbot->min_damage_visible > 100 ? hp + (m_rage_data->rbot->min_damage_visible - 100) : m_rage_data->rbot->min_damage_visible;
 		}
 
-		// if lethal, we still want to shoot
-		if (pPoint->damage >= 20 && pPoint->damage >= (hp + 2))
+		float scaled_dmg = mindmg;
+
+		if (mindmg < 100.f && hp > 25.f) {
+			scaled_dmg = std::ceil((mindmg / 100.f) * hp);
+
+			if (scaled_dmg > 20.f)
+				mindmg = scaled_dmg;
+
+		}
+		else if (mindmg == 100) {
+
 			mindmg = hp;
 
-		if ((convert_hitbox_to_hitgroup(pPoint->hitboxIndex) == Hitgroup_Head) && fireData.m_iHitgroup != Hitgroup_Head) {
+			if (fireData.m_Weapon->m_iItemDefinitionIndex() == WEAPON_AWP && hp < 97) {
+
+				mindmg = hp + 3;
+
+				if (pPoint->hitboxIndex == HITBOX_HEAD && !pPoint->record->m_bResolved && pPoint->damage < hp + 5) {
+					pPoint->hitchance = 0.0f;
+					pPoint->damage = 0.f;
+					return;
+				}
+
+
+
+			}
+			else if (hp <= 89)
+				mindmg = hp + 1;
+
+
+		}
+
+
+		// we did not hit head
+		if ((pPoint->hitboxIndex) == HITBOX_HEAD && fireData.m_iHitgroup != Hitgroup_Head) {
+			pPoint->hitchance = 0.0f;
 			pPoint->damage = 0.f;
 			return;
 		}
 
-		if (pPoint->damage >= mindmg) {
+		bool done = pPoint->damage >= mindmg || pPoint->damage >= hp || ((pPoint->damage * 2.f) >= hp && pPoint->target->preferBody && pPoint->hitboxIndex > 2);
+
+		if (done) {
 			pPoint->hitgroup = fireData.m_EnterTrace.hitgroup;
-			pPoint->healthRatio = int(float(pPoint->target->player->m_iHealth()) / pPoint->damage) + 1;
+			pPoint->isHead = pPoint->hitboxIndex <= 2;
+			pPoint->isBody = pPoint->hitboxIndex > 2;
 
-			auto hitboxSet = (*(studiohdr_t**)pPoint->target->player->m_pStudioHdr())->pHitboxSet(pPoint->target->player->m_nHitboxSet());
-			auto hitbox = hitboxSet->pHitbox(pPoint->hitboxIndex);
-
-			pPoint->isHead = pPoint->hitboxIndex == HITBOX_HEAD || pPoint->hitboxIndex == HITBOX_NECK;
-			pPoint->isBody = pPoint->hitboxIndex == HITBOX_PELVIS || pPoint->hitboxIndex == HITBOX_STOMACH || pPoint->hitboxIndex == HITBOX_CHEST ||
-				pPoint->hitboxIndex == HITBOX_UPPER_CHEST || pPoint->hitboxIndex == HITBOX_LOWER_CHEST || pPoint->hitboxIndex == HITBOX_LEFT_CALF ||
-				pPoint->hitboxIndex == HITBOX_RIGHT_CALF || pPoint->hitboxIndex == HITBOX_LEFT_FOOT || pPoint->hitboxIndex == HITBOX_RIGHT_FOOT ||
-				pPoint->hitboxIndex == HITBOX_RIGHT_THIGH || pPoint->hitboxIndex == HITBOX_LEFT_THIGH;
-
-			// nospread enabled
-			if (m_rage_data->m_flSpread != 0.0f && m_rage_data->m_flInaccuracy != 0.0f) {
-				auto pHitboxSet = (*(studiohdr_t**)pPoint->target->player->m_pStudioHdr())->pHitboxSet(pPoint->target->player->m_nHitboxSet());
-				auto pHitbox = pHitboxSet->pHitbox(pPoint->hitboxIndex);
-
-				const bool bIsCapsule = pHitbox->m_flRadius != -1.0f;
-				const float flRadius = pHitbox->m_flRadius;
-
-				float flSpread = m_rage_data->m_flSpread + m_rage_data->m_flInaccuracy;
-
-				Vector right, up;
-				dir.GetVectors(right, up);
-
-				int iHits = 0;
-
-				Vector vecMin = pHitbox->bbmin.Transform(pPoint->target->player->m_CachedBoneData().Element(pHitbox->bone));
-				Vector vecMax = pHitbox->bbmax.Transform(pPoint->target->player->m_CachedBoneData().Element(pHitbox->bone));
-
-				for (int x = 1; x <= 4; x++) {
-					for (int j = 0; j < x * 5; ++j) {
-						float flCalculatedSpread = flSpread * float(float(x) / 4.f);
-
-						float flDirCos, flDirSin;
-						DirectX::XMScalarSinCos(&flDirCos, &flDirSin, DirectX::XM_2PI * float(float(j) / float(x * 5)));
-
-						// calculate spread vector
-						Vector2D vecSpread;
-						vecSpread.x = flDirCos * flCalculatedSpread;
-						vecSpread.y = flDirSin * flCalculatedSpread;
-
-						// calculate direction
-						Vector vecDir;
-						vecDir.x = dir.x + (vecSpread.x * right.x) + (vecSpread.y * up.x);
-						vecDir.y = dir.y + (vecSpread.x * right.y) + (vecSpread.y * up.y);
-						vecDir.z = dir.z + (vecSpread.x * right.z) + (vecSpread.y * up.z);
-
-						// calculate end point
-						Vector vecEnd = m_rage_data->m_vecEyePos + vecDir * m_rage_data->m_pWeaponInfo->m_flWeaponRange;
-
-						// use intersection for check hit
-						bool bHit = bIsCapsule ?
-							Math::IntersectSegmentToSegment(m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax, flRadius) :
-							Math::IntersectionBoundingBox(m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax);
-
-						//did we hit
-						if (bHit)
-							iHits++;
-					}
-				}
-
-				pPoint->hitchance = float(iHits) / 0.5f;
-			}
-			else {
-				pPoint->hitchance = 0.f;
-			}
 		}
 		else {
-			pPoint->healthRatio = int(float(pPoint->target->player->m_iHealth()) / pPoint->damage) + 1;
 			pPoint->hitchance = 0.0f;
 			pPoint->damage = 0.f;
 		}
+
+
+		//// if lethal, we still want to shoot
+		//if (pPoint->damage >= 20 && pPoint->damage >= (hp + 2))
+		//	mindmg = hp;
+
+		//if ((convert_hitbox_to_hitgroup(pPoint->hitboxIndex) == Hitgroup_Head) && fireData.m_iHitgroup != Hitgroup_Head) {
+		//	pPoint->damage = 0.f;
+		//	return;
+		//}
+
+		//if (pPoint->damage >= mindmg) {
+		//	pPoint->hitgroup = fireData.m_EnterTrace.hitgroup;
+		//	pPoint->healthRatio = int(float(pPoint->target->player->m_iHealth()) / pPoint->damage) + 1;
+
+		//	auto hitboxSet = (*(studiohdr_t**)pPoint->target->player->m_pStudioHdr())->pHitboxSet(pPoint->target->player->m_nHitboxSet());
+		//	auto hitbox = hitboxSet->pHitbox(pPoint->hitboxIndex);
+
+		//	pPoint->isHead = pPoint->hitboxIndex == HITBOX_HEAD || pPoint->hitboxIndex == HITBOX_NECK;
+		//	pPoint->isBody = pPoint->hitboxIndex == HITBOX_PELVIS || pPoint->hitboxIndex == HITBOX_STOMACH || pPoint->hitboxIndex == HITBOX_CHEST ||
+		//		pPoint->hitboxIndex == HITBOX_UPPER_CHEST || pPoint->hitboxIndex == HITBOX_LOWER_CHEST || pPoint->hitboxIndex == HITBOX_LEFT_CALF ||
+		//		pPoint->hitboxIndex == HITBOX_RIGHT_CALF || pPoint->hitboxIndex == HITBOX_LEFT_FOOT || pPoint->hitboxIndex == HITBOX_RIGHT_FOOT ||
+		//		pPoint->hitboxIndex == HITBOX_RIGHT_THIGH || pPoint->hitboxIndex == HITBOX_LEFT_THIGH;
+
+		//	// nospread enabled
+		//	if (m_rage_data->m_flSpread != 0.0f && m_rage_data->m_flInaccuracy != 0.0f) {
+		//		auto pHitboxSet = (*(studiohdr_t**)pPoint->target->player->m_pStudioHdr())->pHitboxSet(pPoint->target->player->m_nHitboxSet());
+		//		auto pHitbox = pHitboxSet->pHitbox(pPoint->hitboxIndex);
+
+		//		const bool bIsCapsule = pHitbox->m_flRadius != -1.0f;
+		//		const float flRadius = pHitbox->m_flRadius;
+
+		//		float flSpread = m_rage_data->m_flSpread + m_rage_data->m_flInaccuracy;
+
+		//		Vector right, up;
+		//		dir.GetVectors(right, up);
+
+		//		int iHits = 0;
+
+		//		Vector vecMin = pHitbox->bbmin.Transform(pPoint->target->player->m_CachedBoneData().Element(pHitbox->bone));
+		//		Vector vecMax = pHitbox->bbmax.Transform(pPoint->target->player->m_CachedBoneData().Element(pHitbox->bone));
+
+		//		for (int x = 1; x <= 4; x++) {
+		//			for (int j = 0; j < x * 5; ++j) {
+		//				float flCalculatedSpread = flSpread * float(float(x) / 4.f);
+
+		//				float flDirCos, flDirSin;
+		//				DirectX::XMScalarSinCos(&flDirCos, &flDirSin, DirectX::XM_2PI * float(float(j) / float(x * 5)));
+
+		//				// calculate spread vector
+		//				Vector2D vecSpread;
+		//				vecSpread.x = flDirCos * flCalculatedSpread;
+		//				vecSpread.y = flDirSin * flCalculatedSpread;
+
+		//				// calculate direction
+		//				Vector vecDir;
+		//				vecDir.x = dir.x + (vecSpread.x * right.x) + (vecSpread.y * up.x);
+		//				vecDir.y = dir.y + (vecSpread.x * right.y) + (vecSpread.y * up.y);
+		//				vecDir.z = dir.z + (vecSpread.x * right.z) + (vecSpread.y * up.z);
+
+		//				// calculate end point
+		//				Vector vecEnd = m_rage_data->m_vecEyePos + vecDir * m_rage_data->m_pWeaponInfo->m_flWeaponRange;
+
+		//				// use intersection for check hit
+		//				bool bHit = bIsCapsule ?
+		//					Math::IntersectSegmentToSegment(m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax, flRadius) :
+		//					Math::IntersectionBoundingBox(m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax);
+
+		//				//did we hit
+		//				if (bHit)
+		//					iHits++;
+		//			}
+		//		}
+
+		//		pPoint->hitchance = float(iHits) / 0.5f;
+		//	}
+		//	else {
+		//		pPoint->hitchance = 0.f;
+		//	}
+		//}
+		//else {
+		//	pPoint->healthRatio = int(float(pPoint->target->player->m_iHealth()) / pPoint->damage) + 1;
+		//	pPoint->hitchance = 0.0f;
+		//	pPoint->damage = 0.f;
+		//}
 	}
 
 	int C_Ragebot::GeneratePoints(C_CSPlayer* player, std::vector<C_AimTarget>& aim_targets, std::vector<C_AimPoint>& aim_points) {
@@ -2063,13 +2221,13 @@ namespace Interfaces
 		backup.Setup(player);
 
 		auto record = GetBestLagRecord(player, &backup);
+
 		if (!record || !IsRecordValid(player, record)) {
 			backup.Apply(player);
 			if (!(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // ghetto asf; will rework later
 				return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
 			}
 		}
-
 		backup.Apply(player);
 
 		auto hitboxSet = hdr->pHitboxSet(player->m_nHitboxSet());
@@ -2081,44 +2239,28 @@ namespace Interfaces
 		aim_target.player = player;
 		aim_target.record = record;
 		aim_target.backup = backup;
-		aim_target.overrideHitscan = false;
-		if (m_rage_data->rbot->override_hitscan) {
-			if (g_Vars.rage.override_key.enabled) {
-				aim_target.overrideHitscan = true;
-			}
-		}
-
-		aim_target.preferBody = ((m_rage_data->rbot->prefer_body || !(record->m_iFlags & FL_ONGROUND)) && this->OverrideHitscan(player, record));
+		bool prefer_body = m_rage_data->rbot->prefer_body || !(record->m_iFlags & FL_ONGROUND);
+		aim_target.preferBody = prefer_body && this->OverrideHitscan(player, record);
 		aim_target.preferHead = !aim_target.preferBody;
 
 		auto addedPoints = 0;
 		for (int i = 0; i < HITBOX_MAX; i++) {
 			auto hitbox = hitboxSet->pHitbox(i);
 			float ps = 0.0f;
-			if (!GetBoxOption(hitbox, hitboxSet, ps, aim_target.overrideHitscan)) {
+
+			// all limbs
+			bool limb = i >= 12 && i <= 19;
+
+			// skip loop if running feet and we have ignore limbs
+			if ((limb && m_rage_data->rbot->ignorelimbs_ifwalking && record->m_vecVelocity.Length() > 0.1f))
 				continue;
-			}
 
-			bool bDelayLimb = false;
-			auto bIsLimb = hitbox->group == Hitgroup_LeftArm || hitbox->group == Hitgroup_RightArm || hitbox->group == Hitgroup_RightLeg || hitbox->group == Hitgroup_LeftLeg;
-			if (bIsLimb) {
-				// we're not moving, let's delay the limb shot
-				if (m_rage_data->m_pLocal->m_vecVelocity().Length2D() < 3.25f) {
-					bDelayLimb = true;
-				}
-				// we're moving, let's not shoot at limbs at all
-				else {
-					continue;
-				}
-
-				if (m_rage_data->rbot->ignorelimbs_ifwalking && record->m_vecVelocity.Length2DSquared() > 1.0f) {
-					continue;
-				}
-			}
+			if (!GetBoxOption(i, ps, aim_target.overrideHitscan))
+				continue;
 
 			ps *= 0.01f;
-
 			std::vector<std::pair<Vector, bool>> points;
+
 			Multipoint(player, record, 0, points, hitbox, hitboxSet, ps, i);
 
 			if (!points.size())
@@ -2147,11 +2289,15 @@ namespace Interfaces
 
 	Engine::C_LagRecord* C_Ragebot::GetBestLagRecord(C_CSPlayer* player, Engine::C_BaseLagRecord* backup) {
 		auto lagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
-		if (!lagData.IsValid() || lagData->m_History.empty())
+		if (!lagData.IsValid() || lagData->m_History.empty() || player->IsDormant())
 			return nullptr;
 
 		auto& record = lagData->m_History.front();
 		if (!record.m_bIsValid) {
+			return nullptr;
+		}
+
+		if (record.m_bTeleportDistance) {
 			return nullptr;
 		}
 
@@ -2170,9 +2316,9 @@ namespace Interfaces
 			arrRecords[recordsCount] = &*it;
 			recordsCount++;
 
-			if (it->m_bTeleportDistance) {
-				break;
-			}
+			if (it->m_bTeleportDistance)
+				continue;
+
 
 			if (recordsCount + 1 >= 64)
 				break;
@@ -2182,6 +2328,22 @@ namespace Interfaces
 			return &record;
 		}
 
+
+
+		if (m_rage_data->rbot->prioritize_oldest) {
+
+			auto& oldest_record = lagData->m_History.back();
+
+			if (oldest_record.m_bIsValid) {
+
+				bool yes = (((oldest_record.m_iLaggedTicks > 1) or (oldest_record.m_vecVelocity.Length2D() > 80.f)) && (oldest_record.player->m_fFlags() & FL_ONGROUND) && (record.player->m_fFlags() & FL_ONGROUND));
+
+				if (oldest_record.m_bResolved && yes)
+					return &oldest_record;
+			}
+		}
+
+
 		Engine::C_LagRecord* pBestRecord = nullptr;
 
 		// iterate all valid records
@@ -2189,37 +2351,114 @@ namespace Interfaces
 			// get current record
 			Engine::C_LagRecord* currentRecord = arrRecords[i];
 
-			// if best record is null, set best record to current record
+			if (currentRecord->player->m_vecVelocity().Length2D() > 0.01f || currentRecord->m_iResolverMode == Engine::RModes::FLICK) {
+				pBestRecord = currentRecord;
+				return pBestRecord;
+			}
+
+			// if best record null, set best record to current record
 			if (!pBestRecord) {
 				pBestRecord = currentRecord;
 				continue; // go to next record
 			}
 
-			//if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {
-			//	if (!pBestRecord->m_bResolved) {
-			//		pBestRecord = currentRecord;
-			//		continue;
-			//	}
-			//}
 
-			// try to find a record with a lby update or moving.
-			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_iResolverMode == Engine::RModes::MOVING) {
-				pBestRecord = currentRecord;
-				continue; // go to next record
+
+			bool higher_speed = pBestRecord->m_vecVelocity.Length2D() < currentRecord->m_vecVelocity.Length2D();
+			bool on_ground = (pBestRecord->player->m_fFlags() & FL_ONGROUND);
+
+			if (pBestRecord->m_bResolved != currentRecord->m_bResolved || (higher_speed && on_ground) || (!higher_speed && !on_ground)) {
+				if (currentRecord->m_bResolved) {
+
+					pBestRecord = currentRecord;
+					continue;
+				}
 			}
-			//else if (pBestRecord != currentRecord) {
-			//	pBestRecord = currentRecord; // last record
-			//	continue;
-			//}
-			
 		}
 
-		if (!pBestRecord) {
+		if (!pBestRecord || record.m_bTeleportDistance) {
 			return &record;
 		}
 
 		return pBestRecord;
 	}
+
+
+	//Engine::C_LagRecord* C_Ragebot::GetBestLagRecord(C_CSPlayer* player, Engine::C_BaseLagRecord* backup) {
+	//	auto lagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+	//	if (!lagData.IsValid() || lagData->m_History.empty())
+	//		return nullptr;
+
+	//	auto& record = lagData->m_History.front();
+	//	if (!record.m_bIsValid) {
+	//		return nullptr;
+	//	}
+
+	//	int recordsCount = 0;
+	//	Engine::C_LagRecord* arrRecords[64] = { nullptr };
+
+	//	for (auto it = lagData->m_History.begin(); it != lagData->m_History.end(); ++it) {
+	//		if (it->m_bSkipDueToResolver) {
+	//			continue;
+	//		}
+
+	//		if (!it->m_bIsValid || !IsRecordValid(player, &*it)) {
+	//			continue;
+	//		}
+
+	//		arrRecords[recordsCount] = &*it;
+	//		recordsCount++;
+
+	//		if (it->m_bTeleportDistance) {
+	//			break;
+	//		}
+
+	//		if (recordsCount + 1 >= 64)
+	//			break;
+	//	}
+
+	//	if (recordsCount <= 1) {
+	//		return &record;
+	//	}
+
+	//	Engine::C_LagRecord* pBestRecord = nullptr;
+
+	//	// iterate all valid records
+	//	for (int i = 0; i < recordsCount; i++) {
+	//		// get current record
+	//		Engine::C_LagRecord* currentRecord = arrRecords[i];
+
+	//		// if best record is null, set best record to current record
+	//		if (!pBestRecord) {
+	//			pBestRecord = currentRecord;
+	//			continue; // go to next record
+	//		}
+
+	//		//if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {
+	//		//	if (!pBestRecord->m_bResolved) {
+	//		//		pBestRecord = currentRecord;
+	//		//		continue;
+	//		//	}
+	//		//}
+
+	//		// try to find a record with a lby update or moving.
+	//		if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_iResolverMode == Engine::RModes::MOVING) {
+	//			pBestRecord = currentRecord;
+	//			continue; // go to next record
+	//		}
+	//		//else if (pBestRecord != currentRecord) {
+	//		//	pBestRecord = currentRecord; // last record
+	//		//	continue;
+	//		//}
+	//		
+	//	}
+
+	//	if (!pBestRecord) {
+	//		return &record;
+	//	}
+
+	//	return pBestRecord;
+	//}
 
 	bool C_Ragebot::IsRecordValid(C_CSPlayer* player, Engine::C_LagRecord* record) {
 		return Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f);
@@ -2257,13 +2496,21 @@ namespace Interfaces
 		m_rage_data->m_bFailedHitchance = false;
 
 		if (g_Vars.rage.auto_fire) {
-			if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire && !(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
-				*m_rage_data->m_pSendPacket = false;
-			}
 
 			if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
 				g_TickbaseController.m_bSupressRecharge = true;
 			}
+			if (g_Vars.fakelag.fakelag_onshot && g_Vars.globals.bCanWeaponFire && !(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
+				*m_rage_data->m_pSendPacket = false;
+			}
+			else if (!g_Vars.globals.Fakewalking && !(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
+				if (!g_Vars.fakelag.fakelag_onshot)
+					*m_rage_data->m_pSendPacket = true;
+				else if (Interfaces::m_pClientState->m_nChokedCommands() < 14)
+					*m_rage_data->m_pSendPacket = false;
+			}
+
+
 
 			m_rage_data->m_pCmd->buttons |= IN_ATTACK;
 

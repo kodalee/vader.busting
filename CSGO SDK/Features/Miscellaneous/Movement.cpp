@@ -69,6 +69,7 @@ void SimulateMovement( C_SimulationData& data ) {
 
 		// CGameMovement::TryPlayerMove
 		if( trace.fraction != 1.f ) {
+			// GEICO FROM FUTURE
 			// BUGFIXME: is it should be 4? ( not 2 )
 			for( int i = 0; i < 2; i++ ) {
 				// decompose velocity into plane
