@@ -12,6 +12,7 @@
 #include "../cJSON/cJSON.h"
 #include "../AES/AES.h"
 #include "../picosha2/picosha2.h"
+#include "../../Utils/lazy_importer.hpp"
 
 #include <string>
 
@@ -36,7 +37,7 @@ namespace ph_heartbeat {
 		Set this value to 0 to not print any information about the heartbeat.
 	*/
 
-	#define PH_HEARTBEAT_DEBUG 0
+	//#define PH_HEARTBEAT_DEBUG 0
 
 	/*
 		DO NOT change these values unless advised to by the owner of Project Hades.
@@ -99,7 +100,7 @@ namespace ph_heartbeat {
 		#endif
 
 		client::close_connection();
-		exit(0);
+		LI_FN(exit)(0);
 	}
 
 	static std::vector<unsigned char> aes_key(picosha2::k_digest_size);
