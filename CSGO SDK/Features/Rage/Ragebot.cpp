@@ -2115,9 +2115,8 @@ namespace Interfaces
 			arrRecords[recordsCount] = &*it;
 			recordsCount++;
 
-			if (it->m_bTeleportDistance) {
-				break;
-			}
+			if (it->m_bTeleportDistance)
+				continue;
 
 			if (recordsCount + 1 >= 64)
 				break;
