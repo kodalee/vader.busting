@@ -542,27 +542,37 @@ namespace Interfaces
 
 		g_TickbaseController.s_nSpeed = m_rage_data->rbot->doubletap_speed;
 
-		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
-			if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
-				static float cockTime = 0.f;
-				float curtime = local->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick;
-				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK2;
-				if (m_rage_data->m_pLocal->CanShoot(true)) {
-					if (cockTime <= curtime) {
-						if (weapon->m_flNextSecondaryAttack() <= curtime)
-							cockTime = curtime + 0.234375f;
-						else
-							m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-					}
-					else
-						m_rage_data->m_pCmd->buttons |= IN_ATTACK;
-				}
-				else {
-					cockTime = curtime + 0.234375f;
-					m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
-				}
+		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER /*&& !(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)*/) {
+			if (m_rage_data->m_pWeapon->m_iClip1() > 0) {
+				cmd->buttons |= IN_ATTACK;
+
+				float flPostponeFireReady = weapon->m_flPostponeFireReadyTime();
+
+				if (flPostponeFireReady > 0 && flPostponeFireReady < Interfaces::m_pGlobalVars->curtime)
+					cmd->buttons &= ~IN_ATTACK;
 			}
 		}
+		//else if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER && g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+		//	if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
+		//		static float cockTime = 0.f;
+		//		float curtime = local->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick;
+		//		m_rage_data->m_pCmd->buttons &= ~IN_ATTACK2;
+		//		if (m_rage_data->m_pLocal->CanShoot(true)) {
+		//			if (cockTime <= curtime) {
+		//				if (weapon->m_flNextSecondaryAttack() <= curtime)
+		//					cockTime = curtime + 0.234375f;
+		//				else
+		//					m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+		//			}
+		//			else
+		//				m_rage_data->m_pCmd->buttons |= IN_ATTACK;
+		//		}
+		//		else {
+		//			cockTime = curtime + 0.234375f;
+		//			m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
+		//		}
+		//	}
+		//}
 		else if (!this->m_rage_data->m_pLocal->CanShoot()) {
 			if (!m_rage_data->m_pWeaponInfo->m_bFullAuto)
 				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
@@ -963,12 +973,6 @@ namespace Interfaces
 		if (flChance <= 0.0f)
 			return true;
 
-		if (m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_SCAR20 || m_rage_data->m_pWeapon->m_iItemDefinitionIndex() == WEAPON_G3SG1) {
-			if ((m_rage_data->m_flInaccuracy <= 0.0380f) && m_rage_data->m_pWeapon->m_zoomLevel() == 0) {
-				return true;
-			}
-		}
-
 		auto pModel = pPoint->target->player->GetClientRenderable()->GetModel();
 		if (!pModel)
 			return false;
@@ -1039,7 +1043,7 @@ namespace Interfaces
 				// calculate end point
 				Vector vecEnd = vecStart + vecDirection * m_rage_data->m_pWeaponInfo->m_flWeaponRange;
 
-				// GEICO FROM FUTURE AGAIN LOOK I FOUND SHIT
+				//GEICO FROM FUTURE
 				//if( !bIsCapsule ) {
 				//	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray_t( m_rage_data->m_vecEyePos, vecEnd ), MASK_SHOT, pPoint->target->player, &tr );
 				//}
@@ -1063,14 +1067,18 @@ namespace Interfaces
 
 					const float flDamage = Autowall::FireBullets(&fireData);
 					if (flDamage >= 1.0f) {
-						if (this->m_rage_data->m_pWeapon->m_iItemDefinitionIndex() != WEAPON_SSG08 && this->m_rage_data->m_pWeapon->m_iItemDefinitionIndex() != WEAPON_AWP) {
-							iAutowalledHits++;
-							continue;
-						}
 
-						int iHealthRatio = int(float(pPoint->target->player->m_iHealth()) / flDamage) + 1;
-						if (iHealthRatio <= pPoint->healthRatio) {
-							iAutowalledHits++;
+
+						float damage_add = 0.f;
+
+						if (pPoint->damage > 1)
+							damage_add = 5.f;
+
+
+						bool accurate = (((flDamage + damage_add) >= pPoint->damage && pPoint->penetrated) || (!pPoint->penetrated && (flDamage + damage_add) > pPoint->damage * 0.5));
+
+						if (accurate) {
+							++iAutowalledHits;
 						}
 					}
 				}
@@ -1100,15 +1108,19 @@ namespace Interfaces
 		if (!m_rage_data->m_pLocal->CanShoot())
 			return false;
 
-		//if( m_rage_data->rbot->shotdelay ) {
-		//	float delay = m_rage_data->rbot->shotdelay_amount * 0.01f;
-		//	float nextShotTime = this->m_rage_data->m_pWeaponInfo->m_flUnknownFloat0 + TICKS_TO_TIME( LastShotTime );
-		//	if( ( ( ( m_rage_data->m_pWeaponInfo->m_flUnknownFloat0 * delay )
-		//		+ ( m_rage_data->m_pWeaponInfo->m_flUnknownFloat0 * delay ) ) + nextShotTime ) > TICKS_TO_TIME( Interfaces::m_pGlobalVars->tickcount ) ) {
-		//		m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
-		//		return false;
-		//	}
-		//}
+
+		C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)m_rage_data->m_pLocal->m_hActiveWeapon().Get();
+		auto weaponInfo = Weapon->GetCSWeaponData();
+
+		float percentage = 0.34;
+		float v4 = percentage * (m_rage_data->m_pLocal->m_bIsScoped() ? weaponInfo->m_flMaxSpeed2 : weaponInfo->m_flMaxSpeed);
+
+
+		if (m_rage_data->rbot->accurate_speed) {
+			if (m_rage_data->m_pLocal->m_vecVelocity().Length() > v4) {
+				return false;
+			}
+		}
 
 		if (m_rage_data->rbot->delay_shot_on_unducking && m_rage_data->m_pLocal->m_flDuckAmount() >= 0.125f) {
 			if (g_Vars.globals.m_flPreviousDuckAmount > m_rage_data->m_pLocal->m_flDuckAmount()) {
@@ -1119,6 +1131,10 @@ namespace Interfaces
 		auto dist = (m_rage_data->m_pLocal->m_vecOrigin().Distance(point->target->player->m_vecOrigin()));
 		auto meters = dist * 0.0254f;
 		float flDistanceInFeet = round_to_multiple(meters * 3.281f, 5);
+
+
+		if (!m_rage_data->m_pLocal->m_PlayerAnimState())
+			return false;
 
 		int iHealth = point->target->player->m_iHealth();
 		bool bOnLand = !(Engine::Prediction::Instance().GetFlags() & FL_ONGROUND) && m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND;
@@ -1156,59 +1172,43 @@ namespace Interfaces
 
 		float hitchance = m_rage_data->rbot->hitchance;
 
-		if( g_TickbaseController.Using( ) ) {
-			if( hitchance != m_rage_data->rbot->doubletap_hitchance ) {
+		if (g_TickbaseController.Using()) {
+			if (hitchance != m_rage_data->rbot->doubletap_hitchance) {
 				//ILoggerEvent::Get( )->PushEvent( "used dt hitchance", FloatColor::White, true, "dt" );
 				hitchance = m_rage_data->rbot->doubletap_hitchance;
 			}
 		}
 
-		float m_flAccuracyBoostHitchance;
-		if (m_rage_data->rbot->accry_boost_on_shot) {
-			/*
-			* tmr we are gonna re-work our accry boost seletion.
-			  we are gonna add 3 modes
-			  -> low
-			  -> medium
-			  -> high
-			  each mode contains a certain amount of hitchance to check if the player behind a wall is accurate enough to fire at.
 
-			  note - vio;
-			  float m_flAcrryboostHitchance = 0.f;
-			  for each mode on a switch statement
-			  set the hitchance to the corrent amount.
-			  also detect wat wpn we are holding and choose the best amount.
-			  after that is done we should be able to overide our accryboosthitchance to our current hitchance
-			  this is done below
-			  if( hitchance != m_rage_data->rbot->doubletap_hitchance )
-					hitchance = m_rage_data->rbot->doubletap_hitchance;
-			*/
-			switch (m_rage_data->rbot->accry_boost_on_shot_modes) {
-			case 0: // low
-				m_flAccuracyBoostHitchance = 35.f;
-				break;
-			case 1: // medium
-				m_flAccuracyBoostHitchance = 55.f;
-				break;
-			case 2: // high
-				m_flAccuracyBoostHitchance = 75.f;
-				break;
-			default:
-				break;
-			}
-		}
 
 		// we can hitchance them & check if accry boost is valid.
 		if (hitchance > 0.0f && ShouldHitchance()) {
 			// we cannot hitchance the player or no valid acrry boost then we failed hitchance.
-			if (!Hitchance(point, start, hitchance * 0.01f) /*|| AccuracyBoost( point, start, m_flAccuracyBoostHitchance * 0.01f ) )*/ || ((m_rage_data->m_flInaccuracy + m_rage_data->m_flSpread > (0.04f - (m_rage_data->rbot->doubletap_hitchance / 3000)) && !m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE))) {
+			if (!Hitchance(point, start, hitchance * 0.01f)) {
 				m_rage_data->m_bFailedHitchance = true;
 				return false;
 			}
 		}
 
-		m_rage_data->m_bFailedHitchance = false;
-		return true;
+		bool accurate = true;
+
+		if (m_rage_data->rbot->accry_boost_on_shot) {
+			accurate = false;
+
+			if (AccuracyBoost(point, start, m_rage_data->rbot->hitchance_accuracy * 0.01f))
+				accurate = true;
+
+		}
+
+
+		if (accurate) {
+			m_rage_data->m_bFailedHitchance = false;
+			return true;
+		}
+
+		m_rage_data->m_bFailedHitchance = true;
+		return false;
+
 	}
 
 	void C_Ragebot::Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& pointScale, int hitboxIndex) {
@@ -1688,6 +1688,7 @@ namespace Interfaces
 				g_Vars.globals.m_bDelayingShot[bestPoint->target->record->player->EntIndex()] = false;
 
 				if (AimAtPoint(bestPoint)) {
+					g_Vars.globals.m_bShotReady = true;
 					if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
 						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
 						auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
@@ -1811,11 +1812,11 @@ namespace Interfaces
 								msg << XorStr("dmg: ") << int(bestPoint->damage) << XorStr(" | ");
 								msg << XorStr("hitgroup: ") << TranslateHitbox(bestPoint->hitboxIndex).c_str() /*<< XorStr("(") << int(bestPoint->pointscale * 100.f) << XorStr("%%%%)")*/ << XorStr(" | ");
 								msg << XorStr("lby: ") << int(bestPoint->target->record->m_iResolverMode == 1) << XorStr(" | ");
-								msg << XorStr( "bt: " ) << TIME_TO_TICKS( m_lag_data->m_History.front( ).m_flSimulationTime - bestPoint->target->record->m_flSimulationTime ) << XorStr( " | " );
+								msg << XorStr("bt: ") << TIME_TO_TICKS(m_lag_data->m_History.front().m_flSimulationTime - bestPoint->target->record->m_flSimulationTime) << XorStr(" | ");
 								msg << XorStr("clientside: ") << int(*m_rage_data->m_pSendPacket) << XorStr(" | ");
 								msg << XorStr("hitchance: ") << int(bestPoint->hitchance) << XorStr(" | ");
-								msg << XorStr( "miss: " ) << m_lag_data->m_iMissedShots << XorStr( ":" ) << m_lag_data->m_iMissedShotsLBY << XorStr( ":" ) << bestPoint->target->record->m_iResolverMode << XorStr( " | " );
-								msg << XorStr( "flag: " ) << buffer.data( ) << XorStr( " | " );
+								msg << XorStr("miss: ") << m_lag_data->m_iMissedShots << XorStr(":") << m_lag_data->m_iMissedShotsLBY << XorStr(":") << bestPoint->target->record->m_iResolverMode << XorStr(" | ");
+								msg << XorStr("flag: ") << buffer.data() << XorStr(" | ");
 								msg << FixedStrLength(info.szName).data() << XorStr(" | ");
 
 								ILoggerEvent::Get()->PushEvent(msg.str(), FloatColor(0.f, 0.518f, 1.f), false, XorStr("shot packet sent "));
@@ -1860,6 +1861,9 @@ namespace Interfaces
 
 						result = true;
 					}
+				}
+				else {
+					g_Vars.globals.m_bShotReady = false;
 				}
 			}
 		}
@@ -2129,6 +2133,23 @@ namespace Interfaces
 			// get current record
 			Engine::C_LagRecord* currentRecord = arrRecords[i];
 
+			if (g_Vars.misc.disablebtondt) {
+				return &record;
+			}
+
+			if (!(currentRecord->m_iFlags & FL_ONGROUND))
+				return &record;
+
+			if (pBestRecord) {
+				if (currentRecord->m_flSimulationTime <= pBestRecord->m_flSimulationTime && pBestRecord->m_bIsValid)
+					continue;
+			}
+
+			if (currentRecord->m_vecVelocity.Length2D() > 1.f && currentRecord->m_vecVelocity.Length2D() <= 89.f && currentRecord->m_iFlags & FL_ONGROUND) {
+				pBestRecord = currentRecord;
+				return &record;
+			}
+
 			// if best record is null, set best record to current record
 			if (!pBestRecord) {
 				pBestRecord = currentRecord;
@@ -2143,7 +2164,7 @@ namespace Interfaces
 			}
 
 			// try to find a record with a lby update or moving.
-			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_iResolverMode == Engine::RModes::MOVING) {
+			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_vecVelocity.Length2D() > 89.f) {
 				pBestRecord = currentRecord;
 				continue; // go to next record
 			}

@@ -296,6 +296,18 @@ void Ragebot()
 
 			const char* autoscopeoptions[] = { XorStr("Off"), XorStr("Always Scope"), XorStr("Hitchance Fail") };
 
+			InsertCheckbox(DelayShots, XorStr("Delay Shot Triggers"), &rbot->delay_shots_triggers_check);
+			std::vector<MultiItem_t> delay_options = {
+				{ XorStr("Predicted"), &rbot->accurate_speed },
+				{ XorStr("Unsafe Hitbox"), &rbot->occluded_head },
+
+			};
+
+			if (rbot->delay_shots_triggers_check) {
+				InsertMultiCombo(XorStr("Delay Shot Options"), delay_options);
+			}
+
+
 			if (rageTab == WEAPONGROUP_RIFLE || rageTab == WEAPONGROUP_SNIPER + 1 || rageTab == WEAPONGROUP_AUTOSNIPER + 1 || rageTab == WEAPONGROUP_SNIPER || rageTab == 0) {
 				InsertCombo(XorStr("Automatic Scope Options"), &rbot->autoscope, autoscopeoptions);
 			}
@@ -646,6 +658,11 @@ void Visuals()
 				InsertCheckbox(name, XorStr("Name"), &g_Vars.esp.name);
 				if (g_Vars.esp.name) {
 					ColorPicker(XorStr("##NameColor"), g_Vars.esp.name_color, false, false);
+				}
+
+				InsertCheckbox(teamname, XorStr("Teammate Name"), &g_Vars.esp.teamname);
+				if (g_Vars.esp.teamname) {
+					ColorPicker(XorStr("##Name2Color"), g_Vars.esp.team_name_color, false, false);
 				}
 
 				InsertCheckbox(health, XorStr("Health"), &g_Vars.esp.health);

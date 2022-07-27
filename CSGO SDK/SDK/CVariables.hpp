@@ -412,6 +412,7 @@ public:
 		matrix3x4_t LagPosition[ 128 ];
 		bool m_bUpdatingAnimations;
 		bool m_bDelayingShot[ 65 ];
+		bool m_bShotReady = false;
 
 		int m_iResolverType[ 65 ];
 		int m_iResolverType2[ 65 ];
@@ -730,8 +731,11 @@ public:
 	config_option( int, target_selection, 0 );
 	config_option( int, autostop, 0 );//XD
 	config_option( bool, autostop_check, false ); 
+	config_option( bool, delay_shots_triggers_check, false ); 
 
 	config_option( bool, always_stop, false );
+	config_option( bool, accurate_speed, false );
+	config_option( bool, occluded_head, false );
 	config_option( bool, early_stop, false );
 
 	config_option(bool, always_scope, false);
@@ -967,7 +971,9 @@ public:
 	config_option( bool, draw_ammo_bar, false );
 	config_option( bool, draw_lby_bar, false );
 	config_option( bool, name, false );
+	config_option( bool, teamname, false );
 	config_option( FloatColor, name_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
+	config_option( FloatColor, team_name_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, weapon_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, ammo_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, lby_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );

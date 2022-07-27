@@ -57,7 +57,8 @@ namespace Engine
 		}
 
 		virtual float GetLerp( ) const {
-			return lagData.Xor( )->m_flLerpTime;
+			return std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
+			//return lagData.Xor( )->m_flLerpTime;
 		}
 
 		virtual void ClearLagData( ) {
@@ -161,23 +162,43 @@ namespace Engine
 		if (!pLocal)
 			return false;
 
-		//use prediction curtime for this.
+		////use prediction curtime for this.
+		//float curtime = TICKS_TO_TIME(pLocal->m_nTickBase());
+
+		//// correct is the amount of time we have to correct game time,
+		//float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flServerLatency;
+
+		//correct += lagData.Xor()->m_flOutLatency;
+
+		// use prediction curtime for this.
 		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase());
 
 		// correct is the amount of time we have to correct game time,
-		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flServerLatency;
+		float correct = GetLerp() + pNetChannel->GetLatency(FLOW_OUTGOING);
 
-		correct += lagData.Xor()->m_flOutLatency;
+		// stupid fake latency goes into the incoming latency.
+		float in = pNetChannel->GetLatency(FLOW_INCOMING);
+		correct += in;
 
 		// check bounds [ 0, sv_maxunlag ]
-		std::clamp(correct, 0.f, g_Vars.sv_maxunlag->GetFloat());
+		Math::Clamp(correct, 0.f, g_Vars.sv_maxunlag->GetFloat());
 
 		if (g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
 			correct -= g_TickbaseController.s_nExtraProcessingTicks;
 
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
-		return std::fabsf(correct - (curtime - record.m_flSimulationTime)) <= flTargetTime;
+		//return std::fabsf(correct - (curtime - record.m_flSimulationTime)) <= flTargetTime;
+
+		float time_delta = std::abs(correct - (curtime - record.m_flSimulationTime));
+
+		if (time_delta > 0.2f)
+			return false;
+
+		// calculate difference between tick sent by player and our latency based tick.
+		// ensure this record isn't too old.
+		return true;
+
 	}
 
 	void C_LagCompensation::SetupLerpTime( ) {
@@ -221,17 +242,21 @@ namespace Engine
 		bool isDormant = player->IsDormant( );
 
 		// no need to store insane amount of data
-		while( pThis->m_History.size( ) > int( 1.0f / Interfaces::m_pGlobalVars->interval_per_tick ) ) {
+		while( pThis->m_History.size( ) > 64 ) {
 			pThis->m_History.pop_back( );
 		}
 
 		if( isDormant ) {
 			pThis->m_flLastUpdateTime = 0.0f;
-			if( pThis->m_History.size( ) > 0 && pThis->m_History.front( ).m_bTeleportDistance ) {
+			if( pThis->m_History.size( ) > 1 && pThis->m_History.front( ).m_bTeleportDistance ) {
 				pThis->m_History.clear( );
 			}
 
 			return;
+		}
+
+		if (pThis->m_History.size() > 1 && pThis->m_History.front().m_bTeleportDistance && !(pThis->m_History.front().player->m_fFlags() & FL_ONGROUND)) {
+			pThis->m_History.clear();
 		}
 
 		if( info.userId != pThis->m_iUserID ) {

@@ -109,6 +109,7 @@ private:
 	void DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info );
 	void DrawBottomInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info );
 	void DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info );
+	void DrawTeamName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info );
 	void DrawSkeleton( C_CSPlayer* player );
 	void DrawHitSkeleton( );
 	void DrawLocalSkeleton( );
@@ -375,8 +376,8 @@ bool CEsp::Begin( C_CSPlayer* player ) {
 
 	m_Data.info = player_info;
 
-	if( !m_Data.bEnemy )
-		return false;
+	//if( !m_Data.bEnemy )
+	//	return false;
 
 	Vector2D points[ 8 ];
 	return GetBBox( player, points, m_Data.bbox );
@@ -1477,6 +1478,11 @@ void CEsp::Main( ) {
 	for( int i = 0; i <= Interfaces::m_pEntList->GetHighestEntityIndex( ); ++i ) {
 		auto entity = ( C_BaseEntity* )Interfaces::m_pEntList->GetClientEntity( i );
 
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (!local)
+			return;
+
 		if( !entity )
 			continue;
 
@@ -1691,24 +1697,29 @@ void CEsp::Main( ) {
 			g_Vars.globals.m_vecTextInfo[ i ].clear( );
 
 			if( Begin( player ) ) {
-				if( g_Vars.esp.skeleton )
-					DrawSkeleton( player );
+				if (!(player->IsTeammate(local))) {
+					if (g_Vars.esp.name)
+						DrawName(player, m_Data.bbox, m_Data.info);
 
-				if( g_Vars.esp.box )
-					DrawBox( m_Data.bbox, g_Vars.esp.box_color, player );
+					if (g_Vars.esp.skeleton)
+						DrawSkeleton(player);
 
-				if( g_Vars.esp.health )
-					DrawHealthBar( player, m_Data.bbox );
+					if (g_Vars.esp.box)
+						DrawBox(m_Data.bbox, g_Vars.esp.box_color, player);
 
-				DrawInfo( player, m_Data.bbox, m_Data.info );
+					if (g_Vars.esp.health)
+						DrawHealthBar(player, m_Data.bbox);
 
-				if( g_Vars.esp.name )
-					DrawName( player, m_Data.bbox, m_Data.info );
+					DrawInfo(player, m_Data.bbox, m_Data.info);
 
-				if( g_Vars.esp.draw_ammo_bar || g_Vars.esp.draw_lby_bar )
-					AmmoBar( player, m_Data.bbox );
+					if (g_Vars.esp.draw_ammo_bar || g_Vars.esp.draw_lby_bar)
+						AmmoBar(player, m_Data.bbox);
 
-				DrawBottomInfo( player, m_Data.bbox, m_Data.info );
+					DrawBottomInfo(player, m_Data.bbox, m_Data.info);
+				}
+				else if(g_Vars.esp.teamname) {
+					DrawTeamName(player, m_Data.bbox, m_Data.info);
+				}
 			}
 		}
 
@@ -2462,6 +2473,91 @@ void CEsp::DrawBottomInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player
 
 		i += text.second.second.m_size.m_height;
 	}
+}
+
+void CEsp::DrawTeamName(C_CSPlayer* player, BBox_t bbox, player_info_t player_info) {
+	// fix retards with their namechange meme 
+	// the point of this is overflowing unicode compares with hardcoded buffers, good hvh strat
+
+	auto local = C_CSPlayer::GetLocalPlayer();
+	if (!local)
+		return;
+
+	if (!player->IsTeammate(local))
+		return;
+
+	if (player->EntIndex() == local->EntIndex())
+		return;
+
+	std::string name;
+
+	name += XorStr("[TEAMMATE] ");
+
+	if (!g_Vars.globals.vader_user.empty()) {
+		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player_info.userId) != g_Vars.globals.vader_user.end()) {
+
+			//printf(player_info.szName);
+			//printf("\n");
+
+			//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
+			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
+
+			name += player_info.steamID64 == 76561198041707533 ? XorStr("[boss] ") : XorStr("[vader] ");
+		}
+	}
+
+	if (!g_Vars.globals.vader_crack.empty()) {
+		if (std::find(g_Vars.globals.vader_crack.begin(), g_Vars.globals.vader_crack.end(), player_info.userId) != g_Vars.globals.vader_crack.end()) {
+
+			//printf(player_info.szName);
+			//printf("\n");
+
+			//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
+			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
+
+			name += XorStr("[crack] ");
+		}
+	}
+
+	name += std::string(player_info.szName).substr(0, 24);
+
+	//#if defined (DEV)
+	//	name.append( XorStr( " (" ) ).append( std::to_string( player->m_entIndex ) ).append( XorStr( ")" ) );
+	//#endif
+
+	Color clr;
+
+	if (player_info.steamID64 == 76561199057465290) {
+		static float rainbow;
+		rainbow += 0.001f;
+		if (rainbow > 1.f)
+			rainbow = 0.f;
+
+		clr = Color::HSBtoRGB(rainbow, 1.0f, 1.0f);
+	}
+	else {
+		if (!player->IsDormant()) {
+			clr = g_Vars.esp.team_name_color.ToRegularColor().OverrideAlpha(180, true);
+		}
+		else
+			clr = Color(0, 255, 221, 180);
+	}
+
+	clr.RGBA[3] *= m_flAlpha[player->EntIndex()];
+
+	Render::Engine::tahoma_sexy.string(bbox.x + bbox.w / 2, bbox.y - Render::Engine::tahoma_sexy.m_size.m_height - 1, clr, name, Render::Engine::ALIGN_CENTER);
+
+	/*if( g_Vars.globals.nOverrideEnemy == player->EntIndex( ) ) {
+		Color clr = Color( 255, 255, 255, 180 );
+		if( g_Vars.globals.nOverrideLockedEnemy == player->EntIndex( ) ) {
+			clr = Color( 255, 0, 0, 180 );
+		}
+
+		clr.RGBA[ 3 ] *= m_flAlpha[ player->EntIndex( ) ];
+
+		name = XorStr( "OVERRIDE" );
+		Render::Engine::segoe.string( bbox.x + bbox.w / 2, ( bbox.y - Render::Engine::segoe.m_size.m_height - 1 ) - 14, clr, name, Render::Engine::ALIGN_CENTER );
+	}*/
 }
 
 void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info ) {

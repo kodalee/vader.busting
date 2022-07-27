@@ -444,7 +444,7 @@ namespace Engine {
 				record->m_iResolverMode = FLICK;
 			}
 
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !(activity == 979 && curr->m_flWeight == 0 && delta > .22f)) {
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
 				record->m_iResolverMode = LASTMOVE;
 			}
 
@@ -739,20 +739,20 @@ namespace Engine {
 			}
 			else if (record->m_iResolverMode == ANTIFREESTAND) {
 				record->m_iResolverText = XorStr("FREESTAND");
-				if (ShouldUseFreestand(record, player)) {
-					if (bFacingleft) {
-						record->m_angEyeAngles.y = at_target_yaw - 90.f;
-						record->m_iResolverText = XorStr("FREESTANDCUSTOM1");
-					}
-					else if (bFacingright) {
-						record->m_angEyeAngles.y = at_target_yaw + 90.f;
-						record->m_iResolverText = XorStr("FREESTANDCUSTOM2");
-					}
-					else
-						AntiFreestand(record, player);
-				}
-				else
-					AntiFreestand(record, player);
+				//if (ShouldUseFreestand(record, player)) {
+				//	if (bFacingleft) {
+				//		record->m_angEyeAngles.y = at_target_yaw - 90.f;
+				//		record->m_iResolverText = XorStr("FREESTANDCUSTOM1");
+				//	}
+				//	else if (bFacingright) {
+				//		record->m_angEyeAngles.y = at_target_yaw + 90.f;
+				//		record->m_iResolverText = XorStr("FREESTANDCUSTOM2");
+				//	}
+				//	else
+				//		AntiFreestand(record, player);
+				//}
+				//else
+				AntiFreestand(record, player);
 			}
 			else if(record->m_iResolverMode == STAND) {
 				switch (pLagData->m_iMissedBruteShots % 6) {

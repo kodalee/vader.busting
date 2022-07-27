@@ -285,8 +285,13 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 						if (!weaponInfo.IsValid())
 							return;
 
-						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE)
+						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && Weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER)
 						{
+							s_bBuilding = false;
+							inya = true;
+							goto jmpRunExtraCommands;
+						}
+						else if (g_Vars.globals.m_bShotReady && Weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
 							s_bBuilding = false;
 							inya = true;
 							goto jmpRunExtraCommands;
