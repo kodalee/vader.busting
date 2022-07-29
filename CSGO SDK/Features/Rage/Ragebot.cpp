@@ -365,6 +365,8 @@ namespace Interfaces
 
 		virtual std::pair<bool, C_AimPoint> RunHitscan();
 
+		bool IsVisiblePoint(C_CSPlayer* pLocal, C_AimPoint* Point);
+
 		void ScanPoint(C_AimPoint* pPoint);
 
 		// sort records, choose best and calculate damage
@@ -1587,6 +1589,10 @@ namespace Interfaces
 
 		g_Vars.globals.RageBotTargetting = false;
 
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return { false, C_AimPoint() };
+
 		//g_TickbaseController.m_bSupressRecharge = false;
 
 		if (!SetupTargets()) {
@@ -1686,6 +1692,11 @@ namespace Interfaces
 				bool bDidDelayHeadShot = m_rage_data->m_bDelayedHeadAim;
 				m_rage_data->m_bDelayedHeadAim = false;
 				g_Vars.globals.m_bDelayingShot[bestPoint->target->record->player->EntIndex()] = false;
+
+				if (IsVisiblePoint(local, bestPoint))
+					g_Vars.globals.m_bPointVisible = true;
+				else
+					g_Vars.globals.m_bPointVisible = false;
 
 				if (AimAtPoint(bestPoint)) {
 					g_Vars.globals.m_bShotReady = true;
@@ -1873,6 +1884,18 @@ namespace Interfaces
 		}
 
 		return { result, *bestPoint };
+	}
+
+	bool C_Ragebot::IsVisiblePoint(C_CSPlayer* pLocal, C_AimPoint* Point)
+	{
+		Vector start = pLocal->m_vecOrigin() + pLocal->m_vecViewOffset();
+		CGameTrace trace;
+		Interfaces::m_pEngineTrace->TraceLine(start, Point->position, MASK_OPAQUE, pLocal, 0, &trace);
+		if (trace.fraction > 0.98f)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	bool C_Ragebot::OverrideHitscan(C_CSPlayer* player, Engine::C_LagRecord* record) {
@@ -2145,7 +2168,7 @@ namespace Interfaces
 					continue;
 			}
 
-			if (currentRecord->m_vecVelocity.Length2D() > 1.f && currentRecord->m_vecVelocity.Length2D() <= 89.f && currentRecord->m_iFlags & FL_ONGROUND) {
+			if (currentRecord->m_vecVelocity.Length2D() > 1.f && currentRecord->m_vecVelocity.Length2D() <= 89.f && currentRecord->m_iFlags & FL_ONGROUND && g_Vars.globals.m_bPointVisible) {
 				pBestRecord = currentRecord;
 				return &record;
 			}
@@ -2153,7 +2176,7 @@ namespace Interfaces
 			// if best record is null, set best record to current record
 			if (!pBestRecord) {
 				pBestRecord = currentRecord;
-				continue; // go to next record
+				//continue; // go to next record
 			}
 
 			if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {
@@ -2164,7 +2187,7 @@ namespace Interfaces
 			}
 
 			// try to find a record with a lby update or moving.
-			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_vecVelocity.Length2D() > 89.f) {
+			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_vecVelocity.Length2D() > 89.f && currentRecord->m_iFlags & FL_ONGROUND) {
 				pBestRecord = currentRecord;
 				continue; // go to next record
 			}

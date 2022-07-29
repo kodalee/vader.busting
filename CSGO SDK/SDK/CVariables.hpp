@@ -413,6 +413,7 @@ public:
 		bool m_bUpdatingAnimations;
 		bool m_bDelayingShot[ 65 ];
 		bool m_bShotReady = false;
+		bool m_bPointVisible = false;
 
 		int m_iResolverType[ 65 ];
 		int m_iResolverType2[ 65 ];
