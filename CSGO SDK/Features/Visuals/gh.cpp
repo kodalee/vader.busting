@@ -163,18 +163,18 @@ bool c_grenade_prediction::data_t::draw() const
     float percent = ((m_expire_time - Interfaces::m_pGlobalVars->curtime) / TICKS_TO_TIME(m_tick));
     int alpha_damage = 0;
 
-    if (m_index == WEAPON_HEGRENADE && dist <= 23) {
-        alpha_damage = 255 - 255 * (dist / 23);
+    if (m_index == WEAPON_HEGRENADE && dist <= 26) {
+        alpha_damage = 50 - 255 * (dist / 26);
     }
 
     if ((m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB) && dist <= 15) {
-        alpha_damage = 255 - 255 * (dist / 15);
+        alpha_damage = 50 - 255 * (dist / 15);
     }
 
     //if (dist < 150) {
-    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
-    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
-    //Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, dist > 27 ? Color(26, 26, 30, 199) : Color(232, 39, 62, 199));
+    //Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
+    //Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
+    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, dist > 27 ? Color(26, 26, 30, 199) : Color(232, 39, 62, 199));
     Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
     Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
    // }

@@ -851,7 +851,6 @@ namespace Interfaces
 			//if (g_Vars.misc.mind_trick_test && g_Vars.misc.mind_trick_bind.enabled) {
 			//	g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 ? 16 : 0;
 			//}
-
 			/*else*/ if (g_Vars.rage.exploit_lag) {
 				g_Vars.globals.shift_amount = Interfaces::m_pGlobalVars->tickcount % 16 > 0 ? 16 : 0;
 			}

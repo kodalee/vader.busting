@@ -662,6 +662,7 @@ public:
 	config_option( bool, exploit_lag, false );
 	config_option(bool, exploit_lag_peek, false);
 	config_option(bool, exploit_lagcomp, false);
+	config_option(bool, rapid_fire, false);
 	config_option( bool, double_tap_teleport, false );
 	config_option( bool, double_tap_recharge_threat, false );
 	config_option( bool, double_tap_adaptive, false );

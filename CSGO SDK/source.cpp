@@ -632,7 +632,8 @@ void __fastcall hkAddRenderable( void* ecx, void* edx, IClientRenderable* pRende
 using PhysicsSimulateFn = void( __thiscall* ) ( void* ecx );
 PhysicsSimulateFn oPhysicsSimulate;
 void __fastcall hkPhysicsSimulate( void* ecx, void* edx ) {
-	auto local = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( Interfaces::m_pEngine->GetLocalPlayer( ) );
+	//auto local = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( Interfaces::m_pEngine->GetLocalPlayer( ) );
+	auto local = C_CSPlayer::GetLocalPlayer();
 	if( !ecx || !local || local->IsDead( ) || local != ecx )
 		return oPhysicsSimulate( ecx );
 

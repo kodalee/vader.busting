@@ -481,6 +481,64 @@ namespace Interfaces
 			&& (weaponInfo->m_iWeaponType == WEAPONTYPE_KNIFE || weaponInfo->m_iWeaponType == WEAPONTYPE_GRENADE || weaponInfo->m_iWeaponType == WEAPONTYPE_C4))
 			return false;
 
+		static bool ranBalls = false;
+		if (g_Vars.rage.rapid_fire && g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+			static bool balls = false;
+			static int amount;
+			static float timeToNull;
+			if (cmd->buttons & IN_RELOAD) {
+				amount = 10;
+				balls = true;
+				timeToNull = Interfaces::m_pGlobalVars->curtime + TIME_TO_TICKS(Interfaces::m_pGlobalVars->curtime - weapon->m_flNextPrimaryAttack())/* + TIME_TO_TICKS(g_Vars.sv_clockcorrection_msecs->GetFloat() * 1000.f)*/;
+				g_Vars.globals.shift_amount = 0;
+			}
+
+			//if (Interfaces::m_pGlobalVars->curtime <= timeToNull) {
+			//	cmd->buttons &= ~IN_ATTACK;
+			//	printf("nulling\n");
+			//}
+
+			if (balls) {
+				printf(std::to_string(floorf((Interfaces::m_pGlobalVars->curtime - weapon->m_flNextPrimaryAttack()) / 1.25f)).c_str());
+				printf(" << charged shots\n");
+				printf(std::to_string(g_Vars.globals.shift_amount).c_str());
+				printf(" << current shift\n");
+				g_Vars.globals.shift_amount = (amount * TIME_TO_TICKS(1.25f)) /*+ TIME_TO_TICKS(g_Vars.sv_clockcorrection_msecs->GetFloat() * 1000.f)*/;
+			}
+
+			if (cmd->buttons & IN_ATTACK) {
+				amount--;
+			}
+
+			if (weapon->m_iClip1() < 1 || amount <= 0) {
+				balls = false;
+			}
+
+			//static float storedTicks = TIME_TO_TICKS(6);
+			//while(!(cmd->buttons & IN_ATTACK))
+			//	g_Vars.globals.shift_amount++;
+			////if(!(cmd->buttons & IN_ATTACK))
+			////	g_Vars.globals.shift_amount = 500;
+			//printf("shifted ");
+			//printf(std::to_string(g_Vars.globals.shift_amount).c_str());
+			//printf("\n");
+			//if (!ranBalls) {
+			//	storedTicks = TIME_TO_TICKS(6);
+			//	ranBalls = true;
+			//}
+			//
+			////if (g_Vars.globals.m_bShotReady) {
+			////	for (int i = 0; i < 10; i++)
+			////		cmd->buttons |= IN_ATTACK;
+			////}
+
+			//if (cmd->buttons & IN_ATTACK) {
+			//	//g_Vars.globals.shift_amount = 0;
+			//	printf("nextattack == 0\n");
+			//	ranBalls = false;
+			//}
+		}
+
 		if (g_Vars.rage.exploit_lag_peek && g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
 
 			int AppliedShift = 13;//13
@@ -519,7 +577,7 @@ namespace Interfaces
 		//	StripAttack(cmd);
 		//}
 
-		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
+		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !g_Vars.rage.rapid_fire) {
 			*sendPacket = true;
 			//printf("setting send packet to true\n");
 		}
@@ -579,7 +637,7 @@ namespace Interfaces
 			if (!m_rage_data->m_pWeaponInfo->m_bFullAuto)
 				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
 
-			if (Interfaces::m_pGlobalVars->curtime < m_rage_data->m_pLocal->m_flNextAttack()
+			if (Interfaces::m_pGlobalVars->curtime < m_rage_data->m_pLocal->m_flNextAttack() && !g_Vars.rage.rapid_fire
 				|| m_rage_data->m_pWeapon->m_iClip1() < 1)
 				return false;
 		}

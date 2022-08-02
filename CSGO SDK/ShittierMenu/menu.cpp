@@ -389,6 +389,7 @@ void Ragebot()
 						{ XorStr("Lag exploit"), &g_Vars.rage.exploit_lag },
 						{ XorStr("Lag peek"), &g_Vars.rage.exploit_lag_peek },
 						{ XorStr("Break Lag Compensation"), &g_Vars.rage.exploit_lagcomp },
+						{ XorStr("Rapid Fire"), &g_Vars.rage.rapid_fire },
 					};
 
 					InsertMultiCombo(XorStr("Exploits"), exploits);

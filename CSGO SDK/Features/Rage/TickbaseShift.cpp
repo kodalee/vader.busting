@@ -52,7 +52,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 
 
 	const bool bStart = s_bBuilding;
-	s_bBuilding = /*m_didFakeFlick || */((g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)
+	s_bBuilding = /*m_didFakeFlick || */((g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && !g_Vars.rage.rapid_fire)
 			&& s_nTicksSinceUse >= s_nTicksRequired
 		&& !m_bSupressRecharge || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1));
 
