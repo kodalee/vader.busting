@@ -93,7 +93,7 @@ namespace ph_heartbeat {
 				MessageBoxA(0, "Error Initializing Minhook", 0, 0);
 			#endif
 
-			LI_FN(exit)(0);
+			exit(0);
 		}
 		
 		uintptr_t perf_counter_addr = (uintptr_t)LI_FN(GetProcAddress)(GetModuleHandleA(XorStr("kernel32.dll")), XorStr("QueryPerformanceCounter"));
@@ -103,7 +103,7 @@ namespace ph_heartbeat {
 				MessageBoxA(0, XorStr("Failed to find QueryPerformanceCounter address to hook."), 0, 0);
 			#endif
 
-			LI_FN(exit)(0);
+			exit(0);
 		}
 		
 		//VirtualProtect(perf_counter_addr, 5, PAGE_EXECUTE_READWRITE, 0);
