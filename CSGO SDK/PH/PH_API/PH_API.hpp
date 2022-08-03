@@ -16,11 +16,6 @@
 
 #include <string>
 
-typedef BOOL(WINAPI* pQueryPerformanceCounter)(LARGE_INTEGER*);
-pQueryPerformanceCounter oPerfCounter = nullptr;
-
-extern BOOL __stdcall QueryPerformanceCounter_HOOK(LARGE_INTEGER* lpPerformanceCount);
-
 /*
 	This heartbeat will be weak depending on what methods you use. 
 	Creating a separate thread on a loop is very weak. 
@@ -86,39 +81,6 @@ namespace ph_heartbeat {
 	static std::string session_token, username;
 
 	static const char* heartbeat_token_hashed;
-
-	__forceinline static void hook_queryperfcounter() {
-		if (MH_Initialize() != MH_OK) {
-			#ifdef PH_HEARTBEAT_DEBUG
-				MessageBoxA(0, "Error Initializing Minhook", 0, 0);
-			#endif
-
-			exit(0);
-		}
-		
-		uintptr_t perf_counter_addr = (uintptr_t)LI_FN(GetProcAddress)(GetModuleHandleA(XorStr("kernel32.dll")), XorStr("QueryPerformanceCounter"));
-
-		if (!perf_counter_addr) {
-			#ifdef PH_HEARTBEAT_DEBUG
-				MessageBoxA(0, XorStr("Failed to find QueryPerformanceCounter address to hook."), 0, 0);
-			#endif
-
-			exit(0);
-		}
-		
-		//VirtualProtect(perf_counter_addr, 5, PAGE_EXECUTE_READWRITE, 0);
-		if (MH_CreateHook((LPVOID)perf_counter_addr, &QueryPerformanceCounter_HOOK, (void**)&oPerfCounter) != MH_OK) {
-			#ifdef PH_HEARTBEAT_DEBUG
-				MessageBoxA(0, XorStr("Error Creating Hook"), 0, 0);
-			#endif
-		}
-
-		if (MH_EnableHook((LPVOID)perf_counter_addr) != MH_OK) {
-			#ifdef PH_HEARTBEAT_DEBUG
-				MessageBoxA(0, XorStr("Error Enabling Hook"), 0, 0);
-			#endif
-		}
-	}
 
 	__forceinline static std::string& get_username() {
 		ph_heartbeat::ph_heartbeat_user_mutex.lock();
@@ -304,34 +266,5 @@ namespace ph_heartbeat {
 		ph_heartbeat::send_heartbeat(PH_HEARTBEAT_INIT_TASK);
 
 		VirtualFree(in_info, 0, MEM_RELEASE); // Releasing data so token hashed is no longer in memory
-
-		hook_queryperfcounter();
 	}
-}
-
-static LARGE_INTEGER LastTime = { 0, 0 };
-
-BOOL __stdcall QueryPerformanceCounter_HOOK(
-	LARGE_INTEGER* lpPerformanceCount
-) {
-	auto ret = oPerfCounter(lpPerformanceCount);
-
-	if (!LastTime.QuadPart)
-		LastTime = *lpPerformanceCount;
-	else {
-		LARGE_INTEGER clockFrequency;
-		QueryPerformanceFrequency(&clockFrequency);
-
-		LARGE_INTEGER delta;
-		delta.QuadPart = lpPerformanceCount->QuadPart - LastTime.QuadPart;
-
-		const float seconds_elapsed = ((float)delta.QuadPart) / clockFrequency.QuadPart;
-
-		if (seconds_elapsed > ph_heartbeat::PH_SECONDS_INTERVAL) {
-			LastTime = *lpPerformanceCount;
-			ph_heartbeat::send_heartbeat();
-		}
-	}
-
-	return ret;
 }
