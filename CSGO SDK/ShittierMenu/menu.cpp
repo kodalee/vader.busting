@@ -699,6 +699,7 @@ void Visuals()
 
 				std::vector<MultiItem_t> flags = {
 					{ XorStr("Zoom"), &g_Vars.esp.draw_scoped },
+					{ XorStr("Vulnerable"), &g_Vars.esp.draw_vulnerable },
 					{ XorStr("Flashed"), &g_Vars.esp.draw_flashed },
 					{ XorStr("Money"), &g_Vars.esp.draw_money },
 					{ XorStr("Kevlar"), &g_Vars.esp.draw_armor },
@@ -708,6 +709,7 @@ void Visuals()
 					{ XorStr("Grenade pin"), &g_Vars.esp.draw_grenade_pin },
 					{ XorStr("Resolved"), &g_Vars.esp.draw_resolver },
 					{ XorStr("Ping"), &g_Vars.esp.draw_ping },
+					{ XorStr("Exploiting"), &g_Vars.esp.draw_exploiting },
 				};
 
 				InsertMultiCombo(XorStr("Flags"), flags);
@@ -788,11 +790,11 @@ void Visuals()
 					ImGui::InputText(XorStr("##CustomTexture"), &g_Vars.esp.custom_world_texture_string);
 				}
 				
-				//InsertCheckbox(EnableRain, XorStr("Rain"), &g_Vars.esp.weather);
-				//if (g_Vars.esp.weather) {
-				//	InsertSliderFloat(XorStr("Rain alpha"), &g_Vars.esp.weather_alpha, 0.f, 100.0f, XorStr("%.f"));
-				//	InsertCheckbox(EnableThunderSounds, XorStr("Thunder Sounds"), &g_Vars.esp.weather_thunder);
-				//}
+				InsertCheckbox(EnableRain, XorStr("Rain"), &g_Vars.esp.weather);
+				if (g_Vars.esp.weather) {
+					InsertSliderFloat(XorStr("Rain alpha"), &g_Vars.esp.weather_alpha, 0.f, 100.0f, XorStr("%.f"));
+					InsertCheckbox(EnableThunderSounds, XorStr("Thunder Sounds"), &g_Vars.esp.weather_thunder);
+				}
 
 				InsertCheckbox(Enablemolotovcolor, XorStr("Molotov Color"), &g_Vars.esp.molotov_color_enable);
 				ColorPicker(XorStr("##MolotovColor"), g_Vars.esp.molotov_color, false, false);
@@ -963,9 +965,14 @@ void Visuals()
 				InsertCheckbox(BulletTracers, XorStr("Bullet Tracers"), &g_Vars.esp.beam_enabled);
 				if (g_Vars.esp.beam_enabled) {
 					InsertCheckbox(EnemyTracers, XorStr("Enemy Tracers"), &g_Vars.esp.beam_enemy_enable);
-					ColorPicker(XorStr("Enemy Tracer Color"), g_Vars.esp.beam_color_enemy, false, false);
-					ColorPicker_w_name(XorStr("Local Tracer Color"), g_Vars.esp.beam_color_local, false, false);
-					InsertCheckbox(RainbowTracerColor, XorStr("Rainbow Local Color"), &g_Vars.esp.beam_color_rainbow);
+					if (g_Vars.esp.beam_enemy_enable) {
+						ColorPicker(XorStr("Enemy Tracer Color"), g_Vars.esp.beam_color_enemy, false, false);
+					}
+					InsertCheckbox(LocalTracers, XorStr("Local Tracers"), &g_Vars.esp.beam_local_enable);
+					if (g_Vars.esp.beam_local_enable) {
+						ColorPicker_w_name(XorStr("Local Tracer Color"), g_Vars.esp.beam_color_local, false, false);
+						InsertCheckbox(RainbowTracerColor, XorStr("Rainbow Local Color"), &g_Vars.esp.beam_color_rainbow);
+					}
 
 
 					InsertCombo(XorStr("Bullet Tracer Type"), &g_Vars.esp.beam_type, tracers);

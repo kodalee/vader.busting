@@ -8,6 +8,41 @@
 #include "../../Hooking/Hooked.hpp"
 #include "../../SDK/Displacement.hpp"
 
+void copy_command(CUserCmd* cmd, int tickbase_shift)
+{
+	static auto cl_forwardspeed = Interfaces::m_pCvar->FindVar(XorStr("cl_forwardspeed"));
+	static auto cl_sidespeed = Interfaces::m_pCvar->FindVar(XorStr("cl_sidespeed"));
+
+	if (g_Vars.misc.autopeek_bind.enabled)
+		cmd->sidemove = abs(cmd->sidemove) > 10.f ? copysignf(450.f, cmd->sidemove) : 0.f;
+	else
+	{
+		if (g_Vars.rage.dt_defensive_teleport)
+		{
+			if ((cmd->forwardmove) > 10.f)
+				cmd->forwardmove = cmd->forwardmove;
+			else if ((cmd->forwardmove) < -10.f)
+				cmd->forwardmove = -cmd->forwardmove;
+
+			if ((cmd->sidemove) > 10.f)
+				cmd->sidemove = cmd->sidemove;
+			else if ((cmd->sidemove) < -10.f)
+				cmd->sidemove = -cmd->sidemove;
+		}
+		else if (g_Vars.rage.dt_defensive_teleport & g_Vars.misc.autopeek_bind.enabled)
+		{
+			cmd->sidemove = abs(cmd->sidemove) > 15.f ? copysignf(450.f, cmd->sidemove) : 0.f;
+		}
+		else {
+			cmd->forwardmove = 0.0f;
+			cmd->sidemove = 0.0f;
+		}
+	}
+
+	*(bool*)((uintptr_t)Interfaces::m_pPrediction.Xor() + 0x24) = true;
+	*(int*)((uintptr_t)Interfaces::m_pPrediction.Xor() + 0x1C) = 0;
+}
+
 void* g_pLocal = nullptr;
 TickbaseSystem g_TickbaseController;
 
@@ -92,6 +127,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		s_nTicksSinceStarted++;
 		if (s_nTicksSinceStarted <= s_nTicksDelay)
 		{
+			g_Vars.globals.m_pCmd->tick_count = INT_MAX;
 			s_iServerIdealTick++;
 			Hooked::oCL_Move(bFinalTick, accumulated_extra_samples);
 			return;
@@ -287,6 +323,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 
 						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && Weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER)
 						{
+							copy_command(cmd, s_nSpeed);
 							s_bBuilding = false;
 							inya = true;
 							goto jmpRunExtraCommands;

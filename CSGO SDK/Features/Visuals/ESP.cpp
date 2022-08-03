@@ -2238,6 +2238,15 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("DEFUSER"));
 	}
 
+	if (g_Vars.esp.draw_exploiting && (player->m_flOldSimulationTime() > player->m_flSimulationTime()))
+	{
+		if (!player->IsDormant()) {
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(255, 255, 255, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("EXPLOIT"));
+		}
+		else
+			g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("EXPLOIT"));
+	}
+
 	if (g_Vars.misc.ingame_radar) {
 		player->m_bSpotted() = true;
 	}
@@ -2333,6 +2342,20 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 				}
 				else
 					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("PIN"));
+			}
+		}
+	}
+
+	if (g_Vars.esp.draw_vulnerable && pWeapon)
+	{
+		auto pWeaponData = pWeapon->GetCSWeaponData( );
+		if (pWeaponData.IsValid()) {
+			if (pWeapon->GetCSWeaponData()->m_iWeaponType == WEAPONTYPE_C4 || pWeapon->GetCSWeaponData()->m_iWeaponType == WEAPONTYPE_GRENADE || pWeapon->GetCSWeaponData()->m_iWeaponType == WEAPONTYPE_KNIFE) {
+				if (!player->IsDormant()) {
+					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(120, 240, 0, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("VULNERABLE"));
+				}
+				else
+					g_Vars.globals.m_vecTextInfo[player->EntIndex()].emplace_back(FloatColor(112, 112, 112, (int)(180 * m_flAlpha[player->EntIndex()])), XorStr("VULNERABLE"));
 			}
 		}
 	}

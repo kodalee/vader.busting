@@ -152,10 +152,10 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 			float x = pEvent->GetFloat( XorStr( "x" ) ), y = pEvent->GetFloat( XorStr( "y" ) ), z = pEvent->GetFloat( XorStr( "z" ) );
 			if( g_Vars.esp.beam_enabled ) {
-				if( bCameFromLocal ) {
+				if( bCameFromLocal && g_Vars.esp.beam_local_enable ) {
 					IBulletBeamTracer::Get( )->PushBeamInfo( { Interfaces::m_pGlobalVars->curtime, LocalPlayer->GetEyePosition( ), Vector( x, y, z ), Color( ), ent->EntIndex( ), LocalPlayer->m_nTickBase( ) } );
 				}
-				else if( bCameFromEnemy && g_Vars.esp.beam_enemy_enable) {
+				else if( bCameFromEnemy && g_Vars.esp.beam_enemy_enable ) {
 					if( !ent->IsDormant( ) )
 						IBulletBeamTracer::Get( )->PushBeamInfo( { Interfaces::m_pGlobalVars->curtime, ent->GetEyePosition( ), Vector( x, y, z ), Color( ), ent->EntIndex( ), -1 } );
 				}
@@ -637,7 +637,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	{
 		g_Vars.globals.Fakewalking = g_Vars.misc.fakeduck_bind.enabled = false;
 		g_TickbaseController.m_bSupressRecharge = false;
-		//Engine::WeatherController::Get()->ResetData();
+		Engine::WeatherController::Get()->ResetData();
 
 		for( int i = 0; i < Interfaces::g_pDeathNotices->m_vecDeathNotices.Count( ); i++ ) {
 			auto cur = &Interfaces::g_pDeathNotices->m_vecDeathNotices[ i ];

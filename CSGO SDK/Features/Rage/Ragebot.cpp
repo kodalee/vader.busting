@@ -544,37 +544,27 @@ namespace Interfaces
 
 		g_TickbaseController.s_nSpeed = m_rage_data->rbot->doubletap_speed;
 
-		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER /*&& !(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)*/) {
-			if (m_rage_data->m_pWeapon->m_iClip1() > 0) {
-				cmd->buttons |= IN_ATTACK;
-
-				float flPostponeFireReady = weapon->m_flPostponeFireReadyTime();
-
-				if (flPostponeFireReady > 0 && flPostponeFireReady < Interfaces::m_pGlobalVars->curtime)
-					cmd->buttons &= ~IN_ATTACK;
+		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
+			if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
+				static float cockTime = 0.f;
+				float curtime = local->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick;
+				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK2;
+				if (m_rage_data->m_pLocal->CanShoot(true)) {
+					if (cockTime <= curtime) {
+						if (weapon->m_flNextSecondaryAttack() <= curtime)
+							cockTime = curtime + 0.234375f;
+						else
+							m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+					}
+					else
+						m_rage_data->m_pCmd->buttons |= IN_ATTACK;
+				}
+				else {
+					cockTime = curtime + 0.234375f;
+					m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
+				}
 			}
 		}
-		//else if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER && g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
-		//	if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
-		//		static float cockTime = 0.f;
-		//		float curtime = local->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick;
-		//		m_rage_data->m_pCmd->buttons &= ~IN_ATTACK2;
-		//		if (m_rage_data->m_pLocal->CanShoot(true)) {
-		//			if (cockTime <= curtime) {
-		//				if (weapon->m_flNextSecondaryAttack() <= curtime)
-		//					cockTime = curtime + 0.234375f;
-		//				else
-		//					m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-		//			}
-		//			else
-		//				m_rage_data->m_pCmd->buttons |= IN_ATTACK;
-		//		}
-		//		else {
-		//			cockTime = curtime + 0.234375f;
-		//			m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
-		//		}
-		//	}
-		//}
 		else if (!this->m_rage_data->m_pLocal->CanShoot()) {
 			if (!m_rage_data->m_pWeaponInfo->m_bFullAuto)
 				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
@@ -2160,23 +2150,18 @@ namespace Interfaces
 				return &record;
 			}
 
-			if (!(currentRecord->m_iFlags & FL_ONGROUND))
+			if (currentRecord->m_bTeleportDistance) { // only if player is breaking lagcomp force to latest record
 				return &record;
-
-			if (pBestRecord) {
-				if (currentRecord->m_flSimulationTime <= pBestRecord->m_flSimulationTime && pBestRecord->m_bIsValid)
-					continue;
 			}
 
 			if (currentRecord->m_vecVelocity.Length2D() > 1.f && currentRecord->m_vecVelocity.Length2D() <= 89.f && currentRecord->m_iFlags & FL_ONGROUND && g_Vars.globals.m_bPointVisible) {
-				pBestRecord = currentRecord;
 				return &record;
 			}
 
 			// if best record is null, set best record to current record
 			if (!pBestRecord) {
 				pBestRecord = currentRecord;
-				//continue; // go to next record
+				continue; // go to next record
 			}
 
 			if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {

@@ -155,7 +155,7 @@ namespace Hooked
 
 	C_AnimationLayer reallayers[13];
 
-	void UpdateInformation( CUserCmd* cmd ) {
+	void UpdateInformation( CUserCmd* cmd, bool bSendPacket ) {
 		auto local = C_CSPlayer::GetLocalPlayer( );
 		if( !local )
 			return;
@@ -167,6 +167,9 @@ namespace Hooked
 		if( !g_Vars.globals.bMoveExploiting )
 			if( Interfaces::m_pClientState->m_nChokedCommands( ) > 0 )
 				return;
+
+		float backup_curtime = Interfaces::m_pGlobalVars->curtime;
+		float backup_frametime = Interfaces::m_pGlobalVars->frametime;
 
 		// update time.
 		g_Vars.globals.m_flAnimFrame = TICKS_TO_TIME( local->m_nTickBase( ) ) - g_Vars.globals.m_flAnimTime;
@@ -198,7 +201,10 @@ namespace Hooked
 
 		local->UpdateClientSideAnimationEx( );
 
-		std::memcpy(reallayers, local->m_AnimOverlay().m_Memory.m_pMemory, sizeof(reallayers));
+		std::memcpy(reallayers, local->m_AnimOverlay().m_Memory.m_pMemory, 13 * sizeof(C_AnimationLayer));
+		if (!bSendPacket) {
+			std::memcpy(g_Vars.globals.m_flPoseParams, local->m_flPoseParameter(), sizeof(local->m_flPoseParameter()));
+		}
 
 		auto flWeight12Backup = local->m_AnimOverlay( ).Element( 12 ).m_flWeight;
 
@@ -206,6 +212,13 @@ namespace Hooked
 
 		if (local->m_flPoseParameter()) {
 			local->m_flPoseParameter()[6] = g_Vars.globals.m_flJumpFall;
+		}
+
+		if (local->m_vecVelocity().Length() <= 1.0f) {
+			if (state->m_bOnGround) {
+				local->m_AnimOverlay().Element(3).m_flCycle = 0.0;
+				local->m_AnimOverlay().Element(3).m_flWeight = 0.0;
+			}
 		}
 
 		// pull the lower body direction towards the eye direction, but only when the player is moving
@@ -253,11 +266,8 @@ namespace Hooked
 
 			local->m_AnimOverlay( ).Element( 12 ).m_flWeight = flWeight12Backup;
 
-			std::memcpy(local->m_AnimOverlay().m_Memory.m_pMemory, reallayers, sizeof(reallayers));
-
-			if( g_Vars.globals.m_flPoseParams ) {
-				std::memcpy( local->m_flPoseParameter( ), g_Vars.globals.m_flPoseParams, sizeof( local->m_flPoseParameter( ) ) );
-			}
+			std::memcpy( local->m_AnimOverlay().m_Memory.m_pMemory, reallayers, 13 * sizeof( C_AnimationLayer ) );
+			std::memcpy( local->m_flPoseParameter( ), g_Vars.globals.m_flPoseParams, sizeof( local->m_flPoseParameter( ) ) );
 
 			if( local->m_CachedBoneData( ).Base( ) != local->m_BoneAccessor( ).m_pBones ) {
 				std::memcpy( local->m_BoneAccessor( ).m_pBones, local->m_CachedBoneData( ).Base( ), local->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
@@ -265,6 +275,9 @@ namespace Hooked
 
 			local->SetupBones(g_Vars.globals.LagPosition, 128, BONE_USED_BY_ANYTHING, Interfaces::m_pGlobalVars->curtime);
 		}
+
+		Interfaces::m_pGlobalVars->curtime = backup_curtime;
+		Interfaces::m_pGlobalVars->frametime = backup_frametime;
 
 		// save updated data.
 		g_Vars.globals.m_bGround = state->m_bOnGround;
@@ -448,7 +461,7 @@ namespace Hooked
 
 			Engine::C_ShotInformation::Get( )->CorrectSnapshots( *bSendPacket );
 
-			UpdateInformation( cmd.Xor( ) );
+			UpdateInformation( cmd.Xor( ), *bSendPacket );
 
 			walkbot::Instance().move( cmd.Xor( ) );
 

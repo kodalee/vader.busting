@@ -24,7 +24,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 	if( Render::DirectX::initialized ) {
 		InputHelper::Update( );
 
-		Render::DirectX::begin( );
+		//Render::DirectX::begin( );
 		{
 			//GUI::ctx->animation = g_Vars.globals.menuOpen ? ( GUI::ctx->animation + ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime )
 			//	: ( ( GUI::ctx->animation - ( 1.0f / 0.2f ) * Interfaces::m_pGlobalVars->frametime ) );
@@ -34,42 +34,10 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 
 			//GUI::ctx->animation = std::clamp<float>( GUI::ctx->animation, 0.f, 1.0f );
 
-			if( g_Vars.antiaim.enabled && false ) {
-				auto m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
-				if( g_Vars.globals.HackIsReady && m_LocalPlayer && Interfaces::m_pEngine->IsInGame( ) && !m_LocalPlayer->IsDead() ) {
-					if( TICKS_TO_TIME( m_LocalPlayer->m_nTickBase( ) ) >= g_Vars.globals.m_flBodyPred ) {
-						g_Vars.globals.m_flBodyPredNoob = Interfaces::m_pGlobalVars->curtime + 1.1f;
-					}
-					
-					float flRemaining = g_Vars.globals.m_flBodyPredNoob - Interfaces::m_pGlobalVars->curtime;
-
-					// get the absolute change between current lby and animated angle.
-					float change = std::abs( Math::NormalizedAngle( g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y ) );
-
-					bool moving = m_LocalPlayer->m_vecVelocity( ).Length2D( ) > 0.1f && !g_Vars.globals.Fakewalking;
-
-					// fps enhancer
-					if( change > 35.f && !moving && g_Vars.globals.m_bGround ) {
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 9.f, 1.f, Color( 0, 0, 0, 75 ) );
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 8.f, 1.f, Color( 0, 0, 0, 75 ) );
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 7.f, 1.f, Color( 0, 0, 0, 75 ) );
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 6.f, 1.f, Color( 0, 0, 0, 75 ) );
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 5.f, 1.f, Color( 0, 0, 0, 75 ) );
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 4.f, 1.f, Color( 0, 0, 0, 75 ) );
-
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 7.f, ( flRemaining / 1.1f ), Color( 150, 200, 60, 200 ), false );
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 6.f, ( flRemaining / 1.1f ), Color( 150, 200, 60 ), false );
-						Render::DirectX::arc( Vector2D( 74, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 6.f, ( flRemaining / 1.1f ), Color( 150, 200, 60 ), false );
-						Render::DirectX::arc( Vector2D( 76, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 6.f, ( flRemaining / 1.1f ), Color( 150, 200, 60 ), false );
-						Render::DirectX::arc( Vector2D( 75, Render::GetScreenSize( ).y - 40 - ( Render::Engine::indi.m_size.m_height / 2 ) ), 5.f, ( flRemaining / 1.1f ), Color( 150, 200, 60, 200 ), false );
-					}
-				}
-			}
-
-			Hitmarkers::RenderHitmarkers( );
+			//Hitmarkers::RenderHitmarkers( );
 			//Menu::Draw( );
 		}
-		Render::DirectX::end( );
+		//Render::DirectX::end( );
 
 		if( g_Vars.misc.instant_stop_key.key != VK_SHIFT ) {
 			g_Vars.misc.instant_stop_key.key = VK_SHIFT;

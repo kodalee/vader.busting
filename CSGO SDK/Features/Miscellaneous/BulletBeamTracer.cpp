@@ -84,13 +84,13 @@ void CBulletBeamTracer::DrawBeam( ) {
 		for( auto& it : bulletImpactInfo ) {
 			float delta = time - it.m_flExpTime;
 
-			Color LocalPlayerColor = g_Vars.esp.beam_color_rainbow ? Color::HSBtoRGB(delta, 1.0f, 1.0f) : g_Vars.esp.beam_color_local.ToRegularColor();
-			Color col = it.m_nIndex == LocalPlayer->EntIndex( ) ? LocalPlayerColor : g_Vars.esp.beam_color_enemy.ToRegularColor();
+			FloatColor LocalPlayerColor = g_Vars.esp.beam_color_rainbow ? (FloatColor&)Color::HSBtoRGB(delta, 1.0f, 1.0f) : g_Vars.esp.beam_color_local;
+			FloatColor col = it.m_nIndex == LocalPlayer->EntIndex( ) ? LocalPlayerColor : g_Vars.esp.beam_color_enemy;
 			if (g_Vars.esp.beam_type == 0 || (it.m_nIndex == LocalPlayer->EntIndex() && g_Vars.esp.beam_color_rainbow)) {
-				col.SetAlpha(1.0f - delta * 255);
+				col.Alpha(1.0f - delta * 255);
 			}
 			else {
-				col.SetAlpha(1.0f);
+				col.Alpha(1.0f);
 			}
 
 
@@ -115,7 +115,7 @@ void CBulletBeamTracer::DrawBeam( ) {
 			switch( g_Vars.esp.beam_type ) {
 			case 0:
 				if( a && b )
-					Render::Engine::Line( w2s_start, w2s_end, col );
+					Render::Engine::Line( w2s_start, w2s_end, col.ToRegularColor( ) );
 				break;
 			case 1:
 				if( !PrecacheModel( beam_model ) ) {
@@ -133,13 +133,13 @@ void CBulletBeamTracer::DrawBeam( ) {
 				beam_info.m_flEndWidth = .75f;
 				beam_info.m_flFadeLength = 3.0f;
 				beam_info.m_flAmplitude = 0.f;
-				beam_info.m_flBrightness = ( col.a( ) - 255.f ) * 0.8f;
+				beam_info.m_flBrightness = ( col.a - 255.f ) * 0.8f;
 				beam_info.m_flSpeed = 1.f;
 				beam_info.m_nStartFrame = 1;
 				beam_info.m_flFrameRate = 60;
-				beam_info.m_flRed = col.r( );
-				beam_info.m_flGreen = col.g( );
-				beam_info.m_flBlue = col.b( );
+				beam_info.m_flRed = col.r;
+				beam_info.m_flGreen = col.g;
+				beam_info.m_flBlue = col.b;
 				beam_info.m_nSegments = 4;
 				beam_info.m_bRenderable = true;
 				beam_info.m_nFlags = 0;

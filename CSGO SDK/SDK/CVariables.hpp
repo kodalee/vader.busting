@@ -671,6 +671,7 @@ public:
 
 	config_keybind( double_tap_bind );
 	config_option( bool, dt_exploits, false );
+	config_option( bool, dt_defensive_teleport, false );
 //	config_keybind( hide_shots_bind );
 //	config_option( bool, break_lagcomp, false );
 
@@ -971,6 +972,8 @@ public:
 	config_option( bool, team_check, false );
 	config_option( bool, draw_ammo_bar, false );
 	config_option( bool, draw_lby_bar, false );
+	config_option( bool, draw_exploiting, false );
+	config_option( bool, draw_vulnerable, false );
 	config_option( bool, name, false );
 	config_option( bool, teamname, false );
 	config_option( FloatColor, name_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
@@ -1210,6 +1213,7 @@ public:
 	config_option(int, beam_model, 0);
 	config_option(bool, beam_color_rainbow, false);
 	config_option(bool, beam_enemy_enable, false);
+	config_option(bool, beam_local_enable, false);
 	config_option(FloatColor, beam_color_local, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 	config_option(FloatColor, beam_color_enemy, FloatColor(1.0f, 0.0f, 0.0f, 1.0f));
 

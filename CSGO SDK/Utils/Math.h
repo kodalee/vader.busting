@@ -62,6 +62,22 @@ namespace Math
 		return angle;
 	}
 
+	__forceinline void normalize_angles(QAngle& angles)
+	{
+		while (angles.x > 89.0f)
+			angles.x -= 180.0f;
+
+		while (angles.x < -89.0f)
+			angles.x += 180.0f;
+
+		while (angles.y < -180.0f)
+			angles.y += 360.0f;
+
+		while (angles.y > 180.0f)
+			angles.y -= 360.0f;
+
+		angles.z = 0.0f;
+	}
 
 	inline void Vecanglevectors(const Vector& angles, Vector* forward)
 	{

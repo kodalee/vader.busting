@@ -51,31 +51,23 @@ void Hitmarkers::RenderWorldHitmarkers( ) {
 
 			if( info.m_flAlpha > 0.0f && g_Vars.esp.visualize_hitmarker_world ) {
 				auto DrawHitmarker = [ & ] ( Vector2D pos, Color clr ) {
-					Render::DirectX::line(
-						Vector2D( static_cast< int >( pos.x - iLineSize ), static_cast< int >( pos.y - iLineSize ) ),
-						Vector2D( static_cast< int >( pos.x - ( iLineSize / 2 ) ), static_cast< int >( pos.y - ( iLineSize / 2 ) ) ),
-						clr.OverrideAlpha( 255 * info.m_flAlpha, true ) );
+					auto col = Color(clr.r(), clr.g(), clr.b(), info.m_flAlpha);
+					Render::Engine::Line(Vector2D(static_cast<int>(pos.x - iLineSize), static_cast<int>(pos.y - iLineSize)),
+						Vector2D(static_cast<int>(pos.x - (iLineSize / 2)), static_cast<int>(pos.y - (iLineSize / 2))),
+						clr.OverrideAlpha(255 * info.m_flAlpha, true));
 
-					Render::DirectX::line(
-						Vector2D( static_cast< int >( pos.x - iLineSize ), static_cast< int >( pos.y + iLineSize ) ),
-						Vector2D( static_cast< int >( pos.x - ( iLineSize / 2 ) ), static_cast< int >( pos.y + ( iLineSize / 2 ) ) ),
-						clr.OverrideAlpha( 255 * info.m_flAlpha, true ) );
+					Render::Engine::Line(Vector2D(static_cast<int>(pos.x - iLineSize), static_cast<int>(pos.y + iLineSize)),
+						Vector2D(static_cast<int>(pos.x - (iLineSize / 2)), static_cast<int>(pos.y + (iLineSize / 2))),
+						clr.OverrideAlpha(255 * info.m_flAlpha, true));
 
-					Render::DirectX::line(
-						Vector2D( static_cast< int >( pos.x + iLineSize ), static_cast< int >( pos.y + iLineSize ) ),
-						Vector2D( static_cast< int >( pos.x + ( iLineSize / 2 ) ), static_cast< int >( pos.y + ( iLineSize / 2 ) ) ),
-						clr.OverrideAlpha( 255 * info.m_flAlpha, true ) );
+					Render::Engine::Line(Vector2D(static_cast<int>(pos.x + iLineSize), static_cast<int>(pos.y + iLineSize)),
+						Vector2D(static_cast<int>(pos.x + (iLineSize / 2)), static_cast<int>(pos.y + (iLineSize / 2))),
+						clr.OverrideAlpha(255 * info.m_flAlpha, true));
 
-					Render::DirectX::line(
-						Vector2D( static_cast< int >( pos.x + iLineSize ), static_cast< int >( pos.y - iLineSize ) ),
-						Vector2D( static_cast< int >( pos.x + ( iLineSize / 2 ) ), static_cast< int >( pos.y - ( iLineSize / 2 ) ) ),
-						clr.OverrideAlpha( 255 * info.m_flAlpha, true ) );
+					Render::Engine::Line(Vector2D(static_cast<int>(pos.x + iLineSize), static_cast<int>(pos.y - iLineSize)),
+						Vector2D(static_cast<int>(pos.x + (iLineSize / 2)), static_cast<int>(pos.y - (iLineSize / 2))),
+						clr.OverrideAlpha(255 * info.m_flAlpha, true));
 				};
-
-				//DrawHitmarker( vecPos - Vector2D( 1, 0 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
-				//DrawHitmarker( vecPos - Vector2D( 0, 1 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
-				//DrawHitmarker( vecPos + Vector2D( 1, 0 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
-				//DrawHitmarker( vecPos + Vector2D( 0, 1 ), Color::Palette_t::Black( ).OverrideAlpha( 125 ) );
 
 				DrawHitmarker( vecPos, Color::Palette_t::White( ) );
 			}
@@ -120,10 +112,9 @@ void Hitmarkers::RenderScreenHitmarkers( ) {
 
 	auto DrawAngularLine = [ ] ( int x, int y, float rad, float length, float gap, Color uColor ) -> void {
 		const float flRadians = DEG2RAD( rad );
-		Render::DirectX::line(
-			Vector2D( ( int )round( x + ( sin( flRadians ) * length ) ), ( int )round( y + ( cos( flRadians ) * length ) ) ),
+		Render::Engine::Line(Vector2D( ( int )round( x + ( sin( flRadians ) * length ) ), ( int )round( y + ( cos( flRadians ) * length ) ) ),
 			Vector2D( ( int )round( x + ( sin( flRadians ) * gap ) ), ( int )round( y + ( cos( flRadians ) * gap ) ) ),
-			uColor );
+			uColor);
 	};
 
 	for( size_t i = 0; i < 4; i++ ) {
@@ -131,7 +122,7 @@ void Hitmarkers::RenderScreenHitmarkers( ) {
 			vDrawCenter.x,
 			vDrawCenter.y,
 			45.f + ( 90.f * i ),
-			15.f,
+			13.f,
 			5.f,
 			Color( 200, 200, 200, m_flMarkerAlpha ) );
 	}

@@ -10,6 +10,7 @@
 #include "../../Features/Miscellaneous/BulletBeamTracer.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
 #include "../../Utils/lazy_importer.hpp"
+#include "../../Features/Visuals/Hitmarker.hpp"
 
 //#define TICKBASE_DEBUG 
 
@@ -64,7 +65,7 @@ namespace Hooked
 		if( !szPanelName.empty( ) && !szPanelName.compare( XorStr( "MatSystemTopPanel" ) ) ) {
 			ILoggerEvent::Get( )->Main( );
 			IEsp::Get( )->DrawAntiAimIndicator( );
-
+			Hitmarkers::RenderHitmarkers();
 			IGrenadePrediction::Get( )->Paint( );
 			IExtendedEsp::Get( )->Start( );
 

@@ -799,7 +799,7 @@ namespace Interfaces
 	void C_AntiAimbot::fake_duck(bool* bSendPacket, Encrypted_t<CUserCmd> cmd)
 	{
 		int fakelag_limit = 16;
-		int choked_goal = fakelag_limit / 2;
+		int choked_goal = 7;
 		bool should_crouch = Interfaces::m_pClientState->m_nChokedCommands() >= choked_goal;
 
 		if (should_crouch)
@@ -1482,7 +1482,8 @@ namespace Interfaces
 			return false;
 
 		// skip this player in our traces.
-		static CTraceFilterSkipEntity filter(player);
+		CTraceFilter filter{ };
+		filter.pSkip = player;
 
 		// get player bounds.
 		Vector mins = player->OBBMins();

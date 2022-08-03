@@ -103,7 +103,7 @@ namespace Interfaces
 
 		ClantagChanger( );
 		ViewModelChanger( );
-		//RainSoundEffects( );
+		RainSoundEffects( );
 		ModelChanger( );
 
 		ConVar* m_bNigger = Interfaces::m_pCvar->FindVar(XorStr("cl_mute_all_but_friends_and_party"));
