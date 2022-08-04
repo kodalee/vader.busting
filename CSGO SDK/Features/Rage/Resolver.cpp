@@ -508,8 +508,10 @@ namespace Engine {
 			return;
 
 		auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
-		if (!anim_data)
+		if (!anim_data) {
+			record->m_moved = false;
 			return;
+		}
 
 		static int m_iFakeFlickCheck = 0;
 		static float m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
