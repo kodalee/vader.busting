@@ -2146,11 +2146,11 @@ namespace Interfaces
 			// get current record
 			Engine::C_LagRecord* currentRecord = arrRecords[i];
 
-			if (g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
+			if (g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) && !currentRecord->m_bTeleportDistance) {
 				return &record;
 			}
 
-			if (currentRecord->m_bTeleportDistance) { // only if player is breaking lagcomp force to latest record
+			if (currentRecord->m_bTeleportDistance && !(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // only if player is breaking lagcomp force to latest record
 				return &record;
 			}
 
