@@ -1207,12 +1207,12 @@ namespace Engine {
 			}
 		}
 
-		if (is_flicking) {
-			record->m_iResolverMode = FLICK;
-		}
-		if (record->m_moved /* && distortion check here*/) {
-			record->m_iResolverMode = LASTMOVE;
-		}
+		//if (is_flicking) {
+		//	record->m_iResolverMode = FLICK;
+		//}
+		//if (record->m_moved /* && distortion check here*/) {
+		//	record->m_iResolverMode = LASTMOVE;
+		//}
 		//if (is_spin(record, player)) {
 		//	m_iMode = SPIN;
 		//}
