@@ -519,7 +519,7 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 
 	g_Vars.globals.m_InHBP = true;
 
-	while (data->m_flCurrentDamage > 0.f) {
+	while( data->m_flCurrentDamage > 0.f ) {
 		// calculate max bullet range
 		data->m_flMaxLength -= data->m_flTraceLength;
 
