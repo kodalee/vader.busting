@@ -2220,6 +2220,9 @@ void IMGUIMenu::Keybinds_Spectators() {
 				if (g_Vars.rage.override_key.enabled) {
 					binds.push_back(XorStr("Hitscan override"));
 				}
+				if (g_Vars.rage.override_reoslver.enabled) {
+					binds.push_back(XorStr("Resolver override"));
+				}
 			}
 			if (g_Vars.misc.fakeduck && g_Vars.misc.fakeduck_bind.enabled) {
 				binds.push_back(XorStr("Fake-Duck"));
