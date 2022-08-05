@@ -1506,6 +1506,8 @@ namespace Engine {
 		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
 		int act = player->GetSequenceActivity(curr->m_nSequence);
 
+		Engine::g_ResolverData->m_bInOverride[player->EntIndex()] = false;
+
 		if (g_Vars.rage.override_reoslver.enabled) {
 			QAngle viewangles;
 			Interfaces::m_pEngine->GetViewAngles(viewangles);
@@ -1513,10 +1515,12 @@ namespace Engine {
 			//auto yaw = math::clamp (g_cl.m_local->GetAbsOrigin(), Player->origin()).y;
 			const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-			if (fabs(Math::NormalizedAngle(viewangles.y - at_target_yaw)) > 30.f)
+			if (fabs(Math::NormalizedAngle(viewangles.y - at_target_yaw)) > 30.f) {
 				LastMoveLby(record, player);
+				return;
+			}
 
-			Engine::g_ResolverData->overriden[player->EntIndex()] = true;
+			Engine::g_ResolverData->m_bInOverride[player->EntIndex()] = true;
 
 			record->m_angEyeAngles.y = (Math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f;
 

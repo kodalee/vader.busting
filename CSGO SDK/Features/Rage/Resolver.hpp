@@ -71,7 +71,7 @@ namespace Engine {
 		bool fakewalking;
 		bool hasStoredLby[65];
 		bool hitPlayer[65];
-		bool overriden[65];
+		bool m_bInOverride[65];
 
 		float m_flNextBodyUpdate;
 		float m_flLastLowerBodyYawTargetUpdateTime;
