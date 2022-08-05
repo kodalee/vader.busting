@@ -13,6 +13,7 @@
 #include "../Features/Miscellaneous/walkbot.h"
 #include "../Features/Visuals/EventLogger.hpp"
 #include "../SDK/Classes/Player.hpp"
+#include "../Utils/lazy_importer.hpp"
 
 //lua
 //void dmt(std::string key) {
@@ -2308,92 +2309,226 @@ void IMGUIMenu::Keybinds_Spectators() {
 
 }
 
+static bool m_bResetWatermarkPos;
+
+bool draw_water_button(const char* label, const char* label_id, bool load, bool save, int curr_config, bool create = false)
+{
+	ImGuiStyle* style = &ImGui::GetStyle();
+	bool pressed = false;
+	if (ImGui::Button(label, ImVec2(12, 12)))
+	{
+		ImGui::OpenPopup(XorStr("additives_nigger"));
+	}
+
+	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_PopupBorderSize, 0);
+	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_PopupRounding, 4);
+	ImGui::SetNextWindowSize(ImVec2(175, 70), ImGuiCond_Always);
+	if (ImGui::BeginPopupContextItem(XorStr("additives_nigger")))
+	{
+		std::vector<MultiItem_t> additives = {
+			{ XorStr("Name"), &g_Vars.misc.watermarkadditives_WATERMARK_NAME },
+			{ XorStr("Server"), &g_Vars.misc.watermarkadditives_WATERMARK_SERVER },
+			{ XorStr("Ping"), &g_Vars.misc.watermarkadditives_WATERMARK_PING },
+			{ XorStr("Time"), &g_Vars.misc.watermarkadditives_WATERMARK_TIME },
+			{ XorStr("FPS"), &g_Vars.misc.watermarkadditives_WATERMARK_FPS },
+		};
+
+		InsertMultiCombo(std::string(XorStr("Watermark additives")).c_str(), additives);
+
+		if (ImGui::Button(XorStr("Reset Position"), ImVec2(100, 0)))
+		{
+			m_bResetWatermarkPos = true;
+		}
+
+		ImGui::EndPopup();
+	}
+	ImGui::PopStyleVar(2);
+	return pressed;
+}
+
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
 void create_watermark()
 {
 		if (!g_Vars.misc.watermark)
 			return;
 
-		std::string logo = XorStr("vader.tech");
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4, 3));
+		ImVec2 p, s;
+
+		auto net_channel = Interfaces::m_pEngine->GetNetChannelInfo();
+
+		std::string watermark = XorStr("vader.tech");
 #ifdef DEV
-		logo.append(XorStr(" [debug]")); // :)
+		watermark.append(XorStr(" [debug]")); // :)
 #endif
 #ifdef BETA_MODE
-		logo.append(XorStr(" [beta]")); // :)
+		watermark.append(XorStr(" [beta]")); // :)
 #endif
 
 		const std::string user = g_Vars.globals.c_username;
 
-		auto watermark = logo + XorStr(" | ") + user;
+		if (user.empty())
+			LI_FN(exit)(0); // Random ass check lol
+
+		if (g_Vars.misc.watermarkadditives_WATERMARK_NAME)
+			watermark += XorStr(" | ") + user;
+
+		if (g_Vars.misc.watermarkadditives_WATERMARK_FPS) {
+			static auto framerate = 0.0f;
+			framerate = 0.9f * framerate + 0.1f * Interfaces::m_pGlobalVars->absoluteframetime;
+
+			if (framerate <= 0.0f)
+				framerate = 1.0f;
+
+			watermark += XorStr(" | ") + std::to_string((int)(1.0f / framerate)) + XorStr(" fps ");
+		}
 
 		if (Interfaces::m_pEngine->IsInGame())
 		{
+			auto nci = Interfaces::m_pEngine->GetNetChannelInfo();
 
-			auto netchannel = Encrypted_t<INetChannel>(Interfaces::m_pEngine->GetNetChannelInfo());
-
-			auto outgoing = std::max(0, (int)std::round(netchannel->GetLatency(FLOW_OUTGOING) * 1000.f));
-
-			if (netchannel.IsValid())
+			if (nci)
 			{
-				watermark = logo + XorStr(" | ") + user + XorStr(" | ") + std::to_string(outgoing) + XorStr(" ms");
+				auto server = nci->GetAddress();
+
+				if (!strcmp(server, XorStr("loopback")))
+					server = XorStr("local server");
+				else if (!strcmp(server, XorStr("162.248.92.227:27015")))
+					server = XorStr("emporium");
+				else if (!strcmp(server, XorStr("20.118.249.239:27015")))
+					server = XorStr("emporium 2");
+
+				auto tickrate = std::to_string((int)(1.0f / Interfaces::m_pGlobalVars->interval_per_tick));
+
+				if (g_Vars.misc.watermarkadditives_WATERMARK_SERVER)
+				{
+					watermark += XorStr(" | ");
+					watermark += server;
+				}
+
+				if (g_Vars.misc.watermarkadditives_WATERMARK_PING) {
+					auto outgoing = std::max(0, (int)std::round(nci->GetLatency(FLOW_OUTGOING) * 1000.f));
+
+					watermark += XorStr(" | ") + std::to_string(outgoing) + XorStr(" ms");
+				}
 			}
+
 		}
-		ImVec2 p, s;
+		else
+		{
+			if (g_Vars.misc.watermarkadditives_WATERMARK_SERVER)
+				watermark += XorStr(" | no connection ");
+
+		}
+
+		if (g_Vars.misc.watermarkadditives_WATERMARK_TIME) {
+			time_t lt;
+			struct tm* t_m;
+
+			lt = time(nullptr);
+			t_m = localtime(&lt);
+
+			auto time_h = t_m->tm_hour;
+			auto time_m = t_m->tm_min;
+			auto time_s = t_m->tm_sec;
+
+			std::string time;
+
+			if (time_h < 10)
+				time += XorStr("0");
+
+			time += std::to_string(time_h) + XorStr(":");
+
+			if (time_m < 10)
+				time += XorStr("0");
+
+			time += std::to_string(time_m) + XorStr(":");
+
+			if (time_s < 10)
+				time += XorStr("0");
+
+			time += std::to_string(time_s);
+
+			watermark += XorStr(" | ") + time;
+		}
+
 		auto size_text = ImGui::CalcTextSize(watermark.c_str());
-		ImGui::SetNextWindowSize(ImVec2(size_text.x + 14, 23));
+		ImGui::SetNextWindowSize(ImVec2(size_text.x + (g_IMGUIMenu.Opened ? 24 : 14), 20));
 
 		const auto margin = 10; // Padding between screen edges and watermark
 		const auto padding = 4; // Padding between watermark elements
+		static bool m_bSetFirstPos = true;
+		if (m_bSetFirstPos) {
+			g_Vars.misc.watermark_window_x = Render::GetScreenSize().x - margin - padding - size_text.x - padding;
+			g_Vars.misc.watermark_window_y = margin;
+			m_bSetFirstPos = false;
+		}
 
-		ImGui::SetNextWindowPos(ImVec2(Render::GetScreenSize().x - margin - padding - size_text.x - padding, margin), ImGuiCond_Always);
-
-		ImGui::Begin(XorStr("watermark"), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove);
+		if (m_bResetWatermarkPos) {
+			g_Vars.misc.watermark_window_x = Render::GetScreenSize().x - margin - padding - size_text.x - padding;
+			g_Vars.misc.watermark_window_y = margin;
+			m_bResetWatermarkPos = false;
+		}
+		
+		if (!ImGui::IsMouseDragging()) {
+			ImGui::SetNextWindowPos(ImVec2(g_Vars.misc.watermark_window_x, g_Vars.misc.watermark_window_y), ImGuiCond_Always);
+		}
+		ImGui::Begin(XorStr("watermark"), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
 		{
+
 			auto d = ImGui::GetWindowDrawList();
 			p = ImGui::GetWindowPos();
 			s = ImGui::GetWindowSize();
 			ImGui::SetWindowSize(ImVec2(s.x, 21 + 18));
+
+			if (g_Vars.misc.watermark_window_x != p.x) {
+				g_Vars.misc.watermark_window_x = p.x;
+			}
+
+			if (g_Vars.misc.watermark_window_y != p.y) {
+				g_Vars.misc.watermark_window_y = p.y;
+			}
+
 			d->AddRectFilled(p, p + ImVec2(s.x, 21), ImColor(39, 39, 39, int(50 * 1)));
-			ImColor theme;
-			ImColor theme_zero;
-			ImColor circle_color;
+			auto main_colf = ImColor(41, 32, 59, 210);
+			auto main_coll = ImColor(41, 32, 59, 210);
+			d->AddRectFilledMultiColor(p, p + ImVec2(s.x / 2, 20), main_coll, main_colf, main_colf, main_coll);
+			d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 20), main_colf, main_coll, main_coll, main_colf);
+			auto main_colf2 = ImColor(41, 32, 59, 210);
+			d->AddRectFilledMultiColor(p, p + ImVec2(s.x / 2, 20), main_coll, main_colf2, main_colf2, main_coll);
+			d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 20), main_colf2, main_coll, main_coll, main_colf2);
+
+			ImColor line_colf;
+			ImColor line_coll;
 
 			if (!g_Vars.misc.custom_menu) {
-				theme = ImColor(255, 0, 0, 255);
-				theme_zero = ImColor(255, 0, 0, 0);
-				circle_color = ImColor(255, 0, 0, 255);
+				line_colf = ImColor(255, 0, 0, 255);
+				line_coll = ImColor(255, 0, 0, 255);
 			}
 			else {
-				theme = (ImColor)g_Vars.misc.accent_color;
-				theme_zero = ImColor(g_Vars.misc.accent_color.r, g_Vars.misc.accent_color.g, g_Vars.misc.accent_color.b, 0.f);
-				circle_color = (ImColor)g_Vars.misc.accent_color;
+				line_colf = (ImColor)g_Vars.misc.accent_color;
+				line_coll = (ImColor)g_Vars.misc.accent_color;
 			}
 
-			ImColor black = ImColor(0, 0, 0, 210);
-			ImColor black_zero = ImColor(0, 0, 0, 0);
-			ImColor black_half = ImColor(0, 0, 0, 60);
-			ImColor theme_background = ImColor(41, 32, 59, 210);
+			d->AddRectFilledMultiColor(p, p + ImVec2(s.x / 2, 2), line_coll, line_colf, line_colf, line_coll);
+			d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2), line_colf, line_coll, line_coll, line_colf);
+			d->AddText(p + ImVec2((g_IMGUIMenu.Opened ? s.x - 10 : s.x) / 2 - size_text.x / 2, (20) / 2 - size_text.y / 2), ImColor(250, 250, 250, int(230 * min(1 * 3, 1.f))), watermark.c_str());
+			ImGui::SetCursorPos(ImVec2(s.x - 15, 5));
+			if (g_IMGUIMenu.Opened)
+				draw_water_button(XorStr(" "), XorStr("Swatermark_sett"), false, false, NULL, false);
 
-			//Background
-			d->AddRectFilledMultiColor(p, p + ImVec2(s.x / 2, 23), theme_background, theme_background, theme_background, theme_background);
-			d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 23), theme_background, theme_background, theme_background, theme_background);
 
-			//d->AddRectFilledMultiColor(p, p + ImVec2(s.x / 2, 20), main_coll, main_colf2, main_colf2, main_coll);
-			//d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 20), main_colf2, main_coll, main_coll, main_colf2);
-
-			//Lines
-			//d->AddRectFilledMultiColor(p + ImVec2(10, 0), p + ImVec2(s.x / 2, 2), theme_zero, theme, theme, theme_zero);
-			//d->AddRectFilledMultiColor(p + ImVec2(s.x / 2, 0), p + ImVec2(s.x, 2) - ImVec2(10, 0), theme, theme_zero, theme_zero, theme);
-			d->AddRectFilledMultiColor(p, p + ImVec2(s.x, 2), theme, theme, theme, theme);
-
-			d->AddText(p + ImVec2((s.x) / 2 - size_text.x / 2, (23) / 2 - size_text.y / 2), ImColor(255, 255, 255, 255), watermark.c_str());
 		}
 		ImGui::End();
+		ImGui::PopStyleVar(2);
 }
 
 void IMGUIMenu::Render()
 {
 
-	//create_watermark();
+	create_watermark();
 
 	if (!Opened) return;
 

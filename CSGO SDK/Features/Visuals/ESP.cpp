@@ -1278,7 +1278,7 @@ void CEsp::IndicateAngles() // moneybot :))))))
 }
 
 void CEsp::Main( ) {
-	DrawWatermark( );
+	//DrawWatermark( );
 	//spotify( ); - there might be fps drops / fps issues caused by this.
 
 	//if( g_Vars.esp.keybind_window_enabled )
