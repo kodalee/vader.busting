@@ -901,8 +901,16 @@ namespace Interfaces
 
 			g_Vars.globals.Fakewalking = true;
 
+			const int max = std::min<int>(g_Vars.misc.slow_walk_speed, pred_ticks);
+			const int choked = Interfaces::m_pClientState->m_nChokedCommands();
+			int ticks_to_pred = max - choked;
+
+			if (choked < max || ticks) {
+				*m_movement_data->m_pSendPacket = false;
+			}
+
 			// zero forwardmove and sidemove.
-			if (ticks > ((g_Vars.misc.slow_walk_speed - 1) - Interfaces::m_pClientState->m_nChokedCommands()) || !Interfaces::m_pClientState->m_nChokedCommands()) {
+			if (ticks > ticks_to_pred || !Interfaces::m_pClientState->m_nChokedCommands() || *m_movement_data->m_pSendPacket) {
 				InstantStop();
 				g_Vars.globals.updatingPacket = true;
 			}
