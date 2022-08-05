@@ -17,7 +17,7 @@
 namespace Hooked
 {
 	void PrintOnInject( ) {
-		if( g_Vars.globals.c_username.size() < 2 ) {
+		if( g_Vars.globals.c_username.size() < 2 || g_Vars.globals.c_username.empty() ) {
 			LI_FN( exit )( 69 );
 			return;
 		}

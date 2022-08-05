@@ -8,6 +8,7 @@
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
 #include "../../ShittierMenu/Menu.hpp"
+#include "../../Utils/lazy_importer.hpp"
 #include<fstream>
 
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
@@ -1275,6 +1276,11 @@ bool c_lua::initialize() {
 
 	this->refresh_scripts();
 	this->load_script(this->get_script_id("autorun.lua"));
+
+	if (g_Vars.globals.c_username.empty()) { // another random ass check lol
+		LI_FN(exit)(0);
+		return false;
+	}
 
 	return true;
 }
