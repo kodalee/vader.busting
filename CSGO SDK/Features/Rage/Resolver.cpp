@@ -1525,6 +1525,8 @@ namespace Engine {
 			if (fabs(Math::NormalizedAngle(viewangles.y - at_target_yaw)) > 30.f)
 				LastMoveLby(record, player);
 
+			Engine::g_ResolverData->overriden[player->EntIndex()] = true;
+
 			record->m_angEyeAngles.y = (Math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f;
 
 			//UTILS::GetLBYRotatedYaw(entity->m_flLowerBodyYawTarget(), (math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f);
