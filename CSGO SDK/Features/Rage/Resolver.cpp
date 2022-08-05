@@ -397,15 +397,8 @@ namespace Engine {
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
 				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
-			}
-			else if (pLagData->m_body != pLagData->m_old_body && move->m_moved) {
-				is_flicking = true;
-				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 			}
 			else
 				is_flicking = false;
@@ -420,7 +413,6 @@ namespace Engine {
 			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
 				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 			}
@@ -429,7 +421,6 @@ namespace Engine {
 		else {
 			is_flicking = false;
 			record->m_body_update = 0.f;
-			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
 			NextLBYUpdate[player->EntIndex()] = 0.f;
 			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
 		}
@@ -713,7 +704,7 @@ namespace Engine {
 
 		auto at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-		if (is_flicking && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f  || record->m_bFakeWalking))
+		if ((is_flicking || pLagData->m_body != pLagData->m_old_body) && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f  || record->m_bFakeWalking))
 		{
 			//m_iMode = 0;
 			record->m_angEyeAngles.y = pLagData->m_body;
@@ -1280,7 +1271,7 @@ namespace Engine {
 
 				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if (is_flicking && pLagData->m_iMissedShotsLBY < 2 /* && !record->m_bFakeWalking*/)
+				if ((is_flicking || pLagData->m_body != pLagData->m_old_body) && pLagData->m_iMissedShotsLBY < 2 /* && !record->m_bFakeWalking*/)
 				{
 					//m_iMode = 0;
 					record->m_angEyeAngles.y = pLagData->m_body;
@@ -1361,7 +1352,7 @@ namespace Engine {
 
 				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if (is_flicking && pLagData->m_iMissedShotsLBY < 2/* && !record->m_bFakeWalking*/)
+				if ((is_flicking || pLagData->m_body != pLagData->m_old_body) && pLagData->m_iMissedShotsLBY < 2/* && !record->m_bFakeWalking*/)
 				{
 					//printf("break detection\n");
 					//printf("1\n");
