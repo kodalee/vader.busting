@@ -599,6 +599,56 @@ void Render::Engine::WorldCircle( Vector origin, float radius, Color color, Colo
 	}
 }
 
+void Render::Engine::circle3d(Vector pos, Color color, int point_count, float radius, bool fade = false, float rot_start = 0.f, float fade_start = 0.5f, float fade_length = 0.25f) // taken from onetap v1
+{
+	float step = Math::pi * 2.0f / point_count;
+	std::vector<Vector> points3d;
+
+	int alpha = 255;
+	int fade_start_point = 0;
+	int fade_end_point = 0;
+	int fade_step = 0;
+	if (fade)
+	{
+		fade_start_point = (int)(point_count * fade_start);
+		fade_end_point = fade_start_point + (int)(point_count * fade_length);
+		fade_step = 255 / (fade_end_point - fade_start_point);
+	}
+
+	Color outer_color = Color(0, 0, 0, 255);
+	Color inner_color = color;
+
+	for (int i = 0; i < point_count; i++)
+	{
+		if (fade && i > fade_end_point)
+			break;
+
+		float theta = (i * step) - (Math::pi * 2.f * rot_start);
+
+		Vector world_start(radius * cosf(theta) + pos.x, radius * sinf(theta) + pos.y, pos.z);
+		Vector world_end(radius * cosf(theta + step) + pos.x, radius * sinf(theta + step) + pos.y, pos.z);
+
+		Vector2D start, end;
+		if (!Render::Engine::WorldToScreen(world_start, start) || !Render::Engine::WorldToScreen(world_end, end))
+			return;
+
+		if (fade && i >= fade_start_point)
+		{
+			alpha -= fade_step;
+
+			if (alpha < 0)
+				alpha = 0;
+		}
+
+		outer_color.OverrideAlpha(alpha);
+		inner_color.OverrideAlpha(alpha);
+
+		//Render::Engine::Line(start.x, start.y + 1, end.x, end.y + 1, outer_color);
+		//Render::Engine::Line(start.x, start.y - 1, end.x, end.y - 1, outer_color);
+		Render::Engine::Line(start.x, start.y, end.x, end.y, inner_color);
+	}
+}
+
 void Render::Engine::text(int x, int y, unsigned long font, std::string string, bool text_centered, Color colour) {
 	const auto converted_text = std::wstring(string.begin(), string.end());
 
