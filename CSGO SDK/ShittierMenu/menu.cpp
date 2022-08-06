@@ -14,6 +14,7 @@
 #include "../Features/Visuals/EventLogger.hpp"
 #include "../SDK/Classes/Player.hpp"
 #include "../Utils/lazy_importer.hpp"
+#include "../SDK/CVariables.hpp"
 
 //lua
 //void dmt(std::string key) {
@@ -102,7 +103,7 @@
 
 IDirect3DTexture9* logo_nuts;
  
-int tab = 0, aimbotTab = 1, rageTab = -1, legitTab = 0, AAtab = 0, visualsSubTab = 0, miscSubtabs = 0, skinsSubtabs = 0, scriptsSubtabs = 0;
+int tab = 0, aimbotTab = 1, rageTab = -1, legitTab = 0, AAtab = 0, visualsSubTab = 0, miscSubtabs = 0, skinsSubtabs = 0, scriptsSubtabs = 0, PlayerListSubTabs = 0;
 
 void ColorPicker(const char* name, float* color, bool alpha, bool combo) {
 
@@ -972,7 +973,7 @@ void Visuals()
 					InsertCheckbox(LocalTracers, XorStr("Local Tracers"), &g_Vars.esp.beam_local_enable);
 					if (g_Vars.esp.beam_local_enable) {
 						ColorPicker_w_name(XorStr("Local Tracer Color"), g_Vars.esp.beam_color_local, false, false);
-						InsertCheckbox(RainbowTracerColor, XorStr("Rainbow Local Color"), &g_Vars.esp.beam_color_rainbow);
+						//InsertCheckbox(RainbowTracerColor, XorStr("Rainbow Local Color"), &g_Vars.esp.beam_color_rainbow);
 					}
 
 
@@ -1776,6 +1777,86 @@ void Scripts()
 					}
 				}
 			}
+			break;
+		}
+		}
+	}
+	ImGui::EndColumns();
+}
+
+void PlayerList()
+{
+	ImGuiStyle* style = &ImGui::GetStyle();
+	float group_w = ImGui::GetCurrentWindow()->Size.x - style->WindowPadding.x * 2;
+	ImGui::Columns(3, nullptr, false);
+	ImGui::SetColumnOffset(1, group_w / 3.0f);
+	ImGui::SetColumnOffset(2, 2 * group_w / 2.9f);
+	ImGui::SetColumnOffset(3, group_w);
+
+	ImGui::NewLine();
+	{
+		switch (PlayerListSubTabs)
+		{
+		case 0:
+		{
+			static std::vector <Player_list_data> players;
+
+			if (!g_Vars.globals.player_list.refreshing)
+			{
+				players.clear();
+
+				for (auto player : g_Vars.globals.player_list.players)
+					players.emplace_back(player);
+			}
+
+			static auto current_player = 0;
+
+			static char uname[128];
+			ImGui::InputText(XorStr("search"), uname, 128);
+
+			ImGui::ListBoxHeader(XorStr("##players"), ImVec2(0, ImGui::GetWindowSize().y - 80));
+
+			if (!players.empty())
+			{
+				std::vector <std::string> player_names;
+
+				for (auto player : players) {
+					auto search = std::string(uname);
+					auto name = std::string(player.name);
+
+					std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+					std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+					if (search != "" && name.find(search) == std::string::npos)
+						continue;
+
+					player_names.emplace_back(player.name);
+				}
+
+				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
+				ImGui::ListBoxConfigArray(XorStr("##PLAYERLIST"), &current_player, player_names, 14);
+				ImGui::PopStyleVar();
+			}
+
+			ImGui::ListBoxFooter();
+
+			ImGui::NextColumn(); ImGui::NewLine();
+
+			if (!players.empty())
+			{
+				if (current_player >= players.size())
+					current_player = players.size() - 1;
+
+
+				ImGui::Checkbox(XorStr("Whitelist"), &g_Vars.globals.player_list.white_list[players.at(current_player).i]);
+				ImGui::Checkbox(XorStr("Override Pitch"), &g_Vars.globals.player_list.override_pitch[players.at(current_player).i]);
+				if (g_Vars.globals.player_list.override_pitch[players.at(current_player).i]) {
+					InsertSliderInt(XorStr("Pitch Angle"), &g_Vars.globals.player_list.override_pitch_slider[players.at(current_player).i], -89, 89, XorStr("%d"));
+				}
+
+			}
+	
+
 			break;
 		}
 		}
@@ -2587,6 +2668,7 @@ void IMGUIMenu::Render()
 		ImGui::TrueTab(XorStr("  MISC  "), tab, 3, ImVec2(0.f, 35.f)); ImGui::SameLine();
 		ImGui::TrueTab(XorStr("  SKINS  "), tab, 4, ImVec2(0.f, 35.f)); ImGui::SameLine();
 		ImGui::TrueTab(XorStr("  SCRIPTS  "), tab, 5, ImVec2(0.f, 35.f)); ImGui::SameLine();
+		ImGui::TrueTab(XorStr("  PLAYERLIST  "), tab, 6, ImVec2(0.f, 35.f)); ImGui::SameLine();
 
 		ImGui::EndChild();
 	}
@@ -2649,6 +2731,11 @@ void IMGUIMenu::Render()
 				ImGui::TrueSubTab(XorStr("  Main  "), scriptsSubtabs, 0, ImVec2(0.f, 25.f));
 				break;
 			}
+			case 6:
+			{
+				ImGui::TrueSubTab(XorStr("  Main  "), PlayerListSubTabs, 0, ImVec2(0.f, 25.f));
+				break;
+			}
 		}
 
 		ImGui::EndChild();
@@ -2678,6 +2765,9 @@ void IMGUIMenu::Render()
 			break;
 		case 5:
 			Scripts();
+			break;
+		case 6:
+			PlayerList();
 			break;
 		default:
 			break;

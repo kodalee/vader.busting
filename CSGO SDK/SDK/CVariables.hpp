@@ -137,6 +137,24 @@ public:
 	Color ToRegularColor( );
 };
 
+struct Player_list_data
+{
+	int i = -1;
+	std::string name;
+
+	Player_list_data()
+	{
+		i = -1;
+		name.clear();
+	}
+
+	Player_list_data(int i, std::string name)
+	{
+		this->i = i;
+		this->name = name;
+	}
+};
+
 #pragma region Config System
 // best cfg system aka pizdoc na macrosax by soufiw
 
@@ -448,6 +466,18 @@ public:
 			int32_t days_left;
 			char username[ 25 ];
 		};
+
+		struct Player_list_t
+		{
+			bool refreshing = false;
+			std::vector <Player_list_data> players;
+
+			bool white_list[65];
+			bool high_priority[65];
+			bool force_body_aim[65];
+			bool override_pitch[65];
+			int  override_pitch_slider[65];
+		} player_list;
 
 		Vector m_vecVelocity;
 		bool bBrokeLC = false;

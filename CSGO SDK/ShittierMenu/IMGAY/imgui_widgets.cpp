@@ -1749,6 +1749,19 @@ void ImGui::ShrinkWidths(ImGuiShrinkWidthItem* items, int count, float width_exc
 				items[n].Width += 1.0f;
 }
 
+static auto vector_getter = [](void* vec, int idx, const char** out_text)
+{
+	auto& vector = *static_cast<std::vector<std::string>*>(vec);
+	if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
+	*out_text = vector.at(idx).c_str();
+	return true;
+};
+bool ImGui::ListBoxConfigArray(const char* label, int* currIndex, std::vector<std::string>& values, int height, bool custom_selectable)
+{
+	return ImGui::ListBox(label, currIndex, vector_getter,
+		static_cast<void*>(&values), values.size(), height);
+}
+
 #define VK_LBUTTON        0x01
 #define VK_RBUTTON        0x02
 #define VK_MBUTTON        0x04    /* NOT contiguous with L & RBUTTON */

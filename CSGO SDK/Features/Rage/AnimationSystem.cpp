@@ -718,6 +718,12 @@ namespace Engine
 				return false;
 			};
 
+			if (!player->IsTeammate(C_CSPlayer::GetLocalPlayer())) { // plist overrides
+				if (g_Vars.globals.player_list.override_pitch[player->EntIndex()]) {
+					player->m_angEyeAngles().x = g_Vars.globals.player_list.override_pitch_slider[player->EntIndex()];
+				}
+			}
+
 			// attempt to resolve the player	
 			if( !player->IsTeammate( C_CSPlayer::GetLocalPlayer( ) ) && !IsPlayerBot( ) ) {
 				// predict lby updates

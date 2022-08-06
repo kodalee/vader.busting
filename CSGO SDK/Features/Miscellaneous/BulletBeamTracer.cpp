@@ -84,9 +84,9 @@ void CBulletBeamTracer::DrawBeam( ) {
 		for( auto& it : bulletImpactInfo ) {
 			float delta = time - it.m_flExpTime;
 
-			FloatColor LocalPlayerColor = g_Vars.esp.beam_color_rainbow ? (FloatColor&)Color::HSBtoRGB(delta, 1.0f, 1.0f) : g_Vars.esp.beam_color_local;
+			FloatColor LocalPlayerColor = g_Vars.esp.beam_color_local;
 			FloatColor col = it.m_nIndex == LocalPlayer->EntIndex( ) ? LocalPlayerColor : g_Vars.esp.beam_color_enemy;
-			if (g_Vars.esp.beam_type == 0 || (it.m_nIndex == LocalPlayer->EntIndex() && g_Vars.esp.beam_color_rainbow)) {
+			if (g_Vars.esp.beam_type == 0) {
 				col.Alpha(1.0f - delta * 255);
 			}
 			else {

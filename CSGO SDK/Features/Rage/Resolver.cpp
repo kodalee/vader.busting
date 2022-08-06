@@ -504,6 +504,24 @@ namespace Engine {
 			return;
 		}
 
+		//for (int i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
+		//	C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
+		//	if (!player
+		//		|| player->IsDead()
+		//		|| player->IsDormant()
+		//		|| !player->IsPlayer()
+		//		|| player->m_iTeamNum() == local->m_iTeamNum())
+		//		continue;
+
+		//	if (g_Vars.globals.player_list.override_pitch[i]) {
+		//		record->m_angEyeAngles.x = g_Vars.globals.player_list.override_pitch_slider[i];
+		//	}
+		//}
+
+		//if (g_Vars.globals.player_list.override_pitch[player->EntIndex()]) {
+		//	record->m_angEyeAngles.x = g_Vars.globals.player_list.override_pitch_slider[player->EntIndex()];
+		//}
+
 		static int m_iFakeFlickCheck = 0;
 		static float m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
 		static float m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime;

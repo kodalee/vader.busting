@@ -127,6 +127,7 @@ namespace Hooked
 		if( !g_Vars.globals.HackIsReady ) {
 			Interfaces::IChams::Get()->OnPostScreenEffects();
 			//g_TickbaseController.bExploiting = false;
+			g_Vars.globals.player_list.players.clear();
 
 			//Engine::WeatherController::Get( )->ResetWeather( );
 			g_Vars.globals.bCreatedRain = false;
@@ -494,6 +495,44 @@ namespace Hooked
 
 			if( g_Vars.globals.HackIsReady )
 				g_Vars.globals.RenderIsReady = true;
+		}
+
+		if (g_Vars.globals.HackIsReady) {
+			if (stage == FRAME_NET_UPDATE_END)
+			{
+				g_Vars.globals.player_list.refreshing = true;
+				g_Vars.globals.player_list.players.clear();
+
+				for (auto i = 1; i < Interfaces::m_pGlobalVars->maxClients; i++)
+				{
+					auto e = static_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(i));
+
+					if (!e)
+					{
+						g_Vars.globals.player_list.white_list[i] = false;
+						//g_Vars.globals.player_list.high_priority[i] = false;
+						//g_Vars.globals.player_list.force_body_aim[i] = false;
+
+						continue;
+					}
+
+					if (e->m_iTeamNum() == local->m_iTeamNum())
+					{
+						g_Vars.globals.player_list.white_list[i] = false;
+						//g_Vars.globals.player_list.high_priority[i] = false;
+						//g_Vars.globals.player_list.force_body_aim[i] = false;
+
+						continue;
+					}
+
+					player_info_t player_info;
+					Interfaces::m_pEngine->GetPlayerInfo(i, &player_info);
+
+					g_Vars.globals.player_list.players.emplace_back(Player_list_data(i, player_info.szName));
+				}
+
+				g_Vars.globals.player_list.refreshing = false;
+			}
 		}
 
 		// m_flAnimTime : 0x260
