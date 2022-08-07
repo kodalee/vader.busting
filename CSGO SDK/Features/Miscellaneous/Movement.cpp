@@ -842,7 +842,7 @@ namespace Interfaces
 			return;
 		}
 
-		if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
+		if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) && !force_accurate) {
 
 			Vector velocity{ LocalPlayer->m_vecVelocity() };
 			int    ticks{ };
