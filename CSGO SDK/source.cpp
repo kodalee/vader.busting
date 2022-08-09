@@ -710,6 +710,22 @@ bool __fastcall sv_cheats_get_bool( void* pConVar, void* edx ) {
 	return oSvCheatsGetBool( pConVar );
 }
 
+typedef int(__thiscall* fnCreateMoveHltv)(void*, void*, Encrypted_t<CUserCmd2>);
+fnCreateMoveHltv oCreateMoveHltv;
+int __fastcall create_move_hltv(void* thisptr, void* edx, Encrypted_t<CUserCmd2> cmd) { // This was given to me by wanderer#4468 and i pasted that shit in :sunglasses: 
+	if (!g_Vars.misc.bypass_mrx || !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled))
+		return oCreateMoveHltv(thisptr, edx, cmd);
+
+	auto ret = oCreateMoveHltv(thisptr, edx, cmd);
+	if (fabsf(cmd->move.Length()) < 21.f && fabsf(cmd->move.Length()) > FLT_EPSILON) {
+		if (fabsf(cmd->move.Length()) > (21.f / 2.f)) {
+			cmd->move *= 21.f / cmd->move.Length();
+		}
+		else
+			cmd->move *= 0;
+	}
+	return ret;
+}
 
 namespace Interfaces
 {
@@ -1144,7 +1160,7 @@ namespace Interfaces
 
 		oRunCommand = Hooked::HooksManager.HookVirtual<decltype( oRunCommand )>( m_pPrediction.Xor( ), &Hooked::RunCommand, Index::IPrediction::RunCommand );
 
-		//oProcessMovement = Hooked::HooksManager.HookVirtual<decltype( oProcessMovement )>( m_pGameMovement.Xor( ), &hkProcessMovement, Index::IGameMovement::ProcessMovement );
+		oProcessMovement = Hooked::HooksManager.HookVirtual<decltype( oProcessMovement )>( m_pGameMovement.Xor( ), &hkProcessMovement, Index::IGameMovement::ProcessMovement );
 
 		oDrawSetColor = Hooked::HooksManager.HookVirtual<decltype( oDrawSetColor )>( m_pSurface.Xor( ), &DrawSetColor, 60 / 4 );
 		//  oEndScene = Hooked::HooksManager.HookVirtual<decltype( oEndScene )>( D3DDevice9, &Hooked::EndScene, Index::DirectX::EndScene );
@@ -1235,6 +1251,9 @@ namespace Interfaces
 
 		static auto update_client_side_animation = Memory::Scan( XorStr( "client.dll" ), XorStr( "55 8B EC 51 56 8B F1 80 BE ? ? ? ? ? 74 36" ) );
 		oUpdateClientSideAnimation = Hooked::HooksManager.CreateHook<decltype( oUpdateClientSideAnimation ) >( &hkUpdateClientSideAnimation, ( void* )update_client_side_animation );
+
+		static auto createmove_hltv = Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 E4 F8 81 EC ? ? ? ? 8B 45 08 89 0C 24"));
+		oCreateMoveHltv = Hooked::HooksManager.CreateHook<decltype(oCreateMoveHltv) >(&create_move_hltv, (void*)createmove_hltv);
 
 		Hooked::HooksManager.Enable( );
 		g_lua.initialize();
