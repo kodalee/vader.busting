@@ -1160,7 +1160,7 @@ namespace Interfaces
 
 		oRunCommand = Hooked::HooksManager.HookVirtual<decltype( oRunCommand )>( m_pPrediction.Xor( ), &Hooked::RunCommand, Index::IPrediction::RunCommand );
 
-		oProcessMovement = Hooked::HooksManager.HookVirtual<decltype( oProcessMovement )>( m_pGameMovement.Xor( ), &hkProcessMovement, Index::IGameMovement::ProcessMovement );
+		//oProcessMovement = Hooked::HooksManager.HookVirtual<decltype( oProcessMovement )>( m_pGameMovement.Xor( ), &hkProcessMovement, Index::IGameMovement::ProcessMovement );
 
 		oDrawSetColor = Hooked::HooksManager.HookVirtual<decltype( oDrawSetColor )>( m_pSurface.Xor( ), &DrawSetColor, 60 / 4 );
 		//  oEndScene = Hooked::HooksManager.HookVirtual<decltype( oEndScene )>( D3DDevice9, &Hooked::EndScene, Index::DirectX::EndScene );
