@@ -24,6 +24,17 @@ namespace Engine
 		int ResolverType;
 
 		int m_nSelectedDamage;
+
+		std::string result = XorStr("None");
+
+		std::string client_hitbox = XorStr("None");
+		std::string server_hitbox = XorStr("None");
+
+		int server_damage = 0;
+		int client_damage = 0;
+
+		int hitchance = 0;
+		int backtrack_ticks = 0;
 	};
 
 	struct PlayerHurt_t {
@@ -53,6 +64,7 @@ namespace Engine
 
 		std::deque< ShotSnapshot > m_Shapshots;
 		std::vector< WeaponFire_t > m_Weaponfire;
+		ShotSnapshot m_ShotInfoLua;
 
 		bool m_GetEvents = false;
 	};

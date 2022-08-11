@@ -1824,6 +1824,12 @@ namespace Interfaces
 								//ILoggerEvent::Get()->PushEvent(std::to_string(m_lag_data->m_iMissedShots), FloatColor(0.8f, 0.8f, 0.0f), !g_Vars.misc.undercover_log, XorStr(""));
 							}
 #endif
+
+							Engine::C_ShotInformation::Get()->m_ShotInfoLua.client_hitbox = TranslateHitbox(bestPoint->hitboxIndex).c_str();
+							Engine::C_ShotInformation::Get()->m_ShotInfoLua.client_damage = int(bestPoint->damage);
+							Engine::C_ShotInformation::Get()->m_ShotInfoLua.hitchance = int(bestPoint->hitchance);
+							Engine::C_ShotInformation::Get()->m_ShotInfoLua.backtrack_ticks = TIME_TO_TICKS(m_lag_data->m_History.front().m_flSimulationTime - bestPoint->target->record->m_flSimulationTime);
+							Engine::C_ShotInformation::Get()->m_ShotInfoLua.player = bestPoint->target->player;
 						}
 
 						m_rage_data->m_pLastTarget = m_rage_data->m_pBestTarget->player;

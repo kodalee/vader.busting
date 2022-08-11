@@ -4,6 +4,7 @@
 #include "Autowall.h"
 #include "Resolver.hpp"
 #include "../Visuals/IVEffects.h"
+#include "../../Libraries/lua-api/lua_hooks.h"
 
 namespace Engine
 {
@@ -343,16 +344,19 @@ namespace Engine
 						//else
 						lag_data->m_iMissedShots++;
 
+						m_ShotInfoLua.result = XorStr("resolver");
 						if (g_Vars.esp.event_resolver) {
 							AddMissLog(XorStr("resolver"));
 						}
 					}
 					else if (aimpoint_distance > impact_distance) { // occulusion issue
+						m_ShotInfoLua.result = XorStr("occlusion");
 						if (g_Vars.esp.event_resolver) {
 							AddMissLog(XorStr("occlusion"));
 						}
 					}
 					else { // spread issue
+						m_ShotInfoLua.result = XorStr("spread");
 						if (g_Vars.esp.event_resolver) {
 							AddMissLog(XorStr("spread"));
 						}
@@ -373,17 +377,19 @@ namespace Engine
 					}
 
 
-					if (it->snapshot->Hitgroup != best_damage->hitgroup) {
+					//if (it->snapshot->Hitgroup != best_damage->hitgroup) {
 
-					}
-					else {
+					//}
+					//else {
 
-					}
+					//}
 				}
 
 				this->m_Shapshots.erase(it->snapshot);
 				it = this->m_Weaponfire.erase(it);
 			}
+
+			for (auto hk : g_luahookmanager.get_hooks(XorStr("on_shot"))) hk.func(Engine::C_ShotInformation::Get()->m_ShotInfoLua);
 		}
 		catch (const std::exception&) {
 			return;

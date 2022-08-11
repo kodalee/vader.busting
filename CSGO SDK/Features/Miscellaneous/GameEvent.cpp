@@ -140,7 +140,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		g_Vars.globals.m_bNewMap = true;
 		g_Vars.globals.BobmActivityIndex = -1;
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("game_newmap")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("game_newmap"))) hk.func(pEvent);
 	}
 	case hash_32_fnv1a_const( "bullet_impact" ):
 	{
@@ -193,7 +193,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 			}
 		}
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("bullet_impact")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bullet_impact"))) hk.func(pEvent);
 
 		break;
 	}
@@ -248,7 +248,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		}
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("player_footstep")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("player_footstep"))) hk.func(pEvent);
 
 		break;
 	}
@@ -257,7 +257,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		g_Vars.globals.BobmActivityIndex = -1;
 		//IRoundFireBulletsStore::Get( )->EventCallBack( pEvent, 1, nullptr );
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("round_end")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("round_end"))) hk.func(pEvent);
 
 
 		break;
@@ -266,33 +266,33 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 	{
 		g_Vars.globals.BobmActivityIndex = -1;
 		g_Vars.globals.IsRoundFreeze = false;
-		for (auto hk : g_luagameeventmanager.get_gameevents("round_freeze_end")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("round_freeze_end"))) hk.func(pEvent);
 		break;
 	}
 	case hash_32_fnv1a_const( "round_prestart" ):
 	{
 		g_Vars.globals.BobmActivityIndex = -1;
 		g_Vars.globals.IsRoundFreeze = true;
-		for (auto hk : g_luagameeventmanager.get_gameevents("round_prestart")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("round_prestart"))) hk.func(pEvent);
 		break;
 	}
 	case hash_32_fnv1a_const( "bomb_beep" ):
 	{
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_beep")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_beep"))) hk.func(pEvent);
 		break;
 	}
 	case hash_32_fnv1a_const( "bomb_defused" ):
 	{
 		g_Vars.globals.BobmActivityIndex = -1;
 		g_Vars.globals.bBombActive = false;
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_defused")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_defused"))) hk.func(pEvent);
 		break;
 	}
 	case hash_32_fnv1a_const( "bomb_exploded" ):
 	{
 		g_Vars.globals.BobmActivityIndex = -1;
 		g_Vars.globals.bBombActive = false;
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_exploded")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_exploded"))) hk.func(pEvent);
 		break;
 	}
 	case hash_32_fnv1a_const( "player_hurt" ):
@@ -332,6 +332,11 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				}
 			}
 			else {
+
+				Engine::C_ShotInformation::Get()->m_ShotInfoLua.result = XorStr("hit");
+				Engine::C_ShotInformation::Get()->m_ShotInfoLua.server_damage = dmg_to_health;
+				Engine::C_ShotInformation::Get()->m_ShotInfoLua.server_hitbox = HitgroupToString(hitgroup).data();
+
 				if( g_Vars.esp.event_dmg ) {
 					std::stringstream msg;
 
@@ -427,7 +432,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		}
 
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("player_hurt")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("player_hurt"))) hk.func(pEvent);
 
 
 		break;
@@ -462,7 +467,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		//ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "buy" ) );
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("item_purchase")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("item_purchase"))) hk.func(pEvent);
 
 		break;
 	}
@@ -499,7 +504,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "bomb" ) );
 
 		g_Vars.globals.BobmActivityIndex = index;
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_begindefuse")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_begindefuse"))) hk.func(pEvent);
 
 		break;
 	}
@@ -530,7 +535,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "bomb" ) );
 
 		g_Vars.globals.BobmActivityIndex = -1;
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_abortdefuse")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_abortdefuse"))) hk.func(pEvent);
 		break;
 	}
 	case hash_32_fnv1a_const( "bomb_pickup" ):
@@ -559,7 +564,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		ILoggerEvent::Get( )->PushEvent( msg.str( ), FloatColor( 255, 255, 255 ), true, XorStr( "bomb" ) );
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_pickup")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_pickup"))) hk.func(pEvent);
 
 		break;
 	}
@@ -591,7 +596,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		g_Vars.globals.BobmActivityIndex = index;
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_beginplant")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_beginplant"))) hk.func(pEvent);
 
 		break;
 	}
@@ -623,14 +628,14 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		g_Vars.globals.BobmActivityIndex = -1;
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_abortplant")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_abortplant"))) hk.func(pEvent);
 
 		break;
 	}
 	case hash_32_fnv1a_const( "bomb_planted" ):
 	{
 		g_Vars.globals.bBombActive = true;
-		for (auto hk : g_luagameeventmanager.get_gameevents("bomb_planted")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("bomb_planted"))) hk.func(pEvent);
 		break;
 	}
 	case hash_32_fnv1a_const( "round_start" ):
@@ -665,7 +670,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		g_Vars.globals.bBombActive = false;
 		g_Vars.globals.BobmActivityIndex = -1;
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("round_start")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("round_start"))) hk.func(pEvent);
 
 
 		break;
@@ -782,7 +787,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 		IEsp::Get( )->SetAlpha( iEnemyIndex );
 
-		for (auto hk : g_luagameeventmanager.get_gameevents("player_death")) hk.func(pEvent);
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("player_death"))) hk.func(pEvent);
 
 		break;
 	}

@@ -511,7 +511,7 @@ namespace Hooked
 			m_net_pos.emplace_front( Interfaces::m_pGlobalVars->curtime, cur );
 		}
 
-		for (auto hk : g_luahookmanager.get_hooks("createmove")) hk.func(_cmd);
+		for (auto hk : g_luahookmanager.get_hooks(XorStr("createmove"))) hk.func(_cmd);
 		
 		g_Vars.globals.bFinalPacket = *bSendPacket;
 

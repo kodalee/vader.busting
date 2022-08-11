@@ -10,6 +10,7 @@
 #include "../../ShittierMenu/Menu.hpp"
 #include "../../Utils/lazy_importer.hpp"
 #include<fstream>
+#include "../../Features/Rage/ShotInformation.hpp"
 
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
 #define engine_console_error(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 0.f, 0.f), true, "")
@@ -1099,6 +1100,16 @@ bool c_lua::initialize() {
 		XorStr("is_scoped"), &C_CSPlayer::m_bIsScoped,
 		XorStr("get_velmodifer"), &C_CSPlayer::m_flVelocityModifier,
 		XorStr("get_health"), &C_CSPlayer::m_iHealth
+		);
+	this->lua.new_usertype<Engine::ShotSnapshot>(XorStr("shot_info"), sol::constructors <>(),
+		XorStr("result"), &Engine::ShotSnapshot::result,
+		XorStr("client_damage"), &Engine::ShotSnapshot::client_damage,
+		XorStr("server_damage"), &Engine::ShotSnapshot::server_damage,
+		XorStr("client_hitbox"), &Engine::ShotSnapshot::client_hitbox,
+		XorStr("server_hitbox"), &Engine::ShotSnapshot::server_hitbox,
+		XorStr("backtrack_ticks"), &Engine::ShotSnapshot::backtrack_ticks,
+		XorStr("hitchance"), &Engine::ShotSnapshot::hitchance,
+		XorStr("player"), &Engine::ShotSnapshot::player
 		);
 
 	auto events = this->lua.create_table();
