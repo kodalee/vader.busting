@@ -2411,7 +2411,7 @@ bool draw_water_button(const char* label, const char* label_id, bool load, bool 
 
 	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_PopupBorderSize, 0);
 	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_PopupRounding, 4);
-	ImGui::SetNextWindowSize(ImVec2(175, 80), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(175, 85), ImGuiCond_Always);
 	if (ImGui::BeginPopupContextItem(XorStr("additives_nigger")))
 	{
 		std::vector<MultiItem_t> additives = {
