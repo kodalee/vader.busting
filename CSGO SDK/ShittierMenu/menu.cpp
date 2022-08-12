@@ -2563,8 +2563,10 @@ void create_watermark()
 			m_bResetWatermarkPos = false;
 		}
 		
-		if (!ImGui::IsMouseDragging() && !g_Vars.misc.watermark_lockdefaultposition) {
-			ImGui::SetNextWindowPos(ImVec2(g_Vars.misc.watermark_window_x, g_Vars.misc.watermark_window_y), ImGuiCond_Always);
+		if (!g_Vars.misc.watermark_lockdefaultposition) {
+			if (!ImGui::IsMouseDragging()) {
+				ImGui::SetNextWindowPos(ImVec2(g_Vars.misc.watermark_window_x, g_Vars.misc.watermark_window_y), ImGuiCond_Always);
+			}
 		}
 		else {
 			ImGui::SetNextWindowPos(ImVec2(Render::GetScreenSize().x - margin - padding - size_text.x - padding, margin), ImGuiCond_Always);
