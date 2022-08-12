@@ -8,6 +8,7 @@
 #include "Valve/vector.hpp"
 #include "Valve/qangle.hpp"
 #include "Classes/CStudioRender.hpp" 
+#include <deque>
 
 #if 1
 #define USE_XOR
@@ -47,6 +48,14 @@ struct KeyBind_t {
 };
 
 extern std::vector<KeyBind_t*> g_keybinds;
+
+struct command
+{
+	bool is_outgoing = false;
+	bool is_used = false;
+	int previous_command_number = 0;
+	int command_number = 0;
+};
 
 class Color;
 class FloatColor {
@@ -509,7 +518,7 @@ public:
 		bool m_bLocalPlayerHarmedThisTick = false;
 		bool m_bRenderingDormant[ 65 ];
 
-		std::vector<int> cmds;
+		std::deque <command> cmds;
 		float m_flNextCmdTime = 0.f;
 		int m_iLastCommandAck = 0;
 

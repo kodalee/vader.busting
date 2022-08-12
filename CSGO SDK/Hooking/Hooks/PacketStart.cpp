@@ -12,12 +12,35 @@ void __fastcall Hooked::PacketStart( void* ecx, void*, int incoming_sequence, in
 	if( !local || local->IsDead( ) || !Interfaces::m_pEngine->IsInGame( ) || g_Vars.globals.cmds.empty() )
 		return oPacketStart( ecx, incoming_sequence, outgoing_acknowledged );
 
-	for( auto it = g_Vars.globals.cmds.begin( ); it != g_Vars.globals.cmds.end( ); ++it )	{
-		if( *it == outgoing_acknowledged )		{
-			g_Vars.globals.cmds.erase( it );
-			return oPacketStart( ecx, incoming_sequence, outgoing_acknowledged );
+	for (auto it = g_Vars.globals.cmds.rbegin(); it != g_Vars.globals.cmds.rend(); ++it)
+	{
+		if (!it->is_outgoing)
+			continue;
+
+		if (it->command_number == outgoing_acknowledged || outgoing_acknowledged > it->command_number && (!it->is_used || it->previous_command_number == outgoing_acknowledged))
+		{
+			it->previous_command_number = outgoing_acknowledged;
+			it->is_used = true;
+			oPacketStart(ecx, incoming_sequence, outgoing_acknowledged);
+			break;
 		}
 	}
+
+	auto result = false;
+
+	for (auto it = g_Vars.globals.cmds.begin(); it != g_Vars.globals.cmds.end();)
+	{
+		if (outgoing_acknowledged == it->command_number || outgoing_acknowledged == it->previous_command_number)
+			result = true;
+
+		if (outgoing_acknowledged > it->command_number && outgoing_acknowledged > it->previous_command_number)
+			it = g_Vars.globals.cmds.erase(it);
+		else
+			++it;
+	}
+
+	if (!result)
+		oPacketStart(ecx, incoming_sequence, outgoing_acknowledged);
 }
 
 void __fastcall Hooked::PacketEnd( void* ecx, void* ) {

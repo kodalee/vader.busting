@@ -288,11 +288,6 @@ namespace Hooked
 	bool CreateMoveHandler( float ft, CUserCmd* _cmd, bool* bSendPacket, bool* bFinalTick ) {
 		auto bRet = oCreateMove( ft, _cmd );
 
-		auto chan = Interfaces::m_pEngine->GetNetChannelInfo( );
-		
-		if (!chan)
-			return false;
-
 		g_Vars.globals.m_bInCreateMove = true;
 
 		auto pLocal = C_CSPlayer::GetLocalPlayer( );
@@ -373,17 +368,6 @@ namespace Hooked
 		//Engine::Prediction::Instance()->KeepCommunication(bSendPacket, cmd->command_number);
 
 		Engine::Prediction::Instance( )->RunGamePrediction( );
-
-		if (*bSendPacket) {
-			g_Vars.globals.cmds.push_back(cmd->command_number);
-		}
-		else {
-			const auto choked = chan->m_nChokedPackets;
-			chan->m_nChokedPackets = 0;
-			chan->SendDatagram();
-			--chan->m_nOutSequenceNr;
-			chan->m_nChokedPackets = choked;
-		}
 
 		auto& prediction = Engine::Prediction::Instance( );
 
@@ -536,6 +520,37 @@ namespace Hooked
 		if( g_Vars.misc.anti_untrusted ) {
 			cmd->viewangles.Normalize( );
 			cmd->viewangles.Clamp( );
+		}
+
+		auto& out = g_Vars.globals.cmds.emplace_back();
+
+		out.is_outgoing = *bSendPacket;
+		out.is_used = false;
+		out.command_number = cmd->command_number;
+		out.previous_command_number = 0;
+
+		while (g_Vars.globals.cmds.size() > (int)(1.0f / Interfaces::m_pGlobalVars->interval_per_tick))
+			g_Vars.globals.cmds.pop_front();
+
+		if (!*bSendPacket)
+		{
+			auto net_channel = Interfaces::m_pEngine->GetNetChannelInfo();
+
+			if (net_channel) {
+
+				if (net_channel->m_nChokedPackets > 0 && !(net_channel->m_nChokedPackets % 4))
+				{
+					auto backup_choke = net_channel->m_nChokedPackets;
+					net_channel->m_nChokedPackets = 0;
+
+					net_channel->SendDatagram();
+					--net_channel->m_nOutSequenceNr;
+
+					net_channel->m_nChokedPackets = backup_choke;
+				}
+			}
+			else
+				g_Vars.globals.cmds.clear();
 		}
 
 		g_Vars.globals.m_bInCreateMove = false;
