@@ -2132,8 +2132,8 @@ namespace Interfaces
 			arrRecords[recordsCount] = &*it;
 			recordsCount++;
 
-			if (it->m_bTeleportDistance)
-				continue;
+			//if (it->m_bTeleportDistance)
+			//	continue;
 
 			if (recordsCount + 1 >= 64)
 				break;
@@ -2154,12 +2154,12 @@ namespace Interfaces
 				return &record;
 			}
 
-			if (currentRecord->m_vecVelocity.Length2D() < 1.f && currentRecord->m_iResolverMode != Engine::RModes::FLICK) {
-				return currentRecord;
+			if (currentRecord->m_bTeleportDistance) { // only if player is breaking lagcomp force to latest record
+				return &record;
 			}
 
-			if (currentRecord->m_bTeleportDistance && !(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // only if player is breaking lagcomp force to latest record
-				return &record;
+			if (currentRecord->m_vecVelocity.Length2D() < 1.f && currentRecord->m_iResolverMode != Engine::RModes::FLICK) {
+				return currentRecord;
 			}
 
 			if (currentRecord->m_vecVelocity.Length2D() > 1.f && currentRecord->m_vecVelocity.Length2D() <= 89.f && currentRecord->m_iFlags & FL_ONGROUND && g_Vars.globals.m_bPointVisible) {
@@ -2172,11 +2172,16 @@ namespace Interfaces
 				continue; // go to next record
 			}
 
-			if (pBestRecord->m_bResolved != currentRecord->m_bResolved) {
+			if (pBestRecord->m_bResolved != currentRecord->m_bResolved && currentRecord->m_flSimulationTime >= pBestRecord->m_flSimulationTime) {
 				if (!pBestRecord->m_bResolved) {
 					pBestRecord = currentRecord;
 					continue;
 				}
+			}
+
+			if (currentRecord->m_flSimulationTime >= pBestRecord->m_flSimulationTime) {
+				pBestRecord = currentRecord;
+				continue;
 			}
 
 			// try to find a record with a lby update or moving.
