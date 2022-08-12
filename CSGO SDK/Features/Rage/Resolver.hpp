@@ -96,9 +96,6 @@ namespace Engine {
 		float back_damage[64];
 
 		int m_iMode;
-		int step;
-		float spindelta;
-		float spinbody;
 
 		bool bFacingleft;
 		bool bFacingright;

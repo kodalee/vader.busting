@@ -76,9 +76,14 @@ namespace Engine
 		float m_moving_body;
 		float m_old_body;
 
+		float spindelta;
+		float spinbody;
+
+
 		float m_flFeetYawRate;
 		float m_flFeetCycle;
 
+		int step;
 		int m_iResolverMode;
 		bool m_iDistorting[65];
 		bool m_moved;

@@ -400,15 +400,17 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 			}
-			else
-				is_flicking = false;
 				
 			// LBY updated via PROXY.
-			//if (pLagData->m_body != pLagData->m_old_body) {
-			//	Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-			//	NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			//}
+			else if (pLagData->m_body != pLagData->m_old_body) {
+				is_flicking = true;
+				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			}
+			else {
+				is_flicking = false;
+			}
 
 			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
@@ -423,6 +425,22 @@ namespace Engine {
 			record->m_body_update = 0.f;
 			NextLBYUpdate[player->EntIndex()] = 0.f;
 			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
+		}
+
+		if (is_flicking) {
+			static bool ran = false;
+			static float flCurtime = Interfaces::m_pGlobalVars->curtime + 0.22f;
+
+			if (!ran) {
+				flCurtime = Interfaces::m_pGlobalVars->curtime + 0.22f;
+				ran = true;
+			}
+
+			if (flCurtime >= Interfaces::m_pGlobalVars->curtime && ran) {
+				ran = false;
+				is_flicking = false;
+			}
+
 		}
 
 		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
@@ -455,14 +473,14 @@ namespace Engine {
 			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (activity == 979 && curr->m_flWeight == 0 && delta > .22f)) {
 				record->m_iResolverMode = DISTORTINGLMOVE;
 			}
-			//if (is_spin(record, player)) {
+			//else if (is_spin(record, player)) {
 			//	record->m_iResolverMode = SPIN;
 			//}
-			else if (ShouldUseFreestand(record, player) && pLagData->m_iMissedShotsFreestand < 2) {
+			else if (ShouldUseFreestand(record, player) && pLagData->m_iMissedShotsFreestand < 1) {
 				record->m_iResolverMode = ANTIFREESTAND;
 			}
 
-			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition && pLagData->m_iMissedShotsFreestand < 2) {
+			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition && pLagData->m_iMissedShotsFreestand < 1) {
 				record->m_iResolverMode = ANTIFREESTAND;
 			}
 			else {
@@ -722,7 +740,7 @@ namespace Engine {
 
 		auto at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-		if ((is_flicking || pLagData->m_body != pLagData->m_old_body) && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f  || record->m_bFakeWalking))
+		if ((is_flicking) && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f  || record->m_bFakeWalking))
 		{
 			//m_iMode = 0;
 			record->m_angEyeAngles.y = pLagData->m_body;
@@ -748,6 +766,9 @@ namespace Engine {
 				record->m_angEyeAngles.y = at_target_yaw + 180.f;
 				record->m_iResolverText = XorStr("DISTORTION");
 			}
+			//else if (record->m_iResolverMode == SPIN) {
+			//	record->m_angEyeAngles.y = (record->spinbody + record->spindelta * record->m_iChokeTicks) * record->step++;
+			//}
 			else if (record->m_iResolverMode == ANTIFREESTAND) {
 				record->m_iResolverText = XorStr("FREESTAND");
 				//if (ShouldUseFreestand(record, player)) {
@@ -887,7 +908,7 @@ namespace Engine {
 			//util::print_dev_console( true, Color::Green(), "update time = %f\n", PlayerRecord->m_flLastLowerBodyYawTargetUpdateTime );
 		}
 
-		if ( entity->m_vecVelocity( ).Length2D( ) > 75.f || entity->m_fFlags( ) & FL_DUCKING && entity->m_vecVelocity( ).Length2D( ) > 20.f )
+		if (entity->m_vecVelocity().Length2D() > 0.1f && !Engine::g_ResolverData[entity->EntIndex()].fakewalking && entity->m_fFlags() & FL_ONGROUND)
 		{
 			pLagData->m_flLastMovingLowerBodyYawTarget = Math::normalize_float(*LowerBodyYaw);
 			pLagData->m_flLastMovingLowerBodyYawTargetTime = entity->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
@@ -946,6 +967,10 @@ namespace Engine {
 		//record->m_moved = true;
 
 		pLagData->m_iMissedShots = 0;
+		pLagData->m_iMissedBruteShots = 0;
+		pLagData->m_iMissedShotsDistort = 0;
+		pLagData->m_iMissedShotsFreestand = 0;
+		pLagData->m_iMissedShotsLBYTEST = 0;
 		pLagData->m_stand_index2 = 0;
 		pLagData->m_iMissedShotsLBY = 0;
 		pLagData->m_last_move = 0;
@@ -1080,39 +1105,41 @@ namespace Engine {
 		if (lag_data->m_History.size() < 3 || lag_data->m_History.empty())
 			return false;
 
-		step = 0;
+		record->step = 0;
 
-		size_t size{};
+		record->spindelta = (record[0].m_body - record[1].m_body) / record[1].m_iChokeTicks;
+		record->spinbody = record[0].m_body;
+		const auto delta2 = (record[1].m_body - record[2].m_body) / record[2].m_iChokeTicks;
 
-		for (const auto& it : lag_data->m_History) {
-			if (it.player->IsDormant()) {
-				break;
+		return false;
+
+		return record->spindelta == delta2 && record->spindelta > 0.5f;
+
+
+		//record->step = 0;
+
+		//size_t size{};
+
+		//for (const auto& it : lag_data->m_History) {
+		//	if (it.player->IsDormant()) {
+		//		break;
+		//	}
+
+		//	++size;
+		//}
+
+		//if (size > 2) {
+
+		//	record->spindelta = (record[0].m_body - record[1].m_body) / record[1].m_iChokeTicks;
+		//	record->spinbody = record->m_body;
+		//	float delta2 = (record[1].m_body - record[2].m_body) / record[2].m_iChokeTicks;
+
+		//	return record->spindelta == delta2 && record->spindelta > 0.5f;
+
+		//}
+		//else
+		//	return false;
 			}
-
-			++size;
-		}
-
-		if (size > 2) {
-
-			spindelta = (record[0].m_body - record[1].m_body) / record[1].m_iChokeTicks;
-			spinbody = record->m_body;
-			float delta2 = (record[1].m_body - record[2].m_body) / record[2].m_iChokeTicks;
-
-			return spindelta == delta2 && spindelta > 0.5f;
-
-		}
-		else
-			return false;
-		
-
-		//spindelta = (record[0].m_body - record[1].m_body) / record[1].m_iChokeTicks;
-		//spinbody = record[0].m_body;
-		//const auto delta2 = (record[1].m_body - record[2].m_body) / record[2].m_iChokeTicks;
-
-		////return false;
-
-		//return spindelta == delta2 && spindelta > 0.5f;
-	}
 
 	bool CResolver::ShouldUseFreestand(C_AnimationRecord* record, C_CSPlayer* player) // allows freestanding if not in open
 	{
@@ -1289,7 +1316,7 @@ namespace Engine {
 
 				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if ((is_flicking || pLagData->m_body != pLagData->m_old_body) && pLagData->m_iMissedShotsLBY < 2 /* && !record->m_bFakeWalking*/)
+				if ((is_flicking) && pLagData->m_iMissedShotsLBY < 2 /* && !record->m_bFakeWalking*/)
 				{
 					//m_iMode = 0;
 					record->m_angEyeAngles.y = pLagData->m_body;
@@ -1370,7 +1397,7 @@ namespace Engine {
 
 				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if ((is_flicking || pLagData->m_body != pLagData->m_old_body) && pLagData->m_iMissedShotsLBY < 2/* && !record->m_bFakeWalking*/)
+				if ((is_flicking) && pLagData->m_iMissedShotsLBY < 2/* && !record->m_bFakeWalking*/)
 				{
 					//printf("break detection\n");
 					//printf("1\n");

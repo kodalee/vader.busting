@@ -26,6 +26,7 @@
 #include "../../Features/Miscellaneous/WeatherController.hpp"
 #include "../../Features/Miscellaneous/skinchanger2.h"
 #include "../../Features/Game/netdata.h"
+#include "../../Features//Rage/Ragebot.hpp"
 
 #ifdef DEV
 //#define SERVER_HITBOXES

@@ -5,6 +5,7 @@
 #include "../../Features/Rage/ExtendedBactrack.hpp"
 #include "../../SDK/Classes/Player.hpp"
 #include "../../Features/Rage/TickbaseShift.hpp"
+#include "../../Features/Rage/LagCompensation.hpp"
 
 int lastsent = 0;
 int lastsent_crack = 0;
@@ -270,8 +271,24 @@ bool __fastcall Hooked::SendNetMsg( INetChannel* pNetChan, void* edx, INetMessag
 #define NET_FRAMES_MASK ( NET_FRAMES_BACKUP - 1 )
 int __fastcall Hooked::SendDatagram( INetChannel* pNetChan, void* edx, void* buf ) {
 	g_Vars.globals.szLastHookCalled = XorStr( "33" );
-	if( pNetChan != Interfaces::m_pEngine->GetNetChannelInfo( ) || !g_Vars.globals.HackIsReady || !g_Vars.misc.extended_backtrack || !g_Vars.misc.extended_backtrack_key.enabled )
+	if( pNetChan != Interfaces::m_pEngine->GetNetChannelInfo( ) || !g_Vars.globals.HackIsReady || !g_Vars.misc.extended_backtrack || !g_Vars.misc.extended_backtrack_key.enabled)
 		return oSendDatagram( pNetChan, buf );
+
+	//int backup2 = pNetChan->m_nInSequenceNr;
+
+	//if (g_Vars.misc.extended_backtrack && g_Vars.misc.extended_backtrack_key.enabled) {
+	//	float ping = g_Vars.misc.extended_backtrack_time;
+
+	//	float correct = std::max(0.f, (ping) - pNetChan->GetLatency(FLOW_OUTGOING) - (std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat())));
+	//	
+	//	pNetChan->m_nInSequenceNr += 2 * NET_FRAMES_MASK - static_cast<uint32_t>(NET_FRAMES_MASK * correct);
+	//}
+	//
+	//int ret = oSendDatagram(pNetChan, buf);
+
+	//pNetChan->m_nInSequenceNr = backup2;
+
+	//return ret;
 
 	auto v10 = pNetChan->m_nInSequenceNr;
 	auto v16 = pNetChan->m_nInReliableState;
@@ -293,15 +310,15 @@ int __fastcall Hooked::SendDatagram( INetChannel* pNetChan, void* edx, void* buf
 	return result;
 }
 
-void __fastcall Hooked::ProcessPacket( INetChannel* pNetChan, void* edx, void* packet, bool header ) {
-	g_Vars.globals.szLastHookCalled = XorStr( "34" );
-	oProcessPacket( pNetChan, packet, header );
+void __fastcall Hooked::ProcessPacket(INetChannel* pNetChan, void* edx, void* packet, bool header) {
+	g_Vars.globals.szLastHookCalled = XorStr("34");
+	oProcessPacket(pNetChan, packet, header);
 
-	IncomingSequences.push_back( CIncomingSequence{ pNetChan->m_nInSequenceNr, pNetChan->m_nInReliableState } );
-	for( auto it = IncomingSequences.begin( ); it != IncomingSequences.end( ); ++it ) {
-		auto delta = abs( pNetChan->m_nInSequenceNr - it->InSequence );
-		if( delta > 128 ) {
-			it = IncomingSequences.erase( it );
+	IncomingSequences.push_back(CIncomingSequence{ pNetChan->m_nInSequenceNr, pNetChan->m_nInReliableState });
+	for (auto it = IncomingSequences.begin(); it != IncomingSequences.end(); ++it) {
+		auto delta = abs(pNetChan->m_nInSequenceNr - it->InSequence);
+		if (delta > 128) {
+			it = IncomingSequences.erase(it);
 		}
 	}
 

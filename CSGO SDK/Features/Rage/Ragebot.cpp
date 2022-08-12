@@ -1171,8 +1171,6 @@ namespace Interfaces
 			}
 		}
 
-
-
 		// we can hitchance them & check if accry boost is valid.
 		if (hitchance > 0.0f && ShouldHitchance()) {
 			// we cannot hitchance the player or no valid acrry boost then we failed hitchance.
@@ -2146,7 +2144,7 @@ namespace Interfaces
 		}
 
 		Engine::C_LagRecord* pBestRecord = nullptr;
-
+		 
 		// iterate all valid records
 		for (int i = 0; i < recordsCount; i++) {
 			// get current record
@@ -2154,6 +2152,10 @@ namespace Interfaces
 
 			if (g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) && !currentRecord->m_bTeleportDistance) {
 				return &record;
+			}
+
+			if (currentRecord->m_vecVelocity.Length2D() < 1.f && currentRecord->m_iResolverMode != Engine::RModes::FLICK) {
+				return currentRecord;
 			}
 
 			if (currentRecord->m_bTeleportDistance && !(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // only if player is breaking lagcomp force to latest record

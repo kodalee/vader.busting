@@ -393,8 +393,8 @@ bool __fastcall net_show_fragments( void* cvar, void* edx ) {
 
 	static uint32_t last_fragment = 0;
 
-	if( _ReturnAddress( ) == reinterpret_cast< void* >( check_receiving_list_ret ) && last_fragment > 0 ) {
-		const auto data = &reinterpret_cast< uint32_t* >( netchannel.Xor( ) )[ 0x56 ];
+	if( _ReturnAddress( ) == reinterpret_cast< void* >(check_receiving_list_ret) && last_fragment > 0 ) {
+		const auto data = &reinterpret_cast< uint32_t* >( netchannel.Xor( ) )[ 0x54 ];
 		const auto bytes_fragments = reinterpret_cast< uint32_t* >( data )[ 0x43 ];
 
 		if( bytes_fragments == last_fragment ) {
@@ -403,8 +403,8 @@ bool __fastcall net_show_fragments( void* cvar, void* edx ) {
 		}
 	}
 
-	if( _ReturnAddress( ) == read_sub_channel_data_ret ) {
-		const auto data = &reinterpret_cast< uint32_t* >( netchannel.Xor( ) )[ 0x56 ];
+	if( _ReturnAddress( ) == read_sub_channel_data_ret) {
+		const auto data = &reinterpret_cast< uint32_t* >( netchannel.Xor( ) )[ 0x54 ];
 		const auto bytes_fragments = reinterpret_cast< uint32_t* >( data )[ 0x43 ];
 
 		last_fragment = bytes_fragments;
@@ -1139,7 +1139,7 @@ namespace Interfaces
 		}
 
 		oGetScreenAspectRatio = Hooked::HooksManager.HookVirtual<decltype( oGetScreenAspectRatio )>( m_pEngine.Xor( ), &Hooked::hkGetScreenAspectRatio, Index::EngineClient::GetScreenAspectRatio );
-		//oFireEvents = Hooked::HooksManager.HookVirtual<decltype( oFireEvents )>( m_pEngine.Xor( ), &hkFireEvents, 59 );
+		oFireEvents = Hooked::HooksManager.HookVirtual<decltype( oFireEvents )>( m_pEngine.Xor( ), &hkFireEvents, 59 );
 		//oDispatchUserMessage = Hooked::HooksManager.HookVirtual<decltype( oDispatchUserMessage )>( m_pClient.Xor( ), &hkDispatchUserMessage, 38 );
 		oIsConnected = Hooked::HooksManager.HookVirtual<decltype( oIsConnected )>( m_pEngine.Xor( ), &hkIsConnected, 27 );
 		oIsBoxVisible = Hooked::HooksManager.HookVirtual<decltype( oIsBoxVisible )>( m_pEngine.Xor( ), &Hooked::hkIsBoxVisible, 32 );

@@ -288,6 +288,11 @@ namespace Hooked
 	bool CreateMoveHandler( float ft, CUserCmd* _cmd, bool* bSendPacket, bool* bFinalTick ) {
 		auto bRet = oCreateMove( ft, _cmd );
 
+		auto chan = Interfaces::m_pEngine->GetNetChannelInfo( );
+		
+		if (!chan)
+			return false;
+
 		g_Vars.globals.m_bInCreateMove = true;
 
 		auto pLocal = C_CSPlayer::GetLocalPlayer( );
@@ -365,7 +370,20 @@ namespace Hooked
 
 		//g_TickbaseController.PreMovement( );
 
+		//Engine::Prediction::Instance()->KeepCommunication(bSendPacket, cmd->command_number);
+
 		Engine::Prediction::Instance( )->RunGamePrediction( );
+
+		if (*bSendPacket) {
+			g_Vars.globals.cmds.push_back(cmd->command_number);
+		}
+		else {
+			const auto choked = chan->m_nChokedPackets;
+			chan->m_nChokedPackets = 0;
+			chan->SendDatagram();
+			--chan->m_nOutSequenceNr;
+			chan->m_nChokedPackets = choked;
+		}
 
 		auto& prediction = Engine::Prediction::Instance( );
 
@@ -553,7 +571,7 @@ namespace Hooked
 
 		auto result = CreateMoveHandler( ft, _cmd, bSendPacket, bFinalTick );
 
-		Engine::Prediction::Instance( )->KeepCommunication( bSendPacket, _cmd->command_number );
+		//Engine::Prediction::Instance( )->KeepCommunication( bSendPacket, _cmd->command_number );
 
 		auto pLocal = C_CSPlayer::GetLocalPlayer( );
 		if( !g_Vars.globals.HackIsReady || !pLocal || !Interfaces::m_pEngine->IsInGame( ) ) {

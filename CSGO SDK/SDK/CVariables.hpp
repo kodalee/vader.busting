@@ -482,7 +482,7 @@ public:
 		Vector m_vecVelocity;
 		bool bBrokeLC = false;
 		float delta;
-
+		float m_lShotDamage;
 		int shift_amount;
 
 		float curtimeLog;
