@@ -2411,7 +2411,7 @@ bool draw_water_button(const char* label, const char* label_id, bool load, bool 
 
 	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_PopupBorderSize, 0);
 	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_PopupRounding, 4);
-	ImGui::SetNextWindowSize(ImVec2(175, 70), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(175, 80), ImGuiCond_Always);
 	if (ImGui::BeginPopupContextItem(XorStr("additives_nigger")))
 	{
 		std::vector<MultiItem_t> additives = {
@@ -2423,6 +2423,8 @@ bool draw_water_button(const char* label, const char* label_id, bool load, bool 
 		};
 
 		InsertMultiCombo(std::string(XorStr("Watermark additives")).c_str(), additives);
+
+		InsertCheckbox(LockDefaultPos, XorStr("Lock Default Position"), &g_Vars.misc.watermark_lockdefaultposition);
 
 		if (ImGui::Button(XorStr("Reset Position"), ImVec2(100, 0)))
 		{
@@ -2561,8 +2563,11 @@ void create_watermark()
 			m_bResetWatermarkPos = false;
 		}
 		
-		if (!ImGui::IsMouseDragging()) {
+		if (!ImGui::IsMouseDragging() && !g_Vars.misc.watermark_lockdefaultposition) {
 			ImGui::SetNextWindowPos(ImVec2(g_Vars.misc.watermark_window_x, g_Vars.misc.watermark_window_y), ImGuiCond_Always);
+		}
+		else {
+			ImGui::SetNextWindowPos(ImVec2(Render::GetScreenSize().x - margin - padding - size_text.x - padding, margin), ImGuiCond_Always);
 		}
 		ImGui::Begin(XorStr("watermark"), nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
 		{

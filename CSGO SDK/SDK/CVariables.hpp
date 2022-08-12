@@ -1596,8 +1596,9 @@ public:
 
 	config_option( bool, ingame_radar, false );
 	config_option( bool, watermark, true );
-	config_option(float, watermark_window_x, 1000.f);
-	config_option(float, watermark_window_y, 120.f);
+	config_option( bool, watermark_lockdefaultposition, true );
+	config_option( float, watermark_window_x, 1000.f );
+	config_option( float, watermark_window_y, 120.f );
 	config_option( bool, watermarkadditives_WATERMARK_NAME, true );
 	config_option( bool, watermarkadditives_WATERMARK_SERVER, false );
 	config_option( bool, watermarkadditives_WATERMARK_PING, false );
