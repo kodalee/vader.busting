@@ -1731,17 +1731,19 @@ namespace Interfaces
 								case HITBOX_RIGHT_FOOT:
 								case HITBOX_RIGHT_CALF:
 								case HITBOX_RIGHT_THIGH:
+									result = XorStr("right leg"); break;
 								case HITBOX_LEFT_FOOT:
 								case HITBOX_LEFT_CALF:
 								case HITBOX_LEFT_THIGH:
-									result = XorStr("leg"); break;
+									result = XorStr("left leg"); break;
 								case HITBOX_LEFT_FOREARM:
 								case HITBOX_LEFT_HAND:
 								case HITBOX_LEFT_UPPER_ARM:
+									result = XorStr("left arm"); break;
 								case HITBOX_RIGHT_FOREARM:
 								case HITBOX_RIGHT_HAND:
 								case HITBOX_RIGHT_UPPER_ARM:
-									result = XorStr("arm"); break;
+									result = XorStr("right arm"); break;
 								case HITBOX_STOMACH:
 								case HITBOX_PELVIS: // there is no pelvis hitgroup
 									result = XorStr("stomach"); break;
