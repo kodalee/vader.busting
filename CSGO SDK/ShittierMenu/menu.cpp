@@ -329,7 +329,7 @@ void Ragebot()
 			InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->accry_boost_on_shot);
 
 			if (rbot->accry_boost_on_shot) {
-				InsertSliderFloat(std::string(XorStr("Accuracy Boost Chance") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance_accuracy, 0.f, 100.f, XorStr("%.0f%%"));
+				InsertSliderFloat(std::string(XorStr("Accuracy Boost amount") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance_accuracy, 0.f, 100.f, XorStr("%.0f%%"));
 			}
 
 			//const char* accuracyonshotmodes[] = { XorStr("Off"), XorStr("Low"), XorStr("Medium"), XorStr("High") };
