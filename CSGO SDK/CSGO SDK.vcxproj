@@ -563,6 +563,7 @@
     <ClInclude Include="SDK\Classes\INetMessage.hpp" />
     <ClInclude Include="Utils\hash.h" />
     <ClInclude Include="Utils\hash_t.h" />
+    <ClInclude Include="Utils\HTTPRequest.hpp" />
     <ClInclude Include="Utils\hwid.h" />
     <ClInclude Include="Utils\InputSys.hpp" />
     <ClInclude Include="SDK\Classes\IPanel.hpp" />

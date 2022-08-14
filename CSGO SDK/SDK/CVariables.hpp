@@ -1649,6 +1649,8 @@ public:
 
 	config_option(bool, balls, false);
 
+	config_option(bool, lua_allow_http_requests, false);
+
 	
 	config_option(bool, resolver_flags, false);
 #if defined(BETA_MODE) || defined(DEV)

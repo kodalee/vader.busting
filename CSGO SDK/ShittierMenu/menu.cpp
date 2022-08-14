@@ -1723,6 +1723,8 @@ void Scripts()
 
 				ImGui::NewLine();
 
+				InsertCheckbox(AllowHttpRequests, XorStr("Allow HTTP Requests"), &g_Vars.misc.lua_allow_http_requests);
+
 				if (ImGui::Button(XorStr("Refresh scripts"), ImVec2(100, 0))) g_lua.refresh_scripts();
 
 				if (ImGui::Button(XorStr("Reload active"), ImVec2(100, 0))) g_lua.reload_all_scripts();

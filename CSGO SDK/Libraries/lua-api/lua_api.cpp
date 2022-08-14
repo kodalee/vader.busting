@@ -1,3 +1,4 @@
+#include "../../Utils/HttpRequest.hpp"
 #include "lua_api.h"
 #include "../../source.hpp"
 #include "../../Features/Visuals/EventLogger.hpp"
@@ -920,6 +921,54 @@ namespace lua_effects
 	}
 }
 
+namespace lua_http
+{
+	std::string get(sol::this_state s, std::string& link)
+	{
+		if (!g_Vars.misc.lua_allow_http_requests)
+		{
+			engine_console_error(XorStr("Please Allow HTTP Requests"), false);
+			return "";
+		}
+		try
+		{
+
+			http::Request request(link);
+
+			// send a get request
+			const http::Response response = request.send(XorStr("GET"));
+			return std::string(response.body.begin(), response.body.end());
+		}
+		catch (const std::exception& e)
+		{
+			engine_console_error(XorStr("Request failed, error: ") + std::string(e.what()), false);
+			return "";
+		}
+	}
+	std::string post(sol::this_state s, std::string& link, std::string& params)
+	{
+		if (!g_Vars.misc.lua_allow_http_requests)
+		{
+			engine_console_error(XorStr("Please Allow HTTP Requests"));
+			return "";
+		}
+		try
+		{
+			http::Request request(link);
+			// send a post request
+			const http::Response response = request.send(XorStr("POST"), params, {
+				XorStr("Content-Type: application/x-www-form-urlencoded")
+				});
+			return std::string(response.body.begin(), response.body.end());
+		}
+		catch (const std::exception& e)
+		{
+			engine_console_error(XorStr("Request failed, error: ") + std::string(e.what()), false);
+			return "";
+		}
+	}
+}
+
 namespace lua_file
 {
 	void append(sol::this_state s, std::string& path, std::string& data)
@@ -1272,6 +1321,10 @@ bool c_lua::initialize() {
 	effects[XorStr("dust")] = lua_effects::dust;
 	effects[XorStr("energysplash")] = lua_effects::EnergySplash;
 
+	auto http = this->lua.create_table();
+	http[XorStr("get")] = lua_http::get;
+	http[XorStr("post")] = lua_http::post;
+
 	auto file = this->lua.create_table();
 	file[XorStr("append")] = lua_file::append;
 	file[XorStr("write")] = lua_file::write;
@@ -1293,6 +1346,7 @@ bool c_lua::initialize() {
 	this->lua[XorStr("ui")] = ui;
 	this->lua[XorStr("clientstate")] = clientstate;
 	this->lua[XorStr("effects")] = effects;
+	this->lua[XorStr("http")] = http;
 	this->lua[XorStr("file")] = file;
 
 	this->refresh_scripts();
