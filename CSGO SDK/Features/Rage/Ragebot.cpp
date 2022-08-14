@@ -1059,18 +1059,14 @@ namespace Interfaces
 
 					const float flDamage = Autowall::FireBullets(&fireData);
 					if (flDamage >= 1.0f) {
+						if (this->m_rage_data->m_pWeapon->m_iItemDefinitionIndex() != WEAPON_SSG08 && this->m_rage_data->m_pWeapon->m_iItemDefinitionIndex() != WEAPON_AWP) {
+							iAutowalledHits++;
+							continue;
+						}
 
-
-						float damage_add = 0.f;
-
-						if (pPoint->damage > 1)
-							damage_add = 5.f;
-
-
-						bool accurate = (((flDamage + damage_add) >= pPoint->damage && pPoint->penetrated) || (!pPoint->penetrated && (flDamage + damage_add) > pPoint->damage * 0.5));
-
-						if (accurate) {
-							++iAutowalledHits;
+						int iHealthRatio = int(float(pPoint->target->player->m_iHealth()) / flDamage) + 1;
+						if (iHealthRatio <= pPoint->healthRatio) {
+							iAutowalledHits++;
 						}
 					}
 				}
@@ -1174,31 +1170,14 @@ namespace Interfaces
 		// we can hitchance them & check if accry boost is valid.
 		if (hitchance > 0.0f && ShouldHitchance()) {
 			// we cannot hitchance the player or no valid acrry boost then we failed hitchance.
-			if (!Hitchance(point, start, hitchance * 0.01f)) {
+			if( !Hitchance( point, start, hitchance * 0.01f ) /*|| AccuracyBoost( point, start, m_flAccuracyBoostHitchance * 0.01f ) )*/ || ( ( m_rage_data->m_flInaccuracy + m_rage_data->m_flSpread > ( 0.04f - ( m_rage_data->rbot->doubletap_hitchance / 3000 ) ) && !m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE ) ) ) {
 				m_rage_data->m_bFailedHitchance = true;
 				return false;
 			}
 		}
 
-		bool accurate = true;
-
-		if (m_rage_data->rbot->accry_boost_on_shot) {
-			accurate = false;
-
-			if (AccuracyBoost(point, start, m_rage_data->rbot->hitchance_accuracy * 0.01f))
-				accurate = true;
-
-		}
-
-
-		if (accurate) {
-			m_rage_data->m_bFailedHitchance = false;
-			return true;
-		}
-
-		m_rage_data->m_bFailedHitchance = true;
-		return false;
-
+		m_rage_data->m_bFailedHitchance = false;
+		return true;
 	}
 
 	void C_Ragebot::Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& pointScale, int hitboxIndex) {
@@ -2028,7 +2007,7 @@ namespace Interfaces
 
 		auto record = GetBestLagRecord(player, &backup);
 		if (!record || !IsRecordValid(player, record)) {
-			backup.Apply(player);
+			//backup.Apply(player);
 			if (!(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // ghetto asf; will rework later
 				return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
 			}
@@ -2134,9 +2113,8 @@ namespace Interfaces
 			arrRecords[recordsCount] = &*it;
 			recordsCount++;
 
-			if (it->m_bTeleportDistance) {
-				return &record;
-			}
+			if (it->m_bTeleportDistance)
+				continue;
 
 			if (recordsCount + 1 >= 64)
 				break;
@@ -2159,10 +2137,6 @@ namespace Interfaces
 
 			if (currentRecord->m_bTeleportDistance) { // only if player is breaking lagcomp force to latest record
 				return &record;
-			}
-
-			if (currentRecord->m_vecVelocity.Length2D() < 1.f && currentRecord->m_iResolverMode != Engine::RModes::FLICK) {
-				return currentRecord;
 			}
 
 			if (currentRecord->m_vecVelocity.Length2D() > 1.f && currentRecord->m_vecVelocity.Length2D() <= 89.f && currentRecord->m_iFlags & FL_ONGROUND && g_Vars.globals.m_bPointVisible) {

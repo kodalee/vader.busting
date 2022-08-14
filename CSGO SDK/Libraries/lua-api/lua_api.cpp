@@ -273,6 +273,14 @@ namespace lua_config {
 		return retn;
 	}
 
+	void config_save() {
+		LuaConfigSystem::Save();
+	}
+
+	void config_load() {
+		LuaConfigSystem::Load();
+	}
+
 	/*
 	config.set(key, value)
 	Sets value for key
@@ -1118,6 +1126,8 @@ bool c_lua::initialize() {
 	auto config = this->lua.create_table();
 	config[XorStr("get")] = lua_config::get;
 	config[XorStr("set")] = sol::overload(lua_config::set_bool, lua_config::set_color, lua_config::set_float, lua_config::set_multiselect, lua_config::set_int);
+	config[XorStr("save")] = lua_config::config_save;
+	config[XorStr("load")] = lua_config::config_load;
 	config[XorStr("watermark_enabled")] = lua_config::watermark_enabled;
 	config[XorStr("autopeek_enabled")] = lua_config::autopeek_enabled;
 	config[XorStr("pingspike_enabled")] = lua_config::pingspike_enabled;

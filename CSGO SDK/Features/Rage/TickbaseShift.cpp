@@ -17,7 +17,11 @@ void copy_command(CUserCmd* cmd, int tickbase_shift)
 		cmd->sidemove = abs(cmd->sidemove) > 10.f ? copysignf(450.f, cmd->sidemove) : 0.f;
 	else
 	{
-		if (g_Vars.rage.dt_defensive_teleport)
+		if (g_Vars.rage.dt_defensive_teleport && g_Vars.misc.autopeek_bind.enabled)
+		{
+			cmd->sidemove = abs(cmd->sidemove) > 15.f ? copysignf(450.f, cmd->sidemove) : 0.f;
+		}
+		else if (g_Vars.rage.dt_defensive_teleport)
 		{
 			if ((cmd->forwardmove) > 10.f)
 				cmd->forwardmove = cmd->forwardmove;
@@ -28,10 +32,6 @@ void copy_command(CUserCmd* cmd, int tickbase_shift)
 				cmd->sidemove = cmd->sidemove;
 			else if ((cmd->sidemove) < -10.f)
 				cmd->sidemove = -cmd->sidemove;
-		}
-		else if (g_Vars.rage.dt_defensive_teleport & g_Vars.misc.autopeek_bind.enabled)
-		{
-			cmd->sidemove = abs(cmd->sidemove) > 15.f ? copysignf(450.f, cmd->sidemove) : 0.f;
 		}
 		else {
 			cmd->forwardmove = 0.0f;
@@ -127,7 +127,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		s_nTicksSinceStarted++;
 		if (s_nTicksSinceStarted <= s_nTicksDelay)
 		{
-			g_Vars.globals.m_pCmd->tick_count = INT_MAX;
+			//g_Vars.globals.m_pCmd->tick_count = INT_MAX;
 			s_iServerIdealTick++;
 			Hooked::oCL_Move(bFinalTick, accumulated_extra_samples);
 			return;

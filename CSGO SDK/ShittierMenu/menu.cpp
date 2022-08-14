@@ -326,11 +326,11 @@ void Ragebot()
 				InsertMultiCombo(XorStr("Prefer body-aim disablers##PreferBody"), prefer_body_cond);
 			}
 
-			InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->accry_boost_on_shot);
+			//InsertCheckbox(AccuracyBoost, XorStr("Accuracy boost") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->accry_boost_on_shot);
 
-			if (rbot->accry_boost_on_shot) {
-				InsertSliderFloat(std::string(XorStr("Accuracy Boost amount") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance_accuracy, 0.f, 100.f, XorStr("%.0f%%"));
-			}
+			//if (rbot->accry_boost_on_shot) {
+			//	InsertSliderFloat(std::string(XorStr("Accuracy Boost amount") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance_accuracy, 0.f, 100.f, XorStr("%.0f%%"));
+			//}
 
 			//const char* accuracyonshotmodes[] = { XorStr("Off"), XorStr("Low"), XorStr("Medium"), XorStr("High") };
 			//if (rbot->accry_boost_on_shot) {
@@ -389,6 +389,7 @@ void Ragebot()
 
 				InsertCheckbox(DisableBTonDT, XorStr("Disable Backtrack on DT") + std::string(XorStr("##") + std::to_string(rageTab)), &g_Vars.misc.disablebtondt);
 				InsertCheckbox(exploits_enable, XorStr("DT Exploits"), &g_Vars.rage.dt_exploits);
+				InsertCheckbox(DoubletapBoostTeleport, XorStr("Boost Teleport"), &g_Vars.rage.dt_defensive_teleport);
 
 				if (g_Vars.rage.dt_exploits) {
 					std::vector<MultiItem_t> exploits = {
