@@ -402,15 +402,12 @@ namespace Engine {
 			}
 				
 			// LBY updated via PROXY.
-			else if (pLagData->m_body != pLagData->m_old_body) {
-				is_flicking = true;
-				Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			}
-			else {
-				is_flicking = false;
-			}
+			//else if (pLagData->m_body != pLagData->m_old_body) {
+			//	is_flicking = true;
+			//	Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
+			//	NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
+			//}
 
 			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
 				Add[player->EntIndex()] = 0.22f;
@@ -427,21 +424,21 @@ namespace Engine {
 			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
 		}
 
-		if (is_flicking) {
-			static bool ran = false;
-			static float flCurtime = Interfaces::m_pGlobalVars->curtime + 0.22f;
+		//if (is_flicking) {
+		//	static bool ran = false;
+		//	static float flCurtime = Interfaces::m_pGlobalVars->curtime + 0.22f;
 
-			if (!ran) {
-				flCurtime = Interfaces::m_pGlobalVars->curtime + 0.22f;
-				ran = true;
-			}
+		//	if (!ran) {
+		//		flCurtime = Interfaces::m_pGlobalVars->curtime + 0.22f;
+		//		ran = true;
+		//	}
 
-			if (flCurtime >= Interfaces::m_pGlobalVars->curtime && ran) {
-				ran = false;
-				is_flicking = false;
-			}
+		//	if (flCurtime >= Interfaces::m_pGlobalVars->curtime && ran) {
+		//		ran = false;
+		//		is_flicking = false;
+		//	}
 
-		}
+		//}
 
 		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
 		const int activity = player->GetSequenceActivity(curr->m_nSequence);

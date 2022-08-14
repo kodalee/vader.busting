@@ -234,7 +234,7 @@ namespace Hooked
 	void Body_proxy(CRecvProxyData* pData, void* pStruct, void* pOut) {
 		g_Vars.globals.szLastHookCalled = XorStr("51");
 
-			static DWORD RecvTable_Decode{ pattern::find(PE::GetModule(HASH("engine.dll")), XorStr("EB 0D FF 77 10")) };
+			static DWORD RecvTable_Decode{ pattern::find(PE::GetModule(HASH("engine.dll")), XorStr("EB 3F FF 77 10")) };
 
 			const auto player = reinterpret_cast<C_CSPlayer*>(pStruct);
 
