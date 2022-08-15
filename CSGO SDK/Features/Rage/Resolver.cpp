@@ -400,6 +400,8 @@ namespace Engine {
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
 				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
 			}
+			else
+				is_flicking = false;
 				
 			// LBY updated via PROXY.
 			//else if (pLagData->m_body != pLagData->m_old_body) {
