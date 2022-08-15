@@ -234,21 +234,20 @@ namespace Hooked
 	void Body_proxy(CRecvProxyData* pData, void* pStruct, void* pOut) {
 		g_Vars.globals.szLastHookCalled = XorStr("51");
 
-			static DWORD RecvTable_Decode{ pattern::find(PE::GetModule(HASH("engine.dll")), XorStr("EB 3F FF 77 10")) };
+		static DWORD RecvTable_Decode{ pattern::find(PE::GetModule(HASH("engine.dll")), XorStr("EB 3F FF 77 10")) };
 
-			const auto player = reinterpret_cast<C_CSPlayer*>(pStruct);
+		const auto player = reinterpret_cast<C_CSPlayer*>(pStruct);
 
-			// call from entity going into pvs.
-	        if (RecvTable_Decode != GetReturnAddress(2)) {
-				//printf("faggot\n");
+		// call from entity going into pvs.
+		if (RecvTable_Decode != GetReturnAddress(2)) {
+			//printf("faggot\n");
 
-				// store data about the update.
-				Engine::g_Resolver.OnBodyUpdate(player, pData->m_Value.m_Float);
-			}
+			// store data about the update.
+			Engine::g_Resolver.OnBodyUpdate(player, pData->m_Value.m_Float);
+		}
 
-			// call original proxy.
-			Interfaces::m_pFlAbsYawSwap->GetOriginalFunction()(pData, pStruct, pOut);
-
+		// call original proxy.
+		Interfaces::m_pFlAbsYawSwap->GetOriginalFunction()(pData, pStruct, pOut);
 	}
 
 	void _cdecl sequence_proxy(CRecvProxyData* data_const, void* p_struct, void* p_out) {
