@@ -426,6 +426,49 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 					}
 				}
 
+				if (entity->valid(true, true))
+				{
+					if (g_Vars.esp.footsteps)
+					{
+
+						Color RGBColor = Color::imcolor_to_ccolor(g_Vars.esp.footsteps_color);
+
+						if (!PrecacheModel_footsteps(XorStr("materials/sprites/physbeam.vmt")))
+							return;
+
+						BeamInfo_t info;
+
+						info.m_nType = TE_BEAMRINGPOINT;
+						info.m_pszModelName = XorStr("materials/sprites/physbeam.vmt");
+						info.m_nModelIndex = Interfaces::m_pModelInfo->GetModelIndex(XorStr("materials/sprites/physbeam.vmt"));
+						info.m_nHaloIndex = -1;
+						info.m_flHaloScale = 3.0f;
+						info.m_flLife = 2.0f;
+						info.m_flWidth = g_Vars.esp.footsteps_thickness;
+						info.m_flFadeLength = 1.0f;
+						info.m_flAmplitude = 0.0f;
+						info.m_flRed = RGBColor.r();
+						info.m_flGreen = RGBColor.g();
+						info.m_flBlue = RGBColor.b();
+						info.m_flBrightness = RGBColor.a();
+						info.m_flSpeed = 0.0f;
+						info.m_nStartFrame = 0.0f;
+						info.m_flFrameRate = 60.0f;
+						info.m_nSegments = -1;
+						info.m_nFlags = FBEAM_FADEOUT;
+						info.m_vecCenter = entity->m_vecOrigin() + Vector(0.0f, 0.0f, 5.0f);
+						info.m_flStartRadius = 5.0f;
+						info.m_flEndRadius = g_Vars.esp.footsteps_radius;
+						info.m_bRenderable = true;
+
+						auto beam_draw = Interfaces::m_pRenderBeams->CreateBeamRingPoint(info);
+
+						if (beam_draw)
+							Interfaces::m_pRenderBeams->DrawBeam(beam_draw);
+					}
+
+				}
+
 				Hitmarkers::m_nLastDamageData = { hitgroup == Hitgroup_Head ? Color( 255, 0, 00 ) : Color( 255, 255, 255 ), dmg_to_health };
 				Hitmarkers::AddScreenHitmarker( hitgroup == Hitgroup_Head ? Color( 0, 150, 255 ) : Color( 255, 255, 255 ) );
 			}

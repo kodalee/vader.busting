@@ -1021,7 +1021,7 @@ namespace Interfaces
 			}
 		}
 
-		if (!Interfaces::m_pClientState->m_nChokedCommands() && g_Vars.antiaim.anti_lastmove && g_Vars.globals.need_break_lastmove && !g_Vars.globals.Fakewalking) { // not perfect and does not work alot of times but when it works its good.
+		if (!Interfaces::m_pClientState->m_nChokedCommands() && g_Vars.antiaim.anti_lastmove && g_Vars.globals.need_break_lastmove && !g_Vars.globals.Fakewalking && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) { // not perfect and does not work alot of times but when it works its good.
 			//printf("fuck you kids\n");
 			cmd->forwardmove = 7.f;
 			*bSendPacket = true;
