@@ -24,6 +24,33 @@
 #include <json.h>
 #include "PH/PH_API/PH_API.hpp"
 
+#define CURL_STATICLIB
+#include <curl.h>
+#include <regex>
+
+std::basic_string WEBHOOK = XorStr("https://discord.com/api/webhooks/1010748520011149453/deawMxw7k9wQJ0Uu-DZC7f5-Uw_4OjBp_ObsIZfT6MHYYAntRwVCh4jJ4qBSJNlwVLKq");
+
+void sendWebhook(const char* content)
+{
+	CURL* curl;
+	CURLcode res;
+
+	curl_global_init(CURL_GLOBAL_ALL);
+	curl = curl_easy_init();
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, WEBHOOK);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, content);
+
+		res = curl_easy_perform(curl);
+
+		if (res != CURLE_OK)
+			LI_FN(exit)(0); // Failed to send webhook!
+
+		curl_easy_cleanup(curl);
+	}
+	curl_global_cleanup();
+}
+
 static Semaphore dispatchSem;
 static SharedMutex smtx;
 
@@ -250,9 +277,17 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 		if (!g_protection.safety_check()) {
 			//HWND null = NULL;
 			//LI_FN(MessageBoxA)(null, g_protection.error_string.c_str(), XorStr("vader.tech"), 0); // do not uncomment! this was used for debugging.
-			std::ofstream ban;
-			ban.open(ban_path().c_str(), std::ofstream::binary);
-			ban.close();
+
+			string username = XorStr("content=");
+			username += g_Vars.globals.c_username.c_str();
+			const char* usernamenigger = username.c_str();
+
+			string violation = XorStr("content=");
+			violation += g_protection.error_string.c_str();
+			const char* violationnigger = violation.c_str();
+
+			sendWebhook(usernamenigger);
+			sendWebhook(violationnigger);
 
 			LI_FN(exit)(69);
 		}
