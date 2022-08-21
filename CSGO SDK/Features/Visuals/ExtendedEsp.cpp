@@ -139,7 +139,6 @@ void CExtendedSound::AdjustPlayer(C_CSPlayer* player)
 	player->m_fFlags() = sound_player.m_nFlags;
 	player->m_vecOrigin() = sound_player.m_vecOrigin;
 	player->SetAbsOrigin(sound_player.m_vecOrigin);
-	player->m_bSpotted() = true;
 }
 
 void CExtendedSound::AdjustPlayerFinish( ) {
