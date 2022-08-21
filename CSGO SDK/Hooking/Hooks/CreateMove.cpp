@@ -153,7 +153,7 @@ namespace Hooked
 		__forceinline NetPos( float time, Vector pos ) : m_time{ time }, m_pos{ pos } {};
 	};
 
-	C_AnimationLayer reallayers[13];
+	int m_real_spawntime;
 
 	void UpdateInformation( CUserCmd* cmd, bool bSendPacket ) {
 		auto local = C_CSPlayer::GetLocalPlayer( );
@@ -161,15 +161,14 @@ namespace Hooked
 			return;
 
 		CCSGOPlayerAnimState* state = local->m_PlayerAnimState( );
-		if( !state )
+		if( !state || local->IsDead( ) || local->IsDormant( ) ) {
+			m_real_spawntime = 0.f;
 			return;
+		}
 
 		if( !g_Vars.globals.bMoveExploiting )
 			if( Interfaces::m_pClientState->m_nChokedCommands( ) > 0 )
 				return;
-
-		float backup_curtime = Interfaces::m_pGlobalVars->curtime;
-		float backup_frametime = Interfaces::m_pGlobalVars->frametime;
 
 		// update time.
 		g_Vars.globals.m_flAnimFrame = TICKS_TO_TIME( local->m_nTickBase( ) ) - g_Vars.globals.m_flAnimTime;
@@ -191,6 +190,41 @@ namespace Hooked
 		// set lby to predicted value.
 		local->m_flLowerBodyYawTarget( ) = g_Vars.globals.m_flBody;
 
+		C_AnimationLayer old_anim_layers[13];
+		std::memcpy(old_anim_layers, local->m_AnimOverlay().m_Memory.m_pMemory, 13 * sizeof(C_AnimationLayer));
+
+		if (local->m_flSpawnTime() != m_real_spawntime || state->m_Player != local)
+		{
+			local->UpdateClientSideAnimationEx();
+
+			std::memcpy(local->m_AnimOverlay().m_Memory.m_pMemory, old_anim_layers, 13 * sizeof(C_AnimationLayer));
+			m_real_spawntime = local->m_flSpawnTime();
+		}
+
+		const auto old_pose_params = local->m_flPoseParameter();
+
+		state->m_flLastUpdateIncrement = fmaxf(Interfaces::m_pGlobalVars->curtime - state->m_flLastUpdateTime, 0.f);
+
+		if (state->m_ActiveWeapon != state->m_LastActiveWeapon)
+		{
+			for (int i = 0; i < 13; i++)
+			{
+				C_AnimationLayer pLayer = local->GetAnimLayer(i);
+
+				pLayer.m_pStudioHdr = NULL;
+				pLayer.m_nDispatchSequence = -1;
+				pLayer.m_nDispatchSequence_2 = -1;
+			}
+		}
+
+		float flNewDuckAmount;
+
+		flNewDuckAmount = Math::Clamp(local->m_flDuckAmount() + state->m_fLandingDuckAdditiveSomething, 0.0f, 1.0f);
+		flNewDuckAmount = Math::ApproachAngle(flNewDuckAmount, state->m_fDuckAmount, state->m_flLastUpdateIncrement * 6.0f);
+		flNewDuckAmount = Math::Clamp(flNewDuckAmount, 0.0f, 1.0f);
+
+		state->m_fDuckAmount = flNewDuckAmount;
+
 		// CCSGOPlayerAnimState::Update, bypass already animated checks.
 		if( state->m_nLastFrame == Interfaces::m_pGlobalVars->framecount )
 			state->m_nLastFrame -= 1;
@@ -201,9 +235,17 @@ namespace Hooked
 
 		local->UpdateClientSideAnimationEx( );
 
-		std::memcpy(reallayers, local->m_AnimOverlay().m_Memory.m_pMemory, 13 * sizeof(C_AnimationLayer));
-		if (!bSendPacket) {
-			std::memcpy(g_Vars.globals.m_flPoseParams, local->m_flPoseParameter(), sizeof(local->m_flPoseParameter()));
+		local->m_PlayerAnimState()->m_flFeetCycle = old_anim_layers[6].m_flCycle;
+		local->m_PlayerAnimState()->m_flFeetYawRate = old_anim_layers[6].m_flWeight;
+
+		for (int i = 0; i < 13; ++i)
+		{
+			C_AnimationLayer layer = local->GetAnimLayer(i);
+			if (!layer.m_nSequence && layer.m_pOwner && layer.m_flWeight != 0.0f)
+			{
+				((C_CSPlayer*)layer.m_pOwner)->InvalidatePhysicsRecursive(10);
+				layer.m_flWeight = 0.0f;
+			}
 		}
 
 		auto flWeight12Backup = local->m_AnimOverlay( ).Element( 12 ).m_flWeight;
@@ -266,8 +308,8 @@ namespace Hooked
 
 			local->m_AnimOverlay( ).Element( 12 ).m_flWeight = flWeight12Backup;
 
-			std::memcpy( local->m_AnimOverlay().m_Memory.m_pMemory, reallayers, 13 * sizeof( C_AnimationLayer ) );
-			std::memcpy( local->m_flPoseParameter( ), g_Vars.globals.m_flPoseParams, sizeof( local->m_flPoseParameter( ) ) );
+			std::memcpy(local->m_AnimOverlay().m_Memory.m_pMemory, old_anim_layers, 13 * sizeof(C_AnimationLayer));
+			std::memcpy( local->m_flPoseParameter( ), old_pose_params, sizeof( local->m_flPoseParameter( ) ) );
 
 			if( local->m_CachedBoneData( ).Base( ) != local->m_BoneAccessor( ).m_pBones ) {
 				std::memcpy( local->m_BoneAccessor( ).m_pBones, local->m_CachedBoneData( ).Base( ), local->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
@@ -275,9 +317,6 @@ namespace Hooked
 
 			local->SetupBones(g_Vars.globals.LagPosition, 128, BONE_USED_BY_ANYTHING, Interfaces::m_pGlobalVars->curtime);
 		}
-
-		Interfaces::m_pGlobalVars->curtime = backup_curtime;
-		Interfaces::m_pGlobalVars->frametime = backup_frametime;
 
 		// save updated data.
 		g_Vars.globals.m_bGround = state->m_bOnGround;
