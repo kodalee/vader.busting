@@ -23,6 +23,7 @@
 #include <atlstr.h>
 #include <json.h>
 #include "PH/PH_API/PH_API.hpp"
+#include "Utils/VMProtect/VMProtectSDK.h"
 
 #define CURL_STATICLIB
 #include <curl.h>
@@ -198,11 +199,15 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 #endif // !DEV
 
 #ifndef DEV
+	VMProtectBeginVirtualization;
+
 	if (!m_bSecurityInitialized) {
 		HWND null = NULL;
 		LI_FN(MessageBoxA)(null, XorStr("Error Code: 0x3552A!\n Report this to a developer!"), XorStr("vader.tech"), 0);
 		LI_FN(exit)(69);
 	}
+
+	VMProtectEnd;
 #endif // !DEV
 	auto tier0 = GetModuleHandleA( XorStr( "tier0.dll" ) );
 
@@ -272,6 +277,8 @@ LONG WINAPI CrashHandlerWrapper( struct _EXCEPTION_POINTERS* exception ) {
 }
 
 DWORD WINAPI Security(LPVOID PARAMS) {
+	VMProtectBeginVirtualization;
+
 	while (true) {
 		m_bSecurityInitialized = true;
 		if (!g_protection.safety_check()) {
@@ -293,6 +300,9 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 	}
+
+	VMProtectEnd;
+
 	return true;
 }
 
@@ -327,12 +337,16 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 		auto info = reinterpret_cast<ph_heartbeat::heartbeat_info*>(hModule);
 		HMODULE hMod = (HMODULE)info->image_base; // Stores the image base before deleting the data passed to the entrypoint. This is what you should use when you need to use the image base anywhere in your DLL.
 
+		VMProtectBeginVirtualization;
+
 		ph_heartbeat::initialize_heartbeat(info);
 
 		CloseHandle(CreateThread(0, 0, (LPTHREAD_START_ROUTINE)heartbeat_thread, 0, 0, nullptr));
 
 		//start security and websocket thread
 		CreateThread(0, 0, &Security, 0, 0, 0);
+
+		VMProtectEnd;
 
 //#ifdef BETA_MODE
 //		SetUnhandledExceptionFilter( CrashHandlerWrapper );

@@ -13,6 +13,7 @@
 #include "../AES/AES.h"
 #include "../picosha2/picosha2.h"
 #include "../../Utils/lazy_importer.hpp"
+#include "Utils/VMProtect/VMProtectSDK.h"
 
 #include <string>
 
@@ -95,12 +96,16 @@ namespace ph_heartbeat {
 	*/
 
 	__forceinline static void on_fail() {
+		VMProtectBeginVirtualization;
+
 		#ifdef PH_HEARTBEAT_DEBUG
 			MessageBoxA(0, XorStr("Failed to verify session. Ending session..."), 0, 0);
 		#endif
 
 		client::close_connection();
 		LI_FN(exit)(0);
+
+		VMProtectEnd;
 	}
 
 	static std::vector<unsigned char> aes_key(picosha2::k_digest_size);
@@ -116,6 +121,8 @@ namespace ph_heartbeat {
 	*/
 
 	__forceinline static void send_heartbeat(int task = PH_HEARTBEAT_TASK) {
+		VMProtectBeginVirtualization;
+
 		AES aes(256);
 
 		cJSON* heartbeat_json = cJSON_CreateObject();
@@ -251,6 +258,8 @@ namespace ph_heartbeat {
 			MessageBoxA(0, std::string(XorStr("Heartbeat was successful! Hello, ") + ph_heartbeat::username).c_str(), 0, 0);
 			ph_heartbeat::ph_heartbeat_user_mutex.unlock();
 		#endif
+
+		VMProtectEnd;
 	}
 
 	/*
@@ -258,6 +267,8 @@ namespace ph_heartbeat {
 	*/
 
 	__forceinline static void initialize_heartbeat(ph_heartbeat::heartbeat_info* in_info) {
+		VMProtectBeginVirtualization;
+
 		heartbeat_token_hashed = in_info->heartbeat_token_hashed;
 
 		if (!client::create_socket(in_info->host, in_info->port))
@@ -266,5 +277,7 @@ namespace ph_heartbeat {
 		ph_heartbeat::send_heartbeat(PH_HEARTBEAT_INIT_TASK);
 
 		VirtualFree(in_info, 0, MEM_RELEASE); // Releasing data so token hashed is no longer in memory
+
+		VMProtectEnd;
 	}
 }
