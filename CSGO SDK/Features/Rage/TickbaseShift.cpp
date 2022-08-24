@@ -272,7 +272,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		int start = *(int*)((size_t)g_pLocal + OFFSET_TICKBASE);
 		bool bPred = s_bBuilding && s_nExtraProcessingTicks > 0;
 
-		if (bPred)
+		if (bPred && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
 		{
 			s_bInMove = true;
 			s_iMoveTickBase = start;
@@ -296,7 +296,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		Hooked::oCL_Move(bFinalTick, accumulated_extra_samples);
 
 #ifndef STANDALONE_CSGO
-		if (bPred)
+		if (bPred && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
 		{
 			s_bInMove = false;
 			*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = start;

@@ -574,7 +574,7 @@ namespace Interfaces
 				break;
 			}
 			case 1: {
-				if (localPlayer->m_vecVelocity().Length2D() < 14.f) {
+				if (localPlayer->m_vecVelocity().Length2D() < 16.f) {
 					static bool FlickCheck = false;
 					static bool MicroMoveSide = false;
 					*bSendPacket = !(cmd->tick_count % 2 == 0);
