@@ -920,6 +920,7 @@
     <ClInclude Include="Utils\curl-7.75.0\x86 Release\include\curl\system.h" />
     <ClInclude Include="Utils\curl-7.75.0\x86 Release\include\curl\typecheck-gcc.h" />
     <ClInclude Include="Utils\curl-7.75.0\x86 Release\include\curl\urlapi.h" />
+    <ClInclude Include="Utils\VMProtect\VMProtectSDK.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">
