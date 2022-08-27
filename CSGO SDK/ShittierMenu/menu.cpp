@@ -1925,7 +1925,7 @@ ImFont* gravity, *gravityBold, *StarWars, *watermark;
 #define MENU_WIDTH 650.f
 #define MENU_HEIGHT 600.f
 
-bool Spinner(const char* label, float radius, int thickness, const ImU32& color) {
+bool BufferingBar(const char* label, float value, const ImVec2& size_arg, const ImU32& bg_col, const ImU32& fg_col) {
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 	if (window->SkipItems)
 		return false;
@@ -1934,8 +1934,9 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 	const ImGuiStyle& style = g.Style;
 	const ImGuiID id = window->GetID(label);
 
-	ImVec2 pos = ImVec2(Render::GetScreenSize().x * 0.5f, Render::GetScreenSize().y * 0.5f);
-	ImVec2 size((radius) * 2, (radius + style.FramePadding.y) * 2);
+	ImVec2 pos = ImVec2(Render::GetScreenSize().x * 0.5f - 55, Render::GetScreenSize().y * 0.5f + 70);
+	ImVec2 size = size_arg;
+	size.x -= style.FramePadding.x * 2;
 
 	const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
 	ImGui::ItemSize(bb, style.FramePadding.y);
@@ -1943,30 +1944,30 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 		return false;
 
 	// Render
-	window->DrawList->PathClear();
+	const float circleStart = size.x * 0.7f;
+	const float circleEnd = size.x;
+	const float circleWidth = circleEnd - circleStart;
 
-	int num_segments = 30;
-	int start = abs(ImSin(g.Time * 1.8f) * (num_segments - 5));
+	window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart, bb.Max.y), bg_col);
+	window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart * value, bb.Max.y), fg_col);
 
-	const float a_min = IM_PI * 2.0f * ((float)start) / (float)num_segments;
-	const float a_max = IM_PI * 2.0f * ((float)num_segments - 3) / (float)num_segments;
+	const float t = g.Time;
+	const float r = size.y / 2;
+	const float speed = 1.5f;
 
-	const ImVec2 centre = ImVec2(pos.x + radius, pos.y + radius + style.FramePadding.y);
+	const float a = speed * 0;
+	const float b = speed * 0.333f;
+	const float c = speed * 0.666f;
 
-	for (int i = 0; i < num_segments; i++) {
-		const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
-		window->DrawList->PathLineTo(ImVec2(centre.x + ImCos(a + g.Time * 8) * radius,
-			centre.y + ImSin(a + g.Time * 8) * radius));
-	}
+	const float o1 = (circleWidth + r) * (t + a - speed * (int)((t + a) / speed)) / speed;
+	const float o2 = (circleWidth + r) * (t + b - speed * (int)((t + b) / speed)) / speed;
+	const float o3 = (circleWidth + r) * (t + c - speed * (int)((t + c) / speed)) / speed;
 
-	window->DrawList->PathStroke(color, false, thickness);
+	window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o1, bb.Min.y + r), r, bg_col);
+	window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o2, bb.Min.y + r), r, bg_col);
+	window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o3, bb.Min.y + r), r, bg_col);
 }
 
-float clip(float n, float lower, float upper)
-{
-	n = (n > lower) * n + !(n > lower) * lower;
-	return (n < upper) * n + !(n < upper) * upper;
-}
 
 void IMGUIMenu::Loading()
 {
@@ -1974,19 +1975,52 @@ void IMGUIMenu::Loading()
 	Opened = true;
 
 	static bool load = true;
-	static float flCurTime;
+	static float flTime;
+	static float flTime_bar;
 	static bool init = true;
+	static bool should_fade_out = false;
 
 	if (init) {
-		flCurTime = Interfaces::m_pGlobalVars->curtime;
+		flTime = ImGui::GetTime();
+		flTime_bar = ImGui::GetTime();
 		init = false;
 	}
 
-	float flSubtractedTime = Interfaces::m_pGlobalVars->curtime - flCurTime;
+	float flSubtractedTime = ImGui::GetTime() - flTime;
 
-	if (flSubtractedTime > 7.f && load) { // 7 seconds i think is the optimal time
-		load = false;
-		Loaded = true;
+	if (flSubtractedTime > 5.5f && load) { // 7 seconds i think is the optimal time
+		should_fade_out = true;
+	}
+
+	static float bar_thing = 0.0f;
+
+	float flSubtractedTime_bar = ImGui::GetTime() - flTime_bar;
+
+	if (flSubtractedTime_bar > 1.f && !(bar_thing > 1.0f)) { // every second increase bar
+		flTime_bar = ImGui::GetTime();
+		bar_thing += 0.1f;
+		printf(std::to_string(bar_thing).c_str());
+	}
+
+	static float pulse_alpha = 0.f;
+	static bool change_alpha = false;
+
+	if (pulse_alpha <= 0.f)
+		change_alpha = true;
+	//else if (pulse_alpha >= 1.f) // pulse effect (puke)
+	//	change_alpha = false;
+
+	pulse_alpha = change_alpha ? pulse_alpha + 0.02f : pulse_alpha - 0.02f;
+
+	if (should_fade_out) {
+		change_alpha = false;
+
+		printf(std::to_string(pulse_alpha).c_str());
+
+		if (pulse_alpha < 0.0f) {
+			load = false;
+			Loaded = true;
+		}
 	}
 
 	if (load)
@@ -2006,24 +2040,18 @@ void IMGUIMenu::Loading()
 		ImGui::PushFont(watermark);
 
 		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 55, -1.0f, Render::GetScreenSize().y * 0.5f + 40);
-		ImGui::Text(XorStr("Initializing Vader.tech"));
+		ImGui::TextColored(ImVec4(1.f, 1.f, 1.f, pulse_alpha), XorStr("Initializing Vader.tech"));
 
 		ImGui::PopFont();
 
-		Spinner(XorStr("##spinner"), 15, 6, ImColor(255, 0, 0));
+		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 60, -1.0f, Render::GetScreenSize().y * 0.5f - 500);
+		ImGui::Image(logo_nuts, ImVec2(150, 150), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1.f, 1.f, 1.f, pulse_alpha));
 
-		static float pulse_alpha = 0.f;
-		static bool change_alpha = false;
 
-		if (pulse_alpha <= 0.f)
-			change_alpha = true;
-		else if (pulse_alpha >= 255.f)
-			change_alpha = false;
+		const ImU32 col = ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, pulse_alpha));
+		const ImU32 bg = ImGui::GetColorU32(ImVec4(0.2f, 0.2f, 0.2f, pulse_alpha));
 
-		pulse_alpha = change_alpha ? pulse_alpha + 0.02f : pulse_alpha - 0.02f;
-
-		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 60, -1.0f, Render::GetScreenSize().y * 0.5f - 600);
-		ImGui::Image(logo_nuts, ImVec2(150, 150), ImVec2(0, 0), ImVec2(1, 1), ImVec4(255, 255, 255, pulse_alpha));
+		BufferingBar(XorStr("##loading_bar"), bar_thing, ImVec2(210, 5), bg, col);
 
 		ImGui::End();
 
