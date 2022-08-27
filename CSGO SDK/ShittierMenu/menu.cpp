@@ -1999,7 +1999,6 @@ void IMGUIMenu::Loading()
 	if (flSubtractedTime_bar > 1.f && !(bar_thing > 1.0f)) { // every second increase bar
 		flTime_bar = ImGui::GetTime();
 		bar_thing += 0.1f;
-		printf(std::to_string(bar_thing).c_str());
 	}
 
 	static float pulse_alpha = 0.f;
@@ -2014,8 +2013,6 @@ void IMGUIMenu::Loading()
 
 	if (should_fade_out) {
 		change_alpha = false;
-
-		printf(std::to_string(pulse_alpha).c_str());
 
 		if (pulse_alpha < 0.0f) {
 			load = false;
