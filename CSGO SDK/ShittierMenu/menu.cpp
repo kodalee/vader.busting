@@ -978,7 +978,7 @@ void Visuals()
 					}
 					InsertCheckbox(LocalTracers, XorStr("Local Tracers"), &g_Vars.esp.beam_local_enable);
 					if (g_Vars.esp.beam_local_enable) {
-						ColorPicker_w_name(XorStr("Local Tracer Color"), g_Vars.esp.beam_color_local, false, false);
+						ColorPicker(XorStr("Local Tracer Color"), g_Vars.esp.beam_color_local, false, false);
 						//InsertCheckbox(RainbowTracerColor, XorStr("Rainbow Local Color"), &g_Vars.esp.beam_color_rainbow);
 					}
 
