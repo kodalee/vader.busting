@@ -5409,6 +5409,13 @@ bool ImGui::ColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flag
 	return ColorEdit4(label, col, flags | ImGuiColorEditFlags_NoAlpha);
 }
 
+struct colorpicket_state {
+	bool play;
+	float mult;
+};
+
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
 // Edit colors components (each component in 0.0f..1.0f range).
 // See enum ImGuiColorEditFlags_ for available options. e.g. Only access 3 floats if ImGuiColorEditFlags_NoAlpha flag is set.
 // With typical options: Left-click on colored square to open color picker. Right-click to open option menu. CTRL-Click over input fields to edit them and TAB to go to next item.
@@ -5469,6 +5476,17 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 
 	bool value_changed = false;
 	bool value_changed_as_float = false;
+
+	static std::map<ImGuiID, colorpicket_state> open_animation;
+	auto it_open = open_animation.find(ImGui::GetCurrentWindow()->GetID(label));
+	if (it_open == open_animation.end())
+	{
+		open_animation.insert({ ImGui::GetCurrentWindow()->GetID(label), {false, 0.f} });
+		it_open = open_animation.find(ImGui::GetCurrentWindow()->GetID(label));
+	}
+	it_open->second.mult = Math::Clamp(it_open->second.mult + 0.03f + (it_open->second.mult * 0.03f) * GetIO().DeltaTime * (it_open->second.play ? 1.f : -1.f), 0.01f, 1.f);
+	if (!it_open->second.play)
+		it_open->second.mult = 0.01f;
 
 	if ((flags & (ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHSV)) != 0 && (flags & ImGuiColorEditFlags_NoInputs) == 0) {
 
@@ -5568,6 +5586,7 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 			if (!(flags & ImGuiColorEditFlags_NoPicker))
 			{
 				// Store current color and open a picker
+				it_open->second.play = true;
 				g.ColorPickerRef = col_v4;
 				OpenPopup("picker");
 				SetNextWindowPos(window->DC.LastItemRect.GetBL() + ImVec2(-1, style.ItemSpacing.y));
@@ -5586,6 +5605,8 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 			col[3] = col_v4.w;
 		}
 
+		PushStyleVar(ImGuiStyleVar_Alpha, it_open->second.mult);
+		PushStyleColor(ImGuiCol_PopupBg, ImVec4(33 / 255.f, 33 / 255.f, 33 / 255.f, it_open->second.mult * 1.f));
 		if (BeginPopup("picker")) {
 
 			picker_active_window = g.CurrentWindow;
@@ -5599,12 +5620,13 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
 			ImGuiColorEditFlags picker_flags_to_forward = ImGuiColorEditFlags__DataTypeMask | ImGuiColorEditFlags__PickerMask | ImGuiColorEditFlags__InputMask | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_AlphaBar;
 			ImGuiColorEditFlags picker_flags = (flags_untouched & picker_flags_to_forward) | ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaPreviewHalf;
 
-			PushItemWidth(square_sz * 12.0f); // Use 256 + bar sizes?
+			SetNextItemWidth(min(it_open->second.mult * 3.2, 1.f)* square_sz * 12.0f); // Use 256 + bar sizes?
 			value_changed |= ColorPicker4("##picker", col, picker_flags, &g.ColorPickerRef.x);
-			PopItemWidth();
-
 			EndPopup();
 		}
+		else
+			it_open->second.play = false;
+		PopStyleVar(1);    PopStyleColor(1);
 	}
 
 	if (label != label_display_end && !(flags & ImGuiColorEditFlags_NoLabel)) {

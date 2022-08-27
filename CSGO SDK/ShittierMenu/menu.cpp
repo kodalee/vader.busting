@@ -1962,6 +1962,12 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 	window->DrawList->PathStroke(color, false, thickness);
 }
 
+float clip(float n, float lower, float upper)
+{
+	n = (n > lower) * n + !(n > lower) * lower;
+	return (n < upper) * n + !(n < upper) * upper;
+}
+
 void IMGUIMenu::Loading()
 {
 
@@ -1991,7 +1997,7 @@ void IMGUIMenu::Loading()
 
 		ImGui::SetNextWindowSize(ImVec2(Render::GetScreenSize().x, Render::GetScreenSize().y));
 
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.3f)); // Set window background to black
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.4f)); // Set window background to black
 
 		ImGui::Begin(XorStr("Loading"), &retard, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
 
@@ -2005,6 +2011,19 @@ void IMGUIMenu::Loading()
 		ImGui::PopFont();
 
 		Spinner(XorStr("##spinner"), 15, 6, ImColor(255, 0, 0));
+
+		static float pulse_alpha = 0.f;
+		static bool change_alpha = false;
+
+		if (pulse_alpha <= 0.f)
+			change_alpha = true;
+		else if (pulse_alpha >= 255.f)
+			change_alpha = false;
+
+		pulse_alpha = change_alpha ? pulse_alpha + 0.02f : pulse_alpha - 0.02f;
+
+		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 60, -1.0f, Render::GetScreenSize().y * 0.5f - 600);
+		ImGui::Image(logo_nuts, ImVec2(150, 150), ImVec2(0, 0), ImVec2(1, 1), ImVec4(255, 255, 255, pulse_alpha));
 
 		ImGui::End();
 
