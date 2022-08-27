@@ -997,6 +997,7 @@ namespace Interfaces
 				// we need to disable thirdperson to spectate properly.
 				if( Interfaces::m_pInput->CAM_IsThirdPerson( ) ) {
 					Interfaces::m_pInput->CAM_ToFirstPerson( );
+					Interfaces::m_pInput->m_vecCameraOffset.z = 0.f;
 				}
 
 				m_movement_data->m_pLocal->m_iObserverMode( ) = 5;
