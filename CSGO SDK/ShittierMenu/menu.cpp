@@ -1945,28 +1945,8 @@ bool BufferingBar(const char* label, float value, const ImVec2& size_arg, const 
 
 	// Render
 	const float circleStart = size.x * 0.7f;
-	const float circleEnd = size.x;
-	const float circleWidth = circleEnd - circleStart;
-
 	window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart, bb.Max.y), bg_col);
-	window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart * value, bb.Max.y), fg_col);
-
-	const float t = g.Time;
-	const float r = size.y / 2;
-	const float speed = 1.5f;
-
-	const float a = speed * 0;
-	const float b = speed * 0.333f;
-	const float c = speed * 0.666f;
-
-	const float o1 = (circleWidth + r) * (t + a - speed * (int)((t + a) / speed)) / speed;
-	const float o2 = (circleWidth + r) * (t + b - speed * (int)((t + b) / speed)) / speed;
-	const float o3 = (circleWidth + r) * (t + c - speed * (int)((t + c) / speed)) / speed;
-
-	window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o1, bb.Min.y + r), r, bg_col);
-	window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o2, bb.Min.y + r), r, bg_col);
-	window->DrawList->AddCircleFilled(ImVec2(pos.x + circleEnd - o3, bb.Min.y + r), r, bg_col);
-}
+	window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart * value, bb.Max.y), fg_col);}
 
 
 void IMGUIMenu::Loading()
@@ -2041,7 +2021,7 @@ void IMGUIMenu::Loading()
 
 		ImGui::PopFont();
 
-		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 60, -1.0f, Render::GetScreenSize().y * 0.5f - 500);
+		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 60, -1.0f, Render::GetScreenSize().y * 0.5f - 700);
 		ImGui::Image(logo_nuts, ImVec2(150, 150), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1.f, 1.f, 1.f, pulse_alpha));
 
 
