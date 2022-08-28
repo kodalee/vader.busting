@@ -2021,9 +2021,7 @@ void IMGUIMenu::Loading()
 
 		ImGui::PopFont();
 
-		ImGui::SameLine(Render::GetScreenSize().x * 0.5f - 60, -1.0f, Render::GetScreenSize().y * 0.5f - 700);
-		ImGui::Image(logo_nuts, ImVec2(150, 150), ImVec2(0, 0), ImVec2(1, 1), ImVec4(1.f, 1.f, 1.f, pulse_alpha));
-
+		ImGui::AddCircleImageFilled(logo_nuts, ImVec2(Render::GetScreenSize().x * 0.5f + 15, Render::GetScreenSize().y * 0.5f - 40), 80.f, ImColor(1.f, 1.f, 1.f, pulse_alpha), 360);
 
 		const ImU32 col = ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, pulse_alpha));
 		const ImU32 bg = ImGui::GetColorU32(ImVec4(0.2f, 0.2f, 0.2f, pulse_alpha));
