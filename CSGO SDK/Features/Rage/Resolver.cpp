@@ -448,11 +448,11 @@ namespace Engine {
 
 		if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
 
-			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking && pLagData->m_iMissedShotsLBY < 2) {
+			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking && pLagData->m_iMissedShotsLBY < 1) {
 				record->m_iResolverMode = FLICK;
 			}
 
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !(activity == 979 && curr->m_flWeight == 0 && delta > .22f)) {
 				record->m_iResolverMode = LASTMOVE;
 			}
 
@@ -540,6 +540,7 @@ namespace Engine {
 		//}
 
 		static int m_iFakeFlickCheck = 0;
+		static int m_iFakeFlickResetCheck = 0;
 		static float m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
 		static float m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime;
 
@@ -564,18 +565,28 @@ namespace Engine {
 
 		if (m_flLastResetTime1 >= m_flMaxResetTime1 && record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 30.f) {
 			m_iFakeFlickCheck++;
+			m_iFakeFlickResetCheck = 0;
 			//printf(std::to_string(m_iFakeFlickCheck).c_str());
 			//printf(" < fake flick check hit\n");
+		}
+		else if (m_flLastResetTime1 <= m_flMaxResetTime1 && m_iFakeFlickCheck > 0) {
+			m_iFakeFlickResetCheck++;
 		}
 
 		if (m_iFakeFlickCheck >= 10) {
 			record->m_bIsFakeFlicking = true;
 			//printf("fakeflicking \n");
 		}
+
 		if (record->m_vecVelocity.Length2D() >= 30.f) {
 			record->m_bIsFakeFlicking = false;
 			m_iFakeFlickCheck = 0;
 			//printf("fake flick reset due to speed \n");
+			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
+		}
+		else if (m_iFakeFlickResetCheck >= 10) {
+			record->m_bIsFakeFlicking = false;
+			m_iFakeFlickCheck = 0;
 			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
 		}
 
@@ -739,7 +750,7 @@ namespace Engine {
 
 		auto at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-		if ((is_flicking) && pLagData->m_iMissedShotsLBY < 2 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f  || record->m_bFakeWalking))
+		if (is_flicking && pLagData->m_iMissedShotsLBY < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f  || record->m_bFakeWalking))
 		{
 			//m_iMode = 0;
 			record->m_angEyeAngles.y = pLagData->m_body;
@@ -1251,22 +1262,22 @@ namespace Engine {
 		//if (is_spin(record, player)) {
 		//	m_iMode = SPIN;
 		//}
-		if (ShouldUseFreestand(record, player)) {
-			record->m_iResolverMode = ANTIFREESTAND;
-		}
+		//if (ShouldUseFreestand(record, player)) {
+		//	record->m_iResolverMode = ANTIFREESTAND;
+		//}
 
-		if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin)
-		{
-			if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.65f)
-			{
-				record->m_iResolverMode = ANTIFREESTAND;
-			}
-			else
-			{
-				record->m_iResolverMode = LBYDELTA;
-				pLagData->m_flSavedLbyDelta = pLagData->m_flLowerBodyYawTarget - pLagData->m_flOldLowerBodyYawTarget;
-			}
-		}
+		//if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin)
+		//{
+		//	if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.65f)
+		//	{
+		//		record->m_iResolverMode = ANTIFREESTAND;
+		//	}
+		//	else
+		//	{
+		//		record->m_iResolverMode = LBYDELTA;
+		//		pLagData->m_flSavedLbyDelta = pLagData->m_flLowerBodyYawTarget - pLagData->m_flOldLowerBodyYawTarget;
+		//	}
+		//}
 
 		//if (hitPlayer[index] && (player->m_vecVelocity().length_2d() < 1.f || player->m_vecVelocity().length_2d() > 1.f && record->m_bFakeWalking)) {
 		//	static bool repeat[64];
@@ -1315,7 +1326,7 @@ namespace Engine {
 
 				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if ((is_flicking) && pLagData->m_iMissedShotsLBY < 2 /* && !record->m_bFakeWalking*/)
+				if (is_flicking && pLagData->m_iMissedShotsLBY < 1 /* && !record->m_bFakeWalking*/)
 				{
 					//m_iMode = 0;
 					record->m_angEyeAngles.y = pLagData->m_body;
@@ -1396,7 +1407,7 @@ namespace Engine {
 
 				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
-				if ((is_flicking) && pLagData->m_iMissedShotsLBY < 2/* && !record->m_bFakeWalking*/)
+				if (is_flicking && pLagData->m_iMissedShotsLBY < 1/* && !record->m_bFakeWalking*/)
 				{
 					//printf("break detection\n");
 					//printf("1\n");
@@ -1509,7 +1520,7 @@ namespace Engine {
 		// this should be a rough estimation of where he is looking.
 		float velyaw = RAD2DEG(std::atan2(record->m_vecAnimationVelocity.y, record->m_vecAnimationVelocity.x));
 
-		switch (pLagData->m_iMissedShots % 4) { // TODO: FIX THIS NOT WORKING AND MAKING THE RESOLVER IN AIR TURN COMPLETELY OFF!!!
+		switch (pLagData->m_iMissedShots % 4) {
 		case 0:
 			record->m_angEyeAngles.y = away - 180.f;
 			break;
@@ -1553,15 +1564,13 @@ namespace Engine {
 		Engine::g_ResolverData->m_bInOverride[player->EntIndex()] = false;
 
 		if (g_Vars.rage.override_reoslver.enabled) {
-			QAngle viewangles;
-			Interfaces::m_pEngine->GetViewAngles(viewangles);
+			QAngle viewangles = g_Vars.globals.CurrentLocalViewAngles;
 
 			//auto yaw = math::clamp (g_cl.m_local->GetAbsOrigin(), Player->origin()).y;
 			const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 			if (fabs(Math::NormalizedAngle(viewangles.y - at_target_yaw)) > 30.f) {
-				LastMoveLby(record, player);
-				return;
+				return LastMoveLby(record, player);
 			}
 
 			Engine::g_ResolverData->m_bInOverride[player->EntIndex()] = true;
