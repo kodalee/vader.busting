@@ -1540,6 +1540,16 @@ namespace Interfaces
 					InvalidateMaterial( );
 				}
 
+				if (g_Vars.esp.break_bones) {
+					pBoneToWorld[0].SetOrigin(Vector(pBoneToWorld[0].GetOrigin().x, pBoneToWorld[0].GetOrigin().y, pBoneToWorld[0].GetOrigin().z - 5));
+					pBoneToWorld[3].SetOrigin(Vector(pBoneToWorld[3].GetOrigin().x, pBoneToWorld[3].GetOrigin().y, pBoneToWorld[3].GetOrigin().z - 5));
+					pBoneToWorld[4].SetOrigin(Vector(pBoneToWorld[4].GetOrigin().x, pBoneToWorld[4].GetOrigin().y, pBoneToWorld[4].GetOrigin().z - 5));
+					pBoneToWorld[5].SetOrigin(Vector(pBoneToWorld[5].GetOrigin().x, pBoneToWorld[5].GetOrigin().y, pBoneToWorld[5].GetOrigin().z - 5));
+					pBoneToWorld[6].SetOrigin(Vector(pBoneToWorld[6].GetOrigin().x, pBoneToWorld[6].GetOrigin().y, pBoneToWorld[6].GetOrigin().z - 5));
+					pBoneToWorld[7].SetOrigin(Vector(pBoneToWorld[7].GetOrigin().x, pBoneToWorld[7].GetOrigin().y, pBoneToWorld[7].GetOrigin().z - 5));
+					pBoneToWorld[8].SetOrigin(Vector(pBoneToWorld[8].GetOrigin().x, pBoneToWorld[8].GetOrigin().y, pBoneToWorld[8].GetOrigin().z - 5));
+				}
+
 				if (g_Vars.esp.chams_local) {
 
 					if (g_Vars.esp.new_chams_local_original_model)

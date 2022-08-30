@@ -1296,7 +1296,12 @@ void Misc()
 				ColorPicker(XorStr("auto peek color"), g_Vars.misc.autopeek_color, false, false);
 			}
 
-			InsertCheckbox(ZeroPitch, XorStr("Zero Pitch on Land"), &g_Vars.esp.zeropitch);
+			std::vector<MultiItem_t> local_extras = {
+				{ XorStr("Zero Pitch on Land"), &g_Vars.esp.zeropitch },
+				{ XorStr("Minion"), &g_Vars.esp.break_bones },
+			};
+
+			InsertMultiCombo(std::string(XorStr("Local Extras")).c_str(), local_extras);
 
 			InsertCheckbox(UnlockInventory, XorStr("Unlock Inventory"), &g_Vars.misc.unlock_inventory);
 			InsertCheckbox(FastStop, XorStr("Fast Stop"), &g_Vars.misc.quickstop);

@@ -1447,6 +1447,7 @@ public:
 	config_option(float, footsteps_radius, 200.f);
 
 	config_option(bool, zeropitch, false);
+	config_option(bool, break_bones, false);
 
 	group_end( );
 #pragma endregion
