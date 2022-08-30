@@ -268,12 +268,12 @@ void Ragebot()
 		ImGui::NewLine();
 
 		if (rageTab == -1) {
-			InsertCheckbox(ExtendedBT, std::string(XorStr("Extended backtrack") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack);
+			InsertCheckbox(ExtendedBT, std::string(XorStr("Ping-spike") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack);
 			if (g_Vars.misc.extended_backtrack) {
 				ImGui::SameLine();
 				biggestMeme2();
-				ImGui::Hotkey(std::string(XorStr("##Extended backtrack Key") + std::to_string(rageTab)).c_str(), &g_Vars.misc.extended_backtrack_key.key, &g_Vars.misc.extended_backtrack_key.cond, ImVec2{ 40,20 });
-				InsertSliderFloat(std::string(XorStr("Extended backtrack##amt") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack_time, 0.f, 1.f, XorStr("%.2fs"));
+				ImGui::Hotkey(std::string(XorStr("##Ping-spike Key") + std::to_string(rageTab)).c_str(), &g_Vars.misc.extended_backtrack_key.key, &g_Vars.misc.extended_backtrack_key.cond, ImVec2{ 40,20 });
+				InsertSliderFloat(std::string(XorStr("Ping-spike amount") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &g_Vars.misc.extended_backtrack_time, 0.f, 1.f, XorStr("%.2fs"));
 			}
 		}
 
