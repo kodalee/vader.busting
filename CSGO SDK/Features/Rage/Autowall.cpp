@@ -423,23 +423,13 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 		}
 
 		// calculate damage  
-		const float flTraceDistance = ( ExitTrace.endpos - data->m_EnterTrace.endpos ).Length( );
-		const float flPenetrationMod = fmaxf( 1.0 / flPenetrationModifier, 0.0f );
-		const float flTotalLostDamage = ( fmaxf( 3.f / data->m_WeaponData->m_flPenetration, 0.f ) *
-			( flPenetrationMod * 3.f ) + ( data->m_flCurrentDamage * flDamageModifier ) ) +
-			( ( ( flTraceDistance * flTraceDistance ) * flPenetrationMod ) / 24 );
+		float flPenetrationLength = (ExitTrace.endpos - data->m_EnterTrace.endpos).Length();
+		float flModifier = fmaxf(1.0f / flPenetrationModifier, 0.0f);
+		float flTakenFirst = (fmaxf(((3.0f / data->m_WeaponData->m_flPenetration) * 1.25f), 0.0f) * (flModifier * 3.0f) + (data->m_flCurrentDamage * flDamageModifier));
+		float flTakenDamage = (((flPenetrationLength * flPenetrationLength) * flModifier) / 24.0f) + flTakenFirst;
 
-		const float flClampedLostDamage = fmaxf( flTotalLostDamage, 0.f );
-
-		if( flClampedLostDamage > data->m_flCurrentDamage )
-			return true;
-
-		// reduce damage power each time we hit something other than a grate
-		if ( flClampedLostDamage > 0.0f )
-			data->m_flCurrentDamage -= flClampedLostDamage;
-
-		// do we still have enough damage to deal?
-		if( data->m_flCurrentDamage < 3.0f )
+		data->m_flCurrentDamage -= fmaxf(0.0f, flTakenDamage);
+		if (data->m_flCurrentDamage < 3.0f)
 			return true;
 
 		// penetration was successful
