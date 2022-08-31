@@ -1534,19 +1534,6 @@ namespace Interfaces
 				continue;
 			}
 		}
-
-		if (g_Vars.globals.m_bGround && m_rage_data->m_pBestTarget) {
-
-			if (m_rage_data->rbot->autoscope == 1 &&
-				m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE &&
-				m_rage_data->m_pWeapon->m_zoomLevel() <= 0) {
-				m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
-				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK;
-				m_rage_data->m_bPredictedScope = true;
-				m_rage_data->m_bRePredict = true;
-			}
-
-		}
 	}
 
 	std::pair<bool, C_AimPoint> C_Ragebot::RunHitscan() {
@@ -1572,6 +1559,14 @@ namespace Interfaces
 		//g_TickbaseController.m_bSupressRecharge = true;
 
 		g_Vars.globals.RageBotTargetting = true;
+
+		bool can_scope = m_rage_data->m_pWeapon->m_zoomLevel() <= 0 && m_rage_data->m_pWeaponInfo->m_iWeaponType == WEAPONTYPE_SNIPER_RIFLE;
+
+		if (can_scope && m_rage_data->rbot->autoscope == 1) {
+			m_rage_data->m_pCmd->buttons |= IN_ATTACK2;
+			m_rage_data->m_bRePredict = true; // i am confused on why it does this on hc failed autoscope. is this needed here????
+			return { false, C_AimPoint() }; // return here so when scoping dont shooting!!!
+		}
 
 		//for( auto& p : m_rage_data->m_aim_points ) {
 		//	Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
