@@ -907,7 +907,9 @@ void Visuals()
 				//}
 				InsertCheckbox(GrenadeWarning, XorStr("Grenade Warning"), &g_Vars.esp.Grenadewarning);
 				if (g_Vars.esp.Grenadewarning) {
+					ColorPicker(XorStr("##GrenadeWarningColor"), g_Vars.esp.Grenadewarning_color, false, false);
 					InsertCheckbox(GrenadeWarningTracer, XorStr("Tracer"), &g_Vars.esp.Grenadetracer);
+					ColorPicker(XorStr("##GrenadeWarningTracerColor"), g_Vars.esp.Grenadetracer_color, true, false);
 				}
 
 				InsertSliderFloat(XorStr("Override FOV"), &g_Vars.esp.world_fov, 0.f, 200.f, XorStr("%.0f degress"));

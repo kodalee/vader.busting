@@ -152,7 +152,7 @@ bool c_grenade_prediction::data_t::draw() const
 
             if (g_Vars.esp.Grenadetracer) {
                 //DrawBeamPaw(std::get< Vector >(m_path.at(i - 1)), std::get< Vector >(m_path.at(i)), Color(255, 255, 255, 255)); // beamcolor
-                Render::Engine::Line(prev_screen.x, prev_screen.y, cur_screen.x, cur_screen.y, { 255, 255, 255, 200 });
+                Render::Engine::Line(prev_screen.x, prev_screen.y, cur_screen.x, cur_screen.y, g_Vars.esp.Grenadetracer_color.ToRegularColor());
             }
         }
 
@@ -163,8 +163,8 @@ bool c_grenade_prediction::data_t::draw() const
     float percent = ((m_expire_time - Interfaces::m_pGlobalVars->curtime) / TICKS_TO_TIME(m_tick));
     int alpha_damage = 0;
 
-    if (m_index == WEAPON_HEGRENADE && dist <= 23) {
-        alpha_damage = 255 - 255 * (dist / 23);
+    if (m_index == WEAPON_HEGRENADE && dist <= 20) {
+        alpha_damage = 255 - 255 * (dist / 20);
     }
 
     if ((m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB) && dist <= 15) {
@@ -183,7 +183,7 @@ bool c_grenade_prediction::data_t::draw() const
 
         Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
         Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
-        Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
+        Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_color.ToRegularColor());
         Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
 
         Render::Engine::WorldCircle(vvt, percent * 90, Color(255, 0, 0, 255), Color(0, 0, 0, 0));
@@ -191,7 +191,7 @@ bool c_grenade_prediction::data_t::draw() const
     else {
         Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
         Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
-        Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, Color(255, 255, 255, 225));
+        Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_color.ToRegularColor());
         Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
     }
 

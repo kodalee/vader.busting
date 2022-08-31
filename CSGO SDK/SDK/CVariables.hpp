@@ -1238,6 +1238,8 @@ public:
 
 	config_option(bool, Grenadewarning, false);
 	config_option(bool, Grenadetracer, false);
+	config_option(FloatColor, Grenadetracer_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, Grenadewarning_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 
 	config_option( bool, walls, false );
 	config_option( bool, props, false );
