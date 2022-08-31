@@ -552,7 +552,7 @@ namespace Engine {
 			previous_record = &anim_data->m_AnimationRecord.front();
 		}
 
-		if (record->m_vecVelocity.Length() < 18.f
+		if (record->m_vecVelocity.Length() < 20.f
 			&& record->m_serverAnimOverlays[6].m_flWeight != 1.0f
 			&& record->m_serverAnimOverlays[6].m_flWeight != 0.0f
 			&& record->m_serverAnimOverlays[6].m_flWeight != previous_record->m_serverAnimOverlays[6].m_flWeight
@@ -753,7 +753,7 @@ namespace Engine {
 		if (is_flicking && pLagData->m_iMissedShotsLBY < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f  || record->m_bFakeWalking))
 		{
 			//m_iMode = 0;
-			record->m_angEyeAngles.y = pLagData->m_body;
+			record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
 
 			//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 
@@ -1329,7 +1329,7 @@ namespace Engine {
 				if (is_flicking && pLagData->m_iMissedShotsLBY < 1 /* && !record->m_bFakeWalking*/)
 				{
 					//m_iMode = 0;
-					record->m_angEyeAngles.y = pLagData->m_body;
+					record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 
@@ -1411,7 +1411,7 @@ namespace Engine {
 				{
 					//printf("break detection\n");
 					//printf("1\n");
-					record->m_angEyeAngles.y = pLagData->m_body;
+					record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
 
 					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 					record->m_iResolverMode = FLICK;
