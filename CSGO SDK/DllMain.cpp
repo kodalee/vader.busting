@@ -199,7 +199,7 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 #endif // !DEV
 
 #ifndef DEV
-	VMProtectBeginVirtualization;
+	VMProtectBeginVirtualization("check - b");
 
 	if (!m_bSecurityInitialized) {
 		HWND null = NULL;
@@ -277,7 +277,7 @@ LONG WINAPI CrashHandlerWrapper( struct _EXCEPTION_POINTERS* exception ) {
 }
 
 DWORD WINAPI Security(LPVOID PARAMS) {
-	VMProtectBeginVirtualization;
+	VMProtectBeginVirtualization("check - a");
 
 	while (true) {
 		m_bSecurityInitialized = true;
@@ -337,7 +337,7 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 		auto info = reinterpret_cast<ph_heartbeat::heartbeat_info*>(hModule);
 		HMODULE hMod = (HMODULE)info->image_base; // Stores the image base before deleting the data passed to the entrypoint. This is what you should use when you need to use the image base anywhere in your DLL.
 
-		VMProtectBeginVirtualization;
+		VMProtectBeginVirtualization("check - main");
 
 		ph_heartbeat::initialize_heartbeat(info);
 

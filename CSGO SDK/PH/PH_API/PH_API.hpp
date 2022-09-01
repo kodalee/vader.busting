@@ -96,7 +96,7 @@ namespace ph_heartbeat {
 	*/
 
 	__forceinline static void on_fail() {
-		VMProtectBeginVirtualization;
+		VMProtectBeginVirtualization("hbf");
 
 		#ifdef PH_HEARTBEAT_DEBUG
 			MessageBoxA(0, XorStr("Failed to verify session. Ending session..."), 0, 0);
@@ -121,7 +121,7 @@ namespace ph_heartbeat {
 	*/
 
 	__forceinline static void send_heartbeat(int task = PH_HEARTBEAT_TASK) {
-		VMProtectBeginVirtualization;
+		VMProtectBeginVirtualization("hbs");
 
 		AES aes(256);
 
@@ -267,7 +267,7 @@ namespace ph_heartbeat {
 	*/
 
 	__forceinline static void initialize_heartbeat(ph_heartbeat::heartbeat_info* in_info) {
-		VMProtectBeginVirtualization;
+		VMProtectBeginVirtualization("hbi");
 
 		heartbeat_token_hashed = in_info->heartbeat_token_hashed;
 
