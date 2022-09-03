@@ -171,29 +171,10 @@ bool c_grenade_prediction::data_t::draw() const
         alpha_damage = 255 - 255 * (dist / 15);
     }
 
-    Ray_t ray;
-    CTraceFilterWorldAndPropsOnly filter;
-    CGameTrace trace;
-
-    ray.Init(m_origin, m_origin - Vector(0.0f, 0.0f, 105.0f));
-    Interfaces::m_pEngineTrace->TraceRay(ray, MASK_SOLID, &filter, &trace);
-
-    if (trace.fraction < 1.0f && (m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB)) {
-        auto vvt = trace.endpos + Vector(0.0f, 0.0f, 2.0f);
-
-        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
-        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
-        Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_color.ToRegularColor());
-        Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
-
-        Render::Engine::WorldCircle(vvt, percent * 90, Color(255, 0, 0, 255), Color(0, 0, 0, 0));
-    }
-    else {
-        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
-        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
-        Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_color.ToRegularColor());
-        Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
-    }
+    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
+    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
+    Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_color.ToRegularColor());
+    Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
 
     auto is_on_screen = [](Vector origin, Vector2D& screen) -> bool
     {
