@@ -277,6 +277,7 @@ LONG WINAPI CrashHandlerWrapper( struct _EXCEPTION_POINTERS* exception ) {
 }
 
 DWORD WINAPI Security(LPVOID PARAMS) {
+#ifndef DEV
 	VMProtectBeginVirtualization("check - a");
 
 	while (true) {
@@ -304,13 +305,16 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 	VMProtectEnd;
 
 	return true;
+#endif // !DEV
 }
 
 void heartbeat_thread() {
+#ifndef DEV
 	while (true) {
 		std::this_thread::sleep_for(std::chrono::seconds(ph_heartbeat::PH_SECONDS_INTERVAL));
 		ph_heartbeat::send_heartbeat();
 	}
+#endif // !DEV
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
