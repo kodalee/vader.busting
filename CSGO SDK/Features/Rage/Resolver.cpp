@@ -452,7 +452,7 @@ namespace Engine {
 				record->m_iResolverMode = FLICK;
 			}
 
-			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !(activity == 979 && curr->m_flWeight == 0 && delta > .22f)) {
+			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
 				record->m_iResolverMode = LASTMOVE;
 			}
 
