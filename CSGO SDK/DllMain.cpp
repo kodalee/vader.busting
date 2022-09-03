@@ -304,8 +304,9 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 
 	VMProtectEnd;
 
-	return true;
 #endif // !DEV
+
+	return true;
 }
 
 void heartbeat_thread() {
