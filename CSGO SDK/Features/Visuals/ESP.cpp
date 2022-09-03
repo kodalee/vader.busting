@@ -46,6 +46,7 @@ public:
 	void DrawAntiAimIndicator( ) override;
 	void DrawZeusDistance( );
 	void IndicateAngles();
+	void SpreadCrosshair();
 	void Main( ) override;
 	void SetAlpha( int idx ) override;
 	float GetAlpha( int idx ) override;
@@ -1277,6 +1278,48 @@ void CEsp::IndicateAngles() // moneybot :))))))
 	}
 }
 
+void CEsp::SpreadCrosshair() {
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	// dont do if dead.
+	if (!local || local->IsDead())
+		return;
+
+	if (!g_Vars.esp.spread_crosshair)
+		return;
+
+	// get active weapon.
+	C_WeaponCSBaseGun* weapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
+	if (!weapon)
+		return;
+
+	auto data = weapon->GetCSWeaponData();
+	if (!data.IsValid())
+		return;
+
+
+	// do not do this on: bomb, knife and nades.
+	int type = data->m_iWeaponType;
+	if (type == WEAPONTYPE_KNIFE || type == WEAPONTYPE_C4 || type == WEAPONTYPE_GRENADE)
+		return;
+
+	// calc radius.
+	float radius = ((weapon->GetInaccuracy() + weapon->GetSpread()) * 320.f) / (std::tan(Math::deg_to_rad(local->GetFOV()) * 0.5f) + FLT_EPSILON);
+
+	Vector2D center = Render::GetScreenSize();
+
+	// scale by screen size.
+	radius *= center.y * (1.f / 480.f);
+
+	// get color.
+	Color col = g_Vars.esp.spread_crosshair_color.ToRegularColor();
+
+	int segements = std::max(16, (int)std::round(radius * 0.75f));
+
+	Render::Engine::CircleFilled(center.x / 2, center.y / 2, radius, segements, col);
+}
+
+
 void CEsp::Main( ) {
 	//DrawWatermark( );
 	//spotify( ); - there might be fps drops / fps issues caused by this.
@@ -1405,8 +1448,7 @@ void CEsp::Main( ) {
 
 	OverlayInfo();
 
-	if( !g_Vars.esp.esp_enable )
-		return;
+	SpreadCrosshair();
 
 	DrawLocalSkeleton();
 
@@ -1414,9 +1456,12 @@ void CEsp::Main( ) {
 
 	dlight_players();
 
-	//Grenade_Tracer();
-
 	walkbot::Instance().update(false);
+
+	if( !g_Vars.esp.esp_enable )
+		return;
+
+	//Grenade_Tracer();
 
 	//if (g_Vars.esp.NadeTracer) {
 	//	GrenadeClass.draw();

@@ -1287,6 +1287,9 @@ public:
 	config_option( bool, preserve_killfeed, false );
 	config_option( float, preserve_killfeed_time, 1.0f );
 
+	config_option(bool, spread_crosshair, false);
+	config_option(FloatColor, spread_crosshair_color, FloatColor(0.0f, 0.0f, 0.0f, 0.2f));
+
 	config_option( bool, draw_c4_bar, false );
 	config_option( bool, draw_c4, false );
 	config_option( FloatColor, c4_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );

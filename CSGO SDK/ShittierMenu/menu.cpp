@@ -925,6 +925,10 @@ void Visuals()
 			{
 				InsertCheckbox(PreserveKillfeed, XorStr("Preserve Killfeed"), &g_Vars.esp.preserve_killfeed);
 				//InsertCheckbox(VisualizeDamage, XorStr("Visualize Damage"), &g_Vars.esp.visualize_damage); // disabled for now, very buggy.
+				InsertCheckbox(SpreadCrosshair, XorStr("Spread Crosshair"), &g_Vars.esp.spread_crosshair);
+				if (g_Vars.esp.spread_crosshair) {
+					ColorPicker(XorStr("##SpreadCrosshairColor"), g_Vars.esp.spread_crosshair_color, true, false);
+				}
 				InsertCheckbox(TaserRange, XorStr("Taser Range"), &g_Vars.esp.zeus_distance);
 				InsertCheckbox(KeybindList, XorStr("Keybind List"), &g_Vars.esp.keybind_window_enabled);
 				InsertCheckbox(SpectatorList, XorStr("Spectator List"), &g_Vars.esp.spec_window_enabled);

@@ -72,6 +72,7 @@ public:
    int& m_vphysicsCollisionState( );
    float GetMaxSpeed( );
    float SequenceDuration( CStudioHdr* pStudioHdr, int iSequence );
+   float GetFOV( );
    const Vector& WorldSpaceCenter( );
    float GetSequenceMoveDist( CStudioHdr* pStudioHdr, int iSequence );
 

@@ -115,6 +115,11 @@ float C_BasePlayer::SequenceDuration( CStudioHdr* pStudioHdr, int iSequence ) {
 	return Memory::VCall< SequenceDurationFn >( this, 221 )( this, pStudioHdr, iSequence );
 }
 
+float C_BasePlayer::GetFOV( ) {
+	using GetFovFN = float(__thiscall*)(void*);
+	return Memory::VCall< GetFovFN >(this, 321)(this);
+}
+
 const Vector& C_BasePlayer::WorldSpaceCenter( ) {
 	using WorldSpaceCenterFn = const Vector& ( __thiscall* )( void* );
 	return Memory::VCall< WorldSpaceCenterFn >( this, 78 )( this );
