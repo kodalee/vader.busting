@@ -2524,7 +2524,7 @@ void create_watermark()
 					server = XorStr("local server");
 				else if (!strcmp(server, XorStr("162.248.92.227:27015")))
 					server = XorStr("emporium");
-				else if (!strcmp(server, XorStr("20.118.249.239:27015")))
+				else if (!strcmp(server, XorStr("20.121.195.15:27015")))
 					server = XorStr("emporium 2");
 
 				auto tickrate = std::to_string((int)(1.0f / Interfaces::m_pGlobalVars->interval_per_tick));
