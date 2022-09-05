@@ -32,6 +32,38 @@ Vector AutoPeekPos;
 int LastShotTime = 0;
 int OutgoingTickcount = 0;
 
+void sunsetmode()
+{
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	if (!g_Vars.globals.HackIsReady || !local || !Interfaces::m_pEngine->IsInGame() || !Interfaces::m_pEngine->IsConnected())
+		return;
+
+	static ConVar* cl_csm_shadows = g_Vars.cl_csm_shadows;
+
+	if (!g_Vars.esp.sunset_enable)
+	{
+		if (cl_csm_shadows->GetInt() != 0)
+			cl_csm_shadows->SetValue(0);
+
+		return;
+	}
+
+	cl_csm_shadows->SetValue(1);
+
+	static ConVar* cl_csm_max_shadow_dist = Interfaces::m_pCvar->FindVar(XorStr("cl_csm_max_shadow_dist"));
+	cl_csm_max_shadow_dist->SetValue(800);
+
+	static ConVar* cl_csm_rot_override = Interfaces::m_pCvar->FindVar(XorStr("cl_csm_rot_override"));
+	cl_csm_rot_override->SetValue(800);
+
+	static ConVar* cl_csm_rot_x = Interfaces::m_pCvar->FindVar(XorStr("cl_csm_rot_x"));
+	cl_csm_rot_x->SetValue(g_Vars.esp.sunset_rot_x);
+
+	static ConVar* cl_csm_rot_y = Interfaces::m_pCvar->FindVar(XorStr("cl_csm_rot_y"));
+	cl_csm_rot_y->SetValue(g_Vars.esp.sunset_rot_y);
+}
+
 void PreserveKillfeed( ) {
 	auto local = C_CSPlayer::GetLocalPlayer( );
 
@@ -602,8 +634,7 @@ namespace Hooked
 		if( !_cmd || !_cmd->command_number )
 			return oCreateMove( ft, _cmd );
 
-		if( g_Vars.cl_csm_shadows->GetInt( ) != 0 )
-			g_Vars.cl_csm_shadows->SetValue( 0 );
+		sunsetmode( );
 
 		if( g_Vars.engine_no_focus_sleep->GetInt( ) != 0 )
 			g_Vars.engine_no_focus_sleep->SetValue( 0 );

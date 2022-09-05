@@ -824,6 +824,11 @@ void Visuals()
 					}
 				}
 
+				InsertCheckbox(EnableSunset, XorStr("Sunset mode"), &g_Vars.esp.sunset_enable);
+				if (g_Vars.esp.sunset_enable) {
+					InsertSliderFloat(XorStr("Sunset y"), &g_Vars.esp.sunset_rot_y, 0.f, 360.0f, XorStr("%.1f"));
+					InsertSliderFloat(XorStr("Sunset x"), &g_Vars.esp.sunset_rot_x, 0.f, 360.0f, XorStr("%.1f"));
+				}
 
 				ImGui::NextColumn();
 				ImGui::NewLine();

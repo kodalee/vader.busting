@@ -1417,8 +1417,9 @@ public:
 	config_option(FloatColor, dlight_enemy_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 	config_option(int, dlight_enemy_radius, 100);
 
-
-
+	config_option(bool, sunset_enable, false);
+	config_option(float, sunset_rot_y, 150.f);
+	config_option(float, sunset_rot_x, 150.f);
 
 	config_option( bool, indicator_side, false );
 	config_option( bool, indicator_exploits, false );
