@@ -607,16 +607,19 @@ void HvH()
 			{
 				InsertCheckbox(Fakelag, XorStr("Fakelag##fakeKURWAlag"), &g_Vars.fakelag.enabled);
 
-				std::vector<MultiItem_t> fakelag_cond = { { XorStr("Moving"), &g_Vars.fakelag.when_moving }, { XorStr("In air"), &g_Vars.fakelag.when_air }, { XorStr("On peek"), &g_Vars.fakelag.trigger_on_peek } };
+				std::vector<MultiItem_t> fakelag_cond = { { XorStr("Standing"), &g_Vars.fakelag.when_standing }, { XorStr("Moving"), &g_Vars.fakelag.when_moving }, { XorStr("In air"), &g_Vars.fakelag.when_air } };
+				std::vector<MultiItem_t> fakelag_triggers = { { XorStr("On Peek"), &g_Vars.fakelag.trigger_on_peek }, { XorStr("On Duck"), &g_Vars.fakelag.trigger_duck }, { XorStr("On Land"),& g_Vars.fakelag.trigger_land }, { XorStr("On Weapon Activity"),&g_Vars.fakelag.trigger_weapon_activity } };
 				InsertMultiCombo(XorStr("Conditions"), fakelag_cond);
+				InsertMultiCombo(XorStr("Triggers"), fakelag_triggers);
 
 				const char* FakelagType[] = { XorStr("Maximum"), XorStr("Dynamic"), XorStr("Fluctuate") };
 				InsertCombo(XorStr("Type"), &g_Vars.fakelag.choke_type, FakelagType);
 				InsertSliderInt(XorStr("Limit"), &g_Vars.fakelag.choke, 0, 16, "%d");
+				InsertSliderInt(XorStr("Trigger Limit"), &g_Vars.fakelag.alternative_choke, 0, 16, "%d");
 
-				g_Vars.fakelag.trigger_duck = g_Vars.fakelag.trigger_weapon_activity = g_Vars.fakelag.trigger_shooting = false;
-				g_Vars.fakelag.trigger_land = true;
-				g_Vars.fakelag.alternative_choke = 0;
+				//g_Vars.fakelag.trigger_duck = g_Vars.fakelag.trigger_weapon_activity = g_Vars.fakelag.trigger_shooting = false;
+				//g_Vars.fakelag.trigger_land = true;
+				//g_Vars.fakelag.alternative_choke = 0;
 
 				InsertSliderFloat(XorStr("Variance"), &g_Vars.fakelag.variance, 0.0f, 100.0f, XorStr("%.0f %%"));
 

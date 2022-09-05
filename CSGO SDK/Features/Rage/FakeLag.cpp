@@ -368,6 +368,8 @@ namespace Interfaces
 			second_scan += peek_add;
 		}
 
+		Interfaces::m_pDebugOverlay->AddBoxOverlay(second_scan, Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0.f, 0.f, 0.f), 0, 255, 0, 100, Interfaces::m_pGlobalVars->interval_per_tick * 2);
+
 		Autowall::C_FireBulletData data;
 
 		data.m_bPenetration = true;
@@ -544,23 +546,19 @@ namespace Interfaces
 		bool moving = velocity.Length( ) >= 1.2f;
 		bool air = !( local->m_fFlags( ) & FL_ONGROUND );
 
-		if( !moving && false )
+		if ((g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1)) {
+			fakelagData->m_iMaxChoke = 0;
+			return false;
+		}
+
+		if( !moving && !g_Vars.fakelag.when_standing )
 			return false;
 		else if( air && !g_Vars.fakelag.when_air )
 			return false;
-		else if( moving && !g_Vars.fakelag.when_moving )
+		else if( moving && !air && !g_Vars.fakelag.when_moving )
 			return false;
 
-		if (moving && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1)) {
-			if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)
-				fakelagData->m_iMaxChoke = 0;
-			else
-				fakelagData->m_iMaxChoke = (int)g_Vars.fakelag.choke;
-		}
-		else {
-			fakelagData->m_iMaxChoke = 0;
-		}
-
+		fakelagData->m_iMaxChoke = (int)g_Vars.fakelag.choke;
 
 		return true;
 	}
