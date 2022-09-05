@@ -1044,8 +1044,8 @@ void Visuals()
 
 				const char* chams_mats[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
 				const char* chams_mats_local[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
-				const char* chams_mats_overlay_local[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking"), XorStr("Animated") };
-				const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Blinking") };
+				const char* chams_mats_overlay_local[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Animated") };
+				const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow") };
 				const char* chams_mats_overlay_misc[] = { XorStr("Disabled"), XorStr("Glow") };
 				const char* glow_types[] = { XorStr("Standard"), XorStr("Pulse"), XorStr("Inner") };
 				const char* chams_mats_overlay_viewmodel[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Animated") };
@@ -1250,19 +1250,21 @@ void Visuals()
 				}
 				case 3: //hands & weapon
 				{
-					InsertCombo(XorStr("Glow Type"), &g_Vars.esp.glow_type, glow_types);
-
 					InsertCheckbox(enemy_glow, XorStr("Enemy Glow ##enemy"), &g_Vars.esp.glow_enemy);
 					ColorPicker(XorStr("##enemyglowcolor"), g_Vars.esp.glow_enemy_color, true, false);
+					InsertCombo(XorStr("Enemy Glow Type"), &g_Vars.esp.glow_type_enemy, glow_types);
 
 					InsertCheckbox(local_glow, XorStr("Local Glow ##local"), &g_Vars.esp.glow_local);
 					ColorPicker(XorStr("##localglowcolor"), g_Vars.esp.glow_local_color, true, false);
+					InsertCombo(XorStr("Local Glow Type"), &g_Vars.esp.glow_type_local , glow_types);
 
 					InsertCheckbox(weapons_glow, XorStr("Weapons Glow ##weapons"), &g_Vars.esp.glow_weapons);
 					ColorPicker(XorStr("##weaponsglowcolor"), g_Vars.esp.glow_weapons_color, true, false);
+					InsertCombo(XorStr("Weapons Glow Type"), &g_Vars.esp.glow_type_weapons, glow_types);
 
 					InsertCheckbox(grenades_glow, XorStr("Grenades Glow ##grenades"), &g_Vars.esp.glow_grenade);
 					ColorPicker(XorStr("##grenadesglowcolor"), g_Vars.esp.glow_grenade_color, true, false);
+					InsertCombo(XorStr("Grenades Glow Type"), &g_Vars.esp.glow_type_grenades, glow_types);
 
 					break;
 				}

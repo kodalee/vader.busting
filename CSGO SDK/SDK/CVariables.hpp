@@ -1225,7 +1225,10 @@ public:
 	config_option( FloatColor, glow_team_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, glow_enemy_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, glow_grenade_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
-	config_option( int, glow_type, 0 );
+	config_option( int, glow_type_enemy, 0 );
+	config_option( int, glow_type_local, 0 );
+	config_option( int, glow_type_weapons, 0 );
+	config_option( int, glow_type_grenades, 0 );
 
 	config_option( bool, glow_local, false );
 	config_option( FloatColor, glow_local_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );

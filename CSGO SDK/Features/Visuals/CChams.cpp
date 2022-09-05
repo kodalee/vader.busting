@@ -954,8 +954,6 @@ namespace Interfaces
 
 			m_matWireframe = Interfaces::m_pMatSystem->FindMaterial( XorStr( "animated_wireframe_vader" ), TEXTURE_GROUP_MODEL );
 
-			m_matBlinking = Interfaces::m_pMatSystem->FindMaterial( XorStr( "models/inventory_items/dogtags/dogtags_outline" ), TEXTURE_GROUP_OTHER );
-
 			m_matAimware = Interfaces::m_pMatSystem->FindMaterial( XorStr( "glowOverlay" ), TEXTURE_GROUP_MODEL );
 
 			m_matShiny = Interfaces::m_pMatSystem->FindMaterial( XorStr( "vader_custom" ), TEXTURE_GROUP_MODEL );
@@ -977,9 +975,6 @@ namespace Interfaces
 			if ( !m_matWireframe || m_matWireframe == nullptr || m_matWireframe->IsErrorMaterial( ) )
 				return false;
 
-			if ( !m_matBlinking || m_matBlinking == nullptr || m_matBlinking->IsErrorMaterial( ) )
-				return false;
-
 			if ( !m_matAimware || m_matAimware == nullptr || m_matAimware->IsErrorMaterial( ) )
 				return false;
 
@@ -999,7 +994,6 @@ namespace Interfaces
 		IMaterial* m_matGlow = nullptr;
 		IMaterial* m_matShiny = nullptr;
 		IMaterial* m_matWireframe = nullptr;
-		IMaterial* m_matBlinking = nullptr;
 		IMaterial* m_matAimware = nullptr;
 		IMaterial* m_matAnimatedLine = nullptr;
 
@@ -1193,8 +1187,6 @@ namespace Interfaces
 			material = m_matShiny; break;
 		case MATERIAL_GLOW:
 			material = m_matAimware; break;
-		case MATERIAL_BLINKING:
-			material = m_matBlinking; break;
 		case MATERIAL_WIREFRAME:
 			material = m_matWireframe; break;
 		case MATERIAL_OUTLINE:
@@ -1581,11 +1573,6 @@ namespace Interfaces
 						}
 						case 2:
 						{
-							material = 5;
-							break;
-						}
-						case 3:
-						{
 							material = 6;
 							break;
 						}
@@ -1652,11 +1639,6 @@ namespace Interfaces
 									material = 4;
 									break;
 								}
-								case 2:
-								{
-									material = 5;
-									break;
-								}
 
 								}
 
@@ -1695,11 +1677,6 @@ namespace Interfaces
 								case 1:
 								{
 									material = 4;
-									break;
-								}
-								case 2:
-								{
-									material = 5;
 									break;
 								}
 

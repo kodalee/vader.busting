@@ -57,7 +57,15 @@ void C_GlowOutline::Render( ) {
 			if( ( is_enemy && !g_Vars.esp.glow_enemy ) || ( entity->EntIndex( ) == pLocal->EntIndex( ) && !g_Vars.esp.glow_local ) || ( entity->IsTeammate( pLocal ) && entity->EntIndex( ) != pLocal->EntIndex( ) ) )
 				continue;
 
-			color = is_enemy ? g_Vars.esp.glow_enemy_color : g_Vars.esp.glow_local_color;
+			if (entity->EntIndex() == pLocal->EntIndex()) {
+				glowObject.m_nGlowStyle = g_Vars.esp.glow_type_local;
+				color = g_Vars.esp.glow_local_color;
+			}
+
+			if (is_enemy) {
+				glowObject.m_nGlowStyle = g_Vars.esp.glow_type_enemy;
+				color = g_Vars.esp.glow_enemy_color;
+			}
 
 			break;
 		}
@@ -70,6 +78,7 @@ void C_GlowOutline::Render( ) {
 				glowObject.m_bRenderWhenOccluded = false;
 				glowObject.m_bRenderWhenUnoccluded = false;
 				glowObject.m_vGlowColor.w = 0.0f;
+				glowObject.m_nGlowStyle = g_Vars.esp.glow_type_grenades;
 				color = g_Vars.esp.glow_grenade_color;
 			}
 		}
@@ -85,11 +94,11 @@ void C_GlowOutline::Render( ) {
 					continue;
 				}
 				weapon_enabled = true;
+				glowObject.m_nGlowStyle = g_Vars.esp.glow_type_weapons;
 				color = g_Vars.esp.glow_weapons_color;
 			}
 		}
 		}
-		glowObject.m_nGlowStyle = g_Vars.esp.glow_type;
 		glowObject.m_vGlowColor = Vector4D( color.r, color.g, color.b, color.a );
 		glowObject.m_bRenderWhenOccluded = true;
 		glowObject.m_bRenderWhenUnoccluded = false;
