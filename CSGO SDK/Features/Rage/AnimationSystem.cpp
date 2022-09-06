@@ -734,13 +734,11 @@ namespace Engine
 				// we're sure that we resolved the player.
 				if ( bValid )
 				{
-					current.Xor()->m_bResolved = /*current.Xor( )->m_iResolverMode == EResolverModes::RESOLVE_BODY ||*/
-						current.Xor()->m_iResolverMode == Engine::RModes::MOVING || current.Xor()->m_iResolverMode == Engine::RModes::FLICK; /*||
-						current.Xor( )->m_flLowerBodyYawTarget == previous.Xor( )->m_flLowerBodyYawTarget;*/
+					current.Xor()->m_bResolved = current.Xor()->m_iResolverMode == Engine::RModes::MOVING || current.Xor()->m_iResolverMode == Engine::RModes::FLICK;
 				}
 				else
 				{
-					current.Xor()->m_bResolved = /*current.Xor()->m_iResolverMode == EResolverModes::RESOLVE_BODY ||*/ (current.Xor()->m_vecVelocity.Length2D() > 0.1f && !(current.Xor()->m_bFakeWalking)) /*current.Xor()->m_iResolverMode == EResolverModes::RESOLVE_WALK*/;
+					current.Xor()->m_bResolved = current.Xor()->m_iResolverMode == Engine::RModes::MOVING || current.Xor()->m_iResolverMode == Engine::RModes::FLICK;
 				}
 
 				bool bResolved = current.Xor( )->m_bResolved;
