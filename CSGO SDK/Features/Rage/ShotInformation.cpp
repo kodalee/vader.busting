@@ -289,8 +289,6 @@ namespace Engine
 							msg << XorStr("lby: ") << int(it->snapshot->ResolverType == RModes::FLICK) << XorStr(" | ");
 							msg << XorStr("dmg: " ) << it->snapshot->m_nSelectedDamage << XorStr( " | " );
 
-#ifdef DEV 
-
 							if (anim_data && lag_data.IsValid()) {
 								if (!anim_data->m_AnimationRecord.empty()) {
 									auto current = &anim_data->m_AnimationRecord.front();
@@ -305,8 +303,6 @@ namespace Engine
 
 								}
 							}
-
-#endif
 
 							msg << XorStr("hitgroup: ") << TranslateHitbox(it->snapshot->Hitbox).data() << XorStr(" | ");
 							msg << FixedStrLength(info.szName).data();
