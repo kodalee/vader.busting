@@ -217,7 +217,6 @@ void Ragebot()
 
 			std::vector<MultiItem_t> hitboxes = {
 				{ XorStr("Head"), &rbot->hitboxes_head },
-				{ XorStr("Neck"), &rbot->hitboxes_neck },
 				{ XorStr("Chest"), &rbot->hitboxes_chest },
 				{ XorStr("Stomach"), &rbot->hitboxes_stomach },
 				{ XorStr("Pelvis"), &rbot->hitboxes_pelvis },
