@@ -1921,10 +1921,6 @@ namespace Interfaces
 		pPoint->damage = Autowall::FireBullets(&fireData);
 		pPoint->penetrated = fireData.m_iPenetrationCount < 4;
 
-		if (pPoint->hitboxIndex == HITBOX_HEAD && this->m_rage_data->m_bDelayedHeadAim && pPoint->penetrated && pPoint->target->preferBody) {
-			return;
-		}
-
 		int hp = pPoint->target->player->m_iHealth();
 		float mindmg = (m_rage_data->rbot->min_damage > 100 ? hp + (m_rage_data->rbot->min_damage - 100) : m_rage_data->rbot->min_damage);
 		if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled && !g_Vars.globals.OverridingMinDmg) {
@@ -1937,57 +1933,87 @@ namespace Interfaces
 			mindmg = m_rage_data->rbot->min_damage_visible > 100 ? hp + (m_rage_data->rbot->min_damage_visible - 100) : m_rage_data->rbot->min_damage_visible;
 		}
 
-		// we did not hit head
-		if ((pPoint->hitboxIndex) == HITBOX_HEAD && fireData.m_iHitgroup != Hitgroup_Head) {
-			pPoint->hitchance = 0.0f;
-			pPoint->damage = 0.f;
-			return;
-		}
-
-		if (mindmg < 100.f && hp > 40.f)
-			mindmg = std::ceil((mindmg / 100.f) * hp);
-		else if (mindmg == 100) {
-
+		// if lethal, we still want to shoot
+		if (pPoint->damage >= 20 && pPoint->damage >= (hp + 2))
 			mindmg = hp;
 
-			if (fireData.m_Weapon->m_iItemDefinitionIndex() == WEAPON_AWP && hp < 97) {
-
-				mindmg = hp + 3;
-
-				if (pPoint->hitboxIndex == HITBOX_HEAD && !pPoint->record->m_bResolved && pPoint->damage < hp) {
-					pPoint->hitchance = 0.0f;
-					pPoint->damage = 0.f;
-					return;
-				}
-
-
-
-			}
-			else if (hp <= 89)
-				mindmg = hp + 1;
-
-
-		}
-
-
-		// we did not hit head
-		if ((pPoint->hitboxIndex) == HITBOX_HEAD && fireData.m_iHitgroup != Hitgroup_Head) {
-			pPoint->hitchance = 0.0f;
+		if ((convert_hitbox_to_hitgroup(pPoint->hitboxIndex) == Hitgroup_Head) && fireData.m_iHitgroup != Hitgroup_Head) {
 			pPoint->damage = 0.f;
 			return;
 		}
 
-		bool done = pPoint->damage >= mindmg;
-
-		if (done) {
+		if( pPoint->damage >= mindmg ) {
 			pPoint->hitgroup = fireData.m_EnterTrace.hitgroup;
-			pPoint->isHead = pPoint->hitboxIndex <= 2;
-			pPoint->isBody = pPoint->hitboxIndex > 2;
+			pPoint->healthRatio = int( float( pPoint->target->player->m_iHealth( ) ) / pPoint->damage ) + 1;
+
+			auto hitboxSet = ( *( studiohdr_t** )pPoint->target->player->m_pStudioHdr( ) )->pHitboxSet( pPoint->target->player->m_nHitboxSet( ) );
+			auto hitbox = hitboxSet->pHitbox( pPoint->hitboxIndex );
+
+			pPoint->isHead = pPoint->hitboxIndex == HITBOX_HEAD || pPoint->hitboxIndex == HITBOX_NECK;
+			pPoint->isBody = pPoint->hitboxIndex == HITBOX_PELVIS || pPoint->hitboxIndex == HITBOX_STOMACH;
+
+			// nospread enabled
+			if( m_rage_data->m_flSpread != 0.0f && m_rage_data->m_flInaccuracy != 0.0f ) {
+				auto pHitboxSet = ( *( studiohdr_t** )pPoint->target->player->m_pStudioHdr( ) )->pHitboxSet( pPoint->target->player->m_nHitboxSet( ) );
+				auto pHitbox = pHitboxSet->pHitbox( pPoint->hitboxIndex );
+
+				const bool bIsCapsule = pHitbox->m_flRadius != -1.0f;
+				const float flRadius = pHitbox->m_flRadius;
+
+				float flSpread = m_rage_data->m_flSpread + m_rage_data->m_flInaccuracy;
+
+				Vector right, up;
+				dir.GetVectors( right, up );
+
+				int iHits = 0;
+
+				Vector vecMin = pHitbox->bbmin.Transform( pPoint->target->player->m_CachedBoneData( ).Element( pHitbox->bone ) );
+				Vector vecMax = pHitbox->bbmax.Transform( pPoint->target->player->m_CachedBoneData( ).Element( pHitbox->bone ) );
+
+				for( int x = 1; x <= 4; x++ ) {
+					for( int j = 0; j < x * 5; ++j ) {
+						float flCalculatedSpread = flSpread * float( float( x ) / 4.f );
+
+						float flDirCos, flDirSin;
+						DirectX::XMScalarSinCos( &flDirCos, &flDirSin, DirectX::XM_2PI * float( float( j ) / float( x * 5 ) ) );
+
+						// calculate spread vector
+						Vector2D vecSpread;
+						vecSpread.x = flDirCos * flCalculatedSpread;
+						vecSpread.y = flDirSin * flCalculatedSpread;
+
+						// calculate direction
+						Vector vecDir;
+						vecDir.x = dir.x + ( vecSpread.x * right.x ) + ( vecSpread.y * up.x );
+						vecDir.y = dir.y + ( vecSpread.x * right.y ) + ( vecSpread.y * up.y );
+						vecDir.z = dir.z + ( vecSpread.x * right.z ) + ( vecSpread.y * up.z );
+
+						// calculate end point
+						Vector vecEnd = m_rage_data->m_vecEyePos + vecDir * m_rage_data->m_pWeaponInfo->m_flWeaponRange;
+
+						// use intersection for check hit
+						bool bHit = bIsCapsule ?
+							Math::IntersectSegmentToSegment( m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax, flRadius ) :
+							Math::IntersectionBoundingBox( m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax );
+
+						//did we hit
+						if( bHit )
+							iHits++;
+					}
+				}
+
+				pPoint->hitchance = float( iHits ) / 0.5f;
+			}
+			else {
+				pPoint->hitchance = 0.f;
+			}
 		}
 		else {
+			pPoint->healthRatio = 100;
 			pPoint->hitchance = 0.0f;
 			pPoint->damage = 0.f;
 		}
+
 	}
 
 	int C_Ragebot::GeneratePoints(C_CSPlayer* player, std::vector<C_AimTarget>& aim_targets, std::vector<C_AimPoint>& aim_points) {
