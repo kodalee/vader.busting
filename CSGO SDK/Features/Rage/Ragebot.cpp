@@ -895,7 +895,7 @@ namespace Interfaces
 		if (!pMatrix)
 			return false;
 
-		const auto maxTraces = 128;
+		const auto maxTraces = 256;
 		auto hits = 0;
 		CGameTrace tr;
 		for (int i = 0; i < maxTraces; ++i) {
@@ -954,13 +954,7 @@ namespace Interfaces
 			}
 		}
 
-		float hc{ };
-		if (hits) {
-			hc = static_cast<float>(hits) / static_cast<float>(maxTraces);
-		}
-		else {
-			hc = 0.f;
-		}
+		float hc = hits ? static_cast<float>(hits) / static_cast<float>(maxTraces) : 0.f;
 
 		pPoint->hitchance = hc * 100.f;
 
@@ -1239,17 +1233,6 @@ namespace Interfaces
 
 		if (hitbox->m_flRadius <= 0.0f) {
 			if (hitboxIndex == HITBOX_RIGHT_FOOT || hitboxIndex == HITBOX_LEFT_FOOT) {
-				float d1 = (hitbox->bbmin.z - center.z) * 0.425f;
-
-				if (hitboxIndex == HITBOX_LEFT_FOOT)
-					d1 *= -1.f;
-
-				// optimal point for feet
-				/*AddPoint( player, record, side, points,
-					Vector( center.x, center.y, center.z + d1 ).Transform( boneMatrix[ hitbox->bone ] ),
-					hitbox, hitboxSet, true
-				);*/
-
 				if (m_rage_data->rbot->mp_hitboxes_feets) {
 					// toe
 					AddPoint(player, record, side, points,
@@ -1268,28 +1251,27 @@ namespace Interfaces
 		else {
 			float r = hitbox->m_flRadius * pointScale;
 
-			if (hitboxIndex == HITBOX_HEAD && !m_rage_data->m_bDelayedHeadAim) {
-
-				// always adding these (they suck)
-				Vector right{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z + (hitbox->m_flRadius * 0.5f) };
-				AddPoint(player, record, side, points,
-					right.Transform(boneMatrix[hitbox->bone]),
-					hitbox, hitboxSet, true
-				);
-
-				Vector left{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z - (hitbox->m_flRadius * 0.5f) };
-				AddPoint(player, record, side, points,
-					left.Transform(boneMatrix[hitbox->bone]),
-					hitbox, hitboxSet, true
-				);
-
+			if (hitboxIndex == HITBOX_HEAD) {
 				//Interfaces::m_pDebugOverlay->AddTextOverlay( front.Transform( boneMatrix[ hitbox->bone ] ), Interfaces::m_pGlobalVars->interval_per_tick * 2, "front" );
 
 				if (m_rage_data->rbot->mp_hitboxes_head) {
 					constexpr float rotation = 0.70710678f;
 
+					Vector right{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z + r };
+					AddPoint(player, record, side, points,
+						right.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+					Vector left{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z - r };
+					AddPoint(player, record, side, points,
+						left.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+
 					// ok, this looks ghetto as shit but we have to clamp these to not have these be off too much
-					pointScale = std::clamp<float>(pointScale, 0.1f, 0.95f);
+					pointScale = std::clamp<float>(pointScale, 0.1f, 0.91f);
 					r = hitbox->m_flRadius * pointScale;
 
 					// top/back 45 deg.
@@ -1299,10 +1281,8 @@ namespace Interfaces
 						hitbox, hitboxSet, true
 					);
 
-					//Interfaces::m_pDebugOverlay->AddTextOverlay( Vector( hitbox->bbmax.x + ( rotation * r ), hitbox->bbmax.y + ( -rotation * r ), hitbox->bbmax.z ).Transform( boneMatrix[ hitbox->bone ] ), Interfaces::m_pGlobalVars->interval_per_tick * 2, "front" );
-
 					// ok, this looks ghetto as shit but we have to clamp these to not have these be off too much
-					pointScale = std::clamp<float>(pointScale, 0.1f, 0.95f);
+					pointScale = std::clamp<float>(pointScale, 0.1f, 0.91f);
 					r = hitbox->m_flRadius * pointScale;
 
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
@@ -1313,21 +1293,47 @@ namespace Interfaces
 				}
 			}
 
-			else if (hitboxIndex == HITBOX_STOMACH || hitboxIndex == HITBOX_PELVIS) {
+			else if (hitboxIndex == HITBOX_STOMACH) {
+
 				if (m_rage_data->rbot->mp_hitboxes_stomach) {
+
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
+					Vector left{ center.x, center.y, hitbox->bbmax.z - r };
+					Vector right{ center.x, center.y, hitbox->bbmin.z + r };
+
 					AddPoint(player, record, side, points,
 						back.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
 					);
 
-					Vector right{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z + (hitbox->m_flRadius * 0.5f) };
 					AddPoint(player, record, side, points,
 						right.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
 					);
 
-					Vector left{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z - (hitbox->m_flRadius * 0.5f) };
+					AddPoint(player, record, side, points,
+						left.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+				}
+			}
+			else if (hitboxIndex == HITBOX_PELVIS) {
+
+				if (m_rage_data->rbot->mp_hitboxes_stomach) {
+					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
+					Vector left{ center.x, center.y, hitbox->bbmax.z + r };
+					Vector right{ center.x, center.y, hitbox->bbmin.z - r };
+
+					AddPoint(player, record, side, points,
+						back.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+					AddPoint(player, record, side, points,
+						right.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
 					AddPoint(player, record, side, points,
 						left.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
@@ -1345,6 +1351,17 @@ namespace Interfaces
 				}
 			}
 			else if (hitboxIndex == HITBOX_RIGHT_THIGH || hitboxIndex == HITBOX_LEFT_THIGH) {
+				if (m_rage_data->rbot->mp_hitboxes_legs) {
+
+					Vector half_bottom{ hitbox->bbmax.x - (hitbox->m_flRadius * 0.5f), hitbox->bbmax.y, hitbox->bbmax.z };
+					AddPoint(player, record, side, points,
+						half_bottom.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+				}
+			}
+
+			else if (hitboxIndex == HITBOX_RIGHT_CALF || hitboxIndex == HITBOX_LEFT_CALF) {
 				if (m_rage_data->rbot->mp_hitboxes_legs) {
 
 					Vector half_bottom{ hitbox->bbmax.x - (hitbox->m_flRadius * 0.5f), hitbox->bbmax.y, hitbox->bbmax.z };
@@ -1600,31 +1617,24 @@ namespace Interfaces
 
 
 			if (p.isLethal) {
-				// don't shoot at head if we can shoot body and kill enemy
+				// point isnt actually lethal
 				if (p.isHead) {
-					continue; // go to next point
+					continue;
 				}
 
-				// we always want this point, due to it being either choosen by bShouldBaim or p.is_should_baim
-				if (bestPoint->isHead || !bestPoint->isLethal || (int)p.damage >= int(bestPoint->damage) || bestPoint->center) {
+				// better than head
+				if (bestPoint->isHead) {
 					bestPoint = &p;
 					continue;
 				}
 
-				if (bestPoint->damage >= bestPoint->target->player->m_iHealth() + 5) {
+				if (p.center) {
+					bestPoint = &p;
 					break;
 				}
 			}
 
-
-			if (p.isHead && (p.damage >= p.target->player->m_iHealth()) && p.record->m_bResolved) {
-				bestPoint = &p;
-				continue;
-			}
-
 			auto bestTarget = p.target;
-
-
 
 			if (!bestPoint->isLethal) {
 
@@ -1641,7 +1651,7 @@ namespace Interfaces
 					// oneshot!!
 					if (p.isHead && (p.damage >= p.target->player->m_iHealth())) {
 						bestPoint = &p;
-						break;
+						continue;
 					}
 
 				}
@@ -1653,7 +1663,7 @@ namespace Interfaces
 			}
 
 
-			if (bestPoint->damage >= bestPoint->target->player->m_iHealth() && (bestPoint->isBody || bestPoint->record->m_bResolved))
+			if (bestPoint->center && bestPoint->damage >= p.target->player->m_iHealth() && (!bestPoint->isHead || bestTarget->record->m_bResolved))
 				break;
 		}
 
