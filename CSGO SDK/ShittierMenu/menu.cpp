@@ -253,8 +253,8 @@ void Ragebot()
 
 			InsertCheckbox(StaticPointscale, XorStr("Static pointscale") + std::string(XorStr("##") + std::to_string(rageTab)), &rbot->static_point_scale);
 			if (rbot->static_point_scale) {
-				InsertSliderFloat(std::string(XorStr("Point scale##687687675") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
-				InsertSliderFloat(std::string(XorStr("Stomach scale##68776678") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->body_point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
+				InsertSliderFloat(std::string(XorStr("Head scale##687687675") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
+				InsertSliderFloat(std::string(XorStr("Body scale##68776678") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->body_point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
 			}
 			InsertSliderFloat(std::string(XorStr("Minimum hitchance") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->hitchance, 0.f, 100.f, XorStr("%.0f%%"));
 			InsertSliderInt(std::string(XorStr("Minimum dmg") + std::string(XorStr("##") + std::to_string(rageTab))).c_str(), &rbot->min_damage_visible, 1, 130, std::string(rbot->min_damage_visible > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_visible - 100)))) : XorStr("%d hp")).c_str());

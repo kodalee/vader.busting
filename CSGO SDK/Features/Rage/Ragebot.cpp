@@ -292,48 +292,58 @@ namespace Interfaces
 			if (!hitboxSet)
 				return false;
 
+			if (hitboxSet->pHitbox(HITBOX_HEAD) == hitbox) {
+				ps = m_rage_data->rbot->point_scale;
+				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_head : m_rage_data->rbot->hitboxes_head) && !g_Vars.rage.prefer_body.enabled;
+			}
+
+			if (hitboxSet->pHitbox(HITBOX_NECK) == hitbox) {
+				ps = m_rage_data->rbot->point_scale;
+				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_head : m_rage_data->rbot->hitboxes_head) && !g_Vars.rage.prefer_body.enabled;
+			}
+
+			if (hitboxSet->pHitbox(HITBOX_CHEST) == hitbox) {
+				ps = m_rage_data->rbot->point_scale;
+				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_chest : m_rage_data->rbot->hitboxes_chest;
+			}
+
+			if (hitboxSet->pHitbox(HITBOX_LOWER_CHEST) == hitbox) {
+				ps = m_rage_data->rbot->point_scale;
+				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_chest : m_rage_data->rbot->hitboxes_chest;
+
+			}
+
+			if (hitboxSet->pHitbox(HITBOX_UPPER_CHEST) == hitbox) {
+				ps = m_rage_data->rbot->point_scale;
+				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_chest : m_rage_data->rbot->hitboxes_chest;
+
+			}
+
+			if (hitboxSet->pHitbox(HITBOX_STOMACH) == hitbox) {
+				ps = m_rage_data->rbot->body_point_scale;
+				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_stomach : m_rage_data->rbot->hitboxes_stomach;
+			}
+
 			if (hitboxSet->pHitbox(HITBOX_PELVIS) == hitbox) {
 				ps = m_rage_data->rbot->body_point_scale;
 				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_pelvis : m_rage_data->rbot->hitboxes_pelvis;
 			}
 
+			if (hitboxSet->pHitbox(HITBOX_RIGHT_FOREARM) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_FOREARM) == hitbox ||
+				hitboxSet->pHitbox(HITBOX_RIGHT_UPPER_ARM) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_UPPER_ARM) == hitbox) {
+				ps = m_rage_data->rbot->point_scale;
+				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_arms : m_rage_data->rbot->hitboxes_arms;
+			}
+
+			if (hitboxSet->pHitbox(HITBOX_RIGHT_THIGH) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_THIGH) == hitbox ||
+				hitboxSet->pHitbox(HITBOX_RIGHT_CALF) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_CALF) == hitbox) {
+				ps = m_rage_data->rbot->point_scale;
+				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_legs : m_rage_data->rbot->bt_hitboxes_legs;
+			}
+
 			if (hitboxSet->pHitbox(HITBOX_RIGHT_FOOT) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_FOOT) == hitbox) {
 				ps = m_rage_data->rbot->point_scale;
 				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_feets : m_rage_data->rbot->hitboxes_feets;
-			}
-
-			switch (hitbox->group) {
-			case Hitgroup_Head:
-				ps = m_rage_data->rbot->point_scale;
-				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_head : m_rage_data->rbot->hitboxes_head) && !g_Vars.rage.prefer_body.enabled;
-				break;
-			case Hitgroup_Neck: // just neck
-				ps = m_rage_data->rbot->point_scale;
-				return  (override_hitscan ? m_rage_data->rbot->bt_hitboxes_neck : m_rage_data->rbot->hitboxes_neck) && !g_Vars.rage.prefer_body.enabled;
-				break;
-			case Hitgroup_Chest:
-				ps = m_rage_data->rbot->point_scale;
-				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_chest : m_rage_data->rbot->hitboxes_chest;
-				break;
-			case Hitgroup_Stomach:
-				ps = m_rage_data->rbot->body_point_scale;
-				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_stomach : m_rage_data->rbot->hitboxes_stomach;
-				break;
-			case Hitgroup_RightLeg:
-			case Hitgroup_LeftLeg:
-				if (hitboxSet->pHitbox(HITBOX_RIGHT_FOOT) != hitbox && hitboxSet->pHitbox(HITBOX_LEFT_FOOT) != hitbox) {
-					ps = m_rage_data->rbot->point_scale;
-					return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_legs : m_rage_data->rbot->hitboxes_legs;
-				}
-				break;
-			case Hitgroup_RightArm:
-			case Hitgroup_LeftArm:
-				ps = m_rage_data->rbot->point_scale;
-				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_arms : m_rage_data->rbot->hitboxes_arms;
-				break;
-			default:
-				return false;
-				break;
 			}
 		};
 
@@ -718,7 +728,6 @@ namespace Interfaces
 			m_rage_data->m_bPredictedScope = true;
 			m_rage_data->m_bRePredict = true;
 			//m_rage_data->m_bResetCmd = false;
-			return false; // return here so when scoping dont shooting!!!
 		}
 
 		auto correction = m_rage_data->m_pLocal->m_aimPunchAngle() * g_Vars.weapon_recoil_scale->GetFloat();
