@@ -421,7 +421,6 @@ void Ragebot()
 			if (rbot->override_hitscan) {
 				std::vector<MultiItem_t> override_hitboxes = {
 					{ XorStr("Head"), &rbot->bt_hitboxes_head },
-					{ XorStr("Neck"), &rbot->bt_hitboxes_neck },
 					{ XorStr("Chest"), &rbot->bt_hitboxes_chest },
 					{ XorStr("Stomach"), &rbot->bt_hitboxes_stomach },
 					{ XorStr("Pelvis"), &rbot->bt_hitboxes_pelvis },
