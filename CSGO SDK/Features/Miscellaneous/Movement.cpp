@@ -718,7 +718,7 @@ namespace Interfaces
 
 		if (rbot->always_stop) {
 			InstantStop();
-			return false;
+			return true;
 		}
 		else if (speed <= maxSpeed) {
 			SlowWalk(maxSpeed * 0.33000001, true);
