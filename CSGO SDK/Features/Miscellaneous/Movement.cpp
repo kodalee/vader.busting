@@ -641,37 +641,88 @@ namespace Interfaces
 		if( !( g_Vars.misc.instant_stop && g_Vars.misc.instant_stop_key.enabled ) && ( ( m_movement_data->m_pCmd->buttons & IN_JUMP ) || !( m_movement_data->m_pLocal->m_fFlags( ) & FL_ONGROUND ) ) )
 			return false;
 
+		CVariables::RAGE* rbot = nullptr;
+
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local || local->IsDead())
+			return false;
+
+		auto weapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
+		if (!weapon)
+			return false;
+
+		auto weaponInfo = weapon->GetCSWeaponData();
+		if (!weaponInfo.IsValid())
+			return false;
+
+		auto id = weapon->m_iItemDefinitionIndex();
+		if (id == WEAPON_ZEUS)
+			return false;
+
+		switch (weaponInfo->m_iWeaponType) {
+		case WEAPONTYPE_PISTOL:
+			if (id == WEAPON_DEAGLE || id == WEAPON_REVOLVER)
+				rbot = &g_Vars.rage_heavypistols;
+			else
+				rbot = &g_Vars.rage_pistols;
+			break;
+		case WEAPONTYPE_SUBMACHINEGUN:
+			rbot = &g_Vars.rage_smgs;
+			break;
+		case WEAPONTYPE_RIFLE:
+			rbot = &g_Vars.rage_rifles;
+			break;
+		case WEAPONTYPE_SHOTGUN:
+			rbot = &g_Vars.rage_shotguns;
+			break;
+		case WEAPONTYPE_SNIPER_RIFLE:
+			if (id == WEAPON_G3SG1 || id == WEAPON_SCAR20)
+				rbot = &g_Vars.rage_autosnipers;
+			else
+				rbot = (id == WEAPON_AWP) ? &g_Vars.rage_awp : &g_Vars.rage_scout;
+			break;
+		case WEAPONTYPE_MACHINEGUN:
+			rbot = &g_Vars.rage_heavys;
+			break;
+		default:
+			rbot = &g_Vars.rage_default;
+			break;
+		}
+
 		float maxSpeed = m_movement_data->m_pLocal->GetMaxSpeed( );
 		Vector velocity = Engine::Prediction::Instance( )->GetVelocity( );
 		velocity.z = 0.0f;
 
 		float speed = velocity.Length2D( );
 
-		bool fullstop = true;
-		if( m_movement_data->m_bMinimalSpeed && ( m_movement_data->m_pCmd->forwardmove != 0.f || m_movement_data->m_pCmd->sidemove != 0.f ) && speed <= maxSpeed * 0.33000001 ) {
-			fullstop = false;
-		}
+		//bool fullstop = true;
+		//if( m_movement_data->m_bMinimalSpeed && ( m_movement_data->m_pCmd->forwardmove != 0.f || m_movement_data->m_pCmd->sidemove != 0.f ) && speed <= maxSpeed * 0.33000001 ) {
+		//	fullstop = false;
+		//}
 
-		fullstop = speed > ( maxSpeed * 0.33000001 );
+		//fullstop = speed > ( maxSpeed * 0.33000001 );
 
-		if( !( g_Vars.misc.instant_stop && g_Vars.misc.instant_stop_key.enabled ) && fullstop && speed <= 15.0f && ( m_movement_data->m_pCmd->forwardmove != 0.f || m_movement_data->m_pCmd->sidemove != 0.f ) ) {
-			m_movement_data->m_pCmd->forwardmove = 0.f;
-			m_movement_data->m_pCmd->sidemove = 0.f;
-			return true;
-		}
+		//if( !( g_Vars.misc.instant_stop && g_Vars.misc.instant_stop_key.enabled ) && fullstop && speed <= 15.0f && ( m_movement_data->m_pCmd->forwardmove != 0.f || m_movement_data->m_pCmd->sidemove != 0.f ) ) {
+		//	m_movement_data->m_pCmd->forwardmove = 0.f;
+		//	m_movement_data->m_pCmd->sidemove = 0.f;
+		//	return true;
+		//}
 
 		bool pressing_move_keys = ( m_movement_data->m_pCmd->buttons & IN_FORWARD || m_movement_data->m_pCmd->buttons & IN_MOVELEFT || m_movement_data->m_pCmd->buttons & IN_BACK || m_movement_data->m_pCmd->buttons & IN_MOVERIGHT );
 		if( ( m_movement_data->m_pLocal->m_fFlags( ) & FL_ONGROUND ) && g_Vars.misc.slow_walk && g_Vars.misc.slow_walk_bind.enabled && pressing_move_keys ) {
 			return false;
 		}
 
-		if( fullstop ) {
-			InstantStop( );
+		if (!rbot->between_shots && !local->CanShoot(false))
 			return true;
-		}
 
-		if( !fullstop )
-			SlowWalk( maxSpeed * 0.33000001, true );
+		if (rbot->always_stop) {
+			InstantStop();
+			return false;
+		}
+		else if (speed <= maxSpeed) {
+			SlowWalk(maxSpeed * 0.33000001, true);
+		}
 
 		return true;
 	}

@@ -283,10 +283,8 @@ void Ragebot()
 
 			InsertCheckbox(Autostop, XorStr("Automatic stop"), &rbot->autostop_check);
 			std::vector<MultiItem_t> stop_options = {
-				{ XorStr("Always stop"), &rbot->always_stop },
+				{ XorStr("Force Accuracy"), &rbot->always_stop },
 				{ XorStr("Between shots"), &rbot->between_shots },
-				{ XorStr("Early"), &rbot->early_stop },
-
 			};
 
 			if (rbot->autostop_check) {
