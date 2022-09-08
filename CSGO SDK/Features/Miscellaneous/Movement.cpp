@@ -713,8 +713,8 @@ namespace Interfaces
 			return false;
 		}
 
-		if (!rbot->between_shots && !local->CanShoot(false))
-			return true;
+		if (rbot->between_shots && !local->CanShoot(false))
+			return false;
 
 		if (rbot->always_stop) {
 			InstantStop();
