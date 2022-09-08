@@ -484,7 +484,7 @@ namespace Interfaces
 
 	bool C_FakeLag::AlternativeCondition( Encrypted_t<CUserCmd> cmd, bool* bSendPacket ) {
 		C_CSPlayer* local = C_CSPlayer::GetLocalPlayer( );
-		if( !local || local->IsDead( ) || ( int )g_Vars.fakelag.alternative_choke <= 0 ) {
+		if( !local || local->IsDead( ) || ( int )g_Vars.fakelag.alternative_choke <= 0 || (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1) ) {
 			fakelagData->m_bAlternative = false;
 			return false;
 		}
