@@ -345,7 +345,7 @@ namespace Engine {
 
 		const auto simulation_ticks = TIME_TO_TICKS(record->m_flSimulationTime);
 		auto old_simulation_ticks = TIME_TO_TICKS(data->m_flOldSimulationTime());
-		float m_last_nonshot_pitch;
+		static float m_last_nonshot_pitch;
 
 		int m_shot;
 
