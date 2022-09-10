@@ -367,7 +367,7 @@ namespace Engine {
 		}
 
 		if (m_shot == 1) {
-			if (record->m_iChokeTicks > 2) {
+			if (record->m_iChokeTicks >= 2) {
 				record->m_angEyeAngles.x = m_last_nonshot_pitch;
 				//ILoggerEvent::Get()->PushEvent("setting angle", FloatColor(1.f, 1.f, 1.f), true, "");
 			}
