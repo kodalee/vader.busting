@@ -340,29 +340,69 @@ namespace Engine {
 		if (anim_data->m_AnimationRecord.empty())
 			return;
 
-		// this record has a shot on it.
-		if (record->m_bIsShoting) {
-			//if (record->m_iChokeTicks <= 2)
-			//	record->m_shot = true;
+		auto weapon = (C_WeaponCSBaseGun*)(data->m_hActiveWeapon().Get());
 
-			//ILoggerEvent::Get()->PushEvent("shot", FloatColor(1.f, 1.f, 1.f), true, "");
 
-			if (record->m_iChokeTicks <= 2) {
-				return; // shot
-			}
+		const auto simulation_ticks = TIME_TO_TICKS(record->m_flSimulationTime);
+		auto old_simulation_ticks = TIME_TO_TICKS(data->m_flOldSimulationTime());
+		float m_last_nonshot_pitch;
 
-			// more then 1 choke, cant hit pitch, apply prev pitch.
-			else if (anim_data->m_AnimationRecord.size() >= 2) {
-				C_AnimationRecord* previous = &anim_data->m_AnimationRecord.at(1);
+		int m_shot;
 
-				if (previous && !previous->m_bIsInvalid) {
-					//data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
-					record->m_angEyeAngles.x = previous->m_angEyeAngles.x;
-					//ILoggerEvent::Get()->PushEvent(std::to_string(previous->m_angEyeAngles.x), FloatColor(1.f, 1.f, 1.f), true, "");
-					//ILoggerEvent::Get()->PushEvent("applied prev", FloatColor(1.f, 1.f, 1.f), true, "");
+		if (weapon && !weapon->IsKnife()) {
+			if (record->m_iChokeTicks > 0) {
+				const auto& shot_tick = TIME_TO_TICKS(weapon->m_fLastShotTime());
+
+				if (shot_tick > old_simulation_ticks && simulation_ticks >= shot_tick) {
+					m_shot = 1;
+					//ILoggerEvent::Get()->PushEvent("shot = 1", FloatColor(1.f, 1.f, 1.f), true, "");
+				}
+				else {
+					//ILoggerEvent::Get()->PushEvent("setting last shot", FloatColor(1.f, 1.f, 1.f), true, "");
+
+					if (abs(simulation_ticks - shot_tick) > record->m_iChokeTicks + 2)
+						m_last_nonshot_pitch = data->m_angEyeAngles().x;
 				}
 			}
 		}
+
+		if (m_shot == 1) {
+			if (record->m_iChokeTicks > 2) {
+				record->m_angEyeAngles.x = m_last_nonshot_pitch;
+				//ILoggerEvent::Get()->PushEvent("setting angle", FloatColor(1.f, 1.f, 1.f), true, "");
+			}
+		}
+
+		//float shoot_time = -1.f;
+
+		//auto weapon = (C_WeaponCSBaseGun*)(data->m_hActiveWeapon().Get());
+		//if (weapon) {
+		//	// with logging this time was always one tick behind.
+		//	// so add one tick to the last shoot time.
+		//	shoot_time = weapon->m_fLastShotTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+		//}
+
+		//// this record has a shot on it.
+		//if (TIME_TO_TICKS(shoot_time) == TIME_TO_TICKS(record->m_flSimulationTime)) {
+		//	ILoggerEvent::Get()->PushEvent("shot", FloatColor(1.f, 1.f, 1.f), true, "");
+
+		//	if (record->m_iChokeTicks <= 2) {
+		//		ILoggerEvent::Get()->PushEvent("shot return", FloatColor(1.f, 1.f, 1.f), true, "");
+		//		return; // shot
+		//	}
+
+		//	// more then 1 choke, cant hit pitch, apply prev pitch.
+		//	else if (anim_data->m_AnimationRecord.size() >= 2) {
+		//		C_AnimationRecord* previous = &anim_data->m_AnimationRecord.at(1);
+
+		//		if (previous && !previous->m_bIsInvalid) {
+		//			//data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
+		//			record->m_angEyeAngles.x = previous->m_angEyeAngles.x;
+		//			//ILoggerEvent::Get()->PushEvent(std::to_string(previous->m_angEyeAngles.x), FloatColor(1.f, 1.f, 1.f), true, "");
+		//			//ILoggerEvent::Get()->PushEvent("applied prev", FloatColor(1.f, 1.f, 1.f), true, "");
+		//		}
+		//	}
+		//}
 	}
 
 	static float NextLBYUpdate[65];
@@ -384,38 +424,36 @@ namespace Engine {
 		float speed = record->m_vecVelocity.Length2D();
 
 		// predict LBY flicks.
-		if (!player->IsDormant() && !record->dormant()) {
-			// since we null velocity when they fakewalk, no need to check for it.
-			//if (record->m_vecAnimationVelocity.Length() > 0.1f) {
-			//	Add[player->EntIndex()] = 0.22f;
-			//	NextLBYUpdate[player->EntIndex()] = record->m_anim_time + Add[player->EntIndex()];
-			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			//}
+		if (!player->IsDormant() && !record->dormant() && (player->m_fFlags() & FL_ONGROUND)) {
+			auto nextPredictedSimtimeAccurate = player->m_flSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+			auto nextPredictedSimtime = player->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
+
 			// lby wont update on this tick but after.
-			if (player->m_flAnimationTime() >= NextLBYUpdate[player->EntIndex()])
+			if (nextPredictedSimtimeAccurate >= NextLBYUpdate[player->EntIndex()])
 			{
 				is_flicking = true;
 				Add[player->EntIndex()] = 1.1f;
-				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+				NextLBYUpdate[player->EntIndex()] = nextPredictedSimtimeAccurate + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
+				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
 			}
 			else
 				is_flicking = false;
 				
 			// LBY updated via PROXY.
-			//else if (pLagData->m_body != pLagData->m_old_body) {
-			//	is_flicking = true;
-			//	Add[player->EntIndex()] = Interfaces::m_pGlobalVars->interval_per_tick + 1.1f;
-			//	NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
-			//	record->m_body_update = NextLBYUpdate[player->EntIndex()];
-			//}
-
-			if (record->m_vecVelocity.Length() > 0.1f && !record->m_bFakeWalking) {
-				Add[player->EntIndex()] = 0.22f;
-				NextLBYUpdate[player->EntIndex()] = player->m_flAnimationTime() + Add[player->EntIndex()];
+			if (pLagData->m_body != pLagData->m_old_body && fabs(Math::normalize_float(pLagData->m_body - pLagData->m_old_body)) > 5.f) {
+				is_flicking = true;
+				Add[player->EntIndex()] = 1.1f;
+				NextLBYUpdate[player->EntIndex()] = nextPredictedSimtimeAccurate + Add[player->EntIndex()];
 				record->m_body_update = NextLBYUpdate[player->EntIndex()];
-				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = player->m_flAnimationTime() + Add[player->EntIndex()];
+				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
+			}
+
+			if (player->m_vecVelocity().Length2D() > 0.1f && !record->m_bFakeWalking) {
+				Add[player->EntIndex()] = 0.22f;
+				NextLBYUpdate[player->EntIndex()] = nextPredictedSimtimeAccurate + Add[player->EntIndex()];
+				record->m_body_update = NextLBYUpdate[player->EntIndex()];
+				Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = NextLBYUpdate[player->EntIndex()];
 			}
 
 		}
@@ -487,7 +525,7 @@ namespace Engine {
 			}
 		}
 
-		if (g_Vars.rage.override_reoslver.enabled && record->m_fFlags & FL_ONGROUND && (speed <= 25.f || record->m_bFakeWalking))
+		if (g_Vars.rage.override_reoslver.enabled && (speed <= 20.f || record->m_bFakeWalking))
 			record->m_iResolverMode = RESOLVE_OVERRIDE;
 
 		// if on ground, not moving or fakewalking.
@@ -569,7 +607,7 @@ namespace Engine {
 			//printf(std::to_string(m_iFakeFlickCheck).c_str());
 			//printf(" < fake flick check hit\n");
 		}
-		else if (m_flLastResetTime1 <= m_flMaxResetTime1 && m_iFakeFlickCheck > 0) {
+		else if (m_flLastResetTime1 >= m_flMaxResetTime1 && m_iFakeFlickCheck >= 0) {
 			m_iFakeFlickResetCheck++;
 		}
 
@@ -584,8 +622,9 @@ namespace Engine {
 			//printf("fake flick reset due to speed \n");
 			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
 		}
-		else if (m_iFakeFlickResetCheck >= 10) {
+		else if (m_iFakeFlickResetCheck >= 50) {
 			record->m_bIsFakeFlicking = false;
+			m_iFakeFlickResetCheck = 0;
 			m_iFakeFlickCheck = 0;
 			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
 		}
