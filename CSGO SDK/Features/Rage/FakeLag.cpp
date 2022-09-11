@@ -368,7 +368,7 @@ namespace Interfaces
 			second_scan += peek_add;
 		}
 
-		Interfaces::m_pDebugOverlay->AddBoxOverlay(second_scan, Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0.f, 0.f, 0.f), 0, 255, 0, 100, Interfaces::m_pGlobalVars->interval_per_tick * 2);
+		//Interfaces::m_pDebugOverlay->AddBoxOverlay(second_scan, Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0.f, 0.f, 0.f), 0, 255, 0, 100, Interfaces::m_pGlobalVars->interval_per_tick * 2);
 
 		Autowall::C_FireBulletData data;
 
