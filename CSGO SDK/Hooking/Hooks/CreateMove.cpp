@@ -220,7 +220,7 @@ namespace Hooked
 		Interfaces::m_pPrediction->SetLocalViewAngles( g_Vars.globals.RegularAngles );
 
 		// set lby to predicted value.
-		local->m_flLowerBodyYawTarget( ) = g_Vars.globals.m_flBody;
+		//local->m_flLowerBodyYawTarget( ) = g_Vars.globals.m_flBody;
 
 		C_AnimationLayer old_anim_layers[13];
 		std::memcpy(old_anim_layers, local->m_AnimOverlay().m_Memory.m_pMemory, 13 * sizeof(C_AnimationLayer));
