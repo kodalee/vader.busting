@@ -343,33 +343,36 @@ namespace Engine {
 		auto weapon = (C_WeaponCSBaseGun*)(data->m_hActiveWeapon().Get());
 
 
-		const auto simulation_ticks = TIME_TO_TICKS(record->m_flSimulationTime);
+		const auto simulation_ticks = TIME_TO_TICKS(data->m_flSimulationTime());
 		auto old_simulation_ticks = TIME_TO_TICKS(data->m_flOldSimulationTime());
-		static float m_last_nonshot_pitch;
-
 		int m_shot;
+		static float m_last_nonshot_pitch;
 
 		if (weapon && !weapon->IsKnife()) {
 			if (record->m_iChokeTicks > 0) {
 				const auto& shot_tick = TIME_TO_TICKS(weapon->m_fLastShotTime());
 
-				if (shot_tick > old_simulation_ticks && simulation_ticks >= shot_tick) {
+				if (record->m_bIsShoting) {
 					m_shot = 1;
 					//ILoggerEvent::Get()->PushEvent("shot = 1", FloatColor(1.f, 1.f, 1.f), true, "");
 				}
 				else {
-					//ILoggerEvent::Get()->PushEvent("setting last shot", FloatColor(1.f, 1.f, 1.f), true, "");
-
-					if (abs(simulation_ticks - shot_tick) > record->m_iChokeTicks + 2)
-						m_last_nonshot_pitch = data->m_angEyeAngles().x;
+					if (abs(simulation_ticks - shot_tick) > record->m_iChokeTicks + 2) {
+						if (m_shot != 1) { // lets not save angle while hes shooting
+							m_last_nonshot_pitch = data->m_angEyeAngles().x;
+							//ILoggerEvent::Get()->PushEvent("last = x", FloatColor(1.f, 1.f, 1.f), true, "");
+						}
+					}
 				}
 			}
-		}
 
-		if (m_shot == 1) {
-			if (record->m_iChokeTicks > 2) {
-				record->m_angEyeAngles.x = m_last_nonshot_pitch;
-				//ILoggerEvent::Get()->PushEvent("setting angle", FloatColor(1.f, 1.f, 1.f), true, "");
+			if (m_shot == 1) {
+				if (record->m_iChokeTicks > 2) {
+					record->m_angEyeAngles.x = m_last_nonshot_pitch;
+					//ILoggerEvent::Get()->PushEvent("set angle", FloatColor(1.f, 1.f, 1.f), true, "");
+				}
+				//else
+					//ILoggerEvent::Get()->PushEvent("we returned :)", FloatColor(1.f, 1.f, 1.f), true, "");
 			}
 		}
 
