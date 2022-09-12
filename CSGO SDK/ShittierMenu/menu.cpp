@@ -295,11 +295,6 @@ void Ragebot()
 
 			const char* autoscopeoptions[] = { XorStr("Off"), XorStr("Always Scope"), XorStr("Hitchance Fail") };
 
-			if (rbot->delay_shots_triggers_check) {
-				InsertMultiCombo(XorStr("Delay Shot Options"), delay_options);
-			}
-
-
 			if (rageTab == WEAPONGROUP_RIFLE || rageTab == WEAPONGROUP_SNIPER + 1 || rageTab == WEAPONGROUP_AUTOSNIPER + 1 || rageTab == WEAPONGROUP_SNIPER || rageTab == 0) {
 				InsertCombo(XorStr("Automatic Scope Options"), &rbot->autoscope, autoscopeoptions);
 			}
