@@ -1117,9 +1117,9 @@ void CEsp::DrawAntiAimIndicator( ) {
 	Vector2D BPzz = { ( center.x ), ( center.y ) + 73 };
 
 	// Shadows
-	Render::Engine::FilledTriangle( LPxx, LPzz, LPyy, { 0, 0, 0, 125 } );
-	Render::Engine::FilledTriangle( RPyy, RPzz, RPxx, { 0, 0, 0, 125 } );
-	Render::Engine::FilledTriangle( BPyy, BPxx, BPzz, { 0, 0, 0, 125 } );
+	//Render::Engine::FilledTriangle( LPxx, LPzz, LPyy, { 0, 0, 0, 125 } );
+	//Render::Engine::FilledTriangle( RPyy, RPzz, RPxx, { 0, 0, 0, 125 } );
+	//Render::Engine::FilledTriangle( BPyy, BPxx, BPzz, { 0, 0, 0, 125 } );
 
 	if( bLeft )
 		Render::Engine::FilledTriangle( LPx, LPz, LPy, color );
