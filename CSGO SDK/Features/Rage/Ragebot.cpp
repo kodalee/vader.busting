@@ -1106,13 +1106,6 @@ namespace Interfaces
 		float percentage = 0.34;
 		float v4 = percentage * (m_rage_data->m_pLocal->m_bIsScoped() ? weaponInfo->m_flMaxSpeed2 : weaponInfo->m_flMaxSpeed);
 
-
-		if (m_rage_data->rbot->accurate_speed) {
-			if (m_rage_data->m_pLocal->m_vecVelocity().Length() > v4) {
-				return false;
-			}
-		}
-
 		if (m_rage_data->rbot->delay_shot_on_unducking && m_rage_data->m_pLocal->m_flDuckAmount() >= 0.125f) {
 			if (g_Vars.globals.m_flPreviousDuckAmount > m_rage_data->m_pLocal->m_flDuckAmount()) {
 				return false;

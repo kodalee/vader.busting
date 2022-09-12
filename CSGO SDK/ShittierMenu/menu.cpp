@@ -295,13 +295,6 @@ void Ragebot()
 
 			const char* autoscopeoptions[] = { XorStr("Off"), XorStr("Always Scope"), XorStr("Hitchance Fail") };
 
-			InsertCheckbox(DelayShots, XorStr("Delay Shot Triggers"), &rbot->delay_shots_triggers_check);
-			std::vector<MultiItem_t> delay_options = {
-				{ XorStr("Predicted"), &rbot->accurate_speed },
-				{ XorStr("Unsafe Hitbox"), &rbot->occluded_head },
-
-			};
-
 			if (rbot->delay_shots_triggers_check) {
 				InsertMultiCombo(XorStr("Delay Shot Options"), delay_options);
 			}
