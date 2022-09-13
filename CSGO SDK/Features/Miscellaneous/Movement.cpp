@@ -768,7 +768,7 @@ namespace Interfaces
 		if( m_movement_data->m_pLocal->m_MoveType( ) != MOVETYPE_WALK )
 			return;
 
-		if (GetAsyncKeyState(VK_SHIFT)) {
+		if (g_Vars.misc.slow_walk && g_Vars.misc.slow_walk_bind.enabled) {
 			InstantStop();
 			return;
 		}

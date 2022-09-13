@@ -487,7 +487,10 @@ namespace Engine {
 		const int activity = player->GetSequenceActivity(curr->m_nSequence);
 		float delta = record->m_anim_time - move->m_anim_time;
 
-		if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
+		if (g_Vars.rage.override_reoslver.enabled && (speed <= 20.f || record->m_bFakeWalking))
+			record->m_iResolverMode = RESOLVE_OVERRIDE;
+
+		else if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
 
 			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking && pLagData->m_iMissedShotsLBY < 1) {
 				record->m_iResolverMode = FLICK;
@@ -527,9 +530,6 @@ namespace Engine {
 				record->m_iResolverMode = STAND;
 			}
 		}
-
-		if (g_Vars.rage.override_reoslver.enabled && (speed <= 20.f || record->m_bFakeWalking))
-			record->m_iResolverMode = RESOLVE_OVERRIDE;
 
 		// if on ground, not moving or fakewalking.
 		//else if ((record->m_fFlags & FL_ONGROUND) && (speed <= 0.1f || record->m_bFakeWalking))

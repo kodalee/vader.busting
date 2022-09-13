@@ -39,8 +39,8 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		}
 		//Render::DirectX::end( );
 
-		if( g_Vars.misc.instant_stop_key.key != VK_SHIFT ) {
-			g_Vars.misc.instant_stop_key.key = VK_SHIFT;
+		if( g_Vars.misc.instant_stop_key.key != g_Vars.misc.slow_walk_bind.key ) {
+			g_Vars.misc.instant_stop_key.key = g_Vars.misc.slow_walk_bind.key;
 		}
 
 		// chat isn't open && console isn't open
