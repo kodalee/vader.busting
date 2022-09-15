@@ -376,6 +376,11 @@ void Ragebot()
 				InsertCheckbox(exploits_enable, XorStr("DT Exploits"), &g_Vars.rage.dt_exploits);
 				InsertCheckbox(DoubletapBoostTeleport, XorStr("Boost Teleport"), &g_Vars.rage.dt_defensive_teleport);
 
+				InsertCheckbox(DesyncOnDT, XorStr("Desync on DT"), &g_Vars.antiaim.desync_on_dt);
+				ImGui::SameLine();
+				biggestMeme2();
+				ImGui::Hotkey(XorStr("##Desync Inverter key"), &g_Vars.antiaim.desync_on_dt_invert.key, &g_Vars.antiaim.desync_on_dt_invert.cond, ImVec2{ 40,20 });
+
 				if (g_Vars.rage.dt_exploits) {
 					std::vector<MultiItem_t> exploits = {
 						{ XorStr("Lag exploit"), &g_Vars.rage.exploit_lag },
@@ -489,11 +494,6 @@ void HvH()
 				InsertCheckbox(AtTargets, XorStr("At targets"), &g_Vars.antiaim.at_targets);
 
 				InsertCheckbox(AntiLastmove, XorStr("Anti lastmove"), &g_Vars.antiaim.anti_lastmove);
-
-				InsertCheckbox(DesyncOnDT, XorStr("Desync on DT"), &g_Vars.antiaim.desync_on_dt);
-				ImGui::SameLine();
-				biggestMeme2();
-				ImGui::Hotkey(XorStr("##Desync Inverter key"), &g_Vars.antiaim.desync_on_dt_invert.key, &g_Vars.antiaim.desync_on_dt_invert.cond, ImVec2{ 40,20 });
 
 				InsertCheckbox(AntiAimFreestand, XorStr("Freestand yaw"), &g_Vars.antiaim.freestand);
 				if (g_Vars.antiaim.freestand) {
