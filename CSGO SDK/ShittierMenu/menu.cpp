@@ -490,6 +490,11 @@ void HvH()
 
 				InsertCheckbox(AntiLastmove, XorStr("Anti lastmove"), &g_Vars.antiaim.anti_lastmove);
 
+				InsertCheckbox(DesyncOnDT, XorStr("Desync on DT"), &g_Vars.antiaim.desync_on_dt);
+				ImGui::SameLine();
+				biggestMeme2();
+				ImGui::Hotkey(XorStr("##Desync Inverter key"), &g_Vars.antiaim.desync_on_dt_invert.key, &g_Vars.antiaim.desync_on_dt_invert.cond, ImVec2{ 40,20 });
+
 				InsertCheckbox(AntiAimFreestand, XorStr("Freestand yaw"), &g_Vars.antiaim.freestand);
 				if (g_Vars.antiaim.freestand) {
 					InsertCombo(XorStr("Freestand mode"), &g_Vars.antiaim.freestand_mode, freestand_mode);

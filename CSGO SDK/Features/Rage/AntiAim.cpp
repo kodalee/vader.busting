@@ -810,6 +810,8 @@ namespace Interfaces
 		*bSendPacket = Interfaces::m_pClientState->m_nChokedCommands() >= fakelag_limit;
 	}
 
+	bool boxhackbreaker_flip;
+
 	void C_AntiAimbot::Main(bool* bSendPacket, bool* bFinalPacket, Encrypted_t<CUserCmd> cmd, bool ragebot) {
 		C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
 
@@ -987,14 +989,31 @@ namespace Interfaces
 		// https://github.com/VSES/SourceEngine2007/blob/master/se2007/engine/cl_main.cpp#L1877-L1881
 		if (!*bSendPacket || !*bFinalPacket) {
 
-			cmd->viewangles.y = flYaw;
+			if (g_Vars.antiaim.desync_on_dt && g_TickbaseController.s_nExtraProcessingTicks > 0) {
+				cmd->viewangles.y = cmd->viewangles.y + 180;
+				if (cmd->sidemove == 0) {
+					static bool boxhackbreaker_side_flip = false;
+					cmd->sidemove = boxhackbreaker_side_flip ? 3.25 : -3.25;
+					boxhackbreaker_side_flip = !boxhackbreaker_side_flip;
+				}
+				if (cmd->forwardmove == 0) {
+					static bool boxhackbreaker_for_flip = false;
+					cmd->forwardmove = boxhackbreaker_for_flip ? 3.25 : -3.25;
+					boxhackbreaker_for_flip = !boxhackbreaker_for_flip;
+				}
+				boxhackbreaker_flip = !boxhackbreaker_flip;
+				cmd->viewangles.y -= boxhackbreaker_flip ? (120 * (g_Vars.antiaim.desync_on_dt_invert.enabled ? -1 : 1)) : 0;
+				g_Vars.globals.shift_amount = boxhackbreaker_flip ? 16 : 0;
+			}
+			else
+				cmd->viewangles.y = flYaw;
 
 			if (!(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) {
 				Distort(cmd);
 			}
 
 			FakeFlick(cmd, bSendPacket);
-		
+
 			//fake_flick(cmd);
 
 		}

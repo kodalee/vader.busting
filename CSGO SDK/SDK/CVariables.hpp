@@ -941,6 +941,8 @@ public:
 	config_option( bool, flickup, false );
 	config_option( bool, preserve, false );
 	config_option( bool, anti_lastmove, false );
+	config_option( bool, desync_on_dt, false );
+	config_keybind( desync_on_dt_invert );
 	config_option( bool, at_targets, false );
 	config_option( int, rot_speed, 1 );
 	config_option( int, rot_range, 1 );
