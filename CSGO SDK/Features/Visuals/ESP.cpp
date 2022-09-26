@@ -218,7 +218,7 @@ void CEsp::BloomEffect( ) {
 }
 
 void DrawWatermark() {
-	if (!g_Vars.misc.watermark || !g_IMGUIMenu.Loaded) {
+	if (!g_Vars.misc.watermark /*|| !g_IMGUIMenu.Loaded*/) {
 		return;
 	}
 
@@ -491,71 +491,52 @@ void CEsp::Indicators() {
 	struct Indicator_t { Color color; std::string text; };
 	std::vector< Indicator_t > indicators{ };
 
-	//if (g_Vars.esp.indicator_aimbot) {
-	//	if (g_Vars.rage.prefer_body.enabled) {
-	//		Indicator_t ind{ };
-	//		ind.color = g_Vars.esp.indicator_color.ToRegularColor();
-	//		ind.text = XorStr("BAIM");
-
-	//		indicators.push_back(ind);
-	//	}
-
-
-	//	if (g_Vars.misc.extended_backtrack_key.enabled && g_Vars.misc.extended_backtrack) {
-	//		Indicator_t ind{ };
-	//		ind.color = g_Vars.esp.indicator_color.ToRegularColor();
-	//		ind.text = XorStr("PING");
-
-	//		indicators.push_back(ind);
-	//	}
-
-	//	//if (g_Vars.rage.force_safe_point.enabled) {
-	//	//	Indicator_t ind{ };
-	//	//	ind.color = g_Vars.esp.indicator_color.ToRegularColor();
-	//	//	ind.text = XorStr("safety");
-
-	//	//	indicators.push_back(ind);
-	//	//}
-
-	//	if (g_Vars.rage.key_dmg_override.enabled && g_Vars.globals.OverridingMinDmg) {
-	//		Indicator_t ind{ };
-	//		ind.color = g_Vars.esp.indicator_color.ToRegularColor();
-	//		ind.text = XorStr("DMG");
-
-	//		indicators.push_back(ind);
-	//	}
-
-	//	if (g_Vars.globals.OverridingHitscan) {
-	//		Indicator_t ind{ };
-	//		ind.color = g_Vars.esp.indicator_color.ToRegularColor();
-	//		ind.text = XorStr("HITSCAN");
-
-	//		indicators.push_back(ind);
-	//	}
-	//}
-
 	if (auto pLocal = C_CSPlayer::GetLocalPlayer(); pLocal) {
-		if (pLocal->m_vecVelocity().Length2D() > 270.f || g_Vars.globals.bBrokeLC) {
-			Indicator_t ind{ };
-			if (g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit_lagcomp) {
-				ind.color = Color(100, 255, 25);
+		if (g_Vars.esp.indicator_aimbot) {
+			if (g_Vars.misc.extended_backtrack_key.enabled && g_Vars.misc.extended_backtrack) {
+				Indicator_t ind{ };
+				ind.color = Color(123, 194, 21);
+				ind.text = XorStr("PING");
+
+				indicators.push_back(ind);
 			}
-			else
-				ind.color = g_Vars.globals.bBrokeLC ? Color(100, 255, 25) : Color(255, 0, 0);
-
-			ind.text = XorStr("LC ");
-
-			indicators.push_back(ind);
 		}
 
-		if (g_Vars.antiaim.enabled && (pLocal->m_vecVelocity().Length2D() <= 0.1f || g_Vars.globals.Fakewalking)) {
-			Indicator_t ind{ };
-			// get the absolute change between current lby and animated angle.
-			float change = std::abs(Math::NormalizedAngle(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
-			ind.color = change > 35.f ? Color(100, 255, 25) : Color(255, 0, 0);
-			ind.text = XorStr("LBY ");
+		if (g_Vars.esp.indicator_antiaim) {
+			if (g_Vars.antiaim.enabled && (pLocal->m_vecVelocity().Length2D() <= 0.1f || g_Vars.globals.Fakewalking) && !((g_Vars.antiaim.desync_on_dt && g_TickbaseController.s_nExtraProcessingTicks > 0) || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled))) {
+				Indicator_t ind{ };
+				// get the absolute change between current lby and animated angle.
+				float change = std::abs(Math::NormalizedAngle(g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y));
+				ind.color = change > 35.f ? Color(123, 194, 21) : Color(255, 0, 0);
+				ind.text = XorStr("LBY");
 
-			indicators.push_back(ind);
+				indicators.push_back(ind);
+			}
+		}
+
+		if (g_Vars.esp.indicator_lagcomp) {
+			if (pLocal->m_vecVelocity().Length2D() > 270.f || g_Vars.globals.bBrokeLC) {
+				Indicator_t ind{ };
+				if (g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit_lagcomp) {
+					ind.color = Color(100, 255, 25);
+				}
+				else
+					ind.color = g_Vars.globals.bBrokeLC ? Color(123, 194, 21) : Color(255, 0, 0);
+
+				ind.text = XorStr("LC");
+
+				indicators.push_back(ind);
+			}
+		}
+
+		if (g_Vars.esp.indicator_exploits) {
+			if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
+				Indicator_t ind{ };
+				ind.color = g_TickbaseController.s_nExtraProcessingTicks > 0 ? Color(255, 255, 255, 200) : Color(255, 0, 0);
+				ind.text = XorStr("DT");
+
+				indicators.push_back(ind);
+			}
 		}
 	}
 
@@ -567,9 +548,9 @@ void CEsp::Indicators() {
 		auto& indicator = indicators[i];
 		auto TextSize = Render::Engine::indi.size(indicator.text);
 
-
-		Render::Engine::indi.string(20.f, Render::GetScreenSize().y - 80.f - (30 * i), indicator.color, indicator.text);
-
+		Render::Engine::Gradient(19.f, Render::GetScreenSize().y - 358.f - (30 * i), TextSize.m_width + 2, 23, Color(0, 0, 0, 127), Color(0, 0, 0, 20), true);
+		Render::Engine::indi.string(21.f, Render::GetScreenSize().y - 360.f - (30 * i) + 1, Color(0, 0, 0, 150), indicator.text); // text shadow
+		Render::Engine::indi.string(20.f, Render::GetScreenSize().y - 360.f - (30 * i), indicator.color, indicator.text);
 	}
 
 
@@ -616,76 +597,6 @@ void CEsp::Indicators() {
 
 	//Render::Engine::RectFilled(13, Render::GetScreenSize().y - 74 + 26, 48, 4, { 10, 10, 10, 125 });
 	//Render::Engine::RectFilled(13, Render::GetScreenSize().y - 74 + 26, add * 40, 2, color1337);
-
-
-
-
-
-
-
-
-
-//struct adada_t {
-//	std::string str;
-//	float flProgress;
-//	bool bRenderRects = true;
-//	Color clrOverride = Color::Black( );
-//};
-
-//std::vector<adada_t> inds;
-
-//inds.push_back( { "FPS: " + std::to_string( fps( ) ), 0.5f, false, Color( 150, 200, 60 ) } );
-
-//inds.push_back( { "CHOKE ", float( std::clamp<int>( Interfaces::m_pClientState->m_nChokedCommands( ), 0, 14 ) ) / 14.f } );
-
-//if( auto pLocal = C_CSPlayer::GetLocalPlayer( ); pLocal ) {
-//	if( pLocal->m_vecVelocity( ).Length2D( ) > 270.f || g_Vars.globals.bBrokeLC ) {
-//		inds.push_back( { "LC ", g_Vars.globals.delta / 4096.f } );
-//	}
-
-//	if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) ) {
-//		// get the absolute change between current lby and animated angle.
-//		float change = std::abs( Math::AngleNormalize( g_Vars.globals.m_flBody - g_Vars.globals.RegularAngles.y ) );
-
-//		inds.push_back( { "LBY ", 0.5f, false, change > 35.f ? Color( 100, 255, 25 ) : Color( 255, 0, 0 ) } );
-//	}
-
-
-//	const Vector2D pos = { 10, ( Render::GetScreenSize( ) / 2 ).y };
-//	const int nMaxRectsOnOneLineLol = 10;
-//	const int nRectWidth = 10;
-//	const int nRectHeight = 16;
-//	int iAdd = 1;
-
-//	if( inds.size( ) ) {
-//		int nHeigthXDDDDDDDDDDD = ( ( nRectHeight + 12 ) * inds.size( ) ) + 15;
-//		if( g_Vars.antiaim.enabled && ( pLocal->m_vecVelocity( ).Length2D( ) <= 0.1f || g_Vars.globals.Fakewalking ) )
-//			nHeigthXDDDDDDDDDDD -= 15;
-
-//		Render::Engine::RectFilled( pos - Vector2D( 5, 15 ), Vector2D( ( ( nRectWidth + 4 ) * nMaxRectsOnOneLineLol ) + 10, nHeigthXDDDDDDDDDDD ), Color( 0, 0, 0, 200 ) );
-
-//		for( int i = 0; i < inds.size( ); ++i ) {
-//			auto dumbass = inds[ i ];
-
-//			Render::Engine::indi.string( pos.x, pos.y - ( nRectHeight - 3 ) + ( ( nRectHeight * 1.5 ) * i * iAdd ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride, dumbass.str );
-
-//			if( !dumbass.bRenderRects )
-//				continue;
-
-//			++iAdd;
-
-//			// background rects
-//			for( int n = 0; n < nMaxRectsOnOneLineLol; ++n ) {
-//				Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), ( dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride ).OverrideAlpha( 45 ) );
-//			}
-
-//			// actual rects
-//			for( int n = 0; n < int( nMaxRectsOnOneLineLol * dumbass.flProgress ); ++n ) {
-//				Render::Engine::RectFilled( pos + Vector2D( ( nRectWidth + 3 ) * n, ( nRectHeight + 12 ) * i ), Vector2D( nRectWidth, nRectHeight ), dumbass.clrOverride == Color::Black( ) ? Color( 255, 170, 55 ) : dumbass.clrOverride );
-//			}
-//		}
-//	}
-//}
 }
 
 //void CEsp::SpectatorList( bool window ) {
@@ -881,7 +792,7 @@ void CEsp::Keybinds() {
 	float gaySize = this->m_KeyBinds.size.y;
 
 	static float alpha = 0.f;
-	bool condition = ((vecNames.empty() && (g_IMGUIMenu.Opened)) || !vecNames.empty());
+	bool condition = ((vecNames.empty() && (Menu::opened)) || !vecNames.empty());
 	float multiplier = static_cast<float>((1.0f / 0.05f) * Interfaces::m_pGlobalVars->frametime);
 	if (condition) {
 		alpha += multiplier * (1.0f - alpha);
@@ -1333,6 +1244,8 @@ void CEsp::Main( ) {
 	m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
 	if( !g_Vars.globals.HackIsReady || !m_LocalPlayer || !Interfaces::m_pEngine->IsInGame( ) ) {
 		g_Vars.globals.vader_user.clear( );
+		g_Vars.globals.vader_beta.clear( );
+		g_Vars.globals.vader_dev.clear( );
 		g_Vars.globals.vader_crack.clear( );
 		return;
 	}
@@ -1456,66 +1369,27 @@ void CEsp::Main( ) {
 
 	dlight_players();
 
-	walkbot::Instance().update(false);
+	//walkbot::Instance().update(false);
 
-	if( !g_Vars.esp.esp_enable )
-		return;
+	bool condition = g_Vars.misc.autopeek && !AutoPeekPos.IsZero() && g_Vars.misc.autopeek_bind.enabled;
 
-	//Grenade_Tracer();
-
-	//if (g_Vars.esp.NadeTracer) {
-	//	GrenadeClass.draw();
-	//}
-
-	//static float auto_peek_radius = 0.f;
-	bool condition = g_Vars.misc.autopeek && g_Vars.misc.autopeek_visualise && !AutoPeekPos.IsZero( ) && g_Vars.misc.autopeek_bind.enabled;
-	//float multiplier = static_cast< float >( ( 1.0f / 0.05f ) * Interfaces::m_pGlobalVars->frametime );
-	//if( condition ) {
-	//	auto_peek_radius += multiplier * ( 1.0f - auto_peek_radius );
-	//}
-	//else {
-	//	// makes the animation end faster
-	//	// if we dont do dis ther is like a 1.f radius circle for like 1 second
-	//	if( auto_peek_radius > 0.01f )
-	//		auto_peek_radius += multiplier * ( 0.0f - auto_peek_radius );
-	//	else
-	//		auto_peek_radius = 0.0f;
-	//}
-
-	//auto_peek_radius = std::clamp( auto_peek_radius, 0.f, 1.0f );
-
-	// fixes the fadeout disappearing rlly fast
 	static Vector last_autopeek_pos = AutoPeekPos;
-	if( !AutoPeekPos.IsZero( ) ) {
+	if (!AutoPeekPos.IsZero()) {
 		last_autopeek_pos = AutoPeekPos;
 	}
 
-	//if( auto_peek_radius > 0.f ) {
-		//* 0.4f
 	if (condition) {
 		Render::Engine::WorldCircle(AutoPeekPos.IsZero() ? last_autopeek_pos : AutoPeekPos, 15.f * 1.0f,
 			Color(0, 0, 0, 0), g_Vars.misc.autopeek_color.ToRegularColor().OverrideAlpha(g_Vars.misc.autopeek_color.ToRegularColor().a() * 0.5f, true));
 	}
-	//}
 
-	//if( !g_Vars.globals.vecExploitOrigin.IsZero( ) && g_Vars.globals.bMoveExploiting ) {
-	//	g_Vars.globals.vecExploitOrigin.z = m_LocalPlayer->GetAbsOrigin( ).z;
-	//	Render::Engine::WorldCircle( g_Vars.globals.vecExploitOrigin, 5.f, Color( 0, 255, 0, 100 ), Color( 0, 255, 0, 50 ) );
+	if( !g_Vars.esp.esp_enable )
+		return;
 
-	//	Vector2D origin;
-	//	Vector2D origin2;
-	//	if( WorldToScreen( m_LocalPlayer->GetAbsOrigin( ), origin ) ) {
-	//		if( WorldToScreen( g_Vars.globals.vecExploitOrigin, origin2 ) ) {
-	//			Render::Engine::Line( origin, origin2, Color( 255, 255, 255, 255 ) );
-	//		}
-	//	}
-	//}
-
-	DrawZeusDistance( );
+	//DrawZeusDistance( );
 
 	Vector2D points[ 8 ];
 	Vector2D center;
-
 
 	//if( g_Vars.esp.shot_visualization == 3 )
 		//DrawHitSkeleton( );
@@ -1613,7 +1487,9 @@ void CEsp::Main( ) {
 										for (int m = 0; m < valid_molotovs.size(); ++m) {
 											auto ba = valid_molotovs[m];
 											//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
-											Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
+											if (g_Vars.esp.molotov_radius) {
+												Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
+											}
 										}
 								}
 							}
@@ -1622,7 +1498,9 @@ void CEsp::Main( ) {
 									for (int m = 0; m < valid_molotovs.size(); ++m) {
 										auto ba = valid_molotovs[m];
 										//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
-										Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
+										if (g_Vars.esp.molotov_radius) {
+											Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
+										}
 									}
 							}
 
@@ -1631,8 +1509,10 @@ void CEsp::Main( ) {
 							//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
 							//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-							Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "n", Render::Engine::ALIGN_CENTER);
-							Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+							if (g_Vars.esp.molotov_timer) {
+								Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "n", Render::Engine::ALIGN_CENTER);
+								Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+							}
 
 						}
 						else {
@@ -1703,7 +1583,9 @@ void CEsp::Main( ) {
 									for (int m = 0; m < valid_smokes.size(); ++m) {
 										auto ba = valid_smokes[m];
 										//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
-										Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
+										if (g_Vars.esp.smoke_radius) {
+											Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
+										}
 									}
 							}
 						}
@@ -1712,7 +1594,9 @@ void CEsp::Main( ) {
 								for (int m = 0; m < valid_smokes.size(); ++m) {
 									auto ba = valid_smokes[m];
 									//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
-									Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
+									if (g_Vars.esp.smoke_radius) {
+										Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
+									}
 								}
 						}
 
@@ -1721,8 +1605,10 @@ void CEsp::Main( ) {
 						//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
 						//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-						Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "m", Render::Engine::ALIGN_CENTER);
-						Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+						if (g_Vars.esp.smoke_timer) {
+							Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "m", Render::Engine::ALIGN_CENTER);
+							Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+						}
 
 					}
 					else {
@@ -2572,24 +2458,26 @@ void CEsp::DrawTeamName(C_CSPlayer* player, BBox_t bbox, player_info_t player_in
 	if (!g_Vars.globals.vader_user.empty()) {
 		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player_info.userId) != g_Vars.globals.vader_user.end()) {
 
-			//printf(player_info.szName);
-			//printf("\n");
+			name += XorStr("[vader] ");
+		}
+	}
 
-			//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
-			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
+	if (!g_Vars.globals.vader_beta.empty()) {
+		if (std::find(g_Vars.globals.vader_beta.begin(), g_Vars.globals.vader_beta.end(), player_info.userId) != g_Vars.globals.vader_beta.end()) {
 
-			name += player_info.steamID64 == 76561198041707533 ? XorStr("[boss] ") : XorStr("[vader] ");
+			name += XorStr("[vader beta] ");
+		}
+	}
+
+	if (!g_Vars.globals.vader_dev.empty()) {
+		if (std::find(g_Vars.globals.vader_dev.begin(), g_Vars.globals.vader_dev.end(), player_info.userId) != g_Vars.globals.vader_dev.end()) {
+
+			name += XorStr("[vader dev] ");
 		}
 	}
 
 	if (!g_Vars.globals.vader_crack.empty()) {
 		if (std::find(g_Vars.globals.vader_crack.begin(), g_Vars.globals.vader_crack.end(), player_info.userId) != g_Vars.globals.vader_crack.end()) {
-
-			//printf(player_info.szName);
-			//printf("\n");
-
-			//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
-			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
 
 			name += XorStr("[crack] ");
 		}
@@ -2645,34 +2533,32 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	if (!g_Vars.globals.vader_user.empty()) {
 		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player_info.userId) != g_Vars.globals.vader_user.end()) {
 
-			//printf(player_info.szName);
-			//printf("\n");
+			name += XorStr("[vader] ");
+		}
+	}
 
-			//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
-			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
+	if (!g_Vars.globals.vader_beta.empty()) {
+		if (std::find(g_Vars.globals.vader_beta.begin(), g_Vars.globals.vader_beta.end(), player_info.userId) != g_Vars.globals.vader_beta.end()) {
 
-			name += player_info.steamID64 == 76561198041707533 ? XorStr("[boss] ") : XorStr("[vader] ");
+			name += XorStr("[vader beta] ");
+		}
+	}
+
+	if (!g_Vars.globals.vader_dev.empty()) {
+		if (std::find(g_Vars.globals.vader_dev.begin(), g_Vars.globals.vader_dev.end(), player_info.userId) != g_Vars.globals.vader_dev.end()) {
+
+			name += XorStr("[vader dev] ");
 		}
 	}
 
 	if (!g_Vars.globals.vader_crack.empty()) {
 		if (std::find(g_Vars.globals.vader_crack.begin(), g_Vars.globals.vader_crack.end(), player_info.userId) != g_Vars.globals.vader_crack.end()) {
 
-			//printf(player_info.szName);
-			//printf("\n");
-
-			//const std::string new_name = XorStr("[vader] ") + std::string(player_info.szName);
-			//strncpy_s(player_info.szName, new_name.c_str(), new_name.size());
-
 			name += XorStr("[crack] ");
 		}
 	}
 
 	name += std::string( player_info.szName ).substr( 0, 24 );
-
-	//#if defined (DEV)
-	//	name.append( XorStr( " (" ) ).append( std::to_string( player->m_entIndex ) ).append( XorStr( ")" ) );
-	//#endif
 
 	Color clr;
 

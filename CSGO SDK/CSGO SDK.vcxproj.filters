@@ -367,6 +367,10 @@
     <ClCompile Include="PH\cJSON\cJSON.c" />
     <ClCompile Include="PH\socket\socket.cpp" />
     <ClCompile Include="PH\AES\AES.cpp" />
+    <ClCompile Include="ShittierMenu\MenuNEW.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\PostProcessing.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui_tables.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui_shadow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -921,6 +925,17 @@
     <ClInclude Include="Utils\curl-7.75.0\x86 Release\include\curl\typecheck-gcc.h" />
     <ClInclude Include="Utils\curl-7.75.0\x86 Release\include\curl\urlapi.h" />
     <ClInclude Include="Utils\VMProtect\VMProtectSDK.h" />
+    <ClInclude Include="ShittierMenu\MenuNEW.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\PostProcessing.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imgui_textures.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imgui_shadow.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\misc\ft2build.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\chromatic_aberration.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\blur_x.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\blur_y.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\default_vs.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imfont.h" />
+    <ClInclude Include="Utils\logo_high.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">

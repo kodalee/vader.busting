@@ -900,23 +900,21 @@ namespace Interfaces
 			)#";
 
 			std::ofstream("csgo/materials/animated_wireframe_vader.vmt") << R"#("VertexLitGeneric" {
-
-				"$basetexture" "nature/urban_puddle01a_ssbump"
-				"$additive" "1"
-				"$selfillum" "1"
-				"$nocull" "1"
-				"$wireframe" "1"
-                "Proxies"
-                {
-                     "TextureScroll"
-                     {
-                    "texturescrollvar" "$BasetextureTransform"
-                    "texturescrollrate" "0.5"
-                    "texturescrollangle" "90"
-                     }
-                }
-
-			}
+				"$basetexture"	"models/inventory_items/dogtags/dogtags_lightray"
+				"$additive"		"1"
+				"$vertexcolor"	"1"
+				"$vertexalpha"	"1"
+				"$translucent"	"1"
+				proxies 
+				{ 
+					texturescroll 
+					{ 
+						"texturescrollvar"		"$basetexturetransform" 
+						"texturescrollrate"		"0.8" 
+						"texturescrollangle"	"130"
+					}
+				}
+            }
 			)#";
 
 			std::ofstream("csgo/materials/glowOverlay.vmt") << R"#("VertexLitGeneric" {

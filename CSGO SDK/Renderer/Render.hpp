@@ -130,6 +130,7 @@ namespace Render {
 			Font( HFont font );
 
 			void string( int x, int y, Color color, const std::string& text, StringFlags_t flags = ALIGN_LEFT );
+			void semi_filled_text(int x, int y, Color color, const std::string& text, StringFlags_t flags, float factor, bool vertical);
 			//void string( int x, int y, Color color, const std::stringstream& text, StringFlags_t flags = ALIGN_LEFT );
 			void wstring( int x, int y, Color color, const std::wstring& text, StringFlags_t flags = ALIGN_LEFT );
 			FontSize_t size( const std::string& text );

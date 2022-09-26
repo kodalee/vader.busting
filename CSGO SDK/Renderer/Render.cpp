@@ -450,6 +450,23 @@ void Render::Engine::Font::string( int x, int y, Color color, const std::string&
 	wstring( x, y, color, Math::MultiByteToWide( text ), flags );
 }
 
+void Render::Engine::Font::semi_filled_text(int x, int y, Color color, const std::string& text, StringFlags_t flags, float factor, bool vertical)
+{
+	auto indicator_size = wsize(Math::MultiByteToWide(text));
+	auto position = Vector2D(x, y);
+
+	wstring(x, y, Color(30, 30, 30, 200), Math::MultiByteToWide(text), flags);
+	*(bool*)((DWORD)Interfaces::m_pSurface.Xor() + 0x280) = true;
+	int x1, y1, x2, y2;
+	Interfaces::m_pSurface->GetDrawingArea(x1, y1, x2, y2);
+	Interfaces::m_pSurface->LimitDrawingArea(position.x, position.y, vertical ? int(indicator_size.m_width * factor), int(indicator_size.m_height) : int(indicator_size.m_width), int(indicator_size.m_height * factor));
+
+	wstring(x, y, color, Math::MultiByteToWide(text), flags);
+
+	Interfaces::m_pSurface->LimitDrawingArea(x1, y1, x2, y2);
+	*(bool*)((DWORD)Interfaces::m_pSurface.Xor() - +0x280) = false;
+}
+
 //void Render::Engine::Font::string( int x, int y, Color color, const std::stringstream& text, StringFlags_t flags /*= Render::DirectX::ALIGN_LEFT */ ) {
 //	wstring( x, y, color, Math::MultiByteToWide( text.str( ) ), flags );
 //}
@@ -514,7 +531,7 @@ void Render::Engine::Initialise( ) {
 	cs = Font( XorStr( "WeaponIcons" ), 14, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
 	cs_large = Font( XorStr( "WeaponIcons" ), 22, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
 	damage = Font( XorStr( "Segoe UI" ), 26, FW_THIN, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
-	indi = Font( XorStr( "Verdana" ), 26, FW_BOLD, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
+	indi = Font( XorStr( "Verdana" ), 25, FW_SEMIBOLD, FONTFLAG_ANTIALIAS );
 	grenades = Font(XorStr("Verdana"), 12, FW_NORMAL, FONTFLAG_DROPSHADOW);
 	cs_huge = Font(XorStr("WeaponIcons"), 25, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
 

@@ -485,7 +485,7 @@ public:
 			bool high_priority[65];
 			bool force_body_aim[65];
 			bool override_pitch[65];
-			int  override_pitch_slider[65];
+			float  override_pitch_slider[65];
 		} player_list;
 
 		Vector m_vecVelocity;
@@ -564,8 +564,11 @@ public:
 
 		bool m_rce_forceup;
 		bool need_break_lastmove;
+		bool breaking_lastmove;
 
 		std::vector<int> vader_user;
+		std::vector<int> vader_beta;
+		std::vector<int> vader_dev;
 		std::vector<int> vader_crack;
 
 		std::vector<std::pair<FloatColor, std::string>> m_vecTextInfo[65];
@@ -748,13 +751,14 @@ public:
 	group_begin( RAGE );
 	config_option( bool, active, false );
 
-	config_option( int, min_damage, 0 );
-	config_option( int, min_damage_visible, 0 );
+	config_option( int, min_damage, 1 );
+	config_option( int, min_damage_visible, 1 );
 	config_option( float, hitchance, 0.0f );
+	config_option( float, hitchance_seeds, 128.0f );
 	config_option( float, doubletap_hitchance, 0.0f );
-	config_option( int, doubletap_speed, 14);
-	config_option( int, doubletap_dmg, 50 );
-	config_option( int, max_misses, 5  );
+	config_option( float, doubletap_speed, 14.f );
+	config_option( float, doubletap_dmg, 50.f );
+	config_option( int, max_misses, 5 );
 	config_option( float, hitchance_accuracy, 0.0f );
 
 	config_option( bool, health_override, false );
@@ -774,6 +778,7 @@ public:
 	config_option( bool, autostop_check, false ); 
 	config_option( bool, delay_shots_triggers_check, false ); 
 
+	config_option( bool, always_stop_nigga, false );
 	config_option( bool, always_stop, false );
 	config_option( bool, accurate_speed, false );
 	config_option( bool, occluded_head, false );
@@ -788,7 +793,7 @@ public:
 	config_option( bool, between_shots, false );
 
 	config_option( bool, min_damage_override, false );
-	config_option( int, min_damage_override_amount, 0 );
+	config_option( float, min_damage_override_amount, 0.f );
 
 	config_option( int, hitbox_selection, 0 ); // Damage, Accuracy
 
@@ -828,10 +833,19 @@ public:
 	config_option( bool, prefer_safety_complex, false );
 
 	config_option( bool, prefer_body, false );
-	config_option( bool, prefer_body_disable_shot, false );
-	config_option( bool, prefer_body_disable_resolved, false );
-	config_option( bool, prefer_body_disable_safepoint_head, false );
-	config_option( bool, prefer_body_disable_low_damage, false );
+	config_option(bool, prefer_body_always, false);
+	config_option( bool, prefer_body_not_resolved, false );
+	config_option( bool, prefer_body_in_air, false );
+	config_option( bool, prefer_body_lethal, false );
+	config_option( bool, prefer_body_x2lethal, false );
+
+	config_option(bool, prefer_head, false);
+	config_option(bool, prefer_head_resolved, false);
+
+	config_option(bool, force_body, false);
+	config_option(bool, force_body_miss, false);
+	config_option(bool, force_body_air, false);
+	config_option(int, force_body_miss_amount, 2);
 
 	config_option( bool, mp_hitboxes_head, false );
 	config_option( bool, mp_hitboxes_chest, false );
@@ -933,9 +947,10 @@ public:
 	config_option( bool, distort_disable_run, false );
 	config_option( bool, distort_disable_air, false );
 
-	config_option( int, Jitter_range, 0);
-	config_option( int, break_lby, 90 );
-	config_option( int, break_lby_first, 90 );
+	config_option( float, Jitter_range, 0);
+	config_option( bool, lby_breaker, false );
+	config_option( float, break_lby, 100 );
+	config_option( float, break_lby_first, 105 );
 	config_option( bool, static_angle, false );
 	config_option( bool, imposta, false );
 	config_option( bool, flickup, false );
@@ -944,10 +959,10 @@ public:
 	config_option( bool, desync_on_dt, false );
 	config_keybind( desync_on_dt_invert );
 	config_option( bool, at_targets, false );
-	config_option( int, rot_speed, 1 );
-	config_option( int, rot_range, 1 );
-	config_option( int, timeout_time, 4 );
-	config_option( int, add_yaw, 0 );
+	config_option( float, rot_speed, 1 );
+	config_option( float, rot_range, 1 );
+	config_option( float, timeout_time, 4 );
+	config_option( float, add_yaw, 0 );
 
 	config_option( bool, hide_real_on_shot, false );
 	config_keybind( desync_jitter_key );
@@ -959,8 +974,8 @@ public:
 	group_begin( FAKELAG );
 
 	config_option( bool, enabled, false );
-	config_option( int, choke, 0 );
-	config_option(int, dt_choke, 0);
+	config_option( float, choke, 0 );
+	config_option( int, dt_choke, 0);
 	config_option( int, choke_type, 0 );
 	config_option( float, variance, 0.f );
 	config_option( int, iLagLimit, 14 );
@@ -979,7 +994,7 @@ public:
 	config_option( bool, trigger_shooting, false );
 	config_option( bool, trigger_reloading, false );
 	config_option( bool, trigger_on_peek, false );
-	config_option( int, alternative_choke, 0 );
+	config_option( float, alternative_choke, 0 );
 	group_end( );
 #pragma endregion
 
@@ -1242,9 +1257,15 @@ public:
 	config_option(FloatColor, nade_tracer_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
 
 	config_option(bool, Grenadewarning, false);
-	config_option(bool, Grenadetracer, false);
-	config_option(FloatColor, Grenadetracer_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
-	config_option(FloatColor, Grenadewarning_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(bool, Grenadetracer, true);
+	config_option(bool, Grenadewarning_circle, true);
+	config_option(bool, Grenadewarning_icon, true);
+	config_option(bool, Grenadewarning_timer, true)
+	config_option(FloatColor, Grenadewarning_tracer_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, Grenadewarning_timer_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, Grenadewarning_icon_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
+	config_option(FloatColor, Grenadewarning_circle_color, FloatColor(26 / 255.f, 26 / 255.f, 30 / 255.f, 1.0f));
+	config_option(FloatColor, Grenadewarning_circlewarning_color, FloatColor(232.f / 255.f, 39.f / 255.f, 62.f / 255.f, 1.0f))
 
 	config_option( bool, walls, false );
 	config_option( bool, props, false );
@@ -1283,7 +1304,7 @@ public:
 
 	config_option(bool, draw_antiaim_angles, false);
 	config_option(FloatColor, draw_antiaim_angles_lby, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
-	config_option(FloatColor, draw_antiaim_angles_real, FloatColor(255.f / 255.f, 215.f / 255.f, 0.f));
+	config_option(FloatColor, draw_antiaim_angles_real, FloatColor(1.0f, 0.0f, 0.0f, 1.0f));
 
 	config_option(bool, local_skeleton, false);
 	config_option(FloatColor, local_skeleton_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
@@ -1310,6 +1331,11 @@ public:
 
 	config_option( bool, nades, false );
 	config_option( FloatColor, nades_text_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
+
+	config_option(bool, molotov_radius, true);
+	config_option(bool, molotov_timer, true);
+	config_option(bool, smoke_timer, true);
+	config_option(bool, smoke_radius, true);
 
 	config_option( bool, dropped_weapons, false );
 	config_option( bool, dropped_weapons_ammo, false );
@@ -1423,7 +1449,8 @@ public:
 	config_option(float, sunset_rot_y, 150.f);
 	config_option(float, sunset_rot_x, 150.f);
 
-	config_option( bool, indicator_side, false );
+	config_option( bool, indicator_antiaim, false );
+	config_option( bool, indicator_lagcomp, false );
 	config_option( bool, indicator_exploits, false );
 	config_option( bool, indicator_aimbot, false );
 	config_option( bool, indicator_fake_duck, false );
@@ -1473,7 +1500,7 @@ public:
 	config_option( bool, move_exploit, false );
 	config_option( bool, bypass_mrx, false );
 	config_keybind( move_exploit_key );
-	config_option(int, move_exploit_intensity, 8);
+	config_option(float, move_exploit_intensity, 2);
 
 
 	config_option( bool, instant_stop, false );
@@ -1503,7 +1530,7 @@ public:
 	config_option( bool, slow_walk, false );
 	config_option( bool, mind_trick, false );
 	config_option( int, slow_walk_type, 0 );
-	config_option( int, slow_walk_speed, 16 );
+	config_option( float, slow_walk_speed, 16 );
 	config_option( float, slowwalk_speed, 0.3 );
 	config_keybind( slow_walk_bind );
 	config_keybind( mind_trick_bind );
@@ -1663,9 +1690,9 @@ public:
 
 	config_option(bool, lua_allow_http_requests, false);
 
-	
-	config_option(bool, resolver_flags, false);
 #if defined(BETA_MODE) || defined(DEV)
+	config_option(bool, resolver_flags, false);
+	config_option(bool, expermimental_resolver, false);
 	config_option( bool, undercover_log, false );
 	config_option( bool, undercover_watermark, false );
 	config_option(bool, undercover_flags, false);

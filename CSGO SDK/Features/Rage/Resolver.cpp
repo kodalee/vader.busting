@@ -547,6 +547,72 @@ namespace Engine {
 			record->m_iResolverMode = MOVING;
 	}
 
+	bool HasStaticRealAngle(const std::deque<C_AnimationRecord>& l, float tolerance) {
+		auto minmax = std::minmax_element(std::begin(l), std::end(l), [](const C_AnimationRecord& t1, const C_AnimationRecord& t2) { return t1.m_flLowerBodyYawTarget < t2.m_flLowerBodyYawTarget; });
+		return (fabs(minmax.first->m_flLowerBodyYawTarget - minmax.second->m_flLowerBodyYawTarget) <= tolerance);
+	}
+
+	const inline float GetDelta(float a, float b) {
+		return abs(Math::normalize_float(a - b));
+	}
+
+	const inline bool IsDifferent(float a, float b, float tolerance = 10.f) {
+		return (GetDelta(a, b) > tolerance);
+	}
+
+	const inline float LBYDelta(const C_AnimationRecord& v) {
+		return v.m_angEyeAngles.y - v.m_flLowerBodyYawTarget;
+	}
+
+	int GetDifferentDeltas(const std::deque<C_AnimationRecord>& l, float tolerance) {
+		std::vector<float> vec;
+		for (auto var : l) {
+			float curdelta = LBYDelta(var);
+			bool add = true;
+			for (auto fl : vec) {
+				if (!IsDifferent(curdelta, fl, tolerance))
+					add = false;
+			}
+			if (add)
+				vec.push_back(curdelta);
+		}
+		return vec.size();
+	}
+
+	int GetDifferentLBYs(const std::deque<C_AnimationRecord>& l, float tolerance) {
+		std::vector<float> vec;
+		for (auto var : l)
+		{
+			float curyaw = var.m_flLowerBodyYawTarget;
+			bool add = true;
+			for (auto fl : vec)
+			{
+				if (!IsDifferent(curyaw, fl, tolerance))
+					add = false;
+			}
+			if (add)
+				vec.push_back(curyaw);
+		}
+		return vec.size();
+	}
+
+	bool DeltaKeepsChanging(const std::deque<C_AnimationRecord>& cur, float tolerance) {
+		return (GetDifferentDeltas(cur, tolerance) > (int)cur.size() / 2);
+	}
+
+	bool LBYKeepsChanging(const std::deque<C_AnimationRecord>& cur, float tolerance) {
+		return (GetDifferentLBYs(cur, tolerance) > (int)cur.size() / 2);
+	}
+
+	bool HasStaticYawDifference(const std::deque<C_AnimationRecord>& l, float tolerance) {
+		for (auto i = l.begin(); i < l.end() - 1;)
+		{
+			if (GetDelta(LBYDelta(*i), LBYDelta(*++i)) > tolerance)
+				return false;
+		}
+		return true;
+	}
+
 	void CResolver::ResolveAngles(C_CSPlayer* player, C_AnimationRecord* record) {
 		auto local = C_CSPlayer::GetLocalPlayer();
 		if (!local)
@@ -580,12 +646,31 @@ namespace Engine {
 		//	record->m_angEyeAngles.x = g_Vars.globals.player_list.override_pitch_slider[player->EntIndex()];
 		//}
 
+		C_AnimationRecord* move = &pLagData->m_walk_record;
+
+		//if (HasStaticRealAngle(anim_data->m_AnimationRecord, 10)) {
+		//	printf("I am ~static\n");
+		//}
+		//else {
+		//	printf("Hey! Something changed and i am not static anymore!\n");
+		//}
+
+		//if (DeltaKeepsChanging(anim_data->m_AnimationRecord, 10)) {
+		//	printf("Delta Is goin crazy\n");
+		//}
+
+		//if (LBYKeepsChanging(anim_data->m_AnimationRecord, 10)) {
+		//	printf("LBY Is goin crazy\n");
+		//}
+
+		//if (HasStaticYawDifference(anim_data->m_AnimationRecord, 10)) {
+		//	printf("Static yaw diff\n");
+		//}
+
 		static int m_iFakeFlickCheck = 0;
 		static int m_iFakeFlickResetCheck = 0;
 		static float m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
 		static float m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime;
-
-		C_AnimationRecord* move = &pLagData->m_walk_record;
 
 		Encrypted_t<C_AnimationRecord> previous_record = nullptr;
 
@@ -788,6 +873,12 @@ namespace Engine {
 		if (!pLagData.IsValid())
 			return;
 
+		auto anim_data = AnimationSystem::Get()->GetAnimationData(player->m_entIndex);
+		if (!anim_data) {
+			record->m_moved = false;
+			return;
+		}
+
 		C_AnimationRecord* move = &pLagData->m_walk_record;
 
 		auto at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
@@ -807,8 +898,51 @@ namespace Engine {
 				AntiFreestand(record, player);
 			}
 			else if (record->m_iResolverMode == LASTMOVE) {
-				record->m_angEyeAngles.y = move->m_body;
-				record->m_iResolverText = XorStr("LASTMOVE");
+				auto animstate = player->m_PlayerAnimState();
+				float absrotation_before_flick;
+
+				if (animstate && !is_flicking) {
+					absrotation_before_flick = animstate->m_flAbsRotation;
+				}
+
+				if (g_ResolverData->hitPlayer[player->EntIndex()] && (player->m_vecVelocity().Length2D() < 0.1f || (player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking))) {
+					static bool repeat[64];
+					if (!repeat[player->EntIndex()]) {
+						if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
+							g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y + record->m_body);
+						}
+						else
+							g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
+
+						g_ResolverData->hasStoredLby[player->EntIndex()] = true;
+						repeat[player->EntIndex()] = true;
+					}
+					if (repeat[player->EntIndex()]) {
+						g_ResolverData->hasStoredLby[player->EntIndex()] = true;
+					}
+				}
+				else {
+					g_ResolverData->hasStoredLby[player->EntIndex()] = false;
+				}
+
+				if (g_ResolverData->hasStoredLby[player->EntIndex()] && g_Vars.misc.expermimental_resolver) {
+					if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
+						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget - g_ResolverData->storedLbyDelta[player->EntIndex()]);
+						record->m_iResolverText = XorStr("-LBY LOGGED");
+					}
+					else {
+						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget + g_ResolverData->storedLbyDelta[player->EntIndex()]);
+						record->m_iResolverText = XorStr("+LBY LOGGED");
+					}
+				}
+				else if (!HasStaticRealAngle(anim_data->m_AnimationRecord, 10) && g_Vars.misc.expermimental_resolver) {
+					record->m_angEyeAngles.y = at_target_yaw + 180.f;
+					record->m_iResolverText = XorStr("UNSAFE-LASTMOVE");
+				}
+				else {
+					record->m_angEyeAngles.y = move->m_body;
+					record->m_iResolverText = XorStr("LASTMOVE");
+				}
 			}
 			else if (record->m_iResolverMode == LBYDELTA) {
 				record->m_angEyeAngles.y = Math::normalize_float(pLagData->m_flLowerBodyYawTarget - pLagData->m_flSavedLbyDelta);

@@ -107,9 +107,13 @@ namespace Interfaces
 		ModelChanger( );
 
 		ConVar* m_bNigger = Interfaces::m_pCvar->FindVar(XorStr("cl_mute_all_but_friends_and_party"));
+		ConVar* m_bNigger2 = Interfaces::m_pCvar->FindVar(XorStr("voice_modenable"));
 
 		if (m_bNigger->GetInt() != 0)
 			m_bNigger->SetValueInt(0);
+
+		if (m_bNigger2->GetInt() != 1)
+			m_bNigger2->SetValueInt(1);
 	}
 
 	void C_Miscellaneous::ModulateWorld( ) {

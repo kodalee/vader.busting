@@ -122,4 +122,12 @@ public:
 	__forceinline void DrawFilledRectFade(int x0, int y0, int x1, int y1, uint32_t alpha0, uint32_t alpha1, bool bHorizontal) {
 		return get_method< void(__thiscall*)(decltype(this), int, int, int, int, uint32_t, uint32_t, bool) >(this, 123)(this, x0, y0, x1, y1, alpha0, alpha1, bHorizontal);
 	}
+
+	__forceinline void GetDrawingArea(int& x, int& y, int& w, int& h) {
+		return get_method< void(__thiscall*)(void*, int&, int&, int&, int&) >(this, 146)(this, x, y, w, h);
+	}
+
+	__forceinline void LimitDrawingArea(int x, int y, int w, int h) {
+		return get_method< void(__thiscall*)(void*, int, int, int, int) >(this, 147)(this, x, y, x + w + 1, y + h + 1);
+	}
 };

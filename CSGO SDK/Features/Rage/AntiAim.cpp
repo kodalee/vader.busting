@@ -416,24 +416,22 @@ namespace Interfaces
 		if (!localPlayer)
 			return;
 
-
 		const auto animstate = localPlayer->m_PlayerAnimState();
 		if (!animstate)
 			return;
 
-		static int negative = false;
-
 		if (Interfaces::m_pClientState->m_nChokedCommands() || (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick))
 			return;
 
-		if (animstate->m_velocity > 0.1f)
+		if (animstate->m_velocity > 0.1f || animstate->m_vecVelocity.Length() > 0.1f)
 		{
-			g_Vars.globals.m_flBodyPred =+ 0.22f;
+			g_Vars.globals.m_flBodyPred = Interfaces::m_pGlobalVars->curtime + 0.22f;
 			firstupdate = true;
 		}
 		else if (Interfaces::m_pGlobalVars->curtime > g_Vars.globals.m_flBodyPred)
 		{
 			update_lby = true;
+			g_Vars.globals.m_flBodyPred = Interfaces::m_pGlobalVars->curtime + 1.1f;
 		}
 
 		const auto get_add_by_choke = [&]() -> float
@@ -460,11 +458,11 @@ namespace Interfaces
 		}
 
 		if (!firstupdate && Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(Interfaces::m_pClientState->m_nChokedCommands() + 1) > g_Vars.globals.m_flBodyPred
-			&& fabsf(Math::normalize_float(cmd->viewangles.y - initial_lby)) < get_add_by_choke() && settings->yaw == 1)
+			&& fabsf(Math::normalize_float(cmd->viewangles.y - initial_lby)) < get_add_by_choke() && g_Vars.antiaim.lby_breaker)
 		{
 			//cmd->viewangles.y = initial_lby + get_add_by_choke();
 
-			cmd->viewangles.y = initial_lby + get_add_by_choke();
+			cmd->viewangles.y = initial_lby;
 
 			if (g_Vars.globals.Fakewalking) {
 				*bSendPacket = true;
@@ -489,7 +487,7 @@ namespace Interfaces
 
 		const auto updated = update_lby;
 
-		if (update_lby && settings->yaw == 1)
+		if (update_lby && g_Vars.antiaim.lby_breaker)
 		{
 
 			auto angles = cmd->viewangles.y;
@@ -574,11 +572,11 @@ namespace Interfaces
 				break;
 			}
 			case 1: {
-				if (localPlayer->m_vecVelocity().Length2D() < 16.f) {
+				if (localPlayer->m_vecVelocity().Length2D() < 16.f && g_TickbaseController.s_nExtraProcessingTicks > 0) {
 					static bool FlickCheck = false;
 					static bool MicroMoveSide = false;
 					*bSendPacket = !(cmd->tick_count % 2 == 0);
-					if (cmd->tick_count % 2 == 0 && g_TickbaseController.s_nExtraProcessingTicks > 0) {
+					if (cmd->tick_count % 2 == 0) {
 						if (FlickCheck) {
 							g_Vars.globals.shift_amount = 12;
 							cmd->viewangles.y += 180;
@@ -1034,16 +1032,9 @@ namespace Interfaces
 		//		cmd->viewangles.y -= 90.f;
 		//}
 
-		if ((g_Vars.antiaim.anti_lastmove && !g_Vars.globals.WasShootingInPeek && LocalPlayer->m_fFlags() & FL_ONGROUND && !(cmd->buttons & IN_JUMP) && LocalPlayer->m_vecVelocity().Length() >= 1.2f)) {
-			if ((!(cmd->buttons & IN_JUMP) && cmd->forwardmove == cmd->sidemove && cmd->sidemove == 0.0f)) {
-				g_Vars.globals.need_break_lastmove = true;
-			}
-		}
-
-		if (!Interfaces::m_pClientState->m_nChokedCommands() && g_Vars.antiaim.anti_lastmove && g_Vars.globals.need_break_lastmove && !g_Vars.globals.Fakewalking && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) { // not perfect and does not work alot of times but when it works its good.
-			//printf("fuck you kids\n");
-			cmd->forwardmove = 7.f;
-			*bSendPacket = true;
+		if (!(g_Vars.antiaim.desync_on_dt && g_TickbaseController.s_nExtraProcessingTicks > 0) && !Interfaces::m_pClientState->m_nChokedCommands() && g_Vars.antiaim.anti_lastmove && g_Vars.globals.need_break_lastmove && !g_Vars.globals.Fakewalking && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) {
+			Movement::Get()->StopPlayer();
+			*bSendPacket = !(cmd->tick_count % 2 == 0);
 			cmd->viewangles.y += g_Vars.antiaim.break_lby_first;
 			g_Vars.globals.need_break_lastmove = false;
 		}
@@ -1088,15 +1079,17 @@ namespace Interfaces
 
 		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
 
-		if (settings->base_yaw == 3 && !(!g_Vars.globals.m_bGround && g_Vars.antiaim.backwards_in_air) && !Interfaces::m_pClientState->m_nChokedCommands() && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) { // jitter
-			static auto j = false;
+		if (!(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) {
+			if (settings->base_yaw == 3 && !Interfaces::m_pClientState->m_nChokedCommands() && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) { // jitter
+				static auto j = false;
 
-			cmd->viewangles.y += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
-			j = !j;
+				cmd->viewangles.y += j ? g_Vars.antiaim.Jitter_range : -g_Vars.antiaim.Jitter_range;
+				j = !j;
 
+			}
 		}
 
-		if (settings->base_yaw == 2 && !(!g_Vars.globals.m_bGround && g_Vars.antiaim.backwards_in_air) && !Interfaces::m_pClientState->m_nChokedCommands()) { // rotate
+		if (settings->base_yaw == 2 && !Interfaces::m_pClientState->m_nChokedCommands()) { // rotate
 			cmd->viewangles.y += std::fmod(Interfaces::m_pGlobalVars->curtime * (g_Vars.antiaim.rot_speed * 20.f), g_Vars.antiaim.rot_range);
 		}
 
@@ -1295,10 +1288,6 @@ namespace Interfaces
 		//static int iUpdates;
 		//if (iUpdates > pow(10, 10))
 		//	iUpdates = 1;
-
-		if (!g_Vars.globals.m_bGround && g_Vars.antiaim.backwards_in_air) {
-			flRetValue = flViewAnlge + 180.f;
-		}
 
 		return flRetValue;
 	}

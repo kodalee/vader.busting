@@ -12,8 +12,7 @@ enum menu_item_type
 {
 	NEXT_LINE,
 	CHECK_BOX,
-	SLIDER_INT,
-	SLIDER_FLOAT,
+	SLIDER,
 	COLOR_PICKER,
 	TEXT
 };
@@ -28,15 +27,11 @@ public:
 	std::vector <std::string> combo_box_labels;
 	int combo_box_value = 0;
 
-	int slider_int_min = 0;
-	int slider_int_max = 0;
-	int slider_int_value = 0;
-
 	float slider_float_min = 0.0f;
 	float slider_float_max = 0.0f;
 	float slider_float_value = 0.0f;
 
-	std::string format = XorStr("%d");
+	std::string format = XorStr("%1.f");
 
 	FloatColor color_picker_value = FloatColor(1.0f, 1.0f, 1.0f, 1.0f);
 	menu_item_type type = NEXT_LINE;
@@ -52,10 +47,6 @@ public:
 
 		combo_box_labels = item.combo_box_labels;
 		combo_box_value = item.combo_box_value;
-
-		slider_int_min = item.slider_int_min;
-		slider_int_max = item.slider_int_max;
-		slider_int_value = item.slider_int_value;
 
 		slider_float_min = item.slider_float_min;
 		slider_float_max = item.slider_float_max;
@@ -73,10 +64,6 @@ public:
 
 		combo_box_labels = item.combo_box_labels;
 		combo_box_value = item.combo_box_value;
-
-		slider_int_min = item.slider_int_min;
-		slider_int_max = item.slider_int_max;
-		slider_int_value = item.slider_int_value;
 
 		slider_float_min = item.slider_float_min;
 		slider_float_max = item.slider_float_max;
@@ -97,18 +84,7 @@ public:
 		type = CHECK_BOX;
 	}
 
-	menu_item(std::string key2, int min, int max, int value, std::string format2 = XorStr("%d"))
-	{
-		key = key2;
-		slider_int_min = min;
-		slider_int_max = max;
-		slider_int_value = value;
-		format = format2;
-
-		type = SLIDER_INT;
-	}
-
-	menu_item(std::string key2, float min, float max, float value, std::string format2 = XorStr("%d"))
+	menu_item(std::string key2, float min, float max, float value, std::string format2)
 	{
 		key = key2;
 		slider_float_min = min;
@@ -116,7 +92,7 @@ public:
 		slider_float_value = value;
 		format = format2;
 
-		type = SLIDER_FLOAT;
+		type = SLIDER;
 	}
 
 	menu_item(std::string key2, FloatColor value) //-V818

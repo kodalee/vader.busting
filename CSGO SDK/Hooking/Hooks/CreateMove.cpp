@@ -21,7 +21,7 @@
 #include "../../Features/Visuals/Hitmarker.hpp"
 #include "../../Features/Rage/AntiAim.hpp"
 #include "../../Features/Rage/Resolver.hpp"
-#include "../../ShittierMenu/menu.hpp"
+#include "../../ShittierMenu/MenuNew.h"
 #include "../../Features/Miscellaneous/walkbot.h"
 
 extern float fl_Override;
@@ -409,7 +409,7 @@ namespace Hooked
 
 		auto movement = Interfaces::Movement::Get( );
 
-		if( g_IMGUIMenu.Opened ) {
+		if( Menu::opened ) {
 			// just looks nicer
 			auto RemoveButtons = [ & ] ( int key ) { cmd->buttons &= ~key; };
 			RemoveButtons( IN_ATTACK );
@@ -417,7 +417,7 @@ namespace Hooked
 			RemoveButtons( IN_USE );
 
 			if (ImGui::GetCurrentContext() != NULL) {
-				if (g_IMGUIMenu.Initialized && ImGui::GetIO().WantTextInput) {
+				if (Menu::initialized && ImGui::GetIO().WantTextInput) {
 					RemoveButtons(IN_MOVERIGHT);
 					RemoveButtons(IN_MOVELEFT);
 					RemoveButtons(IN_FORWARD);
@@ -536,7 +536,7 @@ namespace Hooked
 
 			UpdateInformation( cmd.Xor( ), *bSendPacket );
 
-			walkbot::Instance().move( cmd.Xor( ) );
+			//walkbot::Instance().move( cmd.Xor( ) );
 
 			g_Vars.globals.m_bOldShot = g_Vars.globals.m_bAimbotShot;
 			g_Vars.globals.m_bOldPacket = *bSendPacket;

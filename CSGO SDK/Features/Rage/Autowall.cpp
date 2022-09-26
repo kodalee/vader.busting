@@ -24,17 +24,17 @@ bool Autowall::IsBreakable( C_BaseEntity* pEntity ) {
 		const char* name = pClientClass->m_pNetworkName;
 
 		// CBreakableSurface, CBaseDoor, ...
-		if( name[ 1 ] != 'F'
-			|| name[ 4 ] != 'c'
-			|| name[ 5 ] != 'B'
-			|| name[ 9 ] != 'h' ) {
-			*( uint8_t* )( ( uintptr_t )pEntity + uTakeDamage ) = 2; /*DAMAGE_YES*/
-		}
+		//if( name[ 1 ] != 'F'
+		//	|| name[ 4 ] != 'c'
+		//	|| name[ 5 ] != 'B'
+		//	|| name[ 9 ] != 'h' ) {
+		//	*( uint8_t* )( ( uintptr_t )pEntity + uTakeDamage ) = 2; /*DAMAGE_YES*/
+		//}
 
-		//if (!strcmp(name, "CBreakableSurface"))
-		//	*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 2; /*DAMAGE_YES*/
-		//else if (!strcmp(name, "CBaseDoor") || !strcmp(name, "CDynamicProp"))
-		//	*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 0; /*DAMAGE_NO*/
+		if (!strcmp(name, "CBreakableSurface"))
+			*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 2; /*DAMAGE_YES*/
+		else if (!strcmp(name, "CBaseDoor") || !strcmp(name, "CDynamicProp"))
+			*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 0; /*DAMAGE_NO*/
 
 	}
 

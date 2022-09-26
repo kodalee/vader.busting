@@ -1,5 +1,8 @@
 #include "gh.h"
 
+#define ihateniggers(a, b) (((a) < (b)) ? (a) : (b))
+#define ihateniggers2(a, b) (((a) > (b)) ? (a) : (b))
+
 void IEngineTrace::TraceLine(const Vector& src, const Vector& dst, int mask, IHandleEntity* entity, int collision_group, CGameTrace* trace) {
     static auto trace_filter_simple = Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 E4 F0 83 EC 7C 56 52")) + 0x3D;
 
@@ -108,6 +111,23 @@ void DrawBeamPaw(Vector src, Vector end, Color color)
         Interfaces::m_pRenderBeams->DrawBeam(myBeam);
 }
 
+inline float CSGO_Armores(float flDamage, int ArmorValue) {
+    float flArmorRatio = 0.5f;
+    float flArmorBonus = 0.5f;
+    if (ArmorValue > 0) {
+        float flNew = flDamage * flArmorRatio;
+        float flArmor = (flDamage - flNew) * flArmorBonus;
+
+        if (flArmor > static_cast<float>(ArmorValue)) {
+            flArmor = static_cast<float>(ArmorValue) * (1.f / flArmorBonus);
+            flNew = flDamage - flArmor;
+        }
+
+        flDamage = flNew;
+    }
+    return flDamage;
+}
+
 const char* index_to_grenade_name_icon(int index)
 {
     switch (index)
@@ -152,7 +172,7 @@ bool c_grenade_prediction::data_t::draw() const
 
             if (g_Vars.esp.Grenadetracer) {
                 //DrawBeamPaw(std::get< Vector >(m_path.at(i - 1)), std::get< Vector >(m_path.at(i)), Color(255, 255, 255, 255)); // beamcolor
-                Render::Engine::Line(prev_screen.x, prev_screen.y, cur_screen.x, cur_screen.y, g_Vars.esp.Grenadetracer_color.ToRegularColor());
+                Render::Engine::Line(prev_screen.x, prev_screen.y, cur_screen.x, cur_screen.y, g_Vars.esp.Grenadewarning_tracer_color.ToRegularColor());
             }
         }
 
@@ -161,6 +181,84 @@ bool c_grenade_prediction::data_t::draw() const
     }
 
     float percent = ((m_expire_time - Interfaces::m_pGlobalVars->curtime) / TICKS_TO_TIME(m_tick));
+
+    int end_damage = 0;
+    static auto size = Vector2D(35.0f, 5.0f);
+    CTraceFilter filter;
+    std::pair <float, C_CSPlayer*> target{ 0.f, nullptr };
+    for (int i{ 0 }; i < Interfaces::m_pGlobalVars->maxClients; ++i) {
+        C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
+        if (!player) //-V704
+            continue;
+
+        if (!player->IsPlayer())
+            continue;
+
+        if (!player->IsAlive())
+            continue;
+
+        if (player->IsDormant())
+            continue;
+
+        // get center of mass for player.
+        auto origin = player->m_vecOrigin();
+        auto collideable = player->GetCollideable();
+
+        auto min = collideable->OBBMins() + origin;
+        auto max = collideable->OBBMaxs() + origin;
+
+        auto center = min + (max - min) * 0.5f;
+
+        // get delta between center of mass and final nade pos.
+        auto delta = center - m_origin;
+
+        if (m_index == 44) {
+
+            // is within damage radius?
+            if (delta.Length() > 350.f)
+                continue;
+
+            Ray_t ray;
+            Vector2D NadeScreen;
+            Render::Engine::WorldToScreen(m_origin, NadeScreen);
+
+            // main hitbox, that takes damage
+            Vector vPelvis = player->GetHitboxPosition(HITBOX_PELVIS);
+            ray.Init(m_origin, vPelvis);
+            CGameTrace ptr;
+            Interfaces::m_pEngineTrace->TraceRay(ray, MASK_SHOT, &filter, &ptr);
+            //trace to it
+
+            if (ptr.hit_entity == player) {
+                Vector2D PelvisScreen;
+
+                Render::Engine::WorldToScreen(vPelvis, PelvisScreen);
+
+                // some magic values by VaLvO
+                static float a = 105.0f;
+                static float b = 25.0f;
+                static float c = 140.0f;
+
+                float d = ((delta.Length() - b) / c);
+                float flDamage = a * exp(-d * d);
+
+                auto dmg = ihateniggers2(static_cast<int>(ceilf(CSGO_Armores(flDamage, player->m_ArmorValue()))), 0);
+
+                dmg = ihateniggers(dmg, (player->m_ArmorValue() > 0) ? 57 : 100);
+                if (dmg > target.first) {
+                    target.first = dmg;
+                    target.second = player;
+                }
+                end_damage = dmg;
+            }
+        }
+
+    }
+
+    int local_damage = 0;
+    if (target.second == pLocalPlayer)
+        local_damage = end_damage;
+
     int alpha_damage = 0;
 
     if (m_index == WEAPON_HEGRENADE && dist <= 20) {
@@ -171,24 +269,44 @@ bool c_grenade_prediction::data_t::draw() const
         alpha_damage = 255 - 255 * (dist / 15);
     }
 
-    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(26, 26, 30, 199));
-    Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(232, 39, 62, alpha_damage));
-    Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_color.ToRegularColor());
-    Render::Engine::cs_huge.string(prev_screen.x - 8, prev_screen.y - 22, { 255,255,255,255 }, index_to_grenade_name_icon(m_index));
+    if (g_Vars.esp.Grenadewarning_circle && (m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB)) {
+        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().b(), 199));
+        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().b(), alpha_damage));
+    }
+    else if (g_Vars.esp.Grenadewarning_circle && m_index == WEAPON_HEGRENADE) {
+        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 25, 360, Color(g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().b(), 199));
+        if (local_damage > 0) {
+            Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 25, 360, Color(g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().b(), alpha_damage));
+        }
+    }
+    //if (g_Vars.esp.Grenadewarning_timer) {
+    //    Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_timer_color.ToRegularColor());
+    //}
+    if (g_Vars.esp.Grenadewarning_icon && (m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB)) {
+        Render::Engine::cs_huge.semi_filled_text(prev_screen.x - 8, prev_screen.y - 22, Color(g_Vars.esp.Grenadewarning_icon_color.ToRegularColor()), index_to_grenade_name_icon(m_index), Render::Engine::ALIGN_LEFT, percent, true);
+    }
+    else if (g_Vars.esp.Grenadewarning_icon && m_index == WEAPON_HEGRENADE) {
+        Render::Engine::cs_huge.semi_filled_text(prev_screen.x - 8, prev_screen.y - 28, Color(g_Vars.esp.Grenadewarning_icon_color.ToRegularColor()), index_to_grenade_name_icon(m_index), Render::Engine::ALIGN_LEFT, percent, true);
+    }
 
-    auto is_on_screen = [](Vector origin, Vector2D& screen) -> bool
-    {
-        if (!Render::Engine::WorldToScreen(origin, screen))
-            return false;
+    if (m_index == WEAPON_HEGRENADE) {
+        std::string dmg = XorStr("-"); dmg += std::to_string(int(local_damage));
+        Render::Engine::esp.string(prev_screen.x - 8, prev_screen.y - 5, Color(255, 255, 255), dmg.c_str());
+    }
 
-        return (screen.x > 0 && screen.x < m_width) && (m_height > screen.y && screen.y > 0);
-    };
+    //auto is_on_screen = [](Vector origin, Vector2D& screen) -> bool
+    //{
+    //    if (!Render::Engine::WorldToScreen(origin, screen))
+    //        return false;
 
-    Vector2D screenPos;
-    Vector vEnemyOrigin = m_origin;
-    Vector vLocalOrigin = pLocalPlayer->GetAbsOrigin();
-    if (!pLocalPlayer->IsAlive())
-        vLocalOrigin = Interfaces::m_pInput->m_vecCameraOffset;
+    //    return (screen.x > 0 && screen.x < m_width) && (m_height > screen.y && screen.y > 0);
+    //};
+
+    //Vector2D screenPos;
+    //Vector vEnemyOrigin = m_origin;
+    //Vector vLocalOrigin = pLocalPlayer->GetAbsOrigin();
+    //if (!pLocalPlayer->IsAlive())
+    //    vLocalOrigin = Interfaces::m_pInput->m_vecCameraOffset;
 
     //if (!is_on_screen(vEnemyOrigin, screenPos))
     //{

@@ -19,7 +19,7 @@
 #include <iomanip> 
 #include "Utils/syscall.hpp"
 #include "Loader/Security/Security.hpp"
-#include "ShittierMenu/menu.hpp"
+#include "ShittierMenu/MenuNew.h"
 #include <atlstr.h>
 #include <json.h>
 #include "PH/PH_API/PH_API.hpp"
@@ -221,7 +221,7 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 	// b1g alpha.
 	static bool bDownloaded = false;
 	if( !bDownloaded ) {
-		g_IMGUIMenu.Opened = true;
+		Menu::opened = true;
 		bDownloaded = true;
 	}
 

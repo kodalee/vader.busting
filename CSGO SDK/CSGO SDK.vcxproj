@@ -117,7 +117,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PreprocessorDefinitions>USE_XOR;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_XOR;_CRT_SECURE_NO_WARNINGS;LIVE_MODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Custom</Optimization>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -240,11 +240,15 @@
     <ClCompile Include="ShittierMenu\clip_win.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_draw.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui_shadow.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_stdlib.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\imgui_tables.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_widgets.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
+    <ClCompile Include="ShittierMenu\IMGAY\PostProcessing.cpp" />
     <ClCompile Include="ShittierMenu\menu.cpp" />
+    <ClCompile Include="ShittierMenu\MenuNEW.cpp" />
     <ClCompile Include="Utils\CrashHandler.cpp" />
     <ClCompile Include="Hooking\Hooks\DispatchUserMessage.cpp" />
     <ClCompile Include="Hooking\Hooks\IsBoxVisible.cpp" />
@@ -414,16 +418,26 @@
     <ClInclude Include="ShittierMenu\clip.hpp" />
     <ClInclude Include="ShittierMenu\clip_lock_impl.h" />
     <ClInclude Include="ShittierMenu\Fonts.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\blur_x.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\blur_y.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\chromatic_aberration.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\default_vs.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imconfig.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imfont.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui_internal.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imgui_shadow.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imgui_stdlib.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\imgui_textures.h" />
     <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.h" />
     <ClInclude Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_rectpack.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_textedit.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imstb_truetype.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\misc\ft2build.h" />
+    <ClInclude Include="ShittierMenu\IMGAY\PostProcessing.h" />
     <ClInclude Include="ShittierMenu\menu.hpp" />
+    <ClInclude Include="ShittierMenu\MenuNEW.h" />
     <ClInclude Include="Utils\address.h" />
     <ClInclude Include="Utils\Config.hpp" />
     <ClInclude Include="SDK\core.hpp" />
@@ -597,6 +611,7 @@
     <ClInclude Include="Features\Rage\LagCompensation.hpp" />
     <ClInclude Include="Utils\lazy_importer.hpp" />
     <ClInclude Include="Utils\logo.h" />
+    <ClInclude Include="Utils\logo_high.h" />
     <ClInclude Include="Utils\LogSystem.hpp" />
     <ClInclude Include="Utils\Math.h" />
     <ClInclude Include="SDK\Valve\Matrix.hpp" />

@@ -345,17 +345,19 @@ namespace Interfaces
 			AutoStrafe( );
 
 		bool instant_stop = ( g_Vars.misc.instant_stop && g_Vars.misc.instant_stop_key.enabled );
-		if( instant_stop || ( g_Vars.misc.quickstop && !g_Vars.globals.WasShootingInPeek && m_movement_data->m_pLocal->m_fFlags( ) & FL_ONGROUND && !( m_movement_data->m_pCmd->buttons & IN_JUMP ) && m_movement_data->m_pLocal->m_vecVelocity( ).Length( ) >= 1.2f ) ) {
+		if( instant_stop || ( (g_Vars.misc.quickstop || g_Vars.antiaim.anti_lastmove) && !g_Vars.globals.WasShootingInPeek && m_movement_data->m_pLocal->m_fFlags( ) & FL_ONGROUND && !( m_movement_data->m_pCmd->buttons & IN_JUMP ) && m_movement_data->m_pLocal->m_vecVelocity( ).Length( ) >= 1.2f ) ) {
 			if( instant_stop || ( !( m_movement_data->m_pCmd->buttons & IN_JUMP ) && m_movement_data->m_pCmd->forwardmove == m_movement_data->m_pCmd->sidemove && m_movement_data->m_pCmd->sidemove == 0.0f ) ) {
-				if (!g_Vars.globals.need_break_lastmove) {
-					m_movement_data->m_bStopPlayer = 1;
-					m_movement_data->m_bMinimalSpeed = false;
+				if (g_Vars.antiaim.anti_lastmove) {
+					g_Vars.globals.need_break_lastmove = true;
 				}
+
+				m_movement_data->m_bStopPlayer = 1;
+				m_movement_data->m_bMinimalSpeed = false;
 			}
 		}
 
 		if (!g_Vars.antiaim.anti_lastmove)
-			g_Vars.globals.need_break_lastmove = false; // we dont need to break lastmove if the option is not enabled.
+			g_Vars.globals.need_break_lastmove = false;
 
 		if (g_TickbaseController.Using() && g_Vars.rage.double_tap_duck && (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
 			if (!(m_movement_data->m_pCmd->buttons & IN_BULLRUSH))
@@ -716,7 +718,7 @@ namespace Interfaces
 		if (rbot->between_shots && !local->CanShoot(false))
 			return false;
 
-		if (rbot->always_stop) {
+		if (rbot->always_stop || m_movement_data->m_bStopPlayer == 1 || g_Vars.globals.need_break_lastmove) {
 			InstantStop();
 			return true;
 		}

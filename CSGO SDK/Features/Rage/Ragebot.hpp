@@ -26,9 +26,11 @@ namespace Interfaces
 
 		static Encrypted_t<Ragebot> Get();
 		virtual bool Run(Encrypted_t<CUserCmd> cmd, C_CSPlayer* local, bool* sendPacket) = 0;
-		virtual bool GetBoxOption(mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& ps, bool override_hitscan) = 0;
+		virtual bool GetBoxOption(int hitbox, float& ps, bool override_hitscan) = 0;
 		virtual void Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& ps, int hitboxIndex) = 0;
-		virtual bool OverrideHitscan(C_CSPlayer* player, Engine::C_LagRecord* record) = 0;
+		virtual bool ShouldBodyAim(C_CSPlayer* player, Engine::C_LagRecord* record) = 0;
+		virtual bool ShouldHeadAim(C_CSPlayer* player, Engine::C_LagRecord* record) = 0;
+		virtual bool ShouldForceBodyAim(C_CSPlayer* player, Engine::C_LagRecord* record) = 0;
 		virtual bool SetupRageOptions() = 0;
 	protected:
 		Ragebot() { };

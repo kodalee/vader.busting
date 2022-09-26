@@ -6,7 +6,7 @@
 #include "../../Features/Visuals/ESP.hpp"
 #include "../../SDK/Classes/entity.hpp"
 #include "../../SDK/Classes/player.hpp"
-#include "../../ShittierMenu/Menu.hpp"
+#include "../../ShittierMenu/MenuNew.h"
 #include "../../ShittierMenu/IMGAY/imgui.h"
 #include "../../ShittierMenu/IMGAY/imgui_internal.h"
 #include "../../ShittierMenu/IMGAY/impl/imgui_impl_dx9.h"
@@ -19,7 +19,7 @@ IDirect3DVertexShader9* vertShader;
 HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourceRect, const RECT* pDestRect, HWND hDestWindowOverride, const RGNDATA* pDirtyRegion ) {
 	g_Vars.globals.szLastHookCalled = XorStr( "27" );
 	g_Vars.globals.m_pD3D9Device = pDevice;
-	if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_INSERT, true)) g_IMGUIMenu.Opened = !g_IMGUIMenu.Opened;
+	if (GetForegroundWindow() == FindWindowA("Valve001", NULL) && InputSys::Get()->WasKeyPressed(VK_INSERT, true)) Menu::opened = !Menu::opened;
 
 	if( Render::DirectX::initialized ) {
 		InputHelper::Update( );
@@ -44,7 +44,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		}
 
 		// chat isn't open && console isn't open
-		if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) && !g_IMGUIMenu.Opened ) {
+		if( !Interfaces::m_pClient->IsChatRaised( ) && !Interfaces::m_pEngine->Con_IsVisible( ) && !Menu::opened ) {
 			// we aren't tabbed out
 				// shit compiler, that's why no ternary operators
 			if( InputHelper::Pressed( g_Vars.antiaim.manual_left_bind.key ) ) {
@@ -122,7 +122,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		InputSys::Get( )->SetScrollMouse( 0.f );
 	}
 
-	if (!g_IMGUIMenu.Loaded && g_IMGUIMenu.Initialize(pDevice)) {
+	if (!Menu::Loaded && Menu::Initialize(pDevice)) {
 		pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
 		pDevice->GetVertexDeclaration(&vertDec);
 		pDevice->GetVertexShader(&vertShader);
@@ -138,7 +138,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		ImGui::NewFrame();
 
 		{
-			g_IMGUIMenu.Loading();
+			Menu::Loading();
 		}
 
 		ImGui::EndFrame();
@@ -150,7 +150,7 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		pDevice->SetVertexDeclaration(vertDec);
 		pDevice->SetVertexShader(vertShader);
 	}
-	else if (g_IMGUIMenu.Loaded /*&& g_IMGUIMenu.Opened*/ && g_IMGUIMenu.Initialize(pDevice))
+	else if (Menu::Loaded && Menu::Initialize(pDevice))
 	{
 		pDevice->GetRenderState(D3DRS_COLORWRITEENABLE, &dwOld_D3DRS_COLORWRITEENABLE);
 		pDevice->GetVertexDeclaration(&vertDec);
@@ -162,14 +162,15 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 		pDevice->SetSamplerState(NULL, D3DSAMP_ADDRESSW, D3DTADDRESS_WRAP);
 		pDevice->SetSamplerState(NULL, D3DSAMP_SRGBTEXTURE, NULL);
 
+		//PostProcessing::setDevice(pDevice);
+
 		ImGui_ImplDX9_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
 		/*render stuff*/
 		{
-			g_IMGUIMenu.Render();
-			g_IMGUIMenu.Keybinds_Spectators();
+			Menu::Render();
 		}
 
 		ImGui::EndFrame();

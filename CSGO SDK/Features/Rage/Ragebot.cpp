@@ -192,6 +192,7 @@ namespace Interfaces
 		bool overrideHitscan = false;
 		bool preferHead = false;
 		bool preferBody = false;
+		bool forceBody = false;
 		bool hasLethal = false;
 		bool onlyHead = true;
 		bool hasCenter = false;
@@ -285,70 +286,59 @@ namespace Interfaces
 		// only sanity checks, etc.
 		virtual bool Run(Encrypted_t<CUserCmd> cmd, C_CSPlayer* local, bool* sendPacket);
 
-		virtual bool GetBoxOption(mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& ps, bool override_hitscan) {
-			if (!hitbox)
-				return false;
+		virtual bool GetBoxOption(int hitbox, float& ps, bool override_hitscan) {
 
-			if (!hitboxSet)
-				return false;
+			ps = m_rage_data->rbot->body_point_scale;
 
-			if (hitboxSet->pHitbox(HITBOX_HEAD) == hitbox) {
+			switch (hitbox) {
+			case HITBOX_HEAD:
 				ps = m_rage_data->rbot->point_scale;
 				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_head : m_rage_data->rbot->hitboxes_head) && !g_Vars.rage.prefer_body.enabled;
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_NECK) == hitbox) {
+				break;
+			case HITBOX_NECK:
+			case HITBOX_LOWER_NECK:
 				ps = m_rage_data->rbot->point_scale;
-				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_head : m_rage_data->rbot->hitboxes_head) && !g_Vars.rage.prefer_body.enabled;
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_CHEST) == hitbox) {
-				ps = m_rage_data->rbot->point_scale;
+				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_neck : m_rage_data->rbot->hitboxes_neck) && !g_Vars.rage.prefer_body.enabled;
+				break;
+			case HITBOX_UPPER_CHEST:
+			case HITBOX_CHEST:
+			case HITBOX_LOWER_CHEST:
 				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_chest : m_rage_data->rbot->hitboxes_chest;
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_LOWER_CHEST) == hitbox) {
-				ps = m_rage_data->rbot->point_scale;
-				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_chest : m_rage_data->rbot->hitboxes_chest;
-
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_UPPER_CHEST) == hitbox) {
-				ps = m_rage_data->rbot->point_scale;
-				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_chest : m_rage_data->rbot->hitboxes_chest;
-
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_STOMACH) == hitbox) {
-				ps = m_rage_data->rbot->body_point_scale;
+				break;
+			case HITBOX_STOMACH:
 				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_stomach : m_rage_data->rbot->hitboxes_stomach;
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_PELVIS) == hitbox) {
-				ps = m_rage_data->rbot->body_point_scale;
-				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_pelvis : m_rage_data->rbot->hitboxes_pelvis;
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_RIGHT_FOREARM) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_FOREARM) == hitbox ||
-				hitboxSet->pHitbox(HITBOX_RIGHT_UPPER_ARM) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_UPPER_ARM) == hitbox) {
-				ps = m_rage_data->rbot->point_scale;
+				break;
+			case HITBOX_PELVIS:
+				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_pelvis : m_rage_data->rbot->hitboxes_pelvis;
+				break;
+			case HITBOX_LEFT_UPPER_ARM:
+			case HITBOX_RIGHT_UPPER_ARM:
+			case HITBOX_LEFT_FOREARM:
+			case HITBOX_RIGHT_FOREARM:
+			case HITBOX_LEFT_HAND:
+			case HITBOX_RIGHT_HAND:
 				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_arms : m_rage_data->rbot->hitboxes_arms;
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_RIGHT_THIGH) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_THIGH) == hitbox ||
-				hitboxSet->pHitbox(HITBOX_RIGHT_CALF) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_CALF) == hitbox) {
-				ps = m_rage_data->rbot->point_scale;
-				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_legs : m_rage_data->rbot->bt_hitboxes_legs;
-			}
-
-			if (hitboxSet->pHitbox(HITBOX_RIGHT_FOOT) == hitbox || hitboxSet->pHitbox(HITBOX_LEFT_FOOT) == hitbox) {
-				ps = m_rage_data->rbot->point_scale;
+				break;
+			case HITBOX_LEFT_CALF:
+			case HITBOX_RIGHT_CALF:
+			case HITBOX_LEFT_THIGH:
+			case HITBOX_RIGHT_THIGH:
+				return  override_hitscan ? m_rage_data->rbot->bt_hitboxes_legs : m_rage_data->rbot->hitboxes_legs;
+				break;
+			case HITBOX_LEFT_FOOT:
+			case HITBOX_RIGHT_FOOT:
 				return override_hitscan ? m_rage_data->rbot->bt_hitboxes_feets : m_rage_data->rbot->hitboxes_feets;
+				break;
+			default:
+				return true;
+				break;
 			}
 		};
 
 		// should override condition
-		virtual bool OverrideHitscan(C_CSPlayer* player, Engine::C_LagRecord* record);
+		virtual bool ShouldBodyAim(C_CSPlayer* player, Engine::C_LagRecord* record);
+		virtual bool ShouldHeadAim(C_CSPlayer* player, Engine::C_LagRecord* record);
+		virtual bool ShouldForceBodyAim(C_CSPlayer* player, Engine::C_LagRecord* record);
 
 		// return true if rage enabled
 		virtual bool SetupRageOptions();
@@ -687,7 +677,12 @@ namespace Interfaces
 			if (m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND && !bOnLand) {
 				if (m_rage_data->rbot->autostop_check && !g_Vars.globals.bMoveExploiting) {
 					if (!g_Vars.globals.Fakewalking) {
-						Interfaces::Movement::Get()->StopPlayer();
+						if (!m_rage_data->rbot->always_stop_nigga) {
+							Interfaces::Movement::Get()->StopPlayer();
+						}
+						else {
+							Interfaces::Movement::Get()->InstantStop(m_rage_data->m_pCmd.Xor());
+						}
 
 						auto RemoveButtons = [&](int key) { m_rage_data->m_pCmd->buttons &= ~key; };
 						RemoveButtons(IN_MOVERIGHT);
@@ -895,7 +890,7 @@ namespace Interfaces
 		if (!pMatrix)
 			return false;
 
-		const auto maxTraces = 256;
+		const auto maxTraces = m_rage_data->rbot->hitchance_seeds;
 		auto hits = 0;
 		CGameTrace tr;
 		for (int i = 0; i < maxTraces; ++i) {
@@ -954,7 +949,13 @@ namespace Interfaces
 			}
 		}
 
-		float hc = hits ? static_cast<float>(hits) / static_cast<float>(maxTraces) : 0.f;
+		float hc{ };
+		if (hits) {
+			hc = static_cast<float>(hits) / static_cast<float>(maxTraces);
+		}
+		else {
+			hc = 0.f;
+		}
 
 		pPoint->hitchance = hc * 100.f;
 
@@ -1226,6 +1227,12 @@ namespace Interfaces
 
 		if (hitbox->m_flRadius <= 0.0f) {
 			if (hitboxIndex == HITBOX_RIGHT_FOOT || hitboxIndex == HITBOX_LEFT_FOOT) {
+
+				pointScale = 0.625f;
+
+				Vector sex{ (hitbox->bbmax.x - center.x) * pointScale + center.x, center.y, center.z };
+				Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+
 				if (m_rage_data->rbot->mp_hitboxes_feets) {
 					// toe
 					AddPoint(player, record, side, points,
@@ -1245,7 +1252,9 @@ namespace Interfaces
 			float r = hitbox->m_flRadius * pointScale;
 
 			if (hitboxIndex == HITBOX_HEAD) {
-				//Interfaces::m_pDebugOverlay->AddTextOverlay( front.Transform( boneMatrix[ hitbox->bone ] ), Interfaces::m_pGlobalVars->interval_per_tick * 2, "front" );
+
+				Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+				Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
 
 				if (m_rage_data->rbot->mp_hitboxes_head) {
 					constexpr float rotation = 0.70710678f;
@@ -1288,6 +1297,9 @@ namespace Interfaces
 
 			else if (hitboxIndex == HITBOX_STOMACH) {
 
+				Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+				Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+
 				if (m_rage_data->rbot->mp_hitboxes_stomach) {
 
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
@@ -1312,6 +1324,9 @@ namespace Interfaces
 			}
 			else if (hitboxIndex == HITBOX_PELVIS) {
 
+				Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+				Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+
 				if (m_rage_data->rbot->mp_hitboxes_stomach) {
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
 					Vector left{ center.x, center.y, hitbox->bbmax.z + r };
@@ -1334,32 +1349,43 @@ namespace Interfaces
 				}
 			}
 
-			else if (hitboxIndex == HITBOX_LOWER_CHEST || hitboxIndex == HITBOX_CHEST || hitboxIndex == HITBOX_UPPER_CHEST) {
+			else if (hitboxIndex == HITBOX_LOWER_CHEST || hitboxIndex == HITBOX_CHEST) {
 				if (m_rage_data->rbot->mp_hitboxes_chest) {
+
+					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+
+					if (hitboxIndex == HITBOX_CHEST)
+						r = hitbox->m_flRadius * (pointScale * 0.75f);
+
+					Vector left{ center.x, center.y, hitbox->bbmax.z + r };
+					Vector right{ center.x, center.y, hitbox->bbmin.z - r };
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
 					AddPoint(player, record, side, points,
 						back.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
 					);
-				}
-			}
-			else if (hitboxIndex == HITBOX_RIGHT_THIGH || hitboxIndex == HITBOX_LEFT_THIGH) {
-				if (m_rage_data->rbot->mp_hitboxes_legs) {
 
-					Vector half_bottom{ hitbox->bbmax.x - (hitbox->m_flRadius * 0.5f), hitbox->bbmax.y, hitbox->bbmax.z };
 					AddPoint(player, record, side, points,
-						half_bottom.Transform(boneMatrix[hitbox->bone]),
+						left.Transform(boneMatrix[hitbox->bone]),
+						hitbox, hitboxSet, true
+					);
+
+					AddPoint(player, record, side, points,
+						right.Transform(boneMatrix[hitbox->bone]),
 						hitbox, hitboxSet, true
 					);
 				}
 			}
+			else if( hitboxIndex == HITBOX_RIGHT_THIGH || hitboxIndex == HITBOX_LEFT_THIGH || hitboxIndex == HITBOX_LEFT_CALF || hitboxIndex == HITBOX_RIGHT_CALF) {
+				if( m_rage_data->rbot->mp_hitboxes_legs ) {
 
-			else if (hitboxIndex == HITBOX_RIGHT_CALF || hitboxIndex == HITBOX_LEFT_CALF) {
-				if (m_rage_data->rbot->mp_hitboxes_legs) {
+					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
 
-					Vector half_bottom{ hitbox->bbmax.x - (hitbox->m_flRadius * 0.5f), hitbox->bbmax.y, hitbox->bbmax.z };
-					AddPoint(player, record, side, points,
-						half_bottom.Transform(boneMatrix[hitbox->bone]),
+					Vector half_bottom{ hitbox->bbmax.x - ( hitbox->m_flRadius * 0.5f ), hitbox->bbmax.y, hitbox->bbmax.z };
+					AddPoint( player, record, side, points,
+						half_bottom.Transform( boneMatrix[ hitbox->bone ] ),
 						hitbox, hitboxSet, true
 					);
 				}
@@ -1599,7 +1625,7 @@ namespace Interfaces
 		C_AimPoint* bestPoint = nullptr;
 		bool doubleTap = /*( g_TickbaseController.bExploiting || g_TickbaseController.bUseDoubletapHitchance ) && */g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit;
 		for (auto& p : m_rage_data->m_aim_points) {
-			if (p.damage < 1.f)
+			if (p.damage < 1.0f)
 				continue;
 
 			// if we got no bestPoint yet, we should always take the first point
@@ -1608,34 +1634,34 @@ namespace Interfaces
 				continue;
 			}
 
-
 			if (p.isLethal) {
-				// point isnt actually lethal
-				if (p.isHead) {
-					continue;
+				// don't shoot at head if we can shoot body and kill enemy
+				if (!p.isBody) {
+					continue; // go to next point
 				}
 
 				// better than head
-				if (bestPoint->isHead) {
+				// we always want this point, due to it being either choosen by bShouldBaim or p.is_should_baim
+				if (bestPoint->isHead || (int)p.damage > int(bestPoint->damage + 5)) //isHead 
 					bestPoint = &p;
-					continue;
-				}
 
 				if (p.center) {
 					bestPoint = &p;
 					break;
 				}
+
+				// let's continue searching for a better point instead of possibly overriding the current one later on.
+				continue;
 			}
 
 			auto bestTarget = p.target;
 
 			if (!bestPoint->isLethal) {
 
-				if (bestTarget->preferBody) {
-					// x2 lethal!!
-					if (p.isBody && (p.damage * 2.f >= p.target->player->m_iHealth())) {
+				if (bestTarget->forceBody) {
+					if (!p.isBody) {
 						bestPoint = &p;
-						break;
+						continue;
 					}
 				}
 
@@ -1646,7 +1672,22 @@ namespace Interfaces
 						bestPoint = &p;
 						continue;
 					}
+				}
 
+				if (bestTarget->preferBody) {
+					// x2 lethal!!
+					if (m_rage_data->rbot->prefer_body_x2lethal) {
+						if (p.isBody && (p.damage * 2.f >= p.target->player->m_iHealth())) {
+							bestPoint = &p;
+							break;
+						}
+					}
+					else {
+						if (p.isBody) {
+							bestPoint = &p;
+							continue;
+						}
+					}
 				}
 
 				if (int(p.damage) >= int(bestPoint->damage)) {
@@ -1880,17 +1921,67 @@ namespace Interfaces
 		return false;
 	}
 
-	bool C_Ragebot::OverrideHitscan(C_CSPlayer* player, Engine::C_LagRecord* record) {
+	bool C_Ragebot::ShouldBodyAim(C_CSPlayer* player, Engine::C_LagRecord* record) {
 		auto local = C_CSPlayer::GetLocalPlayer();
 		if (!local)
 			return false;
 
-		if (m_rage_data->rbot->prefer_body_disable_resolved) {
-			if (record->m_bResolved)
-				return false;
+		if (m_rage_data->rbot->prefer_body_always) {
+			return true;
 		}
 
-		return true;
+		if (m_rage_data->rbot->prefer_body_not_resolved) {
+			if (!record->m_bResolved)
+				return true;
+		}
+
+		if (m_rage_data->rbot->prefer_body_x2lethal) {
+			return true;
+		}
+
+		if (m_rage_data->rbot->prefer_body_in_air) {
+			if (!(player->m_fFlags() & FL_ONGROUND))
+				return true;
+		}
+
+		return false;
+	}
+
+	bool C_Ragebot::ShouldHeadAim(C_CSPlayer* player, Engine::C_LagRecord* record) {
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return false;
+
+		if (m_rage_data->rbot->prefer_head_resolved) {
+			if (record->m_bResolved)
+				return true;
+		}
+
+		return false;
+	}
+
+	bool C_Ragebot::ShouldForceBodyAim(C_CSPlayer* player, Engine::C_LagRecord* record) {
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (!local)
+			return false;
+
+		Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(player->EntIndex());
+
+		if (!m_lag_data.IsValid())
+			return false;
+
+		if (m_rage_data->rbot->force_body_miss) {
+			if (m_lag_data->m_iMissedShots >= m_rage_data->rbot->force_body_miss_amount) {
+				return true;
+			}
+		}
+
+		if (m_rage_data->rbot->force_body_air) {
+			if (!(player->m_fFlags() & FL_ONGROUND))
+				return true;
+		}
+
+		return false;
 	}
 
 	void C_Ragebot::ScanPoint(C_AimPoint* pPoint) {
@@ -1915,7 +2006,7 @@ namespace Interfaces
 		pPoint->penetrated = fireData.m_iPenetrationCount < 4;
 
 		int hp = pPoint->target->player->m_iHealth();
-		float mindmg = (m_rage_data->rbot->min_damage > 100 ? hp + (m_rage_data->rbot->min_damage - 100) : m_rage_data->rbot->min_damage);
+		float mindmg = m_rage_data->rbot->min_damage;
 		if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled && !g_Vars.globals.OverridingMinDmg) {
 			mindmg = m_rage_data->rbot->doubletap_dmg;
 		}
@@ -2040,8 +2131,8 @@ namespace Interfaces
 
 		auto record = GetBestLagRecord(player, &backup);
 		if (!record || !IsRecordValid(player, record)) {
-			//backup.Apply(player);
-			if (!(g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))) { // ghetto asf; will rework later
+			if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) { // ghetto asf; will rework later
+				backup.Apply(player);
 				return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
 			}
 		}
@@ -2064,16 +2155,17 @@ namespace Interfaces
 			}
 		}
 
-		aim_target.preferBody = ((m_rage_data->rbot->prefer_body || !(record->m_iFlags & FL_ONGROUND)) && this->OverrideHitscan(player, record));
-		aim_target.preferHead = !aim_target.preferBody;
+		aim_target.preferBody = m_rage_data->rbot->prefer_body && this->ShouldBodyAim(player, record);
+		aim_target.preferHead = m_rage_data->rbot->prefer_head && this->ShouldHeadAim(player, record);
+		aim_target.forceBody = m_rage_data->rbot->force_body && this->ShouldForceBodyAim(player, record);
 
 		auto addedPoints = 0;
 		for (int i = 0; i < HITBOX_MAX; i++) {
 			auto hitbox = hitboxSet->pHitbox(i);
 			float ps = 0.0f;
-			if (!GetBoxOption(hitbox, hitboxSet, ps, aim_target.overrideHitscan)) {
+
+			if (!GetBoxOption(i, ps, aim_target.overrideHitscan))
 				continue;
-			}
 
 			bool bDelayLimb = false;
 			auto bIsLimb = hitbox->group == Hitgroup_LeftArm || hitbox->group == Hitgroup_RightArm || hitbox->group == Hitgroup_RightLeg || hitbox->group == Hitgroup_LeftLeg;
@@ -2164,7 +2256,7 @@ namespace Interfaces
 			// get current record
 			Engine::C_LagRecord* currentRecord = arrRecords[i];
 
-			if (g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) && !currentRecord->m_bTeleportDistance) {
+			if ((g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) && !currentRecord->m_bTeleportDistance) {
 				return &record;
 			}
 

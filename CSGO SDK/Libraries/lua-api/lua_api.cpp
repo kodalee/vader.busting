@@ -12,6 +12,7 @@
 #include "../../Utils/lazy_importer.hpp"
 #include<fstream>
 #include "../../Features/Rage/ShotInformation.hpp"
+#include "../../ShittierMenu/MenuNEW.h"
 
 #define engine_console(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 1.f, 1.f), true, "")
 #define engine_console_error(x) ILoggerEvent::Get()->PushEvent(x, FloatColor(1.f, 0.f, 0.f), true, "")
@@ -56,19 +57,8 @@ namespace lua_events {
 		std::string source = rs["source"];
 		std::string filename = std::filesystem::path(source.substr(1)).filename().string();
 
-		//if (eventname != "player_death" || "player_hurt") {
-
-		//	engine_console(eventname + ": unknown / unregistered gameevent, if you wish to have this event added dm exon or calli. " + filename);
-		//	g_lua.unload_script(g_lua.get_script_id(filename));
-		//}
-		//else {
-
 		g_luagameeventmanager.register_gameevent(eventname, g_lua.get_script_id(filename), func);
 		engine_console(filename + XorStr(": registered to ") + eventname);
-
-		//}
-		
-
 	}
 
 }
@@ -80,47 +70,6 @@ std::vector <std::pair <std::string, menu_item>>::iterator find_item(std::vector
 			return it;
 
 	return items.end();
-}
-
-menu_item find_item(std::vector <std::vector <std::pair <std::string, menu_item>>>& scripts, const std::string& name)
-{
-	for (auto& script : scripts)
-	{
-		for (auto& item : script)
-		{
-			std::string item_name;
-
-			auto first_point = false;
-			auto second_point = false;
-
-			for (auto& c : item.first)
-			{
-				if (c == '.')
-				{
-					if (first_point)
-					{
-						second_point = true;
-						continue;
-					}
-					else
-					{
-						first_point = true;
-						continue;
-					}
-				}
-
-				if (!second_point)
-					continue;
-
-				item_name.push_back(c);
-			}
-
-			if (item_name == name)
-				return item.second;
-		}
-	}
-
-	return menu_item();
 }
 
 namespace lua_ui {
@@ -149,7 +98,7 @@ namespace lua_ui {
 	}
 
 	bool menu_open() {
-		return g_IMGUIMenu.Opened;
+		return Menu::opened;
 	}
 
 	Vector2D mouse_pos() {
@@ -158,18 +107,10 @@ namespace lua_ui {
 
 	Vector2D menu_pos() {
 		float x, y;
-		x = g_IMGUIMenu.menu_position.x;
-		y = g_IMGUIMenu.menu_position.y;
+		x = Menu::menu_position.x;
+		y = Menu::menu_position.y;
 
 		return Vector2D(x, y);
-	}
-
-	auto next_line_counter = 0;
-
-	void next_line(sol::this_state s)
-	{
-		g_lua.items.at(get_current_script_id(s)).emplace_back(std::make_pair(XorStr("next_line_") + std::to_string(next_line_counter), menu_item()));
-		++next_line_counter;
 	}
 
 	void add_check_box(sol::this_state s, std::string key, const std::string& name)
@@ -178,7 +119,7 @@ namespace lua_ui {
 		auto script_id = g_lua.get_script_id(script);
 
 		auto& items = g_lua.items.at(script_id);
-		auto full_name = script + '.' + name;
+		auto full_name = name;
 
 		if (find_item(items, full_name) != items.end())
 			return;
@@ -186,32 +127,18 @@ namespace lua_ui {
 		items.emplace_back(std::make_pair(full_name, menu_item(key, false)));
 	}
 
-	void add_slider_int(sol::this_state s, std::string key, const std::string& name, int min, int max, std::string format = XorStr("%d"))
+	void add_slider(sol::this_state s, std::string key, const std::string& name, float min, float max, const char* format)
 	{
 		auto script = get_current_script(s);
 		auto script_id = g_lua.get_script_id(script);
 
 		auto& items = g_lua.items.at(script_id);
-		auto full_name = script + '.' + name;
+		auto full_name = name;
 
 		if (find_item(items, full_name) != items.end())
 			return;
 
 		items.emplace_back(std::make_pair(full_name, menu_item(key, min, max, min, format)));
-	}
-
-	void add_slider_float(sol::this_state s, std::string key, const std::string& name, float min, float max, std::string format = XorStr("%d"))
-	{
-		auto script = get_current_script(s);
-		auto script_id = g_lua.get_script_id(script);
-
-		auto& items = g_lua.items.at(script_id);
-		auto full_name = script + '.' + name;
-
-		if (find_item(items, full_name) != items.end())
-			return;
-
-		items.emplace_back(std::make_pair(full_name, menu_item(key, min, max, min)));
 	}
 
 	void add_color_picker(sol::this_state s, std::string key, const std::string& name)
@@ -220,7 +147,7 @@ namespace lua_ui {
 		auto script_id = g_lua.get_script_id(script);
 
 		auto& items = g_lua.items.at(script_id);
-		auto full_name = script + '.' + name;
+		auto full_name = name;
 
 		if (find_item(items, full_name) != items.end())
 			return;
@@ -234,7 +161,7 @@ namespace lua_ui {
 		auto script_id = g_lua.get_script_id(script);
 
 		auto& items = g_lua.items.at(script_id);
-		auto full_name = script + '.' + name;
+		auto full_name = name;
 
 		if (find_item(items, full_name) != items.end())
 			return;
@@ -410,16 +337,16 @@ namespace lua_config {
 	}
 
 	bool dmgoverride_enabled() {
-		if (g_Vars.rage.enabled) {
-			return g_Vars.rage.key_dmg_override.enabled;
+		if (g_Vars.rage.enabled && g_Vars.globals.OverridingMinDmg && g_Vars.rage.key_dmg_override.enabled) {
+			return true;
 		}
 		else
 			return false;
 	}
 
 	bool hitscanoverride_enabled() {
-		if (g_Vars.rage.enabled) {
-			return g_Vars.rage.override_key.enabled;
+		if (g_Vars.rage.enabled && g_Vars.globals.OverridingHitscan && g_Vars.rage.override_key.enabled) {
+			return true;
 		}
 		else
 			return false;
@@ -1013,6 +940,28 @@ namespace lua_file
 	}
 }
 
+namespace lua_exploits {
+	void force_charge()
+	{
+		g_TickbaseController.s_bBuilding = true;
+	}
+
+	void force_uncharge()
+	{
+		g_TickbaseController.s_bBuilding = false;
+	}
+
+	void force_speed(int speed)
+	{
+		g_TickbaseController.s_nSpeed = speed;
+	}
+
+	void force_chargedelay(float time)
+	{
+		g_TickbaseController.s_flTimeRequired = time;
+	}
+}
+
 
 // ----- lua functions -----
 
@@ -1306,11 +1255,9 @@ bool c_lua::initialize() {
 	ui[XorStr("menu_open")] = lua_ui::menu_open;
 	ui[XorStr("menu_pos")] = lua_ui::menu_pos;
 	ui[XorStr("mouse_pos")] = lua_ui::mouse_pos;
-	ui[XorStr("new_line")] = lua_ui::next_line;
 	ui[XorStr("new_checkbox")] = lua_ui::add_check_box;
 	ui[XorStr("new_colorpicker")] = lua_ui::add_color_picker;
-	ui[XorStr("new_slider_float")] = lua_ui::add_slider_float;
-	ui[XorStr("new_slider_int")] = lua_ui::add_slider_int;
+	ui[XorStr("new_slider")] = lua_ui::add_slider;
 	ui[XorStr("new_text")] = lua_ui::add_text;
 
 	auto clientstate = this->lua.create_table();
@@ -1330,6 +1277,12 @@ bool c_lua::initialize() {
 	file[XorStr("write")] = lua_file::write;
 	file[XorStr("read")] = lua_file::read;
 
+	auto exploits = this->lua.create_table();
+	exploits[XorStr("force_charge")] = lua_exploits::force_charge;
+	exploits[XorStr("force_uncharge")] = lua_exploits::force_uncharge;
+	exploits[XorStr("force_speed")] = lua_exploits::force_speed;
+	exploits[XorStr("force_chargedelay")] = lua_exploits::force_chargedelay;
+
 	this->lua[XorStr("event")] = events;
 	this->lua[XorStr("config")] = config;
 	this->lua[XorStr("cheat")] = cheat;
@@ -1348,6 +1301,7 @@ bool c_lua::initialize() {
 	this->lua[XorStr("effects")] = effects;
 	this->lua[XorStr("http")] = http;
 	this->lua[XorStr("file")] = file;
+	this->lua[XorStr("exploits")] = exploits;
 
 	this->refresh_scripts();
 	this->load_script(this->get_script_id("autorun.lua"));
@@ -1368,19 +1322,34 @@ void c_lua::load_script(int id) {
 		return;
 
 	auto path = this->get_script_path(id);
-	if (path == (""))
+	if (path == XorStr(""))
 		return;
 
-	this->lua.script_file(path, [](lua_State*, sol::protected_function_result result) {
-		if (!result.valid()) {
-			sol::error err = result;
-			engine_console(err.what());
-		}
+	auto error_load = false;
+	lua.script_file(path,
+		[&error_load](lua_State*, sol::protected_function_result result)
+		{
+			if (!result.valid())
+			{
+				sol::error error = result;
+				auto log = XorStr("Lua error: ") + (std::string)error.what();
 
-		return result;
-		});
+				engine_console_error(log);
+				error_load = true;
+
+			}
+
+			return result;
+		}
+	);
 
 	this->loaded.at(id) = true;
+
+	if (error_load)
+	{
+		this->unload_script(id);
+		return;
+	}
 }
 
 void c_lua::unload_script(int id) {
@@ -1429,6 +1398,13 @@ void c_lua::refresh_scripts() {
 
 	for (auto& entry : std::filesystem::directory_iterator(str)) {
 		if (entry.path().extension() == XorStr(".lua") || entry.path().extension() == XorStr(".luac") || entry.path().extension() == XorStr(".ljbc")) {
+
+			//if (entry.path().stem().string().find('.') != std::string::npos) {
+			//	engine_console_error(XorStr("Invalid lua found! make sure your lua does not contain '.' in its name."));
+			//	engine_console_error(entry.path().stem().string());
+			//	continue;
+			//}
+
 			auto path = entry.path();
 			auto filename = path.filename().string();
 

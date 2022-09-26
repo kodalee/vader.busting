@@ -725,8 +725,8 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		auto iEnemyIndex = Interfaces::m_pEngine->GetPlayerForUserID( iUserID );
 		auto player = C_CSPlayer::GetPlayerByIndex(iUserID);
 
-		if(iUserID == Interfaces::m_pEngine->GetLocalPlayer())
-			walkbot::Instance().marker = walkbot::Instance().prishel = 0;
+		//if(iUserID == Interfaces::m_pEngine->GetLocalPlayer())
+		//	walkbot::Instance().marker = walkbot::Instance().prishel = 0;
 
 		C_CSPlayer* pAttacker = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( iAttacker );
 		if( pAttacker ) {

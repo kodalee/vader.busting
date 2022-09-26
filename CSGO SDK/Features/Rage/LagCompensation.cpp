@@ -183,8 +183,16 @@ namespace Engine
 		// check bounds [ 0, sv_maxunlag ]
 		Math::Clamp(correct, 0.f, g_Vars.sv_maxunlag->GetFloat());
 
-		if (g_Vars.misc.disablebtondt && (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
-			correct -= g_TickbaseController.s_nExtraProcessingTicks;
+		auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
+		if (weapon) {
+			auto weaponData = weapon->GetCSWeaponData();
+			if (weaponData.IsValid()) {
+				if (weaponData.Xor()->m_iWeaponType != WEAPONTYPE_KNIFE) {
+					if (/*g_Vars.misc.disablebtondt &&*/ (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
+						correct -= g_TickbaseController.s_nExtraProcessingTicks;
+				}
+			}
+		}
 
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
@@ -242,21 +250,17 @@ namespace Engine
 		bool isDormant = player->IsDormant( );
 
 		// no need to store insane amount of data
-		while( pThis->m_History.size( ) > 64 ) {
+		while( pThis->m_History.size( ) > int( 1.0f / Interfaces::m_pGlobalVars->interval_per_tick ) ) {
 			pThis->m_History.pop_back( );
 		}
 
 		if( isDormant ) {
 			pThis->m_flLastUpdateTime = 0.0f;
-			if( pThis->m_History.size( ) > 1 && pThis->m_History.front( ).m_bTeleportDistance ) {
+			if( pThis->m_History.size( ) > 0 && pThis->m_History.front( ).m_bTeleportDistance ) {
 				pThis->m_History.clear( );
 			}
 
 			return;
-		}
-
-		if (pThis->m_History.size() > 1 && pThis->m_History.front().m_bTeleportDistance && !(pThis->m_History.front().player->m_fFlags() & FL_ONGROUND)) {
-			pThis->m_History.clear();
 		}
 
 		if( info.userId != pThis->m_iUserID ) {

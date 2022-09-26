@@ -631,12 +631,9 @@ void skins_speedy::Skinchanger()
 
 		auto& global = g_Vars.m_global_skin_changer;
 
-		static float lastSkinUpdate = 0.0f;
-
-		if (global.m_update_skins && Interfaces::m_pGlobalVars->curtime >= lastSkinUpdate) {
+		if (global.m_update_skins) {
 			UpdateItem();
 			global.m_update_skins = false;
-			lastSkinUpdate = Interfaces::m_pGlobalVars->curtime + 1.f;
 		}
 
 	}

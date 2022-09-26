@@ -494,16 +494,17 @@ namespace Engine
 			// fix velocity
 			// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
 			if (!origin_delta.IsZero() && TIME_TO_TICKS(time_difference) > 0) {
-				record->m_vecVelocity = (record->m_vecOrigin - previous_record->m_vecOrigin) * (1.f / record->m_flChokeTime);
+				//record->m_vecVelocity = (record->m_vecOrigin - previous_record->m_vecOrigin) * (1.f / record->m_flChokeTime);
+				record->m_vecVelocity = origin_delta * (1.0f / time_difference);
 
-				if (player->m_vecVelocity().Length2D() >= 100.f)
-				{
-					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, fPreviousFlags & FL_ONGROUND, 8);
-				}
-				if (player->m_vecVelocity().z > 0)
-				{
-					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, !(fPreviousFlags & FL_ONGROUND), 3);
-				}
+				//if (player->m_vecVelocity().Length2D() >= 100.f)
+				//{
+				//	player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, fPreviousFlags & FL_ONGROUND, 8);
+				//}
+				//if (player->m_vecVelocity().z > 0)
+				//{
+				//	player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, !(fPreviousFlags & FL_ONGROUND), 3);
+				//}
 
 				if (player->m_fFlags() & FL_ONGROUND && record->m_serverAnimOverlays[11].m_flWeight > 0.0f && record->m_serverAnimOverlays[11].m_flWeight < 1.0f && record->m_serverAnimOverlays[11].m_flCycle > previous_record->m_serverAnimOverlays[11].m_flCycle)
 				{
