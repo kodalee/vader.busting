@@ -269,29 +269,31 @@ bool c_grenade_prediction::data_t::draw() const
         alpha_damage = 255 - 255 * (dist / 15);
     }
 
-    if (g_Vars.esp.Grenadewarning_circle && (m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB)) {
-        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().b(), 199));
-        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().b(), alpha_damage));
-    }
-    else if (g_Vars.esp.Grenadewarning_circle && m_index == WEAPON_HEGRENADE) {
-        Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 25, 360, Color(g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().b(), 199));
-        if (local_damage > 0) {
-            Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 25, 360, Color(g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().b(), alpha_damage));
+    if (prev_on_screen) {
+        if (g_Vars.esp.Grenadewarning_circle && (m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB)) {
+            Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().b(), 199));
+            Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 20, 360, Color(g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().b(), alpha_damage));
         }
-    }
-    //if (g_Vars.esp.Grenadewarning_timer) {
-    //    Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_timer_color.ToRegularColor());
-    //}
-    if (g_Vars.esp.Grenadewarning_icon && (m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB)) {
-        Render::Engine::cs_huge.semi_filled_text(prev_screen.x - 8, prev_screen.y - 22, Color(g_Vars.esp.Grenadewarning_icon_color.ToRegularColor()), index_to_grenade_name_icon(m_index), Render::Engine::ALIGN_LEFT, percent, true);
-    }
-    else if (g_Vars.esp.Grenadewarning_icon && m_index == WEAPON_HEGRENADE) {
-        Render::Engine::cs_huge.semi_filled_text(prev_screen.x - 8, prev_screen.y - 28, Color(g_Vars.esp.Grenadewarning_icon_color.ToRegularColor()), index_to_grenade_name_icon(m_index), Render::Engine::ALIGN_LEFT, percent, true);
-    }
+        else if (g_Vars.esp.Grenadewarning_circle && m_index == WEAPON_HEGRENADE) {
+            Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 25, 360, Color(g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circle_color.ToRegularColor().b(), 199));
+            if (local_damage > 0) {
+                Render::Engine::CircleFilled(prev_screen.x, prev_screen.y - 10, 25, 360, Color(g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().r(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().g(), g_Vars.esp.Grenadewarning_circlewarning_color.ToRegularColor().b(), alpha_damage));
+            }
+        }
+        //if (g_Vars.esp.Grenadewarning_timer) {
+        //    Render::Engine::draw_arc(prev_screen.x, prev_screen.y - 10, 20, 0, 360 * percent, 2, g_Vars.esp.Grenadewarning_timer_color.ToRegularColor());
+        //}
+        if (g_Vars.esp.Grenadewarning_icon && (m_index == WEAPON_MOLOTOV || m_index == WEAPON_FIREBOMB)) {
+            Render::Engine::cs_huge.semi_filled_text(prev_screen.x - 8, prev_screen.y - 22, Color(g_Vars.esp.Grenadewarning_icon_color.ToRegularColor()), index_to_grenade_name_icon(m_index), Render::Engine::ALIGN_LEFT, percent, true);
+        }
+        else if (g_Vars.esp.Grenadewarning_icon && m_index == WEAPON_HEGRENADE) {
+            Render::Engine::cs_huge.semi_filled_text(prev_screen.x - 8, prev_screen.y - 28, Color(g_Vars.esp.Grenadewarning_icon_color.ToRegularColor()), index_to_grenade_name_icon(m_index), Render::Engine::ALIGN_LEFT, percent, true);
+        }
 
-    if (m_index == WEAPON_HEGRENADE) {
-        std::string dmg = XorStr("-"); dmg += std::to_string(int(local_damage));
-        Render::Engine::esp.string(prev_screen.x - 8, prev_screen.y - 5, Color(255, 255, 255), dmg.c_str());
+        if (m_index == WEAPON_HEGRENADE) {
+            std::string dmg = XorStr("-"); dmg += std::to_string(int(local_damage));
+            Render::Engine::esp.string(prev_screen.x - 8, prev_screen.y - 5, Color(255, 255, 255), dmg.c_str());
+        }
     }
 
     //auto is_on_screen = [](Vector origin, Vector2D& screen) -> bool
