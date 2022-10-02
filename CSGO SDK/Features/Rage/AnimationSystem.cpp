@@ -8,62 +8,193 @@
 
 #define MT_SETUP_BONES
 
-void player_extrapolation(C_CSPlayer* e, Vector& vecorigin, Vector& vecvelocity, int& fFlags, bool bOnGround, int ticks)
-{
-	Vector start, end;
-	Ray_t ray;
-	CTraceFilterWorldAndPropsOnly filter;
-	CGameTrace trace;
+void SimulateMovement(C_CSPlayer* player, Vector velocity, Engine::C_AnimationRecord* record, bool isInAir) {
+	auto local = C_CSPlayer::GetLocalPlayer();
+	auto weapon = Encrypted_t<C_WeaponCSBaseGun>((C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get());
+	if (!weapon.IsValid())
+		return;
+
+	auto weaponInfo = weapon->GetCSWeaponData();
+	if (!weaponInfo.IsValid())
+		return;
+
+	Vector mins = player->OBBMins(), maxs = player->OBBMaxs();
+
+	Vector                start, end, normal;
+	CGameTrace            trace;
+	CTraceFilterWorldOnly filter;
+
 	// define trace start.
-	start = vecorigin;
+	start = record->m_vecOrigin;
 
 	// move trace end one tick into the future using predicted velocity.
-	end = start + (vecvelocity * Interfaces::m_pGlobalVars->interval_per_tick);
+	end = start + (velocity * Interfaces::m_pGlobalVars->interval_per_tick);
 
 	// trace.
-	ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
-	Interfaces::m_pEngineTrace->TraceRay(ray, MASK_PLAYERSOLID, &filter, &trace);
+	Interfaces::m_pEngineTrace->TraceRay(Ray_t(start, end, mins, maxs), CONTENTS_SOLID, &filter, &trace);
 
 	// we hit shit
-	// we need to fix shit.
+	// we need to fix hit.
 	if (trace.fraction != 1.f) {
-
 		// fix sliding on planes.
-		for (int i{ }; i < ticks; ++i) {
-			vecvelocity -= trace.plane.normal * vecvelocity.Dot(trace.plane.normal);
+		for (int i{}; i < 2; ++i) {
+			record->m_vecVelocity -= trace.plane.normal * velocity.Dot(trace.plane.normal);
 
-			float adjust = vecvelocity.Dot(trace.plane.normal);
+			float adjust = record->m_vecVelocity.Dot(trace.plane.normal);
 			if (adjust < 0.f)
-				vecvelocity -= (trace.plane.normal * adjust);
+				record->m_vecVelocity -= (trace.plane.normal * adjust);
 
 			start = trace.endpos;
-			end = start + (vecvelocity * (Interfaces::m_pGlobalVars->interval_per_tick * (1.f - trace.fraction)));
+			end = start + (record->m_vecVelocity * (Interfaces::m_pGlobalVars->interval_per_tick * (1.f - trace.fraction)));
 
-			ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
-			Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, &filter, &trace);
-
+			Interfaces::m_pEngineTrace->TraceRay(Ray_t(start, end, mins, maxs), CONTENTS_SOLID, &filter, &trace);
 			if (trace.fraction == 1.f)
 				break;
 		}
 	}
 
 	// set new final origin.
-	start = end = vecorigin = trace.endpos;
+	start = end = record->m_vecOrigin = trace.endpos;
 
 	// move endpos 2 units down.
 	// this way we can check if we are in/on the ground.
 	end.z -= 2.f;
 
 	// trace.
-	ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
-	Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, &filter, &trace);
+	Interfaces::m_pEngineTrace->TraceRay(Ray_t(start, end, mins, maxs), CONTENTS_SOLID, &filter, &trace);
 
 	// strip onground flag.
-	fFlags &= ~FL_ONGROUND;
+	record->m_fFlags &= ~FL_ONGROUND;
 
 	// add back onground flag if we are onground.
 	if (trace.fraction != 1.f && trace.plane.normal.z > 0.7f)
-		fFlags |= FL_ONGROUND;
+		record->m_fFlags |= FL_ONGROUND;
+}
+
+void AimwareExtrapolation(C_CSPlayer* player, Vector velocity, Engine::C_AnimationRecord* record, Engine::C_AnimationRecord* previousRecord) {
+	auto pNetChannelInfo = Encrypted_t<INetChannelInfo>(Interfaces::m_pEngine->GetNetChannelInfo());
+	if (!pNetChannelInfo.IsValid())
+		return;
+
+	float interval_per_tick; // ST20_4
+	float simulationTime; // xmm4_4
+	float deltaTime; // xmm2_4
+	float simulationTimeDelta; // xmm4_4
+	signed int simulationTicks; // edi
+	float v15; // xmm1_4
+	float velocityDegree; // xmm2_4
+	float velocityAngle; // xmm3_4
+	int v18; // ebp
+	float v19; // xmm3_4 MAPDST
+	signed int v20; // esi
+	float v21; // xmm0_4
+	float tickInterval; // [esp+14h] [ebp-34h]
+	float incomingAvgLatency; // [esp+4Ch] [ebp+4h]
+	float v29; // [esp+4Ch] [ebp+4h]
+	float v30; // [esp+4Ch] [ebp+4h]
+	float velocityLength2D; // [esp+4Ch] [ebp+4h]
+	float outgoingAvgLatency; // [esp+50h] [ebp+8h]
+	float extrapolatedMovement; // [esp+50h] [ebp+8h]
+
+	Vector backupVelocity = velocity;
+	Vector backupOrigin = record->m_vecOrigin;
+
+	interval_per_tick = Interfaces::m_pGlobalVars->interval_per_tick;
+	tickInterval = 1.0 / Interfaces::m_pGlobalVars->interval_per_tick;
+	incomingAvgLatency = pNetChannelInfo->GetAvgLatency(1);
+	outgoingAvgLatency = pNetChannelInfo->GetAvgLatency(0);
+	simulationTime = record->m_flSimulationTime;
+
+	deltaTime = (((((incomingAvgLatency + outgoingAvgLatency) * tickInterval) + 0.5) + Interfaces::m_pGlobalVars->tickcount + 1) * interval_per_tick) - simulationTime;
+	if (deltaTime > 1.0)
+		deltaTime = 1.0;
+
+	simulationTimeDelta = simulationTime - previousRecord->m_flSimulationTime;
+	simulationTicks = ((simulationTimeDelta * tickInterval) + 0.5);
+	if (simulationTicks <= 15) {
+		if (simulationTicks < 1)
+			simulationTicks = 1;
+	}
+	else {
+		simulationTicks = 15;
+	}
+
+	v29 = atan2(velocity.y, velocity.x);
+	v15 = (tickInterval * deltaTime) + 0.5;
+	velocityDegree = v29 * 57.295776;
+	v30 = atan2(previousRecord->m_vecVelocity.y, previousRecord->m_vecVelocity.x);
+
+	velocityAngle = velocityDegree - (v30 * 57.295776);
+	if (velocityAngle <= 180.0) {
+		if (velocityAngle < -180.0)
+			velocityAngle = velocityAngle + 360.0;
+	}
+	else {
+		velocityAngle = velocityAngle - 360.0;
+	}
+
+	v18 = v15 - simulationTicks;
+	v19 = velocityAngle / simulationTimeDelta;
+	velocityLength2D = sqrt((velocity.y * velocity.y) + (velocity.x * velocity.x));
+	if (v18 < 0) {
+		record->m_vecOrigin = backupOrigin;
+		record->m_vecVelocity = backupVelocity;
+	}
+	else {
+		do {
+			if (simulationTicks > 0) {
+				v20 = simulationTicks;
+				do {
+					extrapolatedMovement = velocityDegree + (Interfaces::m_pGlobalVars->interval_per_tick * v19);
+
+					float extrapolatedSin, extrapolatedCos;
+					Math::SinCos((extrapolatedMovement * 0.017453292), &extrapolatedSin, &extrapolatedCos);
+
+					velocity.x = extrapolatedCos * velocityLength2D;
+					v21 = extrapolatedSin;
+					velocity.y = v21 * velocityLength2D;
+
+					SimulateMovement(player, velocity, record, !(record->m_fFlags & FL_ONGROUND));
+
+					velocityDegree = extrapolatedMovement;
+					--v20;
+				} while (v20);
+			}
+			v18 -= simulationTicks;
+		} while (v18 >= 0);
+	}
+}
+
+void LinearExtrapolations(Engine::C_AnimationRecord* record)
+{
+	auto m_local = C_CSPlayer::GetLocalPlayer();
+
+	if (m_local && m_local->IsAlive()) {
+
+		for (int i = 1; i < Interfaces::m_pGlobalVars->maxClients; i++)
+		{
+
+			auto m_entity = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
+
+			if (m_entity && !m_entity->IsDormant() && !m_entity->IsTeammate(m_local)) {
+
+				int choked_ticks = record->m_iChokeTicks;
+				if (record->m_bTeleportDistance)
+				{
+					Vector velocity_per_tick = record->m_vecVelocity * Interfaces::m_pGlobalVars->interval_per_tick;
+
+					auto new_origin = m_entity->m_vecOrigin() + (velocity_per_tick * choked_ticks);
+
+					m_entity->SetAbsOrigin(new_origin);
+					Interfaces::m_pDebugOverlay->AddBoxOverlay(new_origin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 30, 30, 255, 255, 0.01f);
+
+				}
+
+			}
+
+		}
+
+	}
 }
 
 
@@ -488,8 +619,13 @@ namespace Engine
 
 			Vector vecPreviousOrigin = previous_record->m_vecOrigin;
 			int fPreviousFlags = previous_record->m_fFlags;
-			auto velocity = player->m_vecVelocity();
-			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, player->m_flSimulationTime() - previous_record->m_flSimulationTime);
+			auto velocity = record->m_vecVelocity;
+			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, record->m_flSimulationTime - previous_record->m_flSimulationTime);
+
+			if (!record->m_bIsInvalid) {
+				AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
+				//Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
+			}
 
 			// fix velocity
 			// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
@@ -499,11 +635,8 @@ namespace Engine
 
 				//if (player->m_vecVelocity().Length2D() >= 100.f)
 				//{
-				//	player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, fPreviousFlags & FL_ONGROUND, 8);
-				//}
-				//if (player->m_vecVelocity().z > 0)
-				//{
-				//	player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, !(fPreviousFlags & FL_ONGROUND), 3);
+				//	player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, (fPreviousFlags& FL_ONGROUND), 3);
+				//	Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 20.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
 				//}
 
 				if (player->m_fFlags() & FL_ONGROUND && record->m_serverAnimOverlays[11].m_flWeight > 0.0f && record->m_serverAnimOverlays[11].m_flWeight < 1.0f && record->m_serverAnimOverlays[11].m_flCycle > previous_record->m_serverAnimOverlays[11].m_flCycle)
@@ -528,19 +661,19 @@ namespace Engine
 
 				if (animation_speed > 0.0f)
 				{
-					animation_speed /= player->m_vecVelocity().Length2D();
+					animation_speed /= record->m_vecVelocity.Length2D();
 
-					player->m_vecVelocity().x *= animation_speed;
-					player->m_vecVelocity().y *= animation_speed;
+					record->m_vecVelocity.x *= animation_speed;
+					record->m_vecVelocity.y *= animation_speed;
 				}
 
-				if (pThis->m_AnimationRecord.size() >= 3 && record->m_flChokeTime > Interfaces::m_pGlobalVars->interval_per_tick)
+				if (pThis->m_AnimationRecord.size() >= 3 && time_difference > Interfaces::m_pGlobalVars->interval_per_tick)
 				{
-					auto previous_velocity = (previous_record->m_vecOrigin - pThis->m_AnimationRecord.at(2).m_vecOrigin) * (1.0f / record->m_flChokeTime);
+					auto previous_velocity = (previous_record->m_vecOrigin - pThis->m_AnimationRecord.at(2).m_vecOrigin) * (1.0f / time_difference);
 
 					if (!previous_velocity.IsZero() && !was_in_air)
 					{
-						auto current_direction = Math::normalize_float(RAD2DEG(atan2(player->m_vecVelocity().y, player->m_vecVelocity().x)));
+						auto current_direction = Math::normalize_float(RAD2DEG(atan2(record->m_vecVelocity.y, record->m_vecVelocity.x)));
 						auto previous_direction = Math::normalize_float(RAD2DEG(atan2(previous_velocity.y, previous_velocity.x)));
 
 						auto average_direction = current_direction - previous_direction;
@@ -549,10 +682,10 @@ namespace Engine
 						auto direction_cos = cos(average_direction);
 						auto dirrection_sin = sin(average_direction);
 
-						auto velocity_speed = player->m_vecVelocity().Length2D();
+						auto velocity_speed = record->m_vecVelocity.Length2D();
 
-						player->m_vecVelocity().x = direction_cos * velocity_speed;
-						player->m_vecVelocity().y = dirrection_sin * velocity_speed;
+						record->m_vecVelocity.x = direction_cos * velocity_speed;
+						record->m_vecVelocity.y = dirrection_sin * velocity_speed;
 					}
 				}
 
@@ -569,19 +702,6 @@ namespace Engine
 
 		}
 
-		static float test = 0.f;
-
-		//if (player->m_vecVelocity().Length2D() < 0.1f)
-		//	test = player->m_AnimOverlay()[3].m_flCycle;
-
-		//if (record->m_vecVelocity.Length2D() > 0.1f && player->m_AnimOverlay()[6].m_flWeight == 0.f/*test != player->m_AnimOverlay()[3].m_flCycle && (player->m_AnimOverlay()[3].m_flPlaybackRate == 0.789474f || player->m_AnimOverlay()[3].m_flPlaybackRate == 1.f)*/ && (record->m_fFlags & FL_ONGROUND)) {
-		//	record->m_bFakeWalking = true;
-		//	Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
-		//}
-		//else if(record->m_vecVelocity.Length2D() > 0.1f && player->m_AnimOverlay()[6].m_flWeight != 0.f) {
-		//	record->m_bFakeWalking = false;
-		//}
-
 		//// detect fakewalking players
 		if (record->m_vecVelocity.Length() > 0.1f
 			&& record->m_iChokeTicks >= 2
@@ -592,16 +712,6 @@ namespace Engine
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
 		}
-		//else {
-		//	printf(std::to_string(record->m_serverAnimOverlays[12].m_flWeight).c_str());
-		//	printf("\n");
-		//	printf(std::to_string(record->m_serverAnimOverlays[6].m_flWeight).c_str());
-		//	printf("\n");
-		//	printf(std::to_string(record->m_serverAnimOverlays[6].m_flPlaybackRate).c_str());
-		//	printf("\n");
-		//	printf(std::to_string(record->m_iChokeTicks).c_str());
-		//	printf("\n");
-		//}
 		else {
 			record->m_bFakeWalking = false;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
@@ -640,6 +750,8 @@ namespace Engine
 		record->m_vecLastNonDormantOrig = record->m_vecOrigin;
 
 		record->m_bTeleportDistance = record->m_vecOrigin.DistanceSquared( previous_record->m_vecOrigin ) > 4096.0f;
+
+		//LinearExtrapolations(record);
 
 		C_SimulationInfo& data = pThis->m_vecSimulationData.emplace_back( );
 		data.m_flTime = previous_record->m_flSimulationTime + Interfaces::m_pGlobalVars->interval_per_tick;

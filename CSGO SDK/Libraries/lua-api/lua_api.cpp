@@ -962,6 +962,77 @@ namespace lua_exploits {
 	}
 }
 
+template<class T>
+T propGetter(int entityID, std::string tableName, std::string propName)
+{
+	C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(entityID);
+	if (!player || !player->IsPlayer())
+		return T{};
+
+	auto& pPropManager = Engine::PropManager::Instance();
+
+	auto offset = pPropManager->GetOffset(tableName, propName);
+
+	if (!offset)
+		return T{};
+
+	return player->get<T>(offset);
+}
+
+size_t pPropGetter(int entityID, std::string tableName, std::string propName)
+{
+	C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(entityID);
+	if (!player || !player->IsPlayer())
+		return size_t{};
+
+	auto& pPropManager = Engine::PropManager::Instance();
+
+	auto offset = pPropManager->GetOffset(tableName, propName);
+
+	return offset;
+}
+
+struct luaProp
+{
+	void* propptr;
+	luaProp() {
+		return;
+	}
+	luaProp(void* pNetvar) {
+		propptr = pNetvar;
+	}
+	int GetInt()
+	{
+		if (!propptr)
+			return {};
+
+		return *(int*)(propptr);
+	}
+};
+
+struct luaPlayer
+{
+	int entityID;
+	luaPlayer()
+	{
+		return;
+	}
+	luaPlayer(int id)
+	{
+		entityID = id;
+	}
+	luaProp getProp(std::string tableName, std::string propName)
+	{
+		C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(entityID);
+		if (!player || !player->IsPlayer())
+			return {};
+		auto offset = pPropGetter(entityID, tableName, propName);
+		if (!offset)
+			return {};
+		luaProp* netvar = new luaProp((void*)(player + offset));
+		return *netvar;
+	}
+};
 
 // ----- lua functions -----
 
@@ -1117,6 +1188,13 @@ bool c_lua::initialize() {
 		XorStr("hitchance"), &Engine::ShotSnapshot::hitchance,
 		XorStr("player"), &Engine::ShotSnapshot::player
 		);
+	this->lua.new_usertype<luaPlayer>(XorStr("entity"),
+		sol::constructors<luaPlayer(), luaPlayer(int)>(),
+		XorStr("get_prop"), &luaPlayer::getProp
+		);
+	this->lua[XorStr("get_player")] = [](int entityID) {
+		return luaPlayer(entityID);
+	};
 
 	auto events = this->lua.create_table();
 	events[XorStr("register_event")] = lua_events::gameevent_callback;

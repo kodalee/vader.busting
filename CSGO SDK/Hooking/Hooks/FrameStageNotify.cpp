@@ -114,6 +114,8 @@ namespace Hooked
 		float m_flParameters[ POST_PROCESS_PARAMETER_COUNT ];
 	};
 
+	ClientFrameStage_t stagebro;
+
 	void __fastcall FrameStageNotify( void* ecx, void* edx, ClientFrameStage_t stage ) {
 		g_Vars.globals.szLastHookCalled = XorStr( "9" );
 		auto local = C_CSPlayer::GetLocalPlayer( );
@@ -133,6 +135,9 @@ namespace Hooked
 			//Engine::WeatherController::Get( )->ResetWeather( );
 			g_Vars.globals.bCreatedRain = false;
 		}
+
+		if (stage != FRAME_START)
+			stagebro = stage;
 
 		if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_END) {
 			for (int i = 0; i < Interfaces::m_pEngine->GetMaxClients(); i++)
@@ -572,6 +577,42 @@ namespace Hooked
 					local->m_iFOV( ) = 90.f;
 				}
 			}
+		}
+
+		if (stagebro && local) {
+			auto interval_per_tick = Interfaces::m_pGlobalVars->interval_per_tick;// g_pGlobalVars->m_interval
+			auto visual_interp_amt_2 = interval_per_tick * 4.f;
+			//if (!g_hooks.b[XOR("interp")])
+			//	visual_interp_amt_2 = interval_per_tick * 1.f;
+
+			auto entity_index = 1;
+			auto visual_interp_amt = 0;
+			do {
+				auto entity = (DWORD)Interfaces::m_pEntList->GetClientEntity(entity_index);
+				if (entity && entity != (DWORD)local) {
+					auto v27 = *(DWORD*)(entity + 0x24);
+					*(short*)(v27 + 0xE) = 0;
+					*(DWORD*)(*(DWORD*)(v27 + 0x14) + 0x24) = 0;
+					auto v29 = *(DWORD*)(entity + 0x24);
+					*(short*)(v29 + 0x1A) = 0;
+					*(DWORD*)(*(DWORD*)(v29 + 0x20) + 0x24) = 0;
+					auto v30 = *(DWORD*)(entity + 0x24);
+					*(short*)(v30 + 0x26) = 0;
+					*(DWORD*)(*(DWORD*)(v30 + 0x2C) + 0x24) = 0;
+					auto v31 = *(DWORD*)(entity + 0x24);
+					*(short*)(v31 + 0x32) = 0;
+					*(DWORD*)(*(DWORD*)(v31 + 0x38) + 0x24) = 0;
+
+					if (local)
+						visual_interp_amt = visual_interp_amt_2;
+					else
+						visual_interp_amt = 0.0;
+
+					*(float*)(*(DWORD*)(*(DWORD*)(entity + 0x24) + 8) + 0x24) = visual_interp_amt_2;
+					*(float*)(*(DWORD*)(*(DWORD*)(entity + 0x24) + 0x44) + 0x24) = visual_interp_amt_2;
+				}
+				++entity_index;
+			} while (entity_index < 65);
 		}
 
 		for (auto hk : g_luahookmanager.get_hooks(XorStr("pre_framestagenotify"))) hk.func(stage);
