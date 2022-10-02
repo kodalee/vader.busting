@@ -203,6 +203,12 @@ namespace Engine
 		if (time_delta > 0.2f)
 			return false;
 
+		auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING));
+		auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - g_Vars.sv_maxunlag->GetFloat());
+
+		if (record.m_flSimulationTime < (float)dead_time)
+			return false;
+
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
 		return true;
