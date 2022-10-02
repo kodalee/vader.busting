@@ -1660,13 +1660,12 @@ namespace Interfaces
 
 				if (bestTarget->forceBody) {
 					if (!p.isBody) {
-						bestPoint = &p;
 						continue;
 					}
 				}
 
 				// we want to kill him with 1 shot
-				if (bestTarget->preferHead) {
+				if (bestTarget->preferHead && !bestTarget->forceBody) {
 					// oneshot!!
 					if (p.isHead && (p.damage >= p.target->player->m_iHealth())) {
 						bestPoint = &p;
