@@ -1659,8 +1659,9 @@ namespace Interfaces
 			if (!bestPoint->isLethal) {
 
 				if (bestTarget->forceBody) {
-					if (!p.isBody) {
-						continue;
+					if (p.isBody) {
+						bestPoint = &p;
+						break;
 					}
 				}
 
