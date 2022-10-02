@@ -103,14 +103,10 @@ namespace Engine
 		m_flSpread = predictionData->m_pWeapon->GetSpread( );
 		m_flInaccuracy = predictionData->m_pWeapon->GetInaccuracy( );
 		m_flWeaponRange = predictionData->m_pWeaponInfo->m_flWeaponRange;
-
-		StoreNetvarCompression(_cmd.Xor());
 	}
 
 	void Prediction::Repredict(Encrypted_t<CUserCmd> _cmd) {
 		Engine::Prediction::Instance( )->RunGamePrediction( );
-
-		RestoreNetvarCompression(_cmd.Xor());
 
 		predictionData->m_RestoreData.Apply( predictionData->m_pPlayer );
 
