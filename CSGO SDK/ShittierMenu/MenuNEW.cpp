@@ -1403,7 +1403,7 @@ void Menu::AntiAim() {
 				}
 				ImGui::Checkbox(XorStr("At targets"), &g_Vars.antiaim.at_targets);
 				ImGui::Checkbox(XorStr("Break LBY"), &g_Vars.antiaim.lby_breaker);
-				ImGui::Checkbox(XorStr("preBreak"), &g_Vars.antiaim.anti_lastmove);
+				ImGui::Checkbox(XorStr("Pre-Break"), &g_Vars.antiaim.anti_lastmove);
 				if (g_Vars.antiaim.lby_breaker) {
 					ImGui::SliderFloat(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -180.f, 180.f, XorStr("%1.f"));
 					ImGui::SliderFloat(XorStr("First Break angle"), &g_Vars.antiaim.break_lby_first, -180.f, 180.f, XorStr("%1.f"));

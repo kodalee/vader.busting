@@ -32,6 +32,7 @@ namespace Engine {
 	enum RModes {
 		LBYDELTA = 0,
 		FLICK,
+		NOLBY,
 		LASTMOVE,
 		DISTORTINGLMOVE,
 		STAND,
@@ -170,6 +171,8 @@ namespace Engine {
 		};
 		void resolve(C_CSPlayer* player, C_AnimationRecord* record);
 		void on_lby_proxy(C_CSPlayer* entity, float* LowerBodyYaw);
+		bool IsBreakingLBY120(C_CSPlayer* pEntity);
+		bool IsResolvableByLBY(C_CSPlayer* pEntity);
 		void collect_wall_detect(const ClientFrameStage_t stage);
 		bool wall_detect(C_CSPlayer* player, C_AnimationRecord* record, float& angle) const;
 		void AntiFreestand(C_AnimationRecord* record, C_CSPlayer* entity);

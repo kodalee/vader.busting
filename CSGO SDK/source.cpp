@@ -631,31 +631,84 @@ void __fastcall hkAddRenderable( void* ecx, void* edx, IClientRenderable* pRende
 	oAddRenderable( ecx, pRenderable, bRenderWithViewModels, type, nModelType, nSplitscreenEnabled );
 }
 
-using PhysicsSimulateFn = void( __thiscall* ) ( void* ecx );
-PhysicsSimulateFn oPhysicsSimulate;
-void __fastcall hkPhysicsSimulate( void* ecx, void* edx ) {
-	auto local = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( Interfaces::m_pEngine->GetLocalPlayer( ) );
-	if( !ecx || !local || local->IsDead( ) || local != ecx )
-		return oPhysicsSimulate( ecx );
+//using PostNetworkDataReceived_t = void(__fastcall*)(/*std::uintptr_t, std::uintptr_t, */int);
+//PostNetworkDataReceived_t oPostNetworkDataReceived;
+//
+//void __fastcall PostDataNetworkReceived(/*std::uintptr_t ecx, std::uintptr_t edx, */int commandsAck) {
+//	if (!g_Vars.globals.HackIsReady)
+//		return oPostNetworkDataReceived(/*ecx, edx, */commandsAck);
+//
+//	auto local = C_CSPlayer::GetLocalPlayer();
+//	if (!local || local->IsDead())
+//		return oPostNetworkDataReceived(/*ecx, edx, */commandsAck);
+//
+//	// this might be m_Split.m_nServerCommandsAck
+//	auto slot = commandsAck;
+//	if (!slot)
+//		return oPostNetworkDataReceived(/*ecx, edx, */commandsAck);
+//
+//	auto predictionData = &Engine::Prediction::Instance().predictionData->m_Data[slot % 150];
+//	if (predictionData) {
+//
+//		predictionData->m_aimPunchAngle = local->m_aimPunchAngle();
+//		predictionData->m_aimPunchAngleVel = local->m_aimPunchAngleVel();
+//		predictionData->m_vecViewOffset = local->m_vecViewOffset();
+//		predictionData->m_vecBaseVelocity = local->m_vecBaseVelocity();
+//		predictionData->m_flVelocityModifier = local->m_flVelocityModifier();
+//		predictionData->m_flFallVelocity = local->m_flFallVelocity();
+//		predictionData->m_vecVelocity = local->m_vecVelocity();
+//		predictionData->m_nTickbase = local->m_nTickBase();
+//
+//		Engine::Prediction::Instance().m_bGetNetvarCompressionData = true;
+//	}
+//
+//	oPostNetworkDataReceived(/*ecx, edx, */commandsAck);
+//}
 
-	int nSimulationTick = *( int* )( uintptr_t( ecx ) + 0x2AC );
-	auto pCommandContext = ( C_CommandContext* )( uintptr_t( ecx ) + 0x34FC );
+using CPredictionCopyTransferData_t = int(__fastcall*)(void*, void*, const char*, int, datamap_t*);
+CPredictionCopyTransferData_t TransferDataOriginal;
+int __fastcall TransferData(void* edx, void* ecx, const char* name, int entIndex, datamap_t* map) {
+	//printf(XorStr("called CPredictionCopy::TransferData"));
 
-	if( !pCommandContext || Interfaces::m_pGlobalVars->tickcount == nSimulationTick || !pCommandContext->needsprocessing )
-		return;
+	//55 8B EC 8B 45 10 53 56 8B F1 57
+	static auto original = TransferDataOriginal;
 
-	if( pCommandContext->cmd.tick_count >= ( g_Vars.globals.m_pCmd->tick_count + int( 1 / Interfaces::m_pGlobalVars->interval_per_tick ) + g_Vars.sv_max_usercmd_future_ticks->GetInt( ) ) ) {
-		nSimulationTick = Interfaces::m_pGlobalVars->tickcount;
-		pCommandContext->needsprocessing = false;
+	// i cannot tell what chambers intended to do with this... maybe a return address check to this signature?
+	static auto to_post_network_data_received = reinterpret_cast<void*>(Memory::Scan(XorStr("client.dll"), XorStr("85 C0 8D 4C 24 3C")));
+	// what i can do is something ghetto aka seeing if PostNetworkDataRecieved was called or not, but something better to do may be to ask chambers what he meant with this.
 
-		//Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
-	}
-	else {
-		//Engine::Prediction::Instance( )->RestoreNetvarCompression( &pCommandContext->cmd );
-		oPhysicsSimulate( ecx );
-		//Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
-	}
+	Engine::Prediction::Instance()->OnFrameStageNotify();
+
+	return original(edx, ecx, name, entIndex, map);
 }
+
+//using PhysicsSimulateFn = void( __thiscall* ) ( void* ecx );
+//PhysicsSimulateFn oPhysicsSimulate;
+//void __fastcall hkPhysicsSimulate( void* ecx, void* edx ) {
+//	/*auto local = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( Interfaces::m_pEngine->GetLocalPlayer( ) );*/
+//	auto local = C_CSPlayer::GetLocalPlayer();
+//	auto entity = (C_CSPlayer*)ecx;
+//	if( !entity || !local || entity->EntIndex() == local->EntIndex() || local->IsDead())
+//		return oPhysicsSimulate( ecx );
+//
+//	int nSimulationTick = *( int* )( uintptr_t( ecx ) + 0x2AC );
+//	auto pCommandContext = ( C_CommandContext* )( uintptr_t( ecx ) + 0x34FC );
+//
+//	if( !pCommandContext || Interfaces::m_pGlobalVars->tickcount == nSimulationTick || !pCommandContext->needsprocessing )
+//		return;
+//
+//	if( pCommandContext->cmd.tick_count >= ( g_Vars.globals.m_pCmd->tick_count + int( 1 / Interfaces::m_pGlobalVars->interval_per_tick ) + g_Vars.sv_max_usercmd_future_ticks->GetInt( ) ) ) {
+//		nSimulationTick = Interfaces::m_pGlobalVars->tickcount;
+//		pCommandContext->needsprocessing = false;
+//
+//		Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
+//	}
+//	else {
+//		//Engine::Prediction::Instance( )->RestoreNetvarCompression( &pCommandContext->cmd );
+//		oPhysicsSimulate( ecx );
+//		Engine::Prediction::Instance( )->StoreNetvarCompression( &pCommandContext->cmd );
+//	}
+//}
 
 typedef void( __thiscall* fnCalcViewBob ) ( C_BasePlayer*, Vector& );
 fnCalcViewBob oCalcViewBob;
@@ -702,15 +755,15 @@ float __fastcall hkRainAlphaGetFloat( void* ecx, void* edx ) {
 	return oRainAlphaGetFloat( ecx );
 }
 
-typedef bool( __thiscall* fnGetBool )( void* );
-fnGetBool oSvCheatsGetBool;
-bool __fastcall sv_cheats_get_bool( void* pConVar, void* edx ) {
-	static auto ret_ard = ( uintptr_t )Memory::Scan( XorStr("client.dll"), XorStr("85 C0 75 30 38 86") );
-	if( reinterpret_cast< uintptr_t >( _ReturnAddress( ) ) == ret_ard )
-		return true;
-
-	return oSvCheatsGetBool( pConVar );
-}
+//typedef bool( __thiscall* fnGetBool )( void* );
+//fnGetBool oSvCheatsGetBool;
+//bool __fastcall sv_cheats_get_bool( void* pConVar, void* edx ) {
+//	static auto ret_ard = ( uintptr_t )Memory::Scan( XorStr("client.dll"), XorStr("85 C0 75 30 38 86") );
+//	if( reinterpret_cast< uintptr_t >( _ReturnAddress( ) ) == ret_ard )
+//		return true;
+//
+//	return oSvCheatsGetBool( pConVar );
+//}
 
 typedef int(__thiscall* fnCreateMoveHltv)(void*, void*, Encrypted_t<CUserCmd2>);
 fnCreateMoveHltv oCreateMoveHltv;
@@ -1193,7 +1246,7 @@ namespace Interfaces
 		oAddBoxOverlay = Hooked::HooksManager.HookVirtual<decltype( oAddBoxOverlay )>( m_pDebugOverlay.Xor( ), &hkAddBoxOverlay, 1 );
 		
 		//sv_cheats_get_bool
-		oSvCheatsGetBool = Hooked::HooksManager.HookVirtual<decltype( oSvCheatsGetBool )>( Interfaces::m_pCvar->FindVar(XorStr("sv_cheats")), &sv_cheats_get_bool, 13 );
+		//oSvCheatsGetBool = Hooked::HooksManager.HookVirtual<decltype( oSvCheatsGetBool )>( Interfaces::m_pCvar->FindVar(XorStr("sv_cheats")), &sv_cheats_get_bool, 13 );
 
 		o_net_show_fragments = Hooked::HooksManager.HookVirtual<decltype( o_net_show_fragments )>( Interfaces::m_pCvar->FindVar(XorStr("net_showfragments")), &net_show_fragments, 13 );
 
@@ -1234,8 +1287,16 @@ namespace Interfaces
 		oReportHit = Hooked::HooksManager.CreateHook<decltype( oReportHit ) >( &ReportHit, ( void* )reporthit );
 		oCL_Move = Hooked::HooksManager.CreateHook<decltype( oCL_Move ) >( &CL_Move, ( void* )cl_move );
 
-		auto physics_simulate_adr = rel32_resolve( Memory::Scan( XorStr( "client.dll" ), XorStr( "E8 ? ? ? ? 80 BE ? ? ? ? ? 0F 84 ? ? ? ? 8B 06" ) ) );
-		oPhysicsSimulate = Hooked::HooksManager.CreateHook<decltype( oPhysicsSimulate ) >( &hkPhysicsSimulate, ( void* )physics_simulate_adr );
+		//auto physics_simulate_adr = rel32_resolve( Memory::Scan( XorStr( "client.dll" ), XorStr( "E8 ? ? ? ? 80 BE ? ? ? ? ? 0F 84 ? ? ? ? 8B 06" ) ) );
+		//oPhysicsSimulate = Hooked::HooksManager.CreateHook<decltype( oPhysicsSimulate ) >( &hkPhysicsSimulate, ( void* )physics_simulate_adr );
+
+		static auto CPredictionCopyTranferDataHook = reinterpret_cast<void*>(Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 8B 45 10 53 56 8B F1 57")));
+		TransferDataOriginal = Hooked::HooksManager.CreateHook<decltype(TransferDataOriginal)>(&TransferData, CPredictionCopyTranferDataHook);
+
+		//static auto ballshack123 = reinterpret_cast<void*>(Memory::Scan(XorStr("client.dll"), XorStr("E8 40 00 00 00 33 F6 6A 02")));
+		//oPostNetworkDataReceived = Hooked::HooksManager.CreateHook<decltype(oPostNetworkDataReceived)>(&PostDataNetworkReceived, ballshack123);
+
+		//oPostNetworkDataReceived = HooksManager.HookVirtual<decltype(oPostNetworkDataReceived)>(Interfaces::m_pPrediction.Xor(), &PostDataNetworkReceived, 7);
 
 		auto standard_blending_rules_adr = Memory::Scan( XorStr( "client.dll" ), XorStr( "55 8B EC 83 E4 F0 B8 ? ? ? ? E8 ? ? ? ? 56 8B 75 08 57 8B F9 85 F6" ) );
 		oStandardBlendingRules = Hooked::HooksManager.CreateHook<decltype( oStandardBlendingRules ) >( &hkStandardBlendingRules, ( void* )standard_blending_rules_adr );

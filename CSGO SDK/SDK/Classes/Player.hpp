@@ -85,7 +85,7 @@ public:
    bool IsDead( );
    void SetCurrentCommand( CUserCmd* cmd );
 
-   Vector GetEyePosition( );
+   Vector GetEyePosition();
    Vector GetViewHeight( );
    C_AnimationLayer& GetAnimLayer( int index );
 

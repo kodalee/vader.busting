@@ -327,18 +327,26 @@ namespace Engine
 
 						if (it->snapshot->ResolverType == FLICK)
 							lag_data->m_iMissedShotsLBY++;
+						else if (it->snapshot->ResolverType == NOLBY)
+							lag_data->m_iMissedShotsNOLBY++;
 						else if (it->snapshot->ResolverType == LBYDELTA)
 							lag_data->m_delta_index++;
 						else if (it->snapshot->ResolverType == LASTMOVE)
 							lag_data->m_last_move++;
-						else if (it->snapshot->ResolverType == STAND)
+						else if (it->snapshot->ResolverType == STAND && !Engine::g_ResolverData->hitPlayer[player->EntIndex()])
 							lag_data->m_iMissedBruteShots++;
+						else if (Engine::g_ResolverData->hasStoredLby[player->EntIndex()])
+							lag_data->m_iMissedLBYLog++;
 						else if (it->snapshot->ResolverType == ANTIFREESTAND)
 							lag_data->m_iMissedShotsFreestand++;
 						else if (it->snapshot->ResolverType == DISTORTINGLMOVE)
 							lag_data->m_iMissedShotsDistort++;
+						else if (player->m_iTeamNum() != C_CSPlayer::GetLocalPlayer()->m_iTeamNum() && player->m_vecVelocity().Length2D() > 0.1f && player->m_fFlags() & FL_ONGROUND)
+							lag_data->m_iMissedShotsInAir++;
 						//else
 						lag_data->m_iMissedShots++;
+
+						Engine::g_ResolverData->hitPlayer[player->EntIndex()] = false;
 
 						m_ShotInfoLua.result = XorStr("resolver");
 						if (g_Vars.esp.event_resolver) {
@@ -485,13 +493,16 @@ namespace Engine
 			auto lagData = Engine::LagCompensation::Get()->GetLagData(id);
 			if (lagData.IsValid()) {
 				lagData->m_iMissedShots = 0;
+				lagData->m_iMissedShotsInAir = 0;
 				lagData->m_iMissedShotsLBY = 0;
+				lagData->m_iMissedShotsNOLBY = 0;
 				lagData->m_body_index = 0;
 				lagData->m_delta_index = 0;
 				lagData->m_stand_index2 = 0;
 				lagData->m_unknown_move = 0;
 				lagData->m_iMissedShotsDistort = 0;
 				lagData->m_iMissedBruteShots = 0;
+				lagData->m_iMissedLBYLog = 0;
 				lagData->m_iMissedShotsLBYTEST = 0;
 				lagData->m_lby_index = 0;
 				lagData->m_iMissedShotsFreestand = 0;
@@ -507,11 +518,14 @@ namespace Engine
 				g_ResolverData[i].m_bCollectedValidMoveData = false;
 				if (lagData.IsValid()) {
 					lagData->m_iMissedShots = 0;
+					lagData->m_iMissedShotsInAir = 0;
 					lagData->m_iMissedShotsLBY = 0;
+					lagData->m_iMissedShotsNOLBY = 0;
 					lagData->m_body_index = 0;
 					lagData->m_delta_index = 0;
 					lagData->m_iMissedShotsDistort = 0;
 					lagData->m_iMissedBruteShots = 0;
+					lagData->m_iMissedLBYLog = 0;
 					lagData->m_stand_index2 = 0;
 					lagData->m_iMissedShotsLBYTEST = 0;
 					lagData->m_unknown_move = 0;

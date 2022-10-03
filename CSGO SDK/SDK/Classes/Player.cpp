@@ -187,20 +187,25 @@ void C_BasePlayer::SetCurrentCommand( CUserCmd* cmd ) {
 }
 
 Vector C_BasePlayer::GetEyePosition( ) {
-	Vector vecOrigin = this->GetAbsOrigin( );
+	Vector pos{};
+	using GetEyePosFn = void(__thiscall*)(void*, Vector*);
+	Memory::VCall< GetEyePosFn >(this, 277)(this, &pos);
+	return pos;
 
-	Vector offset = m_vecViewOffset( );
-	if( offset.z >= 46.1f ) {
-		if( offset.z > 64.0f ) {
-			offset.z = 64.0f;
-		}
-	}
-	else {
-		offset.z = 46.0f;
-	}
-	vecOrigin += offset;
+	//Vector vecOrigin = this->GetAbsOrigin( );
 
-	return vecOrigin;
+	//Vector offset = m_vecViewOffset( );
+	//if( offset.z >= 46.1f ) {
+	//	if( offset.z > 64.0f ) {
+	//		offset.z = 64.0f;
+	//	}
+	//}
+	//else {
+	//	offset.z = 46.0f;
+	//}
+	//vecOrigin += offset;
+
+	//return vecOrigin;
 }
 
 Vector C_BasePlayer::GetViewHeight( ) {

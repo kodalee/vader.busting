@@ -120,6 +120,8 @@ namespace Hooked
 		g_Vars.globals.szLastHookCalled = XorStr( "9" );
 		auto local = C_CSPlayer::GetLocalPlayer( );
 
+		g_Vars.globals.m_iFrameStage = stage;
+
 		// paranoic af
 		g_Vars.globals.HackIsReady = local
 			&& Interfaces::m_pEngine->IsInGame( )
@@ -408,7 +410,7 @@ namespace Hooked
 			// fix netvar compression
 			//auto& prediction = Engine::Prediction::Instance( );
 			//if( Interfaces::m_pEngine->IsInGame( ) )
-				//prediction.OnFrameStageNotify( stage );
+			//	prediction.OnFrameStageNotify( );
 		}
 		else {
 			g_Vars.globals.RenderIsReady = false;
@@ -570,7 +572,7 @@ namespace Hooked
 				Threading::FinishQueue( true );
 				Engine::LagCompensation::Get( )->Update( );
 
-				g_netdata.apply();
+				//g_netdata.apply();
 
 				// fix issues when players we are spectating scope in
 				if( local && local->m_iObserverMode( ) == 5 ) { 

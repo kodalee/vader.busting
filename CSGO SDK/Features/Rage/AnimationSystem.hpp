@@ -87,6 +87,7 @@ namespace Engine
 		int m_iResolverMode;
 		bool m_iDistorting[65];
 		bool m_moved;
+		bool m_RecentMove[65];
 		int m_iDistortCheck;
 		bool m_iRestartDistortCheck;
 		bool m_iFirstCheck;

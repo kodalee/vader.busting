@@ -29,6 +29,15 @@ void QAngle::Normalize( ) {
    AngleNormalize( this->z );
 }
 
+#define CHECK_VALID( _v ) 0
+
+bool QAngle::operator!=(const QAngle& src) const
+{
+	CHECK_VALID(src);
+	CHECK_VALID(*this);
+	return (src.x != x) || (src.y != y) || (src.z != z);
+}
+
 void QAngle::Clamp( ) {
    Normalize( );
 

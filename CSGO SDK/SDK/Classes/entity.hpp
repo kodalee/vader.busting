@@ -251,6 +251,7 @@ public:
 	}
 
 public:
+	Vector& GetNetworkOrigin();
 	bool ComputeHitboxSurroundingBox( Vector* mins, Vector* maxs );
 	bool IsPlayer( );
 	bool IsWeapon( );
@@ -304,6 +305,8 @@ public:
 
 class C_BaseAnimating : public C_BaseEntity {
 public:
+	void CopyPoseParameters(float* dest);
+	void CopyAnimLayers(C_AnimationLayer* dest);
 	void UpdateClientSideAnimation( );
 	void UpdateClientSideAnimationEx( );
 	void InvalidateBoneCache( );

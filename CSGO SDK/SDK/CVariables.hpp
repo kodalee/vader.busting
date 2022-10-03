@@ -367,6 +367,18 @@ struct SpreadRandom_t {
 	float flRandPi2;
 };
 
+enum ClientFrameStage_t {
+	FRAME_UNDEFINED = -1,
+	FRAME_START,
+	FRAME_NET_UPDATE_START,
+	FRAME_NET_UPDATE_POSTDATAUPDATE_START,
+	FRAME_NET_UPDATE_POSTDATAUPDATE_END,
+	FRAME_NET_UPDATE_END,
+	FRAME_RENDER_START,
+	FRAME_RENDER_END,
+};
+
+
 class IMaterial;
 class CVariables : public CBaseGroup {
 public:
@@ -378,6 +390,7 @@ public:
 		int FakeWalkWillChoke = 0;
 		bool FixCycle;
 		bool UnknownCycleFix;
+
 		bool bCreatedRain;
 		bool bMoveExploiting;
 		Vector vecExploitOrigin;
@@ -401,6 +414,8 @@ public:
 		bool WasShootingInPeek = false;
 		Vector AimPoint;
 		Vector ShootPosition;
+
+		ClientFrameStage_t m_iFrameStage = FRAME_UNDEFINED;
 
 		bool NSFixing = false;
 		bool bBombActive;

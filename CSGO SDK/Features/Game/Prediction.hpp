@@ -70,7 +70,10 @@ namespace Engine {
 		QAngle m_aimPunchAngle = { };
 		QAngle m_aimPunchAngleVel = { };
 		Vector m_vecViewOffset = { };
+		Vector m_vecBaseVelocity = { };
+		Vector m_vecVelocity = { };
 		float m_flVelocityModifier = 0.f;
+		float m_flFallVelocity = 0.f;
 	};
 
 	struct LastPredData {
@@ -157,7 +160,7 @@ namespace Engine {
 		float GetInaccuracy( );
 		float GetWeaponRange();
 
-		void OnFrameStageNotify( ClientFrameStage_t stage );
+		void OnFrameStageNotify(  );
 		void OnRunCommand( C_CSPlayer* player, CUserCmd* cmd );
 
 		void PostEntityThink( C_CSPlayer* player );
@@ -169,6 +172,9 @@ namespace Engine {
 
 		void StoreNetvarCompression(CUserCmd* cmd);
 		void RestoreNetvarCompression(CUserCmd* cmd);
+
+		bool m_bGetNetvarCompressionData = false;
+		Encrypted_t<PredictionData> predictionData;
 
 		bool InPrediction( ) {
 			return m_bInPrediction;
@@ -182,7 +188,6 @@ namespace Engine {
 		CUserCmd* m_pLastCmd;
 
 		friend class Core::Singleton<Prediction>;
-		Encrypted_t<PredictionData> predictionData;
 		bool m_bInPrediction = false;
 
 		int m_iSeqDiff = 0;
@@ -193,6 +198,5 @@ namespace Engine {
 
 		bool m_bFixSendDataGram = false;
 		bool m_bNeedStoreNetvarsForFixingNetvarCompresion = false;
-		bool m_bGetNetvarCompressionData = false;
 	};
 }

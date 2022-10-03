@@ -44,9 +44,10 @@ public:
 public:
 	float operator [] ( const std::uint32_t index );
 	const float operator [] ( const std::uint32_t index ) const;
-
 	QAngle& operator = ( const QAngle& v );
 	QAngle& operator = ( const float* v );
+
+	bool operator!=(const QAngle& src) const;
 
 	QAngle& operator += ( const QAngle& v );
 	QAngle& operator -= ( const QAngle& v );

@@ -133,6 +133,21 @@ QAngle& IClientEntity::GetAbsAngles( ) {
 	return Memory::VCall<Fn>( this, Index::IClientEntity::GetAbsAngles )( this );
 }
 
+void C_BaseAnimating::CopyPoseParameters(float* dest) {
+	float* flPose = (float*)((DWORD)this + Engine::Displacement.DT_BaseAnimating.m_flPoseParameter);
+	memcpy(dest, flPose, sizeof(m_flPoseParameter()));
+}
+
+void C_BaseAnimating::CopyAnimLayers(C_AnimationLayer* dest) {
+	for (int i = 0; i < m_AnimOverlay().Count(); ++i) {
+		dest[i] = m_AnimOverlay()[i];
+	}
+}
+
+Vector& C_BaseEntity::GetNetworkOrigin() {
+	return *(Vector*)((uintptr_t)this + 0x00000134);
+}
+
 int IClientEntity::m_nExplodeEffectTickBegin() {
 	return *(int*)((uintptr_t)this + Engine::Displacement.DT_BaseCSGrenadeProjectile.m_nExplodeEffectTickBegin);
 }
