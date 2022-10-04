@@ -374,7 +374,7 @@ void c_grenade_prediction::grenade_warning(C_CSPlayer* entity)
     if (!player)
         return;
 
-    if (player->m_iTeamNum() == pLocalPlayer->m_iTeamNum() && player->EntIndex() != pLocalPlayer->EntIndex() && g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0)
+    if (player->m_iTeamNum() == pLocalPlayer->m_iTeamNum() && player->EntIndex() != pLocalPlayer->EntIndex())
         return;
 
     const auto client_class = entity->GetClientClass();
