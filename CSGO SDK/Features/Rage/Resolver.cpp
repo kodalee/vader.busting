@@ -906,14 +906,14 @@ namespace Engine {
 			absrotation_before_flick = animstate->m_flAbsRotation;
 		}
 
-		if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
-			printf("POSITIVE\n");
-		}
-		else
-			printf("NEGATIVE\n");
+		//if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
+		//	printf("POSITIVE\n");
+		//}
+		//else
+		//	printf("NEGATIVE\n");
 
-		if (record->m_body != player->m_flLowerBodyYawTarget())
-			printf("LBY TICK DETECTED\n");
+		//if (record->m_body != player->m_flLowerBodyYawTarget())
+		//	printf("LBY TICK DETECTED\n");
 
 		// normalize the eye angles, doesn't really matter but its clean.
 		Math::NormalizeAngle(record->m_angEyeAngles.y);
@@ -939,7 +939,7 @@ namespace Engine {
 		C_AnimationRecord* move = &pLagData->m_walk_record;
 
 		auto at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
-		if (!IsResolvableByLBY(player) || pLagData->m_iMissedShotsNOLBY >= 1 || record->m_bIsFakeFlicking) {
+		if (!(record->m_iResolverMode = NOLBY)) {
 			if (is_flicking && pLagData->m_iMissedShotsLBY < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f || record->m_bFakeWalking))
 			{
 				//m_iMode = 0;
@@ -1098,7 +1098,7 @@ namespace Engine {
 				}
 			}
 		}
-		else if(pLagData->m_iMissedShotsNOLBY < 1 && IsResolvableByLBY(player) && !record->m_bIsFakeFlicking) {
+		else if (record->m_iResolverMode == NOLBY) {
 			record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
 			record->m_iResolverText = XorStr("NO LBY");
 		}
