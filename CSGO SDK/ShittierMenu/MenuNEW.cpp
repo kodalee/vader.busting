@@ -867,7 +867,7 @@ void Menu::Render() noexcept {
 		//ImGui::PushFont(fonts.iconsLarge);
 		//window->DrawList->AddText(ImVec2((pos.x + 17.f), (pos.y + 18.f)), ImColor(107, 107, 107), "1");
 
-		ImGui::AddCircleImageFilled(logo_nuts, ImVec2((pos.x + 30.f), (pos.y + 30.f)), 27.f, ImColor(1.f, 1.f, 1.f, 1.f), 360);
+		ImGui::AddCircleImageFilled(logo_nuts, ImVec2((pos.x + 30.f), (pos.y + 32.f)), 27.f, ImColor(1.f, 1.f, 1.f, 1.f), 360);
 
 
 		ImGui::PopFont();
