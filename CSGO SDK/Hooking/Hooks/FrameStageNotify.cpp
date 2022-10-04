@@ -583,7 +583,7 @@ namespace Hooked
 
 		if (stagebro && local) {
 			auto interval_per_tick = Interfaces::m_pGlobalVars->interval_per_tick;// g_pGlobalVars->m_interval
-			auto visual_interp_amt_2 = interval_per_tick * 4.f;
+			auto visual_interp_amt_2 = interval_per_tick * 6.f;
 			//if (!g_hooks.b[XOR("interp")])
 			//	visual_interp_amt_2 = interval_per_tick * 1.f;
 
