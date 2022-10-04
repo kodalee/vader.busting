@@ -1310,7 +1310,7 @@ void Menu::Ragebot() {
 				ImGui::Keybind(XorStr("##Force bodyaim key"), &g_Vars.rage.prefer_body.key, &g_Vars.rage.prefer_body.cond);
 
 				ImGui::Text(XorStr("Override resolver"));
-				ImGui::SameLine();
+				ImGui::SameLine(213.f);
 				ImGui::Keybind(XorStr("##Override resolver key"), &g_Vars.rage.override_reoslver.key, &g_Vars.rage.override_reoslver.cond);
 
 
