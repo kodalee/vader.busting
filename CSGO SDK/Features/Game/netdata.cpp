@@ -31,6 +31,7 @@ void NetData::store(CUserCmd* cmd) {
 	data->m_velocity_modifier = local->m_flVelocityModifier();
 	data->m_duckAmount = local->m_flDuckAmount();
 	data->m_duckSpeed = local->m_flDuckSpeed();
+	data->m_is_filled = true;
 }
 
 void NetData::apply() {
@@ -54,6 +55,9 @@ void NetData::apply() {
 
 	// get current record and validate.
 	data = &m_data[tickbase % MULTIPLAYER_BACKUP];
+
+	if (!data->m_is_filled)
+		return;
 
 	if (local->m_nTickBase() != data->m_tickbase)
 		return;
@@ -92,14 +96,14 @@ void NetData::apply() {
 	if (std::abs(modifier_delta) <= 0.00625f)
 		local->m_flVelocityModifier() = data->m_velocity_modifier;
 
-	if (std::abs(local->m_nTickBase() - data->m_tickbase) <= 0.00625f)
+	if (std::abs(local->m_nTickBase() - data->m_tickbase) < 0.00625f)
 		local->m_nTickBase() = data->m_tickbase;
 
-	if (fabs(duck_amount) > 0.03425f)
-	{
-		local->m_flDuckAmount() = data->m_duckAmount;
+	if (std::abs(local->m_flDuckSpeed() - data->m_duckSpeed) < 0.03125f)
 		local->m_flDuckSpeed() = data->m_duckSpeed;
-	}
+
+	if (std::abs(duck_amount) < 0.03125f)
+		local->m_flDuckAmount() = data->m_duckAmount;
 }
 
 void NetData::reset() {

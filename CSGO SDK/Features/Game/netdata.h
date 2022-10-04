@@ -20,6 +20,7 @@ private:
 		float  m_velocity_modifier;
 		float m_duckAmount = 0.f;
 		float m_duckSpeed = 0.f;
+		bool   m_is_filled = false;
 
 	public:
 		__forceinline StoredData_t() : m_tickbase{ }, m_command{ }, m_punch{ }, m_punch_vel{ }, m_view_offset{ } {};
