@@ -1185,6 +1185,7 @@ void Menu::Ragebot() {
 				ImGui::Checkbox(XorStr("Enable"), &g_Vars.rage.enabled);
 				ImGui::Checkbox(XorStr("Silent aim"), &g_Vars.rage.silent_aim);
 				ImGui::Checkbox(XorStr("Auto-fire"), &g_Vars.rage.auto_fire);
+				ImGui::Checkbox(XorStr("Experimental resolver"), &g_Vars.misc.expermimental_resolver);
 				ImGui::Checkbox(XorStr("Knife bot"), &g_Vars.misc.knife_bot);
 				const char* knife_bot_type[] = { XorStr("Default"), XorStr("Backstab"), XorStr("Quick") };
 				if (g_Vars.misc.knife_bot) {
@@ -2372,7 +2373,6 @@ void Menu::Misc() {
 #if defined(BETA_MODE) || defined(DEV)
 			ImGui::Text(XorStr("----------beta/debug----------"));
 			ImGui::Checkbox(XorStr("Resolver flags"), &g_Vars.misc.resolver_flags);
-			ImGui::Checkbox(XorStr("Experimental resolver"), &g_Vars.misc.expermimental_resolver);
 			ImGui::Checkbox(XorStr("Hide debug flags"), &g_Vars.misc.undercover_flags);
 			ImGui::Text(XorStr("----------beta/debug----------"));
 #endif

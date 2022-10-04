@@ -1705,9 +1705,10 @@ public:
 
 	config_option(bool, lua_allow_http_requests, false);
 
+	config_option(bool, expermimental_resolver, false);
+
 #if defined(BETA_MODE) || defined(DEV)
 	config_option(bool, resolver_flags, false);
-	config_option(bool, expermimental_resolver, false);
 	config_option( bool, undercover_log, false );
 	config_option( bool, undercover_watermark, false );
 	config_option(bool, undercover_flags, false);
