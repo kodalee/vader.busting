@@ -27,6 +27,7 @@ void NetData::store(CUserCmd* cmd) {
 	data->m_view_offset = local->m_vecViewOffset();
 	data->m_velocity_modifier = local->m_flVelocityModifier();
 	data->m_duckAmount = local->m_flDuckAmount();
+	data->m_flFallVelocity = local->m_flFallVelocity();
 	data->m_is_filled = true;
 }
 
@@ -63,6 +64,7 @@ void NetData::apply() {
 	view_delta = local->m_vecViewOffset() - data->m_view_offset;
 	modifier_delta = local->m_flVelocityModifier() - data->m_velocity_modifier;
 	auto duck_amount = local->m_flDuckAmount() - data->m_duckAmount;
+	auto fall_velocity_delta = local->m_flFallVelocity() - data->m_flFallVelocity;
 
 	// get deltas.
 	 // note - dex;  before, when you stop shooting, punch values would sit around 0.03125 and then goto 0 next update.
@@ -86,11 +88,14 @@ void NetData::apply() {
 	}
 
 	//modify deltas restoration
-	if (std::abs(modifier_delta) <= 0.00625f)
+	if (std::abs(modifier_delta) < 0.00625f)
 		local->m_flVelocityModifier() = data->m_velocity_modifier;
 
 	if (std::abs(duck_amount) < 0.03125f)
 		local->m_flDuckAmount() = data->m_duckAmount;
+
+	if (std::abs(fall_velocity_delta) < 0.03125f)
+		local->m_flFallVelocity() = data->m_flFallVelocity;
 }
 
 void NetData::reset() {
