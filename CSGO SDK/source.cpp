@@ -665,22 +665,22 @@ void __fastcall hkAddRenderable( void* ecx, void* edx, IClientRenderable* pRende
 //	oPostNetworkDataReceived(/*ecx, edx, */commandsAck);
 //}
 
-using CPredictionCopyTransferData_t = int(__fastcall*)(void*, void*, const char*, int, datamap_t*);
-CPredictionCopyTransferData_t TransferDataOriginal;
-int __fastcall TransferData(void* edx, void* ecx, const char* name, int entIndex, datamap_t* map) {
-	//printf(XorStr("called CPredictionCopy::TransferData"));
-
-	//55 8B EC 8B 45 10 53 56 8B F1 57
-	static auto original = TransferDataOriginal;
-
-	// i cannot tell what chambers intended to do with this... maybe a return address check to this signature?
-	static auto to_post_network_data_received = reinterpret_cast<void*>(Memory::Scan(XorStr("client.dll"), XorStr("85 C0 8D 4C 24 3C")));
-	// what i can do is something ghetto aka seeing if PostNetworkDataRecieved was called or not, but something better to do may be to ask chambers what he meant with this.
-
-	Engine::Prediction::Instance()->OnFrameStageNotify();
-
-	return original(edx, ecx, name, entIndex, map);
-}
+//using CPredictionCopyTransferData_t = int(__fastcall*)(void*, void*, const char*, int, datamap_t*);
+//CPredictionCopyTransferData_t TransferDataOriginal;
+//int __fastcall TransferData(void* edx, void* ecx, const char* name, int entIndex, datamap_t* map) {
+//	//printf(XorStr("called CPredictionCopy::TransferData"));
+//
+//	//55 8B EC 8B 45 10 53 56 8B F1 57
+//	static auto original = TransferDataOriginal;
+//
+//	// i cannot tell what chambers intended to do with this... maybe a return address check to this signature?
+//	static auto to_post_network_data_received = reinterpret_cast<void*>(Memory::Scan(XorStr("client.dll"), XorStr("85 C0 8D 4C 24 3C")));
+//	// what i can do is something ghetto aka seeing if PostNetworkDataRecieved was called or not, but something better to do may be to ask chambers what he meant with this.
+//
+//	Engine::Prediction::Instance()->OnFrameStageNotify();
+//
+//	return original(edx, ecx, name, entIndex, map);
+//}
 
 //using PhysicsSimulateFn = void( __thiscall* ) ( void* ecx );
 //PhysicsSimulateFn oPhysicsSimulate;
@@ -1290,8 +1290,8 @@ namespace Interfaces
 		//auto physics_simulate_adr = rel32_resolve( Memory::Scan( XorStr( "client.dll" ), XorStr( "E8 ? ? ? ? 80 BE ? ? ? ? ? 0F 84 ? ? ? ? 8B 06" ) ) );
 		//oPhysicsSimulate = Hooked::HooksManager.CreateHook<decltype( oPhysicsSimulate ) >( &hkPhysicsSimulate, ( void* )physics_simulate_adr );
 
-		static auto CPredictionCopyTranferDataHook = reinterpret_cast<void*>(Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 8B 45 10 53 56 8B F1 57")));
-		TransferDataOriginal = Hooked::HooksManager.CreateHook<decltype(TransferDataOriginal)>(&TransferData, CPredictionCopyTranferDataHook);
+		//static auto CPredictionCopyTranferDataHook = reinterpret_cast<void*>(Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 8B 45 10 53 56 8B F1 57")));
+		//TransferDataOriginal = Hooked::HooksManager.CreateHook<decltype(TransferDataOriginal)>(&TransferData, CPredictionCopyTranferDataHook);
 
 		//static auto ballshack123 = reinterpret_cast<void*>(Memory::Scan(XorStr("client.dll"), XorStr("E8 40 00 00 00 33 F6 6A 02")));
 		//oPostNetworkDataReceived = Hooked::HooksManager.CreateHook<decltype(oPostNetworkDataReceived)>(&PostDataNetworkReceived, ballshack123);
