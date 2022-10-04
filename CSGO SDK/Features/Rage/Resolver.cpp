@@ -528,9 +528,9 @@ namespace Engine {
 
 		if (g_Vars.rage.override_reoslver.enabled && (speed <= 20.f || record->m_bFakeWalking))
 			record->m_iResolverMode = RESOLVE_OVERRIDE;
-		else if (pLagData->m_iMissedShotsNOLBY < 1 && IsResolvableByLBY(player) && !record->m_bIsFakeFlicking) {
-			record->m_iResolverMode = NOLBY;
-		}
+		//else if (pLagData->m_iMissedShotsNOLBY < 1 && IsResolvableByLBY(player) && !record->m_bIsFakeFlicking) {
+		//	record->m_iResolverMode = NOLBY;
+		//}
 		else if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
 
 			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking && pLagData->m_iMissedShotsLBY < 1) {
@@ -939,168 +939,163 @@ namespace Engine {
 		C_AnimationRecord* move = &pLagData->m_walk_record;
 
 		auto at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
-		if (!(record->m_iResolverMode = NOLBY)) {
-			if (is_flicking && pLagData->m_iMissedShotsLBY < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f || record->m_bFakeWalking))
-			{
-				//m_iMode = 0;
-				record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
 
-				//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
+		if (is_flicking && pLagData->m_iMissedShotsLBY < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f || record->m_bFakeWalking))
+		{
+			//m_iMode = 0;
+			record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
 
-				record->m_iResolverMode = FLICK;
-				record->m_iResolverText = XorStr("UPDATE");
-			}
-			else {
-				if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
-					AntiFreestand(record, player);
-				}
-				else if (record->m_iResolverMode == LASTMOVE) {
-					auto animstate = player->m_PlayerAnimState();
-					static float absrotation_before_flick;
+			//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 
-					if (animstate && !is_flicking) {
-						absrotation_before_flick = animstate->m_flAbsRotation;
-					}
-
-					if (g_ResolverData->hitPlayer[player->EntIndex()] && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (player->m_vecVelocity().Length2D() < 0.1f || (player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking))) {
-						static bool repeat[64];
-						if (!repeat[player->EntIndex()]) {
-							if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
-								g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
-							}
-							else
-								g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y + record->m_body);
-
-							g_ResolverData->hasStoredLby[player->EntIndex()] = true;
-							repeat[player->EntIndex()] = true;
-						}
-						if (repeat[player->EntIndex()]) {
-							g_ResolverData->hasStoredLby[player->EntIndex()] = true;
-						}
-					}
-					else if (!(g_ResolverData->hitPlayer[player->EntIndex()])) {
-						g_ResolverData->hasStoredLby[player->EntIndex()] = false;
-					}
-
-					if (g_ResolverData->hasStoredLby[player->EntIndex()] && g_Vars.misc.expermimental_resolver) {
-						if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
-							record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget - g_ResolverData->storedLbyDelta[player->EntIndex()]);
-							record->m_iResolverText = XorStr("-LBY LOGGED");
-						}
-						else {
-							record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget + g_ResolverData->storedLbyDelta[player->EntIndex()]);
-							record->m_iResolverText = XorStr("+LBY LOGGED");
-						}
-					}
-					else if (!HasStaticRealAngle(anim_data->m_AnimationRecord, 10) && g_Vars.misc.expermimental_resolver) {
-						record->m_angEyeAngles.y = at_target_yaw + 180.f;
-						record->m_iResolverText = XorStr("INVALID LASTMOVE");
-					}
-					else {
-						record->m_angEyeAngles.y = move->m_body;
-						record->m_iResolverText = XorStr("LASTMOVE");
-					}
-				}
-				else if (record->m_iResolverMode == LBYDELTA) {
-					record->m_angEyeAngles.y = Math::normalize_float(pLagData->m_flLowerBodyYawTarget - pLagData->m_flSavedLbyDelta);
-					record->m_iResolverText = XorStr("DELTA");
-				}
-				else if (record->m_iResolverMode == DISTORTINGLMOVE) {
-					record->m_angEyeAngles.y = at_target_yaw + 180.f;
-					record->m_iResolverText = XorStr("DISTORTION");
-				}
-				//else if (record->m_iResolverMode == SPIN) {
-				//	record->m_angEyeAngles.y = (record->spinbody + record->spindelta * record->m_iChokeTicks) * record->step++;
-				//}
-				else if (record->m_iResolverMode == ANTIFREESTAND) {
-					record->m_iResolverText = XorStr("FREESTAND");
-					//if (ShouldUseFreestand(record, player)) {
-					//	if (bFacingleft) {
-					//		record->m_angEyeAngles.y = at_target_yaw - 90.f;
-					//		record->m_iResolverText = XorStr("FREESTANDCUSTOM1");
-					//	}
-					//	else if (bFacingright) {
-					//		record->m_angEyeAngles.y = at_target_yaw + 90.f;
-					//		record->m_iResolverText = XorStr("FREESTANDCUSTOM2");
-					//	}
-					//	else
-					//		AntiFreestand(record, player);
-					//}
-					//else
-					AntiFreestand(record, player);
-				}
-				else if (record->m_iResolverMode == STAND) {
-					auto animstate = player->m_PlayerAnimState();
-					static float absrotation_before_flick;
-
-					if (animstate && !is_flicking) {
-						absrotation_before_flick = animstate->m_flAbsRotation;
-					}
-
-					if (g_ResolverData->hitPlayer[player->EntIndex()] && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (player->m_vecVelocity().Length2D() < 0.1f || (player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking))) {
-						static bool repeat[64];
-						if (!repeat[player->EntIndex()]) {
-							if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
-								g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y + record->m_body);
-							}
-							else
-								g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
-
-							g_ResolverData->hasStoredLby[player->EntIndex()] = true;
-							repeat[player->EntIndex()] = true;
-						}
-						if (repeat[player->EntIndex()]) {
-							g_ResolverData->hasStoredLby[player->EntIndex()] = true;
-						}
-					}
-					else if (!(g_ResolverData->hitPlayer[player->EntIndex()])) {
-						g_ResolverData->hasStoredLby[player->EntIndex()] = false;
-					}
-
-					if (g_ResolverData->hasStoredLby[player->EntIndex()] && g_Vars.misc.expermimental_resolver && pLagData->m_iMissedLBYLog < 1) {
-						if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
-							record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget + g_ResolverData->storedLbyDelta[player->EntIndex()]);
-							record->m_iResolverText = XorStr("+LBY LOGGED");
-						}
-						else {
-							record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget - g_ResolverData->storedLbyDelta[player->EntIndex()]);
-							record->m_iResolverText = XorStr("+LBY LOGGED");
-						}
-					}
-					else {
-						switch (pLagData->m_iMissedBruteShots % 6) {
-						case 0:
-							record->m_angEyeAngles.y = at_target_yaw + 180.f;
-							record->m_iResolverText = XorStr("BACKWARDS");
-							break;
-						case 1:
-							record->m_angEyeAngles.y = at_target_yaw - 70.f;
-							record->m_iResolverText = XorStr("LEFT");
-							break;
-						case 2:
-							record->m_angEyeAngles.y = at_target_yaw + 70.f;
-							record->m_iResolverText = XorStr("RIGHT");
-							break;
-						case 3:
-							record->m_angEyeAngles.y = at_target_yaw;
-							record->m_iResolverText = XorStr("FORWARDS");
-							break;
-						case 4:
-							record->m_angEyeAngles.y = at_target_yaw - 120.f;
-							record->m_iResolverText = XorStr("-120");
-							break;
-						case 5:
-							record->m_angEyeAngles.y = at_target_yaw + 120.f;
-							record->m_iResolverText = XorStr("+120");
-							break;
-						}
-					}
-				}
-			}
+			record->m_iResolverMode = FLICK;
+			record->m_iResolverText = XorStr("UPDATE");
 		}
-		else if (record->m_iResolverMode == NOLBY) {
-			record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
-			record->m_iResolverText = XorStr("NO LBY");
+		else {
+			if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
+				AntiFreestand(record, player);
+			}
+			else if (record->m_iResolverMode == LASTMOVE) {
+				auto animstate = player->m_PlayerAnimState();
+				static float absrotation_before_flick;
+
+				if (animstate && !is_flicking) {
+					absrotation_before_flick = animstate->m_flAbsRotation;
+				}
+
+				if (g_ResolverData->hitPlayer[player->EntIndex()] && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (player->m_vecVelocity().Length2D() < 0.1f || (player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking))) {
+					static bool repeat[64];
+					if (!repeat[player->EntIndex()]) {
+						if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
+							g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
+						}
+						else
+							g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y + record->m_body);
+
+						g_ResolverData->hasStoredLby[player->EntIndex()] = true;
+						repeat[player->EntIndex()] = true;
+					}
+					if (repeat[player->EntIndex()]) {
+						g_ResolverData->hasStoredLby[player->EntIndex()] = true;
+					}
+				}
+				else if (!(g_ResolverData->hitPlayer[player->EntIndex()])) {
+					g_ResolverData->hasStoredLby[player->EntIndex()] = false;
+				}
+
+				if (g_ResolverData->hasStoredLby[player->EntIndex()] && g_Vars.misc.expermimental_resolver) {
+					if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
+						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget - g_ResolverData->storedLbyDelta[player->EntIndex()]);
+						record->m_iResolverText = XorStr("-LBY LOGGED");
+					}
+					else {
+						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget + g_ResolverData->storedLbyDelta[player->EntIndex()]);
+						record->m_iResolverText = XorStr("+LBY LOGGED");
+					}
+				}
+				else if (!HasStaticRealAngle(anim_data->m_AnimationRecord, 10) && g_Vars.misc.expermimental_resolver) {
+					record->m_angEyeAngles.y = at_target_yaw + 180.f;
+					record->m_iResolverText = XorStr("INVALID LASTMOVE");
+				}
+				else {
+					record->m_angEyeAngles.y = move->m_body;
+					record->m_iResolverText = XorStr("LASTMOVE");
+				}
+			}
+			else if (record->m_iResolverMode == LBYDELTA) {
+				record->m_angEyeAngles.y = Math::normalize_float(pLagData->m_flLowerBodyYawTarget - pLagData->m_flSavedLbyDelta);
+				record->m_iResolverText = XorStr("DELTA");
+			}
+			else if (record->m_iResolverMode == DISTORTINGLMOVE) {
+				record->m_angEyeAngles.y = at_target_yaw + 180.f;
+				record->m_iResolverText = XorStr("DISTORTION");
+			}
+			//else if (record->m_iResolverMode == SPIN) {
+			//	record->m_angEyeAngles.y = (record->spinbody + record->spindelta * record->m_iChokeTicks) * record->step++;
+			//}
+			else if (record->m_iResolverMode == ANTIFREESTAND) {
+				record->m_iResolverText = XorStr("FREESTAND");
+				//if (ShouldUseFreestand(record, player)) {
+				//	if (bFacingleft) {
+				//		record->m_angEyeAngles.y = at_target_yaw - 90.f;
+				//		record->m_iResolverText = XorStr("FREESTANDCUSTOM1");
+				//	}
+				//	else if (bFacingright) {
+				//		record->m_angEyeAngles.y = at_target_yaw + 90.f;
+				//		record->m_iResolverText = XorStr("FREESTANDCUSTOM2");
+				//	}
+				//	else
+				//		AntiFreestand(record, player);
+				//}
+				//else
+				AntiFreestand(record, player);
+			}
+			else if (record->m_iResolverMode == STAND) {
+				auto animstate = player->m_PlayerAnimState();
+				static float absrotation_before_flick;
+
+				if (animstate && !is_flicking) {
+					absrotation_before_flick = animstate->m_flAbsRotation;
+				}
+
+				if (g_ResolverData->hitPlayer[player->EntIndex()] && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (player->m_vecVelocity().Length2D() < 0.1f || (player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking))) {
+					static bool repeat[64];
+					if (!repeat[player->EntIndex()]) {
+						if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
+							g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y + record->m_body);
+						}
+						else
+							g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
+
+						g_ResolverData->hasStoredLby[player->EntIndex()] = true;
+						repeat[player->EntIndex()] = true;
+					}
+					if (repeat[player->EntIndex()]) {
+						g_ResolverData->hasStoredLby[player->EntIndex()] = true;
+					}
+				}
+				else if (!(g_ResolverData->hitPlayer[player->EntIndex()])) {
+					g_ResolverData->hasStoredLby[player->EntIndex()] = false;
+				}
+
+				if (g_ResolverData->hasStoredLby[player->EntIndex()] && g_Vars.misc.expermimental_resolver && pLagData->m_iMissedLBYLog < 1) {
+					if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
+						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget + g_ResolverData->storedLbyDelta[player->EntIndex()]);
+						record->m_iResolverText = XorStr("+LBY LOGGED");
+					}
+					else {
+						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget - g_ResolverData->storedLbyDelta[player->EntIndex()]);
+						record->m_iResolverText = XorStr("+LBY LOGGED");
+					}
+				}
+				else {
+					switch (pLagData->m_iMissedBruteShots % 6) {
+					case 0:
+						record->m_angEyeAngles.y = at_target_yaw + 180.f;
+						record->m_iResolverText = XorStr("BACKWARDS");
+						break;
+					case 1:
+						record->m_angEyeAngles.y = at_target_yaw - 70.f;
+						record->m_iResolverText = XorStr("LEFT");
+						break;
+					case 2:
+						record->m_angEyeAngles.y = at_target_yaw + 70.f;
+						record->m_iResolverText = XorStr("RIGHT");
+						break;
+					case 3:
+						record->m_angEyeAngles.y = at_target_yaw;
+						record->m_iResolverText = XorStr("FORWARDS");
+						break;
+					case 4:
+						record->m_angEyeAngles.y = at_target_yaw - 120.f;
+						record->m_iResolverText = XorStr("-120");
+						break;
+					case 5:
+						record->m_angEyeAngles.y = at_target_yaw + 120.f;
+						record->m_iResolverText = XorStr("+120");
+						break;
+					}
+				}
+			}
 		}
 	}
 
