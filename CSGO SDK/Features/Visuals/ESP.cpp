@@ -1283,7 +1283,7 @@ void CEsp::Main( ) {
 		if (!player)
 			continue;
 
-		if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex() && g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0)
+		if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex())
 			continue;
 
 		if (ent->IsDormant())
@@ -1423,9 +1423,7 @@ void CEsp::Main( ) {
 					FloatColor color;
 
 					if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex()) {
-						if (g_Vars.mp_friendlyfire && g_Vars.mp_friendlyfire->GetInt() == 0) {
-							color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.8f);
-						}
+						color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.8f);
 					}
 					else {
 						color = FloatColor(1.f, 0.f, 0.f, 0.8f);
