@@ -97,6 +97,9 @@ namespace Engine
 		int m_iMissedShotsDistort = 0;
 		int m_iMissedShotsFreestand = 0;
 		int m_iMissedShotsLBY = 0;
+		int m_iMissedShotsInAir = 0;
+		int m_iMissedShotsNOLBY = 0;
+		int m_iMissedLBYLog = 0;
 		int m_stand_index2 = 0;
 		int m_lby_index = 0;
 		int m_body_index = 0;
