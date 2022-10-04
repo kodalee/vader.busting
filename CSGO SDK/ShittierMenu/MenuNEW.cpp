@@ -1652,6 +1652,11 @@ void Menu::Players() {
 						ImGui::SliderFloat(XorStr("Footsteps thickness"), &g_Vars.esp.footsteps_thickness, 1.f, 10.f, XorStr("%.f"));
 						ImGui::SliderFloat(XorStr("Footsteps radius"), &g_Vars.esp.footsteps_radius, 50.f, 500.f, XorStr("%.f"));
 					}
+					ImGui::Checkbox(XorStr("Dlight"), &g_Vars.esp.dlight_enemy_enable);
+					if (g_Vars.esp.dlight_enemy_enable) {
+						ColorPicker(XorStr("Dlight"), g_Vars.esp.dlight_enemy_color, true, false);
+						ImGui::SliderInt(XorStr("Dlight radius"), &g_Vars.esp.dlight_enemy_radius, 0, 275, XorStr("%d"));
+					}
 				}
 				else if (playerTab == 1) {
 					ImGui::Checkbox(XorStr("Name"), &g_Vars.esp.teamname);
@@ -1680,6 +1685,11 @@ void Menu::Players() {
 				}
 				ImGui::Checkbox(XorStr("Local Skeleton"), &g_Vars.esp.local_skeleton);
 				ColorPicker(XorStr("Skeleton Color"), g_Vars.esp.local_skeleton_color, true, false);
+				ImGui::Checkbox(XorStr("Local Dlight"), &g_Vars.esp.dlight_local_enable);
+				if (g_Vars.esp.dlight_local_enable) {
+					ColorPicker(XorStr("Local Dlight"), g_Vars.esp.dlight_local_color, true, false);
+					ImGui::SliderInt(XorStr("Local Dlight radius"), &g_Vars.esp.dlight_local_radius, 0, 275, XorStr("%d"));
+				}
 				ImGui::Checkbox(XorStr("Local Glow"), &g_Vars.esp.glow_local);
 				ColorPicker(XorStr("##localglowcolor"), g_Vars.esp.glow_local_color, true, false);
 				if (g_Vars.esp.glow_local) {

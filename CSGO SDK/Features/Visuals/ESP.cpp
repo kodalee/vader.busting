@@ -311,7 +311,7 @@ void dlight_players()
 {
 	C_CSPlayer* local = C_CSPlayer::GetLocalPlayer();
 
-	if (!local || !g_Vars.esp.dlight_players_enable)
+	if (!local)
 		return;
 
 	if (local->IsAlive() && g_Vars.esp.dlight_local_enable) {
