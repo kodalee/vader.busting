@@ -41,15 +41,12 @@ void NetData::apply() {
 	Vector       view_delta;
 	float        modifier_delta;
 
-	if (!Interfaces::m_pEngine->IsInGame()) {
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	if (!local || !Interfaces::m_pEngine->IsInGame()) {
 		reset();
 		return;
 	}
-
-	auto local = C_CSPlayer::GetLocalPlayer();
-
-	if (!local)
-		return;
 
 	tickbase = local->m_nTickBase();
 
