@@ -808,7 +808,7 @@ public:
 	config_option( bool, between_shots, false );
 
 	config_option( bool, min_damage_override, false );
-	config_option( float, min_damage_override_amount, 0.f );
+	config_option( int, min_damage_override_amount, 0 );
 
 	config_option( int, hitbox_selection, 0 ); // Damage, Accuracy
 

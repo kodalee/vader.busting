@@ -1888,7 +1888,11 @@ void CEsp::AmmoBar( C_CSPlayer* player, BBox_t bbox ) {
 
 			// less then a 5th of the bullets left.
 			if( current < max || reloading ) {
-				Render::Engine::pixel_reg.string( bbox.x + bar, bbox.y + bbox.h, Color( 255, 255, 255, 180 * this->m_flAlpha[ player->EntIndex( ) ] ), std::to_string( reloading ? reload_percentage : current ).append( reloading ? XorStr( "%" ) : XorStr( "" ) ), Render::Engine::ALIGN_CENTER );
+				if (!player->IsDormant()) {
+					Render::Engine::pixel_reg.string(bbox.x + bar, bbox.y + bbox.h, Color(255, 255, 255, 180 * this->m_flAlpha[player->EntIndex()]), std::to_string(reloading ? reload_percentage : current).append(reloading ? XorStr("%") : XorStr("")), Render::Engine::ALIGN_CENTER);
+				}
+				else
+					Render::Engine::pixel_reg.string(bbox.x + bar, bbox.y + bbox.h, Color(112, 112, 112, 180 * this->m_flAlpha[player->EntIndex()]), std::to_string(reloading ? reload_percentage : current).append(reloading ? XorStr("%") : XorStr("")), Render::Engine::ALIGN_CENTER);
 			}
 		}
 	}
@@ -2068,8 +2072,13 @@ void CEsp::DrawHealthBar( C_CSPlayer* player, BBox_t bbox ) {
 	}
 
 	// if hp is below max, draw a string.
-	if( hp_animated < 100 )
-		Render::Engine::pixel_reg.string( bbox.x - 5, y + ( h - fill ) - 5, Color( 255, 255, 255, 200 * GetAlpha( player->EntIndex( ) ) ), std::to_string( hp ), Render::Engine::ALIGN_CENTER );
+	if( hp_animated < 100 ) {
+		if (!player->IsDormant()) {
+			Render::Engine::pixel_reg.string(bbox.x - 5, y + (h - fill) - 5, Color(255, 255, 255, 200 * GetAlpha(player->EntIndex())), std::to_string(hp), Render::Engine::ALIGN_CENTER);
+		}
+		else
+			Render::Engine::pixel_reg.string(bbox.x - 5, y + (h - fill) - 5, Color(112, 112, 112, 200 * GetAlpha(player->EntIndex())), std::to_string(hp), Render::Engine::ALIGN_CENTER);
+	}
 }
 
 void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info ) {

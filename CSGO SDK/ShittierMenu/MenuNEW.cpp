@@ -1325,7 +1325,7 @@ void Menu::Ragebot() {
 				ImGui::SameLine(213.f);
 				ImGui::Keybind(XorStr("##MinDamageOverride"), &g_Vars.rage.key_dmg_override.key, &g_Vars.rage.key_dmg_override.cond);
 				if (rbot->min_damage_override) {
-					ImGui::SliderFloat(XorStr("Dmg override amount"), &rbot->min_damage_override_amount, 1.f, 130.f, std::string(rbot->min_damage_override_amount > 100.f ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100.f)))) : XorStr("%1.f hp")).c_str());
+					ImGui::SliderInt(XorStr("Dmg override amount"), &rbot->min_damage_override_amount, 1, 130, std::string(rbot->min_damage_override_amount > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_override_amount - 100)))) : XorStr("%d hp")).c_str());
 				}
 
 				ImGui::Checkbox(XorStr("Override hitscan"), &rbot->override_hitscan);
