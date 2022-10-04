@@ -18,12 +18,12 @@ private:
 		QAngle  m_punch_vel;
 		Vector m_view_offset;
 		float  m_velocity_modifier;
-		float m_duckAmount = 0.f;
-		float m_duckSpeed = 0.f;
-		bool   m_is_filled = false;
+		float m_duckAmount;
+		float m_duckSpeed;
+		bool m_is_filled;
 
 	public:
-		__forceinline StoredData_t() : m_tickbase{ }, m_command{ }, m_punch{ }, m_punch_vel{ }, m_view_offset{ } {};
+		__forceinline StoredData_t() : m_tickbase{ }, m_command{ }, m_punch{ }, m_punch_vel{ }, m_view_offset{ }, m_velocity_modifier { }, m_duckAmount{ }, m_duckSpeed { }, m_is_filled { } {};
 	};
 
 	std::array< StoredData_t, MULTIPLAYER_BACKUP > m_data;

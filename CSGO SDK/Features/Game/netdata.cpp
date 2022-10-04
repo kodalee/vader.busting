@@ -7,15 +7,12 @@ void NetData::store(CUserCmd* cmd) {
 	int          slot;
 	StoredData_t* data;
 
-	if (!Interfaces::m_pEngine->IsInGame()) {
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	if (!local || !local->IsAlive() || !Interfaces::m_pEngine->IsInGame()) {
 		reset();
 		return;
 	}
-
-	auto local = C_CSPlayer::GetLocalPlayer();
-
-	if (!local)
-		return;
 
 	tickbase = local->m_nTickBase();
 	slot = cmd->command_number;
@@ -43,7 +40,7 @@ void NetData::apply() {
 
 	auto local = C_CSPlayer::GetLocalPlayer();
 
-	if (!local || !Interfaces::m_pEngine->IsInGame()) {
+	if (!local || !local->IsAlive() || !Interfaces::m_pEngine->IsInGame()) {
 		reset();
 		return;
 	}
@@ -93,7 +90,7 @@ void NetData::apply() {
 	if (std::abs(modifier_delta) <= 0.00625f)
 		local->m_flVelocityModifier() = data->m_velocity_modifier;
 
-	if (std::abs(local->m_nTickBase() - data->m_tickbase) < 0.00625f)
+	if (std::abs(local->m_nTickBase() - data->m_tickbase) <= 0.00625f)
 		local->m_nTickBase() = data->m_tickbase;
 
 	if (std::abs(local->m_flDuckSpeed() - data->m_duckSpeed) < 0.03125f)
