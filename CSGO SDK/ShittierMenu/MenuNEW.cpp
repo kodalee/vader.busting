@@ -1677,8 +1677,6 @@ void Menu::Players() {
 			const char* glow_types[] = { XorStr("Standard"), XorStr("Pulse"), XorStr("Inner") };
 
 			ImGui::BeginGroupBox(XorStr("Player viewmodel"), ImVec2(244.f, 200.f)); {
-
-				ImGui::Checkbox(XorStr("Enable"), &g_Vars.esp.chams_local);
 				ImGui::Checkbox(XorStr("Transparency while scoped"), &g_Vars.esp.blur_in_scoped);
 				if (g_Vars.esp.blur_in_scoped) {
 					ImGui::SliderFloat(XorStr("Scoped transparency"), &g_Vars.esp.blur_in_scoped_value, 0.0f, 100.f, XorStr("%.f"));
@@ -1696,7 +1694,7 @@ void Menu::Players() {
 					ImGui::Combo(XorStr("Local Glow Type"), &g_Vars.esp.glow_type_local, glow_types, IM_ARRAYSIZE(glow_types));
 				}
 
-
+				ImGui::Checkbox(XorStr("Enable"), &g_Vars.esp.chams_local);
 				if (g_Vars.esp.chams_local) {
 
 					ImGui::Combo(XorStr("Local"), &g_Vars.esp.new_chams_local, chams_mats_local, IM_ARRAYSIZE(chams_mats_local));
