@@ -1413,6 +1413,7 @@ void Menu::AntiAim() {
 				if (g_Vars.antiaim.lby_breaker) {
 					ImGui::SliderFloat(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -180.f, 180.f, XorStr("%1.f"));
 					ImGui::SliderFloat(XorStr("First Break angle"), &g_Vars.antiaim.break_lby_first, -180.f, 180.f, XorStr("%1.f"));
+					ImGui::Checkbox(XorStr("Static angle"), &g_Vars.antiaim.static_angle);
 				}
 
 				ImGui::Checkbox(XorStr("Freestanding"), &g_Vars.antiaim.freestand);
