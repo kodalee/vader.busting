@@ -75,26 +75,26 @@ void NetData::apply() {
 	};
 
 	// set data.
-	if (delta(local->m_aimPunchAngle(), data->m_punch) < 0.03125f) {
+	if (delta(local->m_aimPunchAngle(), data->m_punch) <= 0.03125f) {
 		local->m_aimPunchAngle() = data->m_punch;
 	}
 
-	if (delta(local->m_aimPunchAngleVel(), data->m_punch_vel) < 0.03125f) {
+	if (delta(local->m_aimPunchAngleVel(), data->m_punch_vel) <= 0.03125f) {
 		local->m_aimPunchAngleVel() = data->m_punch_vel;
 	}
 
-	if (local->m_vecViewOffset().Distance(data->m_view_offset) < 0.03125f) {
+	if (local->m_vecViewOffset().Distance(data->m_view_offset) <= 0.03125f) {
 		local->m_vecViewOffset() = data->m_view_offset;
 	}
 
 	//modify deltas restoration
-	if (std::abs(modifier_delta) < 0.00625f)
+	if (std::abs(modifier_delta) <= 0.00625f)
 		local->m_flVelocityModifier() = data->m_velocity_modifier;
 
-	if (std::abs(duck_amount) < 0.03125f)
+	if (std::abs(duck_amount) <= 0.03125f)
 		local->m_flDuckAmount() = data->m_duckAmount;
 
-	if (std::abs(fall_velocity_delta) < 0.03125f)
+	if (std::abs(fall_velocity_delta) <= 0.03125f)
 		local->m_flFallVelocity() = data->m_flFallVelocity;
 }
 
