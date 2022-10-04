@@ -27,7 +27,6 @@ void NetData::store(CUserCmd* cmd) {
 	data->m_view_offset = local->m_vecViewOffset();
 	data->m_velocity_modifier = local->m_flVelocityModifier();
 	data->m_duckAmount = local->m_flDuckAmount();
-	data->m_duckSpeed = local->m_flDuckSpeed();
 	data->m_is_filled = true;
 }
 
