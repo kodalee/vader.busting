@@ -90,12 +90,6 @@ void NetData::apply() {
 	if (std::abs(modifier_delta) <= 0.00625f)
 		local->m_flVelocityModifier() = data->m_velocity_modifier;
 
-	if (std::abs(local->m_nTickBase() - data->m_tickbase) <= 0.00625f)
-		local->m_nTickBase() = data->m_tickbase;
-
-	if (std::abs(local->m_flDuckSpeed() - data->m_duckSpeed) < 0.03125f)
-		local->m_flDuckSpeed() = data->m_duckSpeed;
-
 	if (std::abs(duck_amount) < 0.03125f)
 		local->m_flDuckAmount() = data->m_duckAmount;
 }
