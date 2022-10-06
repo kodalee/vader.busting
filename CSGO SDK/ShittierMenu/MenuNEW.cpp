@@ -2321,7 +2321,7 @@ void Menu::Misc() {
 	ImGui::BeginGroup(); {
 		ImGui::BeginGroupBox(XorStr("Matchmaking"), ImVec2(244.f, 100.f)); {
 			ImGui::Checkbox("Anti untrusted", &g_Vars.misc.anti_untrusted);
-			ImGui::Checkbox("Unlock Invetory", &g_Vars.misc.unlock_inventory);
+			ImGui::Checkbox("Unlock inventory", &g_Vars.misc.unlock_inventory);
 
 			ImGui::Spacing();
 			ImGui::EndGroupBox();
