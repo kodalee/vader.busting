@@ -1515,7 +1515,7 @@ public:
 	config_option( bool, move_exploit, false );
 	config_option( bool, bypass_mrx, false );
 	config_keybind( move_exploit_key );
-	config_option(float, move_exploit_intensity, 2);
+	config_option(int, move_exploit_intensity, 1);
 
 
 	config_option( bool, instant_stop, false );

@@ -1460,7 +1460,7 @@ void Menu::AntiAim() {
 				ImGui::SameLine(213.f);
 				ImGui::Keybind(XorStr("Move Exploit key"), &g_Vars.misc.move_exploit_key.key, &g_Vars.misc.move_exploit_key.cond);
 				if (g_Vars.misc.move_exploit) {
-					ImGui::SliderFloat(XorStr("Move Exploit intensity"), &g_Vars.misc.move_exploit_intensity, 1.f, 16.f, XorStr("%1.f"));
+					ImGui::SliderInt(XorStr("Move Exploit intensity"), &g_Vars.misc.move_exploit_intensity, 1, 16, XorStr("%d"));
 				}
 
 				ImGui::Checkbox(XorStr("Flick on Shift"), &g_Vars.antiaim.desync_on_dt);
