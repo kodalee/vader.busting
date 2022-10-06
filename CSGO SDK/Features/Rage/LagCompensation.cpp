@@ -183,16 +183,16 @@ namespace Engine
 		// check bounds [ 0, sv_maxunlag ]
 		Math::Clamp(correct, 0.f, g_Vars.sv_maxunlag->GetFloat());
 
-		//auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
-		//if (weapon) {
-		//	auto weaponData = weapon->GetCSWeaponData();
-		//	if (weaponData.IsValid()) {
-		//		if (weaponData.Xor()->m_iWeaponType != WEAPONTYPE_KNIFE) {
-		//			if (/*g_Vars.misc.disablebtondt &&*/ (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
-		//				correct -= g_TickbaseController.s_nExtraProcessingTicks;
-		//		}
-		//	}
-		//}
+		auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
+		if (weapon) {
+			auto weaponData = weapon->GetCSWeaponData();
+			if (weaponData.IsValid()) {
+				if (weaponData.Xor()->m_iWeaponType != WEAPONTYPE_KNIFE) {
+					if (/*g_Vars.misc.disablebtondt &&*/ (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
+						correct -= g_TickbaseController.s_nExtraProcessingTicks;
+				}
+			}
+		}
 
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.

@@ -423,15 +423,14 @@ namespace Interfaces
 		if (Interfaces::m_pClientState->m_nChokedCommands() || (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick))
 			return;
 
-		if (animstate->m_velocity > 0.1f || animstate->m_vecVelocity.Length() > 0.1f)
+		if (animstate->m_velocity > 0.1f)
 		{
-			g_Vars.globals.m_flBodyPred = Interfaces::m_pGlobalVars->curtime + 0.22f;
+			g_Vars.globals.m_flBodyPred += 0.22f;
 			firstupdate = true;
 		}
 		else if (Interfaces::m_pGlobalVars->curtime > g_Vars.globals.m_flBodyPred)
 		{
 			update_lby = true;
-			g_Vars.globals.m_flBodyPred = Interfaces::m_pGlobalVars->curtime + 1.1f;
 		}
 
 		const auto get_add_by_choke = [&]() -> float
@@ -460,9 +459,9 @@ namespace Interfaces
 		if (!firstupdate && Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(Interfaces::m_pClientState->m_nChokedCommands() + 1) > g_Vars.globals.m_flBodyPred
 			&& fabsf(Math::normalize_float(cmd->viewangles.y - initial_lby)) < get_add_by_choke() && g_Vars.antiaim.lby_breaker)
 		{
-			//cmd->viewangles.y = initial_lby + get_add_by_choke();
+			cmd->viewangles.y = initial_lby + get_add_by_choke();
 
-			cmd->viewangles.y = initial_lby;
+			//cmd->viewangles.y = initial_lby;
 
 			if (g_Vars.globals.Fakewalking) {
 				*bSendPacket = true;
