@@ -102,8 +102,6 @@ namespace Hooked
 
 		oRunCommand( ecx, player, ucmd, moveHelper );
 
-		//Engine::Prediction::Instance()->RestoreNetvarCompression(ucmd);
-
 		FixPostponeTime( ucmd->command_number );
 
 		if( !g_Vars.globals.m_bInCreateMove )
@@ -126,6 +124,6 @@ namespace Hooked
 			player->m_flVelocityModifier() = flVelocityModifierBackup;
 
 		// store non compressed netvars.
-		g_netdata.store(ucmd);
+		Engine::Prediction::Instance()->StoreNetvarCompression(ucmd);
 	}
 }

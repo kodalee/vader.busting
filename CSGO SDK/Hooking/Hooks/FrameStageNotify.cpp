@@ -408,9 +408,9 @@ namespace Hooked
 
 
 			// fix netvar compression
-			//auto& prediction = Engine::Prediction::Instance( );
-			//if( Interfaces::m_pEngine->IsInGame( ) )
-			//	prediction.OnFrameStageNotify( );
+			auto& prediction = Engine::Prediction::Instance( );
+			if( Interfaces::m_pEngine->IsInGame( ) )
+				prediction.OnFrameStageNotify( );
 		}
 		else {
 			g_Vars.globals.RenderIsReady = false;
@@ -571,8 +571,6 @@ namespace Hooked
 				Engine::AnimationSystem::Get( )->Update( );
 				Threading::FinishQueue( true );
 				Engine::LagCompensation::Get( )->Update( );
-
-				g_netdata.apply();
 
 				// fix issues when players we are spectating scope in
 				if( local && local->m_iObserverMode( ) == 5 ) { 
