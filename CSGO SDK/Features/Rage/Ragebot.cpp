@@ -286,19 +286,19 @@ namespace Interfaces
 		// only sanity checks, etc.
 		virtual bool Run(Encrypted_t<CUserCmd> cmd, C_CSPlayer* local, bool* sendPacket);
 
-		virtual bool GetBoxOption(int hitbox, float& ps, bool override_hitscan) {
+		virtual bool GetBoxOption(int hitbox, float& ps, bool override_hitscan, bool force_body) {
 
 			ps = m_rage_data->rbot->body_point_scale;
 
 			switch (hitbox) {
 			case HITBOX_HEAD:
 				ps = m_rage_data->rbot->point_scale;
-				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_head : m_rage_data->rbot->hitboxes_head) && !g_Vars.rage.prefer_body.enabled;
+				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_head : m_rage_data->rbot->hitboxes_head) && !(g_Vars.rage.prefer_body.enabled || force_body);
 				break;
 			case HITBOX_NECK:
 			case HITBOX_LOWER_NECK:
 				ps = m_rage_data->rbot->point_scale;
-				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_neck : m_rage_data->rbot->hitboxes_neck) && !g_Vars.rage.prefer_body.enabled;
+				return (override_hitscan ? m_rage_data->rbot->bt_hitboxes_neck : m_rage_data->rbot->hitboxes_neck) && !(g_Vars.rage.prefer_body.enabled || force_body);
 				break;
 			case HITBOX_UPPER_CHEST:
 			case HITBOX_CHEST:
@@ -1657,13 +1657,6 @@ namespace Interfaces
 			auto bestTarget = p.target;
 
 			if (!bestPoint->isLethal) {
-
-				if (bestTarget->forceBody) {
-					if (!p.isBody) {
-						continue;
-					}
-				}
-
 				// we want to kill him with 1 shot
 				if (bestTarget->preferHead && !bestTarget->forceBody) {
 					// oneshot!!
@@ -2163,7 +2156,7 @@ namespace Interfaces
 			auto hitbox = hitboxSet->pHitbox(i);
 			float ps = 0.0f;
 
-			if (!GetBoxOption(i, ps, aim_target.overrideHitscan))
+			if (!GetBoxOption(i, ps, aim_target.overrideHitscan, aim_target.forceBody))
 				continue;
 
 			bool bDelayLimb = false;

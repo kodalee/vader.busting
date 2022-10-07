@@ -1660,7 +1660,7 @@ void Menu::Players() {
 					}
 					ImGui::Checkbox(XorStr("Dlight"), &g_Vars.esp.dlight_enemy_enable);
 					if (g_Vars.esp.dlight_enemy_enable) {
-						ColorPicker(XorStr("Dlight"), g_Vars.esp.dlight_enemy_color, true, false);
+						ColorPicker(XorStr("Dlight"), g_Vars.esp.dlight_enemy_color, false, false);
 						ImGui::SliderInt(XorStr("Dlight radius"), &g_Vars.esp.dlight_enemy_radius, 0, 275, XorStr("%d"));
 					}
 				}
@@ -1691,7 +1691,7 @@ void Menu::Players() {
 				ColorPicker(XorStr("Skeleton Color"), g_Vars.esp.local_skeleton_color, true, false);
 				ImGui::Checkbox(XorStr("Local Dlight"), &g_Vars.esp.dlight_local_enable);
 				if (g_Vars.esp.dlight_local_enable) {
-					ColorPicker(XorStr("Local Dlight"), g_Vars.esp.dlight_local_color, true, false);
+					ColorPicker(XorStr("Local Dlight"), g_Vars.esp.dlight_local_color, false, false);
 					ImGui::SliderInt(XorStr("Local Dlight radius"), &g_Vars.esp.dlight_local_radius, 0, 275, XorStr("%d"));
 				}
 				ImGui::Checkbox(XorStr("Local Glow"), &g_Vars.esp.glow_local);
