@@ -1069,31 +1069,44 @@ namespace Interfaces
 				drawFlags |= STUDIORENDER_DRAW_GET_PERF_STATS;
 			}
 
-			Interfaces::m_pStudioRender->DrawModel(&results, &info, it.pBoneToWorld, pFlexWeights, pFlexDelayedWeights, it.info.origin, drawFlags);
+			//Interfaces::m_pStudioRender->DrawModel(&results, &info, it.pBoneToWorld, pFlexWeights, pFlexDelayedWeights, it.info.origin, drawFlags);
+			Hooked::oDrawModelExecute(Interfaces::m_pModelRender.Xor(), Memory::VCall< IMatRenderContext* (__thiscall*)(void*) >(Interfaces::m_pMatSystem.Xor(), 115)(Interfaces::m_pMatSystem.Xor()), it.state, it.info, it.pBoneToWorld);
 			Interfaces::m_pStudioRender->m_pForcedMaterial = nullptr;
 			Interfaces::m_pStudioRender->m_nForcedMaterialType = 0;
 		};
 
-		auto it = m_Hitmatrix.begin();
-		while (it != m_Hitmatrix.end()) {
+		for (int i = 0; i < m_Hitmatrix.size(); i++)
+		{
+			if (Interfaces::m_pGlobalVars->realtime - m_Hitmatrix[i].time < 0.0f && Interfaces::m_pEntList->GetClientEntity(m_Hitmatrix[i].info.entity_index))
+				continue;
+
+			m_Hitmatrix.erase(m_Hitmatrix.begin() + i);
+		}
+
+		for (auto it = m_Hitmatrix.begin(); it != m_Hitmatrix.end(); it++) 
+		{
 			if (!(&it->state) || !it->state.m_pModelToWorld || !it->state.m_pRenderable || !it->state.m_pStudioHdr || !it->state.m_pStudioHWData ||
 				!it->info.pRenderable || !it->info.pModelToWorld || !it->info.pModel) {
 				++it;
 				continue;
 			}
 
-			auto alpha = 1.0f;
-			auto delta = Interfaces::m_pGlobalVars->realtime - it->time;
-			if (delta > 0.0f) {
-				alpha -= delta;
-				if (delta > 1.0f) {
-					it = m_Hitmatrix.erase(it);
-					continue;
-				}
-			}
+			float_t flProgress = (it->time - Interfaces::m_pGlobalVars->realtime) / 0.4f;
+			if (it->time - Interfaces::m_pGlobalVars->realtime > 0.4f)
+				flProgress = 1.0f;
+
+			//auto alpha = 1.0f;
+			//auto delta = Interfaces::m_pGlobalVars->realtime - it->time;
+			//if (delta > 0.0f) {
+			//	alpha -= delta;
+			//	if (delta > 1.0f) {
+			//		it = m_Hitmatrix.erase(it);
+			//		continue;
+			//	}
+			//}
 
 			auto color = g_Vars.esp.hitmatrix_color;
-			color.a *= alpha;
+			color.a *= flProgress;
 
 			int material; // la premium
 
@@ -1113,9 +1126,9 @@ namespace Interfaces
 
 			OverrideMaterial(true, material, color, std::clamp<float>((100.0f - g_Vars.esp.new_chams_onshot_mat_glow_value) * 0.2f, 1.f, 20.f));
 
-			DrawModelRebuild(*it);
+			Interfaces::m_pRenderView->SetBlend(color.a);
 
-			++it;
+			DrawModelRebuild(*it);
 		}
 	}
 

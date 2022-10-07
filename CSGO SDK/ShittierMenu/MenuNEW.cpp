@@ -1767,7 +1767,6 @@ void Menu::Players() {
 		if (playerTab != 2) {
 			ImGui::BeginGroupBox(XorStr("Player model"), ImVec2(244.f, 425.f)); {
 				if (playerTab == 0) {
-					ImGui::Checkbox(XorStr("Enable"), &g_Vars.esp.chams_enemy);
 					ImGui::Checkbox(XorStr("Backtrack Chams"), &g_Vars.esp.chams_history);
 					if (g_Vars.esp.chams_history) {
 						ColorPicker(XorStr("##enemybacktrackcolor"), g_Vars.esp.chams_history_color, true, false);
@@ -1777,40 +1776,42 @@ void Menu::Players() {
 					if (g_Vars.esp.glow_enemy) {
 						ImGui::Combo(XorStr("Enemy Glow Type"), &g_Vars.esp.glow_type_enemy, glow_types, IM_ARRAYSIZE(glow_types));
 					}
+					ImGui::Checkbox(XorStr("Enable"), &g_Vars.esp.chams_enemy);
+					if (g_Vars.esp.chams_enemy) {
+						ImGui::Checkbox(XorStr("Enemy visible chams"), &g_Vars.esp.enemy_chams_vis);
+						if (g_Vars.esp.enemy_chams_vis) {
 
-					ImGui::Checkbox(XorStr("Enemy visible chams"), &g_Vars.esp.enemy_chams_vis);
-					if (g_Vars.esp.enemy_chams_vis) {
+							ImGui::Combo(XorStr("Enemy Visible"), &g_Vars.esp.new_chams_enemy, chams_mats, IM_ARRAYSIZE(chams_mats));
+							ColorPicker_w_name(XorStr("Visible color"), g_Vars.esp.new_chams_enemy_color, true, false);
+							if (g_Vars.esp.new_chams_enemy == 3) {
+								ImGui::SliderFloat(XorStr("Enemy visible pearlescence"), &g_Vars.esp.chams_enemy_pearlescence, 0.f, 100.f, XorStr("%.f"));
+								ColorPicker_w_name(XorStr("Visible pearlescence color"), g_Vars.esp.chams_enemy_pearlescence_color, true, false);
+								ImGui::SliderFloat(XorStr("Enemy visible shine"), &g_Vars.esp.chams_enemy_shine, 0.f, 100.f, XorStr("%.f"));
+							}
+							ImGui::Combo(XorStr("Enemy visible overlay"), &g_Vars.esp.new_chams_enemy_overlay, chams_mats_overlay, IM_ARRAYSIZE(chams_mats_overlay));
+							ColorPicker_w_name(XorStr("Visible overlay color"), g_Vars.esp.new_chams_enemy_overlay_color, true, false);
+							if (g_Vars.esp.new_chams_enemy_overlay == 1) {
+								ImGui::SliderFloat(XorStr("Glow strength ##enemy"), &g_Vars.esp.chams_enemy_outline_value, 0.f, 100.f, XorStr("%.f"));
+							}
+							ImGui::Checkbox(XorStr("Enemy visible overlay wireframe"), &g_Vars.esp.chams_enemy_outline_wireframe);
+						}
 
-						ImGui::Combo(XorStr("Enemy Visible"), &g_Vars.esp.new_chams_enemy, chams_mats, IM_ARRAYSIZE(chams_mats));
-						ColorPicker_w_name(XorStr("Visible color"), g_Vars.esp.new_chams_enemy_color, true, false);
-						if (g_Vars.esp.new_chams_enemy == 3) {
-							ImGui::SliderFloat(XorStr("Enemy visible pearlescence"), &g_Vars.esp.chams_enemy_pearlescence, 0.f, 100.f, XorStr("%.f"));
-							ColorPicker_w_name(XorStr("Visible pearlescence color"), g_Vars.esp.chams_enemy_pearlescence_color, true, false);
-							ImGui::SliderFloat(XorStr("Enemy visible shine"), &g_Vars.esp.chams_enemy_shine, 0.f, 100.f, XorStr("%.f"));
+						ImGui::Checkbox(XorStr("Enemy XQZ chams"), &g_Vars.esp.enemy_chams_xqz);
+						if (g_Vars.esp.enemy_chams_xqz) {
+							ImGui::Combo(XorStr("Enemy XQZ"), &g_Vars.esp.new_chams_enemy_xqz, chams_mats, IM_ARRAYSIZE(chams_mats));
+							ColorPicker_w_name(XorStr("Enemy XQZ color"), g_Vars.esp.new_chams_enemy_xqz_color, true, false);
+							if (g_Vars.esp.new_chams_enemy_xqz == 3) {
+								ImGui::SliderFloat(XorStr("Enemy XQZ pearlescence"), &g_Vars.esp.chams_enemy_xqz_pearlescence, 0.f, 100.f, XorStr("%.f"));
+								ColorPicker_w_name(XorStr("XQZ pearlescence color"), g_Vars.esp.chams_enemy_xqz_pearlescence_color, true, false);
+								ImGui::SliderFloat(XorStr("Enemy xqz shine"), &g_Vars.esp.chams_enemy_xqz_shine, 0.f, 100.f, XorStr("%.f"));
+							}
+							ImGui::Combo(XorStr("Enemy xqz overlay"), &g_Vars.esp.new_chams_enemy_xqz_overlay, chams_mats_overlay, IM_ARRAYSIZE(chams_mats_overlay));
+							ColorPicker_w_name(XorStr("Enemy XQZ overlay color"), g_Vars.esp.new_chams_enemy_xqz_overlay_color, true, false);
+							if (g_Vars.esp.new_chams_enemy_xqz_overlay == 1) {
+								ImGui::SliderFloat(XorStr("Glow strength ##enemyxqz"), &g_Vars.esp.chams_enemy_xqz_outline_value, 0.f, 100.f, XorStr("%.f"));
+							}
+							ImGui::Checkbox(XorStr("Enemy XQZ overlay wireframe"), &g_Vars.esp.chams_enemy_outline_xqz_wireframe);
 						}
-						ImGui::Combo(XorStr("Enemy visible overlay"), &g_Vars.esp.new_chams_enemy_overlay, chams_mats_overlay, IM_ARRAYSIZE(chams_mats_overlay));
-						ColorPicker_w_name(XorStr("Visible overlay color"), g_Vars.esp.new_chams_enemy_overlay_color, true, false);
-						if (g_Vars.esp.new_chams_enemy_overlay == 1) {
-							ImGui::SliderFloat(XorStr("Glow strength ##enemy"), &g_Vars.esp.chams_enemy_outline_value, 0.f, 100.f, XorStr("%.f"));
-						}
-						ImGui::Checkbox(XorStr("Enemy visible overlay wireframe"), &g_Vars.esp.chams_enemy_outline_wireframe);
-					}
-
-					ImGui::Checkbox(XorStr("Enemy XQZ chams"), &g_Vars.esp.enemy_chams_xqz);
-					if (g_Vars.esp.enemy_chams_xqz) {
-						ImGui::Combo(XorStr("Enemy XQZ"), &g_Vars.esp.new_chams_enemy_xqz, chams_mats, IM_ARRAYSIZE(chams_mats));
-						ColorPicker_w_name(XorStr("Enemy XQZ color"), g_Vars.esp.new_chams_enemy_xqz_color, true, false);
-						if (g_Vars.esp.new_chams_enemy_xqz == 3) {
-							ImGui::SliderFloat(XorStr("Enemy XQZ pearlescence"), &g_Vars.esp.chams_enemy_xqz_pearlescence, 0.f, 100.f, XorStr("%.f"));
-							ColorPicker_w_name(XorStr("XQZ pearlescence color"), g_Vars.esp.chams_enemy_xqz_pearlescence_color, true, false);
-							ImGui::SliderFloat(XorStr("Enemy xqz shine"), &g_Vars.esp.chams_enemy_xqz_shine, 0.f, 100.f, XorStr("%.f"));
-						}
-						ImGui::Combo(XorStr("Enemy xqz overlay"), &g_Vars.esp.new_chams_enemy_xqz_overlay, chams_mats_overlay, IM_ARRAYSIZE(chams_mats_overlay));
-						ColorPicker_w_name(XorStr("Enemy XQZ overlay color"), g_Vars.esp.new_chams_enemy_xqz_overlay_color, true, false);
-						if (g_Vars.esp.new_chams_enemy_xqz_overlay == 1) {
-							ImGui::SliderFloat(XorStr("Glow strength ##enemyxqz"), &g_Vars.esp.chams_enemy_xqz_outline_value, 0.f, 100.f, XorStr("%.f"));
-						}
-						ImGui::Checkbox(XorStr("Enemy XQZ overlay wireframe"), &g_Vars.esp.chams_enemy_outline_xqz_wireframe);
 					}
 				}
 
@@ -1949,7 +1950,7 @@ void Menu::World() {
 					ImGui::SliderFloat(XorStr("Glow strength ##shot"), &g_Vars.esp.new_chams_onshot_mat_glow_value, 0.f, 100.f, XorStr("%.f"));
 				}
 				ColorPicker_w_name(XorStr("Shot chams color"), g_Vars.esp.hitmatrix_color, true, false);
-				ImGui::SliderFloat(XorStr("Expire time ##chams"), &g_Vars.esp.hitmatrix_time, 1.f, 10.f, XorStr("%0.0f seconds"));
+				ImGui::SliderFloat(XorStr("Expire time ##chams"), &g_Vars.esp.hitmatrix_time, 0.2f, 3.0f, XorStr("%.1f seconds"));
 				break;
 			}
 			}
