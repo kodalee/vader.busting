@@ -336,6 +336,10 @@ namespace lua_config {
 			return false;
 	}
 
+	int fakewalk_set_speed(int value) {
+		return g_Vars.misc.slow_walk_speed = value;
+	}
+
 	bool dmgoverride_enabled() {
 		if (g_Vars.rage.enabled && g_Vars.globals.OverridingMinDmg && g_Vars.rage.key_dmg_override.enabled) {
 			return true;
@@ -350,6 +354,14 @@ namespace lua_config {
 		}
 		else
 			return false;
+	}
+
+	float break_angle_set(float value) {
+		return g_Vars.antiaim.break_lby = value;
+	}
+
+	float first_break_angle_set(float value) {
+		return g_Vars.antiaim.break_lby_first = value;
 	}
 }
 
@@ -817,6 +829,11 @@ namespace lua_render {
 		Render::Engine::draw_arc(x, y, radius, start_angle, percent, thickness, color);
 	}
 
+	void draw_triangle(Vector2D pos1, Vector2D pos2, Vector2D pos3, Color col)
+	{
+		Render::Engine::FilledTriangle(pos1, pos2, pos3, col);
+	}
+
 	Vector world_to_screen(Vector pos) {
 		Vector2D scr;
 		Render::Engine::WorldToScreen(pos, scr);
@@ -1223,6 +1240,9 @@ bool c_lua::initialize() {
 	config[XorStr("fakewalk_enabled")] = lua_config::fakewalk_enabled;
 	config[XorStr("hitscanoverride_enabled")] = lua_config::hitscanoverride_enabled;
 	config[XorStr("dmgoverride_enabled")] = lua_config::dmgoverride_enabled;
+	config[XorStr("first_break_angle_set")] = lua_config::first_break_angle_set;
+	config[XorStr("break_angle_set")] = lua_config::break_angle_set;
+	config[XorStr("fakewalk_set_speed")] = lua_config::fakewalk_set_speed;
 
 	auto cheat = this->lua.create_table();
 	cheat[XorStr("set_event_callback")] = lua_cheat::set_event_callback;
@@ -1323,6 +1343,7 @@ bool c_lua::initialize() {
 	render[XorStr("draw_gradient")] = lua_render::draw_gradient;
 	render[XorStr("draw_world_circle")] = lua_render::draw_world_circle;
 	render[XorStr("draw_arc")] = lua_render::draw_arc;
+	render[XorStr("draw_triangle")] = lua_render::draw_triangle;
 	render[XorStr("world_to_screen")] = lua_render::world_to_screen;
 
 	auto ui = this->lua.create_table();

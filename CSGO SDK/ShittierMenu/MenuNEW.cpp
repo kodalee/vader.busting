@@ -1444,7 +1444,7 @@ void Menu::AntiAim() {
 				ImGui::SameLine(213.f);
 				ImGui::Keybind("Fakewalk key", &g_Vars.misc.slow_walk_bind.key, &g_Vars.misc.slow_walk_bind.cond);
 				if (g_Vars.misc.slow_walk) {
-					ImGui::SliderFloat(XorStr("Fake-walk speed"), &g_Vars.misc.slow_walk_speed, 2.f, 17.f, XorStr("%1.f"));
+					ImGui::SliderInt(XorStr("Fake-walk speed"), &g_Vars.misc.slow_walk_speed, 2, 17, XorStr("%d"));
 					ImGui::SliderFloat(XorStr("Slow-walk speed"), &g_Vars.misc.slowwalk_speed, 0.1f, 0.3f, XorStr("%.1f"));
 				}
 
