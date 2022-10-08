@@ -1230,8 +1230,10 @@ namespace Interfaces
 
 				pointScale = 0.625f;
 
-				Vector sex{ (hitbox->bbmax.x - center.x) * pointScale + center.x, center.y, center.z };
-				Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+				if (g_Vars.misc.visualize_hitscan) {
+					Vector sex{ (hitbox->bbmax.x - center.x) * pointScale + center.x, center.y, center.z };
+					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+				}
 
 				if (m_rage_data->rbot->mp_hitboxes_feets) {
 					// toe
@@ -1253,8 +1255,10 @@ namespace Interfaces
 
 			if (hitboxIndex == HITBOX_HEAD) {
 
-				Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-				Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+				if (g_Vars.misc.visualize_hitscan) {
+					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+				}
 
 				if (m_rage_data->rbot->mp_hitboxes_head) {
 					constexpr float rotation = 0.70710678f;
@@ -1297,8 +1301,10 @@ namespace Interfaces
 
 			else if (hitboxIndex == HITBOX_STOMACH) {
 
-				Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-				Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+				if (g_Vars.misc.visualize_hitscan) {
+					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+				}
 
 				if (m_rage_data->rbot->mp_hitboxes_stomach) {
 
@@ -1324,8 +1330,10 @@ namespace Interfaces
 			}
 			else if (hitboxIndex == HITBOX_PELVIS) {
 
-				Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-				Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+				if (g_Vars.misc.visualize_hitscan) {
+					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+				}
 
 				if (m_rage_data->rbot->mp_hitboxes_stomach) {
 					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
@@ -1352,8 +1360,10 @@ namespace Interfaces
 			else if (hitboxIndex == HITBOX_LOWER_CHEST || hitboxIndex == HITBOX_CHEST) {
 				if (m_rage_data->rbot->mp_hitboxes_chest) {
 
-					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+					if (g_Vars.misc.visualize_hitscan) {
+						Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+						Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+					}
 
 					if (hitboxIndex == HITBOX_CHEST)
 						r = hitbox->m_flRadius * (pointScale * 0.75f);
@@ -1380,8 +1390,10 @@ namespace Interfaces
 			else if( hitboxIndex == HITBOX_RIGHT_THIGH || hitboxIndex == HITBOX_LEFT_THIGH || hitboxIndex == HITBOX_LEFT_CALF || hitboxIndex == HITBOX_RIGHT_CALF) {
 				if( m_rage_data->rbot->mp_hitboxes_legs ) {
 
-					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+					if (g_Vars.misc.visualize_hitscan) {
+						Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
+						Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
+					}
 
 					Vector half_bottom{ hitbox->bbmax.x - ( hitbox->m_flRadius * 0.5f ), hitbox->bbmax.y, hitbox->bbmax.z };
 					AddPoint( player, record, side, points,
