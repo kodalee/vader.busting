@@ -156,6 +156,28 @@ void ConfigManager::OpenConfigFolder() {
 	}
 }
 
+void ConfigManager::OpenScriptsFolder() {
+	namespace fs = std::experimental::filesystem;
+	fs::path full_path(fs::current_path());
+
+	std::wstring str = full_path.wstring() + XorStr(L"\\vader.tech\\scripts");
+
+	PIDLIST_ABSOLUTE pidl;
+	if (SUCCEEDED(SHParseDisplayName(str.c_str(), 0, &pidl, 0, 0))) {
+		// we don't want to actually select anything in the folder, so we pass an empty
+		// PIDL in the array. if you want to select one or more items in the opened
+		// folder you'd need to build the PIDL array appropriately
+		ITEMIDLIST idNull = { 0 };
+		LPCITEMIDLIST pidlNull[1] = { &idNull };
+		SHOpenFolderAndSelectItems(pidl, 1, pidlNull, 0);
+
+		// LIFEEEEHAAAACK BITCH!!! (◣_◢)
+		using ILFree_t = void(__stdcall*)(LPITEMIDLIST);
+		static ILFree_t ILFree_fn = (ILFree_t)GetProcAddress(GetModuleHandleA(XorStr("SHELL32")), XorStr("ILFree"));
+		ILFree_fn(pidl);
+	}
+}
+
 int ConfigManager::GetConfigID(std::string name) {
 	for (size_t i = 0; i < GetConfigs().size(); i++) {
 		if (GetConfigs().at(i) == name)

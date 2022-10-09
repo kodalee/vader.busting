@@ -13,5 +13,6 @@ namespace ConfigManager
    void CreateConfig( std::string configname );
    void ResetConfig( );
    void OpenConfigFolder( );
+   void OpenScriptsFolder( );
    int GetConfigID(std::string name);
 }

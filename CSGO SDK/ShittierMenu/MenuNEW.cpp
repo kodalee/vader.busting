@@ -2617,10 +2617,21 @@ void Menu::Scripts() {
 	// LEFT GROUP -------------------------------------------------------------------------
 	ImGui::SetCursorPos(ImVec2(193.f, 21.f));
 	ImGui::BeginGroup(); {
-		ImGui::BeginGroupBox(XorStr("File"), ImVec2(244.f, 225.f)); {
+		ImGui::BeginGroupBox(XorStr("File"), ImVec2(244.f, 275.f)); {
+
+			static char lname2[128];
+			ImGui::InputText(XorStr("search"), lname2, 128);
 
 			for (auto s : g_lua.scripts)
 			{
+				auto search = std::string(lname2);
+				auto name = std::string(s.c_str());
+
+				std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+				std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+				if (search != XorStr("") && name.find(search) == std::string::npos)
+					continue;
+
 				if (ImGui::Selectable(s.c_str(), g_lua.loaded.at(g_lua.get_script_id(s)), NULL, ImVec2(0, 0))) {
 					auto scriptId = g_lua.get_script_id(s);
 					if (g_lua.loaded.at(scriptId)) g_lua.unload_script(scriptId); else g_lua.load_script(scriptId);
@@ -2631,7 +2642,7 @@ void Menu::Scripts() {
 			ImGui::EndGroupBox();
 		}
 
-		ImGui::BeginGroupBox(XorStr("Options"), ImVec2(244.f, 235.f)); {
+		ImGui::BeginGroupBox(XorStr("Options"), ImVec2(244.f, 185.f)); {
 
 			ImGui::Checkbox(XorStr("Allow HTTP Requests"), &g_Vars.misc.lua_allow_http_requests);
 
@@ -2640,6 +2651,11 @@ void Menu::Scripts() {
 			if (ImGui::Button(XorStr("Reload active"), ImVec2(213.f, 20.f))) g_lua.reload_all_scripts();
 
 			if (ImGui::Button(XorStr("Unload all"), ImVec2(213.f, 20.f))) g_lua.unload_all_scripts();
+
+			if (ImGui::Button(XorStr("Open scripts folder"), ImVec2(213.f, 20.f)))
+			{
+				ConfigManager::OpenScriptsFolder();
+			}
 
 			ImGui::Spacing();
 			ImGui::EndGroupBox();
@@ -2725,7 +2741,7 @@ void Menu::Playerlist() {
 					std::transform(search.begin(), search.end(), search.begin(), ::tolower);
 					std::transform(name.begin(), name.end(), name.begin(), ::tolower);
 
-					if (search != "" && name.find(search) == std::string::npos)
+					if (search != XorStr("") && name.find(search) == std::string::npos)
 						continue;
 
 					player_names.emplace_back(player.name);
