@@ -311,10 +311,12 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 
 void heartbeat_thread() {
 #ifndef DEV
+	VMProtectBeginVirtualization("check - c");
 	while (true) {
 		std::this_thread::sleep_for(std::chrono::seconds(ph_heartbeat::PH_SECONDS_INTERVAL));
 		ph_heartbeat::send_heartbeat();
 	}
+	VMProtectEnd;
 #endif // !DEV
 }
 
