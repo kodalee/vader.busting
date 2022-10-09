@@ -189,7 +189,6 @@ struct DllInitializeData {
    // DT_WeaponCSBase
    struct {
 	  DWORD32 m_flRecoilIndex;
-	  DWORD32 m_fAccuracyPenalty;
 	  DWORD32 m_weaponMode;
 	  DWORD32 m_flPostponeFireReadyTime;
 	  DWORD32 m_fLastShotTime;

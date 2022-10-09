@@ -83,8 +83,7 @@ public:
 class C_WeaponCSBaseGun : public C_BaseCombatWeapon
 {
 public:
-	float& m_fAccuracyPenalty( );
-	float& m_flRecoilIndex( );
+  float& m_flRecoilIndex( );
   float & m_fLastShotTime( );
   int& m_weaponMode( );
   int& m_zoomLevel( );

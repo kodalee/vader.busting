@@ -48,10 +48,6 @@ bool& C_BaseCombatWeapon::m_bCustomMaterialInitialized( ) {
    return *( bool* ) ( ( uintptr_t ) this + Engine::Displacement.DT_BaseCombatWeapon.m_bCustomMaterialInitialized );
 }
 
-float& C_WeaponCSBaseGun::m_fAccuracyPenalty( ) {
-	return *(float*)((uintptr_t)this + Engine::Displacement.DT_WeaponCSBase.m_fAccuracyPenalty);
-}
-
 float& C_WeaponCSBaseGun::m_flRecoilIndex( ) {
    return *( float* ) ( ( uintptr_t ) this + Engine::Displacement.DT_WeaponCSBase.m_flRecoilIndex );
 }
