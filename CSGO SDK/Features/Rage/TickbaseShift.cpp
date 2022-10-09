@@ -38,6 +38,9 @@ void copy_command(CUserCmd* cmd, int tickbase_shift)
 			cmd->sidemove = 0.0f;
 		}
 	}
+
+	*(bool*)((uintptr_t)Interfaces::m_pPrediction.Xor() + 0x24) = true;
+	*(int*)((uintptr_t)Interfaces::m_pPrediction.Xor() + 0x1C) = 0;
 }
 
 void* g_pLocal = nullptr;
@@ -62,8 +65,6 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 	s_nTicksSinceUse++;
 #endif
 
-	auto local = C_CSPlayer::GetLocalPlayer();
-
 	//if we have low fps, we need to send our current batch 
 	//before we can start building or we'll get a prediction error
 	if (!bFinalTick)
@@ -72,10 +73,10 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 	}
 
 	//can only start building on the final tick of this frame
-	if ((!bFinalTick && !s_bBuilding) || !g_pLocal || !local)
+	if ((!bFinalTick && !s_bBuilding) || !g_pLocal)
 	{
 		//level change; reset our shifts
-		if (!g_pLocal || !local)
+		if (!g_pLocal)
 		{
 			g_iTickbaseShifts.clear();
 		}
@@ -168,7 +169,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		//note that we should really be adding host_frameticks - 1 - host_currentframetick to estimated 
 		//but that will only matter on low fps
 
-		int estimated = local->m_nTickBase() + **(int**)Engine::Displacement.Data.m_uHostFrameTicks + choke;
+		int estimated = *(int*)((size_t)g_pLocal + OFFSET_TICKBASE) + **(int**)Engine::Displacement.Data.m_uHostFrameTicks + choke;
 		if (estimated > arrive + s_iClockCorrectionTicks || estimated < arrive - s_iClockCorrectionTicks)
 		{
 			estimated = arrive - **(int**)Engine::Displacement.Data.m_uHostFrameTicks - choke + 1;
@@ -192,7 +193,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 #endif
 
 		//the + 1 is because of the real command we are due
-		int estimated = local->m_nTickBase() + **(int**)Engine::Displacement.Data.m_uHostFrameTicks + s_nExtraProcessingTicks + choke;
+		int estimated = *(int*)((size_t)g_pLocal + OFFSET_TICKBASE) + **(int**)Engine::Displacement.Data.m_uHostFrameTicks + s_nExtraProcessingTicks + choke;
 		if (estimated > arrive + s_iClockCorrectionTicks || estimated < arrive - s_iClockCorrectionTicks)
 		{
 			estimated = arrive - s_nExtraProcessingTicks - choke - **(int**)Engine::Displacement.Data.m_uHostFrameTicks + 1;
@@ -264,11 +265,11 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		}
 		else
 		{
-			s_iServerIdealTick = local->m_nTickBase() + 1;
+			s_iServerIdealTick = *(int*)((size_t)g_pLocal + OFFSET_TICKBASE) + 1;
 		}
 
 #ifndef STANDALONE_CSGO
-		int start = local->m_nTickBase();
+		int start = *(int*)((size_t)g_pLocal + OFFSET_TICKBASE);
 		bool bPred = s_bBuilding && s_nExtraProcessingTicks > 0;
 
 		if (bPred && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
@@ -282,7 +283,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 				estimated = arrive - s_nExtraProcessingTicks - choke - **(int**)Engine::Displacement.Data.m_uHostFrameTicks + 1;
 
 				s_iMoveTickBase = estimated;
-				local->m_nTickBase() = estimated;
+				*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = estimated;
 			}
 		}
 		else
@@ -298,7 +299,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		if (bPred && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
 		{
 			s_bInMove = false;
-			local->m_nTickBase() = start;
+			*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = start;
 
 			if (Interfaces::m_pInput.Xor())
 			{
@@ -309,6 +310,8 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 					CUserCmd* cmd = fn(Interfaces::m_pInput.Xor(), -1, cmdnumber);
 					if (cmd)
 					{
+						auto local = C_CSPlayer::GetLocalPlayer();
+
 						C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
 
 						if (!Weapon)
@@ -321,7 +324,6 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && Weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER)
 						{
 							copy_command(cmd, s_nSpeed);
-							local->m_nTickBase() += s_nExtraProcessingTicks;
 							s_bBuilding = false;
 							inya = true;
 							goto jmpRunExtraCommands;
@@ -355,7 +357,6 @@ void InvokeRunSimulation(void* this_, float curtime, int cmdnum, CUserCmd* cmd, 
 
 void TickbaseSystem::OnRunSimulation(void* this_, int iCommandNumber, CUserCmd* pCmd, size_t local) {
 	g_pLocal = (void*)local;
-	auto local2 = C_CSPlayer::GetLocalPlayer();
 
 	float curtime;
 	__asm
@@ -388,9 +389,9 @@ void TickbaseSystem::OnRunSimulation(void* this_, int iCommandNumber, CUserCmd* 
 	}
 
 	//apply our new shifted tickbase 
-	if (tickbase != -1 && local && local2)
+	if (tickbase != -1 && local)
 	{
-		local2->m_nTickBase() = tickbase;
+		*(int*)(local + OFFSET_TICKBASE) = tickbase;
 		curtime = tickbase * s_flTickInterval;
 	}
 
@@ -405,18 +406,16 @@ void TickbaseSystem::OnPredictionUpdate(void* prediction, void*, int startframe,
 	PredictionUpdateFn_t fn = (PredictionUpdateFn_t)Hooked::PredictionUpdateDetor.m_pOldFunction;
 	fn(prediction, startframe, validframe, incoming_acknowledged, outgoing_command);
 
-	auto local2 = C_CSPlayer::GetLocalPlayer();
-
-	if (s_bInMove && (g_pLocal || local2)) {
-		local2->m_nTickBase() = s_iMoveTickBase;
+	if (s_bInMove && g_pLocal) {
+		*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = s_iMoveTickBase;
 	}
 
-	if (g_pLocal || local2) {
+	if (g_pLocal) {
 		for (size_t i = 0; i < g_iTickbaseShifts.size(); i++) {
 			const auto& elem = g_iTickbaseShifts[i];
 
 			if (elem.cmdnum == (outgoing_command + 1)) {
-				local2->m_nTickBase() = elem.tickbase;
+				*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = elem.tickbase;
 				break;
 			}
 		}
