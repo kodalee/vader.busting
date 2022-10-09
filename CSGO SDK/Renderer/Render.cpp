@@ -531,7 +531,7 @@ void Render::Engine::Initialise( ) {
 	cs = Font( XorStr( "WeaponIcons" ), 14, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
 	cs_large = Font( XorStr( "WeaponIcons" ), 22, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
 	damage = Font( XorStr( "Segoe UI" ), 26, FW_THIN, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW );
-	indi = Font( XorStr( "Verdana" ), 25, FW_SEMIBOLD, FONTFLAG_ANTIALIAS );
+	indi = Font( XorStr( "Calibri" ), 30, 900, FONTFLAG_ANTIALIAS );
 	grenades = Font(XorStr("Verdana"), 12, FW_NORMAL, FONTFLAG_DROPSHADOW);
 	cs_huge = Font(XorStr("WeaponIcons"), 25, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
 
