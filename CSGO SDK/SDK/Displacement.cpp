@@ -156,6 +156,7 @@ namespace Engine
 		Displacement.DT_BaseCombatWeapon.m_CustomMaterials = ( *( int* )( Memory::Scan( image_client, XorStr( "83 BE ? ? ? ? ? 7F 67" ) ) + 0x2 ) ) - 12;
 		Displacement.DT_BaseCombatWeapon.m_bCustomMaterialInitialized = *( int* )( Memory::Scan( image_client, XorStr( "C6 86 ? ? ? ? ? FF 50 04" ) ) + 0x2 );
 
+		Displacement.DT_WeaponCSBase.m_fAccuracyPenalty = pPropManager->GetOffset( XorStr( "DT_WeaponCSBase" ), XorStr( "m_fAccuracyPenalty" ) );
 		Displacement.DT_WeaponCSBase.m_flRecoilIndex = pPropManager->GetOffset( XorStr( "DT_WeaponCSBase" ), XorStr( "m_flRecoilIndex" ) );
 		Displacement.DT_WeaponCSBase.m_weaponMode = pPropManager->GetOffset( XorStr( "DT_WeaponCSBase" ), XorStr( "m_weaponMode" ) );
 		Displacement.DT_WeaponCSBase.m_flPostponeFireReadyTime = pPropManager->GetOffset( XorStr( "DT_WeaponCSBase" ), XorStr( "m_flPostponeFireReadyTime" ) );

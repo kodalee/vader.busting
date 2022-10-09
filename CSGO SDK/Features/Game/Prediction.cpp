@@ -359,6 +359,26 @@ namespace Engine
 		//	local->m_vecVelocity() = data->m_vecVelocity;
 		//}
 
+
+		if (IsFloatValid(local->m_flDuckAmount(), data->m_flDuckAmount)) {
+			local->m_flDuckAmount() = data->m_flDuckAmount;
+		}
+
+		if (IsFloatValid(local->m_flDuckSpeed(), data->m_flDuckSpeed)) {
+			local->m_flDuckSpeed() = data->m_flDuckSpeed;
+		}
+
+		C_WeaponCSBaseGun* pWeapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
+
+		if (pWeapon)
+		{
+			if (IsFloatValid(pWeapon->m_fAccuracyPenalty(), data->m_flAccuracyPenalty))
+				pWeapon->m_fAccuracyPenalty() = data->m_flAccuracyPenalty;
+
+			if (IsFloatValid(pWeapon->m_flRecoilIndex(), data->m_flRecoilIndex))
+				pWeapon->m_flRecoilIndex() = data->m_flRecoilIndex;
+		} 
+
 		//if( !IsVectorValid(local->m_vecViewOffset( ), data->m_vecViewOffset ) ) {
 		//	local->m_vecViewOffset( ) = data->m_vecViewOffset;
 		//}
@@ -384,6 +404,9 @@ namespace Engine
 
 		//if (std::abs(local->m_nTickBase() - data->m_nTickbase) <= 0.00625f && !(g_Vars.rage.key_dt.enabled))
 		//	local->m_nTickBase() = data->m_nTickbase;
+
+		if (local->m_fFlags() & FL_ONGROUND)
+			local->m_flFallVelocity() = 0.0f;
 
 		m_bGetNetvarCompressionData = false;
 
@@ -488,7 +511,25 @@ namespace Engine
 		data->m_flVelocityModifier = local->m_flVelocityModifier();
 		data->m_flFallVelocity = local->m_flFallVelocity();
 		data->m_vecVelocity = local->m_vecVelocity();
+		data->m_flDuckAmount = local->m_flDuckAmount();
+		data->m_flDuckSpeed = local->m_flDuckSpeed();
 		data->m_nTickbase = slot;
+
+		C_WeaponCSBaseGun* pWeapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
+		if (!pWeapon)
+		{
+			data->m_flRecoilIndex = 0.0f;
+			data->m_flAccuracyPenalty = 0.0f;
+			data->m_flPostponeFireReadyTime = 0.0f;
+
+			return;
+		}
+
+		data->m_flRecoilIndex = pWeapon->m_flRecoilIndex();
+		data->m_flAccuracyPenalty = pWeapon->m_fAccuracyPenalty();
+		data->m_flPostponeFireReadyTime = pWeapon->m_flPostponeFireReadyTime();
+
+
 		m_bGetNetvarCompressionData = true;
 	}
 
