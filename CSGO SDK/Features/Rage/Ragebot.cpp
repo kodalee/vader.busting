@@ -1441,7 +1441,7 @@ namespace Interfaces
 				continue;
 
 			for (auto& point : m_rage_data->m_aim_points) {
-				if (!point.target)
+				if (!point.target->player)
 					continue;
 
 				if (point.target->player->EntIndex() == target.player->EntIndex())
