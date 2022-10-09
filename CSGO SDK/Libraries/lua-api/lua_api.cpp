@@ -1432,7 +1432,7 @@ void c_lua::load_script(int id) {
 			{
 				sol::error error = result;
 				auto log = XorStr("Lua error: ") + (std::string)error.what();
-
+				Interfaces::m_pSurface->PlaySound_(XorStr("UI/weapon_cant_buy.wav"));
 				engine_console_error(log);
 				error_load = true;
 
