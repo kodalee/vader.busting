@@ -52,9 +52,7 @@ bool trace_to_exit_short(Vector& point, Vector& dir, const float step_size, floa
 float get_thickness(Vector& start, Vector& end, float distance) {
 	Vector dir = end - start;
 	Vector step = start;
-	if (dir.Length() > distance && distance != -1)
-		return -1;
-	dir.Normalize();
+	dir /= dir.Length();
 	CTraceFilterWorldOnly filter;
 	CGameTrace trace;
 	Ray_t ray;
@@ -64,7 +62,7 @@ float get_thickness(Vector& start, Vector& end, float distance) {
 		Interfaces::m_pEngineTrace->TraceRay(ray, MASK_SHOT_HULL, &filter, &trace);
 
 		if (!trace.DidHit())
-			return thickness;
+			break;
 
 		const Vector lastStep = trace.endpos;
 		step = trace.endpos;
