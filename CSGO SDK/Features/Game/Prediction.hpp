@@ -76,9 +76,6 @@ namespace Engine {
 		float m_flFallVelocity = 0.f;
 		float m_flDuckAmount = 0.f;
 		float m_flDuckSpeed = 0.f;
-		float m_flPostponeFireReadyTime = 0.f;
-		float m_flRecoilIndex = 0.f;
-		float m_flAccuracyPenalty = 0.f;
 	};
 
 	struct LastPredData {
