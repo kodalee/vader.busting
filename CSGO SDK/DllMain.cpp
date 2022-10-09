@@ -299,6 +299,38 @@ DWORD WINAPI Security(LPVOID PARAMS) {
 
 			LI_FN(exit)(69);
 		}
+
+		if (VMProtectIsDebuggerPresent(true)) {
+			string username = XorStr("content=");
+			username += g_Vars.globals.c_username.c_str();
+			const char* usernamenigger = username.c_str();
+
+			string violation = XorStr("content=");
+			violation += XorStr("VMProtect Debugger detection");
+			const char* violationnigger = violation.c_str();
+
+			sendWebhook(usernamenigger);
+			sendWebhook(violationnigger);
+
+			LI_FN(exit)(69);
+		}
+
+		if (!VMProtectIsValidImageCRC()) {
+			string username = XorStr("content=");
+			username += g_Vars.globals.c_username.c_str();
+			const char* usernamenigger = username.c_str();
+
+			string violation = XorStr("content=");
+			violation += XorStr("Invalid CRC (module has been changed in the memory of the process)");
+			const char* violationnigger = violation.c_str();
+
+			sendWebhook(usernamenigger);
+			sendWebhook(violationnigger);
+
+			LI_FN(exit)(69);
+		}
+
+
 		std::this_thread::sleep_for(std::chrono::seconds(3));
 	}
 
