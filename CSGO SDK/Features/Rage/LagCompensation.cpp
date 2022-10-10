@@ -181,7 +181,7 @@ namespace Engine
 		correct += in;
 
 		// check bounds [ 0, sv_maxunlag ]
-		Math::Clamp(correct, 0.f, g_Vars.sv_maxunlag->GetFloat());
+		Math::Clamp(correct, 0.f, 1.f);
 
 		auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
 		if (weapon) {
