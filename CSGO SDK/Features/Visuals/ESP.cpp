@@ -548,10 +548,10 @@ void CEsp::Indicators() {
 		auto& indicator = indicators[i];
 		auto TextSize = Render::Engine::indi.size(indicator.text);
 
-		Render::Engine::Gradient(19.f, Render::GetScreenSize().y - 358.f - (30 * i), TextSize.m_width / 2, 23, Color(0, 0, 0, 0), Color(0, 0, 0, 127), true);
-		Render::Engine::Gradient(19.f + TextSize.m_width / 2, Render::GetScreenSize().y - 358.f - (30 * i), TextSize.m_width / 2, 23, Color(0, 0, 0, 127), Color(0, 0, 0, 0), true);
-		Render::Engine::indi.string(21.f, Render::GetScreenSize().y - 360.f - (30 * i) + 1, Color(0, 0, 0, 200), indicator.text); // text shadow
-		Render::Engine::indi.string(20.f, Render::GetScreenSize().y - 360.f - (30 * i), indicator.color, indicator.text);
+		Render::Engine::Gradient(19.f, Render::GetScreenSize().y - 376.f - (30 * i), TextSize.m_width / 2, 23, Color(0, 0, 0, 0), Color(0, 0, 0, 127), true);
+		Render::Engine::Gradient(19.f + TextSize.m_width / 2, Render::GetScreenSize().y - 376.f - (30 * i), TextSize.m_width / 2, 23, Color(0, 0, 0, 127), Color(0, 0, 0, 0), true);
+		Render::Engine::indi.string(21.f, Render::GetScreenSize().y - 380.f - (30 * i) + 1, Color(0, 0, 0, 200), indicator.text); // text shadow
+		Render::Engine::indi.string(20.f, Render::GetScreenSize().y - 380.f - (30 * i), indicator.color, indicator.text);
 	}
 
 

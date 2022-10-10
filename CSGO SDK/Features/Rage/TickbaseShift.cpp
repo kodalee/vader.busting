@@ -319,7 +319,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 						if (!weaponInfo.IsValid())
 							return;
 
-						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && Weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER)
+						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && Weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && Weapon->m_iItemDefinitionIndex() != WEAPON_C4)
 						{
 							copy_command(cmd, s_nSpeed);
 							s_bBuilding = false;
