@@ -39,8 +39,6 @@ void copy_command(CUserCmd* cmd, int tickbase_shift)
 		}
 	}
 
-	*(bool*)((uintptr_t)Interfaces::m_pPrediction.Xor() + 0x24) = true;
-	*(int*)((uintptr_t)Interfaces::m_pPrediction.Xor() + 0x1C) = 0;
 }
 
 void* g_pLocal = nullptr;
@@ -299,7 +297,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		if (bPred && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
 		{
 			s_bInMove = false;
-			*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = start;
+			//*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = start;
 
 			if (Interfaces::m_pInput.Xor())
 			{
@@ -391,7 +389,7 @@ void TickbaseSystem::OnRunSimulation(void* this_, int iCommandNumber, CUserCmd* 
 	//apply our new shifted tickbase 
 	if (tickbase != -1 && local)
 	{
-		*(int*)(local + OFFSET_TICKBASE) = tickbase;
+		//*(int*)(local + OFFSET_TICKBASE) = tickbase;
 		curtime = tickbase * s_flTickInterval;
 	}
 
@@ -407,7 +405,7 @@ void TickbaseSystem::OnPredictionUpdate(void* prediction, void*, int startframe,
 	fn(prediction, startframe, validframe, incoming_acknowledged, outgoing_command);
 
 	if (s_bInMove && g_pLocal) {
-		*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = s_iMoveTickBase;
+		//*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = s_iMoveTickBase;
 	}
 
 	if (g_pLocal) {
@@ -415,7 +413,7 @@ void TickbaseSystem::OnPredictionUpdate(void* prediction, void*, int startframe,
 			const auto& elem = g_iTickbaseShifts[i];
 
 			if (elem.cmdnum == (outgoing_command + 1)) {
-				*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = elem.tickbase;
+				//*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = elem.tickbase;
 				break;
 			}
 		}
