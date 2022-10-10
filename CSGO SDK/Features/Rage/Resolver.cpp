@@ -1801,8 +1801,11 @@ namespace Engine {
 
 			switch (pLagData->m_iMissedShotsInAir % 4) {
 			case 0:
-				record->m_angEyeAngles.y = record->m_body;
-				//record->m_angEyeAngles.y = away - 180.f;
+				if (g_Vars.misc.expermimental_resolver) {
+					record->m_angEyeAngles.y = record->m_body;
+				}
+				else
+					record->m_angEyeAngles.y = away - 180.f;
 				break;
 
 			case 1:
