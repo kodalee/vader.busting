@@ -43,3 +43,5 @@ Developer/Intermediate/vc141.idb
 Stable build/csgo_legacy.lib
 Developer/csgo_legacy.lib
 Beta/csgo_legacy_beta.lib
+Beta/csgo_legacy_beta.dll.vmp
+Beta/csgo_legacy_beta.lib
