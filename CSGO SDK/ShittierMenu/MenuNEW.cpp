@@ -2398,7 +2398,7 @@ void Menu::Misc() {
 			ImGui::Text(XorStr("----------dev----------"));
 			ImGui::Checkbox(XorStr("Anonymous mode"), &g_Vars.misc.anonymous_mode_cope);
 			if (g_Vars.misc.anonymous_mode_cope) {
-				ImGui::Text(XorStr("NOTE: ONCE ENABLED REJOIN IS NEEDED TO APPLY"));
+				ImGui::Text(XorStr("NOTE: REJOIN IS NEEDED TO APPLY"));
 			}
 			ImGui::Text(XorStr("----------dev----------"));
 #endif
