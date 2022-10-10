@@ -615,7 +615,7 @@ namespace Engine
 
 			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && (previous_record->m_fFlags & FL_ONGROUND);
 			auto animation_speed = 0.0f;
-			auto origin_delta = record->m_vecOrigin - previous_record->m_vecOrigin;
+			auto origin_delta = player->m_vecOrigin() - previous_record->m_vecOrigin;
 
 			Vector vecPreviousOrigin = previous_record->m_vecOrigin;
 			int fPreviousFlags = previous_record->m_fFlags;
