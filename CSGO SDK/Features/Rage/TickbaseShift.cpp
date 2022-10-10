@@ -405,7 +405,7 @@ void TickbaseSystem::OnPredictionUpdate(void* prediction, void*, int startframe,
 	fn(prediction, startframe, validframe, incoming_acknowledged, outgoing_command);
 
 	if (s_bInMove && g_pLocal) {
-		//*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = s_iMoveTickBase;
+		*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = s_iMoveTickBase;
 	}
 
 	if (g_pLocal) {
