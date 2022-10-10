@@ -346,7 +346,8 @@ namespace Engine
 						//else
 						lag_data->m_iMissedShots++;
 
-						Engine::g_ResolverData->hitPlayer[player->EntIndex()] = false;
+						if(lag_data->m_iMissedLBYLog % 2 == 0)
+							Engine::g_ResolverData->hitPlayer[player->EntIndex()] = false;
 
 						m_ShotInfoLua.result = XorStr("resolver");
 						if (g_Vars.esp.event_resolver) {
@@ -502,7 +503,7 @@ namespace Engine
 				lagData->m_unknown_move = 0;
 				lagData->m_iMissedShotsDistort = 0;
 				lagData->m_iMissedBruteShots = 0;
-				lagData->m_iMissedLBYLog = 0;
+				//lagData->m_iMissedLBYLog = 0;
 				lagData->m_iMissedShotsLBYTEST = 0;
 				lagData->m_lby_index = 0;
 				lagData->m_iMissedShotsFreestand = 0;
@@ -525,7 +526,7 @@ namespace Engine
 					lagData->m_delta_index = 0;
 					lagData->m_iMissedShotsDistort = 0;
 					lagData->m_iMissedBruteShots = 0;
-					lagData->m_iMissedLBYLog = 0;
+					//lagData->m_iMissedLBYLog = 0;
 					lagData->m_stand_index2 = 0;
 					lagData->m_iMissedShotsLBYTEST = 0;
 					lagData->m_unknown_move = 0;
