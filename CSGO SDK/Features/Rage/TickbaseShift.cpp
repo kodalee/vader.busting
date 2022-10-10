@@ -297,7 +297,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		if (bPred && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
 		{
 			s_bInMove = false;
-			//*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = start;
+			*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = start;
 
 			if (Interfaces::m_pInput.Xor())
 			{
