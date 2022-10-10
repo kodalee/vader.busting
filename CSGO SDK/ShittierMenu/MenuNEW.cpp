@@ -1254,9 +1254,10 @@ void Menu::Ragebot() {
 					ImGui::Checkbox(XorStr("Doubletap exploits"), &g_Vars.rage.dt_exploits);
 					if (g_Vars.rage.dt_exploits) {
 						std::vector<MultiItem_t> exploits = {
+							{ XorStr("Standby choke"), &g_Vars.rage.exploit_standbychoke },
 							{ XorStr("Lag exploit"), &g_Vars.rage.exploit_lag },
 							{ XorStr("Lag peek"), &g_Vars.rage.exploit_lag_peek },
-							{ XorStr("Break Lag Compensation"), &g_Vars.rage.exploit_lagcomp },
+							{ XorStr("Break lag compensation"), &g_Vars.rage.exploit_lagcomp },
 						};
 
 						ImGui::MultiCombo(XorStr("Exploits"), exploits);
