@@ -57,8 +57,8 @@ namespace Engine
 		}
 
 		virtual float GetLerp( ) const {
-			return std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
-			//return lagData.Xor( )->m_flLerpTime;
+			//return std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
+			return lagData.Xor( )->m_flLerpTime;
 		}
 
 		virtual void ClearLagData( ) {
@@ -171,28 +171,27 @@ namespace Engine
 		//correct += lagData.Xor()->m_flOutLatency;
 
 		// use prediction curtime for this.
-		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase());
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
 
 		// correct is the amount of time we have to correct game time,
-		float correct = GetLerp() + pNetChannel->GetLatency(FLOW_OUTGOING);
+		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flOutLatency;
 
 		// stupid fake latency goes into the incoming latency.
-		float in = pNetChannel->GetLatency(FLOW_INCOMING);
-		correct += in;
+		correct += lagData.Xor()->m_flServerLatency;
 
 		// check bounds [ 0, sv_maxunlag ]
-		Math::Clamp(correct, 0.f, 1.f);
+		Math::Clamp(correct, 0.f, 1.0f);
 
-		auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
-		if (weapon) {
-			auto weaponData = weapon->GetCSWeaponData();
-			if (weaponData.IsValid()) {
-				if (weaponData.Xor()->m_iWeaponType != WEAPONTYPE_KNIFE) {
-					if (/*g_Vars.misc.disablebtondt &&*/ (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
-						correct -= g_TickbaseController.s_nExtraProcessingTicks;
-				}
-			}
-		}
+		//auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
+		//if (weapon) {
+		//	auto weaponData = weapon->GetCSWeaponData();
+		//	if (weaponData.IsValid()) {
+		//		if (weaponData.Xor()->m_iWeaponType != WEAPONTYPE_KNIFE) {
+		//			if (/*g_Vars.misc.disablebtondt &&*/ (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
+		//				correct -= g_TickbaseController.s_nExtraProcessingTicks;
+		//		}
+		//	}
+		//}
 
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
