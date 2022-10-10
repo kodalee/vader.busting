@@ -198,9 +198,48 @@ namespace Hooked
 			return;
 		}
 
-		if( !g_Vars.globals.bMoveExploiting )
-			if( Interfaces::m_pClientState->m_nChokedCommands( ) > 0 )
-				return;
+			static auto lastTick = 0;
+			if (Interfaces::m_pGlobalVars->tickcount % 16 == 0)
+				lastTick = 0;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 1)
+				lastTick = 1;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 2)
+				lastTick = 2;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 3)
+				lastTick = 3;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 4)
+				lastTick = 4;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 5)
+				lastTick = 5;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 6)
+				lastTick = 6;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 7)
+				lastTick = 7;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 8)
+				lastTick = 8;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 9)
+				lastTick = 9;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 10)
+				lastTick = 10;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 11)
+				lastTick = 11;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 12)
+				lastTick = 12;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 13)
+				lastTick = 13;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 14)
+				lastTick = 14;
+			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 15)
+				lastTick = 15;
+
+
+			if (!(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+				if (Interfaces::m_pClientState->m_nChokedCommands() > 0)
+					return;
+			}
+			else
+				if (lastTick > 0)
+					return;
 
 		// update time.
 		g_Vars.globals.m_flAnimFrame = TICKS_TO_TIME( local->m_nTickBase( ) ) - g_Vars.globals.m_flAnimTime;

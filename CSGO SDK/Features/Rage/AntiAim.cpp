@@ -946,8 +946,10 @@ namespace Interfaces
 		float flYaw = GetAntiAimY(settings, cmd);
 
 		// do not allow 2 consecutive sendpacket true if faking angles.
-		if (*bSendPacket && g_Vars.globals.m_bOldPacket)
-			*bSendPacket = false;
+		if (!(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+			if (*bSendPacket && g_Vars.globals.m_bOldPacket)
+				*bSendPacket = false;
+		}
 
 		auto prevTickCount = cmd->tick_count;
 
@@ -1015,9 +1017,14 @@ namespace Interfaces
 		else {
 			//*bSendPacket = true;
 
-			std::uniform_int_distribution random(-110, 110);
+			if (!(g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+				std::uniform_int_distribution random(-110, 110);
 
-			cmd->viewangles.y = Math::AngleNormalize(flYaw + 180 + random(generator));
+				cmd->viewangles.y = Math::AngleNormalize(flYaw + 180 + random(generator));
+			}
+			else {
+				cmd->viewangles.y = flYaw;
+			}
 
 			//SendFakeFlick();
 		}

@@ -210,6 +210,8 @@ namespace Engine
 			predictionData->m_CorrectionData.pop_back();
 		}
 
+		predictionData->m_RestoreData.Apply(predictionData->m_pPlayer);
+
 		Interfaces::m_pMoveHelper->SetHost(nullptr);
 
 		// Finish command

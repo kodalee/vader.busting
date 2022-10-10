@@ -2297,7 +2297,7 @@ namespace Interfaces
 			}
 
 			// try to find a record with a lby update or moving.
-			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_vecVelocity.Length2D() > 89.f && currentRecord->m_iFlags & FL_ONGROUND) {
+			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_vecVelocity.Length2D() > 89.f) {
 				pBestRecord = currentRecord;
 				continue; // go to next record
 			}
