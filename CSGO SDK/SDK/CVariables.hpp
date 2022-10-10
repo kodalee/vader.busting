@@ -1718,6 +1718,7 @@ public:
 
 #if defined(DEV)
 	config_option( int, what_developer_is_this, 0 );
+	config_option(bool, anonymous_mode_cope, false)
 #endif
 
 #endif

@@ -2394,6 +2394,15 @@ void Menu::Misc() {
 			ImGui::Text(XorStr("----------beta/debug----------"));
 #endif
 
+#ifdef DEV
+			ImGui::Text(XorStr("----------dev----------"));
+			ImGui::Checkbox(XorStr("Anonymous mode"), &g_Vars.misc.anonymous_mode_cope);
+			if (g_Vars.misc.anonymous_mode_cope) {
+				ImGui::Text(XorStr("NOTE: ONCE ENABLED REJOIN NEEDED TO APPLY"));
+			}
+			ImGui::Text(XorStr("----------dev----------"));
+#endif
+
 			ImGui::Checkbox(XorStr("Model Changer"), &g_Vars.misc.model_changer);
 			if (g_Vars.misc.model_changer) {
 				ImGui::Combo(XorStr("Models"), &g_Vars.misc.models, models, IM_ARRAYSIZE(models));
