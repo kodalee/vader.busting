@@ -997,7 +997,7 @@ namespace Engine {
 					record->m_iResolverText = XorStr("INVALID LASTMOVE");
 				}
 				else {
-					record->m_angEyeAngles.y = move->m_body;
+					record->m_angEyeAngles.y = pLagData->m_flLastMovingLowerBodyYawTarget;
 					record->m_iResolverText = XorStr("LASTMOVE");
 				}
 			}
@@ -1225,7 +1225,9 @@ namespace Engine {
 
 		if (player->m_vecVelocity().Length2D() > 0.1f && !Engine::g_ResolverData[player->EntIndex()].fakewalking && player->m_fFlags() & FL_ONGROUND)
 		{
-			pLagData->m_flLastMovingLowerBodyYawTarget = Math::normalize_float(value);
+			if(player->m_vecVelocity().Length2D() > 30.f)
+				pLagData->m_flLastMovingLowerBodyYawTarget = Math::normalize_float(value);
+
 			pLagData->m_flLastMovingLowerBodyYawTargetTime = player->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
 		}
 
