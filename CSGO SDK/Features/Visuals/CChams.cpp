@@ -1136,16 +1136,8 @@ namespace Interfaces
 		if (!player || !bones)
 			return;
 
-		auto& hit = m_Hitmatrix.emplace_back();
-
-		std::memcpy(hit.pBoneToWorld, bones, player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
-		hit.time = Interfaces::m_pGlobalVars->realtime + g_Vars.esp.hitmatrix_time;
-
 		static int m_nSkin = SDK::Memory::FindInDataMap(player->GetPredDescMap(), XorStr("m_nSkin"));
 		static int m_nBody = SDK::Memory::FindInDataMap(player->GetPredDescMap(), XorStr("m_nBody"));
-
-		hit.info.origin = player->GetAbsOrigin();
-		hit.info.angles = player->GetAbsAngles();
 
 		auto renderable = player->GetClientRenderable();
 
@@ -1161,6 +1153,14 @@ namespace Interfaces
 
 		if (!hdr)
 			return;
+
+		auto& hit = m_Hitmatrix.emplace_back();
+
+		std::memcpy(hit.pBoneToWorld, bones, player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+		hit.time = Interfaces::m_pGlobalVars->realtime + g_Vars.esp.hitmatrix_time;
+
+		hit.info.origin = player->GetAbsOrigin();
+		hit.info.angles = player->GetAbsAngles();
 
 		hit.state.m_pStudioHdr = hdr;
 		hit.state.m_pStudioHWData = Interfaces::m_pMDLCache->GetHardwareData(model->studio);
