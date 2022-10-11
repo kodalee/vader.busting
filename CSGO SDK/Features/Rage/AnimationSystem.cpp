@@ -791,6 +791,16 @@ namespace Engine
 			}
 
 			data.bOnGround = bOnGround;
+
+			// delta in duckamt and delta in time..
+			float duck = record->m_flDuckAmount - previous_record->m_flDuckAmount;
+			float time = record->m_flSimulationTime - previous_record->m_flSimulationTime;
+
+			// get the duckamt change per tick.
+			float change = (duck / time) * Interfaces::m_pGlobalVars->interval_per_tick;
+
+			// fix crouching players.
+			player->m_flDuckAmount() = previous_record->m_flDuckAmount + change;
 		}
 	}
 

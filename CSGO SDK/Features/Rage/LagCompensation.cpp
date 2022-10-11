@@ -203,7 +203,7 @@ namespace Engine
 			return false;
 
 		auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING));
-		auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - g_Vars.sv_maxunlag->GetFloat());
+		auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - 1.0f);
 
 		if (record.m_flSimulationTime < (float)dead_time)
 			return false;
