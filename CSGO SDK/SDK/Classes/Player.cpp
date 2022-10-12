@@ -187,10 +187,7 @@ void C_BasePlayer::SetCurrentCommand( CUserCmd* cmd ) {
 }
 
 Vector C_BasePlayer::GetEyePosition( ) {
-	Vector pos{};
-	using GetEyePosFn = void(__thiscall*)(void*, Vector*);
-	Memory::VCall< GetEyePosFn >(this, 277)(this, &pos);
-	return pos;
+	return m_vecOrigin() + m_vecViewOffset();
 
 	//Vector vecOrigin = this->GetAbsOrigin( );
 

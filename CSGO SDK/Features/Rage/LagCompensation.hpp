@@ -25,6 +25,7 @@ public:
 	float simulation_time;
 	float duck_amount;
 	float speed;
+	int resolvermode;
 
 	float angles;
 	Vector origin;

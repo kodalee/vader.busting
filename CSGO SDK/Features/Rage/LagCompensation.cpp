@@ -199,15 +199,9 @@ namespace Engine
 
 		float time_delta = std::abs(correct - (curtime - record.m_flSimulationTime));
 
-		if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
-			if (time_delta > 0.2f)
-				return false;
-		}
-		else {
-			if (time_delta > 0.1f)
-				return false;
-		}
-
+		if (time_delta > 0.2f) // do we want todo 0.19f or 0.2f? 0.19f might be more accurate and more "safe"
+			return false;
+		
 		auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING));
 		auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - 1.0f);
 
