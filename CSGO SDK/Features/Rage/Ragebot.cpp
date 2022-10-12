@@ -1451,7 +1451,7 @@ namespace Interfaces
 			}
 		}
 
-		printf(std::to_string(m_rage_data->m_targets.size()).c_str());
+		//printf(std::to_string(m_rage_data->m_targets.size()).c_str());
 
 		for (auto& target : m_rage_data->m_targets) {
 			std::vector<C_AimPoint> tempPoints;
