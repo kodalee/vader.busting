@@ -29,7 +29,7 @@ public:
 	float angles;
 	Vector origin;
 
-	optimized_adjust_data() //-V730
+	optimized_adjust_data()
 	{
 		reset();
 	}
