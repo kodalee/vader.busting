@@ -271,6 +271,8 @@ namespace Interfaces
 		Vector m_PeekingPosition;
 		float m_flLastPeekTime;
 
+		bool m_bRequiredDamage = false;
+
 		bool m_bDebugGetDamage = false;
 
 		bool m_bEarlyStop = false;
@@ -1431,6 +1433,26 @@ namespace Interfaces
 			return false;
 		}
 
+		if (m_rage_data->m_targets.size() >= 5)/// target limit. selects a random target if we have >= targets
+		{
+			auto first = rand() % m_rage_data->m_targets.size();
+			auto second = rand() % m_rage_data->m_targets.size();
+			auto third = rand() % m_rage_data->m_targets.size();
+
+			for (auto i = 0; i < m_rage_data->m_targets.size(); ++i)
+			{
+				if (i == first || i == second || i == third)
+					continue;
+
+				m_rage_data->m_targets.erase(m_rage_data->m_targets.begin() + i);
+
+				if (i > 0)
+					--i;
+			}
+		}
+
+		printf(std::to_string(m_rage_data->m_targets.size()).c_str());
+
 		for (auto& target : m_rage_data->m_targets) {
 			std::vector<C_AimPoint> tempPoints;
 
@@ -2037,6 +2059,8 @@ namespace Interfaces
 		}
 
 		if( pPoint->damage >= mindmg ) {
+			m_rage_data->m_bRequiredDamage = true;
+
 			pPoint->hitgroup = fireData.m_EnterTrace.hitgroup;
 			pPoint->healthRatio = int( float( pPoint->target->player->m_iHealth( ) ) / pPoint->damage ) + 1;
 
@@ -2141,10 +2165,8 @@ namespace Interfaces
 
 		auto record = GetBestLagRecord(player, &backup);
 		if (!record || !IsRecordValid(player, record)) {
-			if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) { // ghetto asf; will rework later
-				backup.Apply(player);
-				return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
-			}
+			backup.Apply(player);
+			return 0;
 		}
 
 		backup.Apply(player);
@@ -2223,6 +2245,27 @@ namespace Interfaces
 		return addedPoints;
 	}
 
+	static bool compare_records(const optimized_adjust_data& first, const optimized_adjust_data& second)
+	{
+		auto local = C_CSPlayer::GetLocalPlayer();
+		if (local) {
+
+			auto first_pitch = Math::normalize_pitch(first.angles);
+			auto second_pitch = Math::normalize_pitch(second.angles);
+
+			//if (fabs(first_pitch - second_pitch) > 15.0f)
+			//	return fabs(first_pitch) < fabs(second_pitch);
+			if (first.duck_amount != second.duck_amount)
+				return first.duck_amount < second.duck_amount;
+			else if (first.origin != second.origin)
+				return first.origin.Distance(local->GetAbsOrigin()) < second.origin.Distance(local->GetAbsOrigin());
+			else if (first.speed != second.speed)
+				return first.speed > second.speed;
+
+			return first.simulation_time > second.simulation_time;
+		}
+	}
+
 	Engine::C_LagRecord* C_Ragebot::GetBestLagRecord(C_CSPlayer* player, Engine::C_BaseLagRecord* backup) {
 		auto lagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
 		if (!lagData.IsValid() || lagData->m_History.empty())
@@ -2233,86 +2276,60 @@ namespace Interfaces
 			return nullptr;
 		}
 
-		int recordsCount = 0;
-		Engine::C_LagRecord* arrRecords[64] = { nullptr };
+		std::deque <optimized_adjust_data> optimized_records;
+		for (auto i = 0; i < lagData->m_History.size(); ++i)
+		{
+			auto record = &lagData->m_History.at(i);
+			optimized_adjust_data optimized_record;
 
-		for (auto it = lagData->m_History.begin(); it != lagData->m_History.end(); ++it) {
-			if (it->m_bSkipDueToResolver) {
-				continue;
-			}
+			optimized_record.i = i;
+			optimized_record.player = record->player;
+			optimized_record.simulation_time = record->m_flSimulationTime;
+			optimized_record.duck_amount = record->m_flDuckAmount;
+			optimized_record.angles = record->m_flEyeYaw;
+			optimized_record.origin = record->m_vecOrigin;
+			optimized_record.speed = record->m_vecVelocity.Length();
 
-			if (!it->m_bIsValid || !IsRecordValid(player, &*it)) {
-				continue;
-			}
-
-			arrRecords[recordsCount] = &*it;
-			recordsCount++;
-
-			if (it->m_bTeleportDistance)
-				continue;
-
-			if (recordsCount + 1 >= 64)
-				break;
+			optimized_records.emplace_back(optimized_record);
 		}
 
-		if (recordsCount <= 1) {
-			return &record;
-		}
+		if (optimized_records.size() < 1) { // no "optimized records" found
+			for (auto i = 0; i < lagData->m_History.size(); ++i)
+			{
+				auto record = &lagData->m_History.at(i);
 
-		Engine::C_LagRecord* pBestRecord = nullptr;
-		 
-		// iterate all valid records
-		for (int i = 0; i < recordsCount; i++) {
-			// get current record
-			Engine::C_LagRecord* currentRecord = arrRecords[i];
-
-			if ((g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) && !currentRecord->m_bTeleportDistance) {
-				return &record;
-			}
-
-			if (currentRecord->m_bTeleportDistance) { // only if player is breaking lagcomp force to latest record
-				return &record;
-			}
-
-			if (currentRecord->m_vecVelocity.Length2D() > 1.f && currentRecord->m_vecVelocity.Length2D() <= 89.f && currentRecord->m_iFlags & FL_ONGROUND && g_Vars.globals.m_bPointVisible) {
-				return &record;
-			}
-
-			// if best record is null, set best record to current record
-			if (!pBestRecord) {
-				pBestRecord = currentRecord;
-				continue; // go to next record
-			}
-
-			if (pBestRecord->m_bResolved != currentRecord->m_bResolved && currentRecord->m_flSimulationTime >= pBestRecord->m_flSimulationTime) {
-				if (!pBestRecord->m_bResolved) {
-					pBestRecord = currentRecord;
+				if (record->m_bSkipDueToResolver)
 					continue;
-				}
-			}
 
-			if (currentRecord->m_flSimulationTime >= pBestRecord->m_flSimulationTime) {
-				pBestRecord = currentRecord;
+				if (!record->m_bIsValid || !IsRecordValid(player, &*record))
+					continue;
+
+				if (record->m_bTeleportDistance)
+					continue;
+
+				return record;
+			}
+		}
+
+		std::sort(optimized_records.begin(), optimized_records.end(), compare_records);
+
+		for (auto& optimized_record : optimized_records)
+		{
+			auto record = &lagData->m_History.at(optimized_record.i);
+
+			if (record->m_bSkipDueToResolver)
 				continue;
-			}
 
-			// try to find a record with a lby update or moving.
-			if (currentRecord->m_iResolverMode == Engine::RModes::FLICK || currentRecord->m_vecVelocity.Length2D() > 89.f) {
-				pBestRecord = currentRecord;
-				continue; // go to next record
-			}
-			//else if (pBestRecord != currentRecord) {
-			//	pBestRecord = currentRecord; // last record
-			//	continue;
-			//}
-			
+			if (!record->m_bIsValid || !IsRecordValid(player, &*record))
+				continue;
+
+			if (record->m_bTeleportDistance)
+				continue;
+
+			return record;
 		}
 
-		if (!pBestRecord || record.m_bTeleportDistance) {
-			return &record;
-		}
-
-		return pBestRecord;
+		return nullptr;
 	}
 
 	bool C_Ragebot::IsRecordValid(C_CSPlayer* player, Engine::C_LagRecord* record) {

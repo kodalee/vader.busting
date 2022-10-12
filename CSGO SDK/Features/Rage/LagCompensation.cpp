@@ -171,7 +171,7 @@ namespace Engine
 		//correct += lagData.Xor()->m_flOutLatency;
 
 		// use prediction curtime for this.
-		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase());
 
 		// correct is the amount of time we have to correct game time,
 		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flOutLatency;
@@ -182,16 +182,16 @@ namespace Engine
 		// check bounds [ 0, sv_maxunlag ]
 		Math::Clamp(correct, 0.f, 1.0f);
 
-		auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
-		if (weapon) {
-			auto weaponData = weapon->GetCSWeaponData();
-			if (weaponData.IsValid()) {
-				if (weaponData.Xor()->m_iWeaponType != WEAPONTYPE_KNIFE) {
-					if (/*g_Vars.misc.disablebtondt &&*/ (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
-						correct -= g_TickbaseController.s_nExtraProcessingTicks;
-				}
-			}
-		}
+		//auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
+		//if (weapon) {
+		//	auto weaponData = weapon->GetCSWeaponData();
+		//	if (weaponData.IsValid()) {
+		//		if (weaponData.Xor()->m_iWeaponType != WEAPONTYPE_KNIFE) {
+		//			if (/*g_Vars.misc.disablebtondt &&*/ (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
+		//				correct -= g_TickbaseController.s_nExtraProcessingTicks;
+		//		}
+		//	}
+		//}
 
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
@@ -199,8 +199,14 @@ namespace Engine
 
 		float time_delta = std::abs(correct - (curtime - record.m_flSimulationTime));
 
-		if (time_delta > 0.2f)
-			return false;
+		if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) {
+			if (time_delta > 0.2f)
+				return false;
+		}
+		else {
+			if (time_delta > 0.1f)
+				return false;
+		}
 
 		auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING));
 		auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - 1.0f);
@@ -279,9 +285,9 @@ namespace Engine
 			return;
 		}
 
-		if ( player->m_flOldSimulationTime( ) > simTime ) {
-			return;
-		}
+		//if ( player->m_flOldSimulationTime( ) > simTime ) {
+		//	return;
+		//}
 
 		auto anim_data = AnimationSystem::Get( )->GetAnimationData( player->m_entIndex );
 		if( !anim_data )

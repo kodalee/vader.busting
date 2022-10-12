@@ -79,6 +79,17 @@ namespace Math
 		angles.z = 0.0f;
 	}
 
+	__forceinline float normalize_pitch(float pitch)
+	{
+		while (pitch > 89.0f)
+			pitch -= 180.0f;
+
+		while (pitch < -89.0f)
+			pitch += 180.0f;
+
+		return pitch;
+	}
+
 	inline void Vecanglevectors(const Vector& angles, Vector* forward)
 	{
 		float sp, sy, cp, cy;

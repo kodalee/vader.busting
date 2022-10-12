@@ -16,6 +16,38 @@
 #define ANIMATION_RESOLVER_LEFT 2
 #define ANIMATION_RESOLVER_RIGHT 4
 
+class optimized_adjust_data
+{
+public:
+	int i;
+	C_CSPlayer* player;
+
+	float simulation_time;
+	float duck_amount;
+	float speed;
+
+	float angles;
+	Vector origin;
+
+	optimized_adjust_data() //-V730
+	{
+		reset();
+	}
+
+	void reset()
+	{
+		i = 0;
+		player = nullptr;
+
+		simulation_time = 0.0f;
+		duck_amount = 0.0f;
+		speed = 0.0f;
+
+		angles = 0.0f;
+		origin.Zero;
+	}
+};
+
 namespace Engine
 {
 	// base lag record, generally used for backup and restore
