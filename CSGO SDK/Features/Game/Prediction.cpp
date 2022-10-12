@@ -112,7 +112,7 @@ namespace Engine
 
 		//RestoreNetvarCompression(_cmd.Xor());
 
-		predictionData->m_RestoreData.Apply(predictionData->m_pPlayer);
+		//predictionData->m_RestoreData.Apply(predictionData->m_pPlayer);
 
 		// set move data members that getting copied from CUserCmd
 		// rebuilded from CPrediction::SetupMove
