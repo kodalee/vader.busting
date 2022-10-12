@@ -171,7 +171,7 @@ namespace Engine
 		//correct += lagData.Xor()->m_flOutLatency;
 
 		// use prediction curtime for this.
-		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase());
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
 
 		// correct is the amount of time we have to correct game time,
 		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flOutLatency;
