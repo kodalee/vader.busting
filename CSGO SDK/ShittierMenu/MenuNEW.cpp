@@ -2477,7 +2477,7 @@ void Menu::Configuration() {
 	// LEFT GROUP -------------------------------------------------------------------------
 	ImGui::SetCursorPos(ImVec2(193.f, 21.f));
 	ImGui::BeginGroup(); {
-		ImGui::BeginGroupBox(XorStr("File"), ImVec2(244.f, 225.f)); {
+		ImGui::BeginGroupBox(XorStr("File"), ImVec2(244.f, 245.f)); {
 			//ImGui::SetNextItemWidth(231.f);
 
 			ImGui::Text(XorStr("Name")); ImGui::SameLine(); // my ghetto way of having the name first then the input box
@@ -2504,7 +2504,7 @@ void Menu::Configuration() {
 			ImGui::EndGroupBox();
 		}
 
-		ImGui::BeginGroupBox(XorStr("Configuration"), ImVec2(244.f, 235.f)); {
+		ImGui::BeginGroupBox(XorStr("Configuration"), ImVec2(244.f, 215.f)); {
 				if (!cfg_list.empty()) {
 					if (ImGui::Button(XorStr("Save"), ImVec2(213.f, 20.f)))
 					{
