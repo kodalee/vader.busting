@@ -2315,7 +2315,7 @@ namespace Interfaces
 					continue;
 
 				else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
-					printf("front record\n");
+					//printf("front record\n");
 					return &front_record;
 				}
 
@@ -2339,7 +2339,7 @@ namespace Interfaces
 				continue;
 
 			else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
-				printf("front record\n");
+				//printf("front record\n");
 				return &front_record;
 			}
 
