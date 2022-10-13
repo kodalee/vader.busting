@@ -2271,8 +2271,8 @@ namespace Interfaces
 		if (!lagData.IsValid() || lagData->m_History.empty())
 			return nullptr;
 
-		auto& record = lagData->m_History.front();
-		if (!record.m_bIsValid) {
+		auto& front_record = lagData->m_History.front();
+		if (!front_record.m_bIsValid) {
 			return nullptr;
 		}
 
@@ -2305,11 +2305,19 @@ namespace Interfaces
 				//if (record->m_bSkipDueToResolver)
 				//	continue;
 
+				//if (record->m_bTeleportDistance)
+				//	printf("niggaballsHD\n");
+
 				if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 					continue;
 
-				if (record->m_bTeleportDistance)
+				if (record->m_bTeleportDistance && (player->m_fFlags() & FL_ONGROUND))
 					continue;
+
+				else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
+					printf("front record\n");
+					return &front_record;
+				}
 
 				return record;
 			}
@@ -2327,8 +2335,13 @@ namespace Interfaces
 			if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 				continue;
 
-			if (record->m_bTeleportDistance)
+			if (record->m_bTeleportDistance && (player->m_fFlags() & FL_ONGROUND))
 				continue;
+
+			else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
+				printf("front record\n");
+				return &front_record;
+			}
 
 			return record;
 		}
