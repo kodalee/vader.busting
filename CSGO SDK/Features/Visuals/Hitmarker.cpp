@@ -136,4 +136,16 @@ void Hitmarkers::RenderHitmarkers( ) {
 	if( g_Vars.esp.vizualize_hitmarker ) {
 		RenderScreenHitmarkers( );
 	}
+
+	if( g_Vars.esp.visualize_damage && Hitmarkers::m_vecWorldHitmarkers.size( ) ) {
+		Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers.back( );
+		Vector2D vecPos;
+		if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) ) {
+			auto vecTextSize = Render::Engine::tahoma_sexy.size( std::to_string( Hitmarkers::m_nLastDamageData ) );
+
+			Vector2D vecRenderPos = vecPos - Vector2D( vecTextSize.m_width / 2, 8 + vecTextSize.m_height );
+			Render::Engine::tahoma_sexy.string( vecRenderPos.x, vecRenderPos.y, Color(255, 255, 255, 220 * info.m_flAlpha ),
+				std::to_string( Hitmarkers::m_nLastDamageData ) );
+		}
+	}
 }

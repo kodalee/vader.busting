@@ -711,8 +711,9 @@ namespace Hooked
 	}
 
 	bool __cdecl ReportHit( Hit_t* hit ) {
-		if( ( g_Vars.esp.visualize_hitmarker_world || g_Vars.esp.visualize_damage ) && hit ) {
+		if( ( g_Vars.esp.visualize_hitmarker_world || g_Vars.esp.visualize_damage ) && hit && Hitmarkers::m_bShouldDrawDamage ) {
 			Hitmarkers::AddWorldHitmarker( hit->x, hit->y, hit->z );
+			Hitmarkers::m_bShouldDrawDamage = false;
 		}
 
 		return oReportHit( hit );

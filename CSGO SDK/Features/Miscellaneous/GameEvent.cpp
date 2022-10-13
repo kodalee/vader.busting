@@ -469,7 +469,8 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 				}
 
-				Hitmarkers::m_nLastDamageData = { hitgroup == Hitgroup_Head ? Color( 255, 0, 00 ) : Color( 255, 255, 255 ), dmg_to_health };
+				Hitmarkers::m_nLastDamageData = dmg_to_health;
+				Hitmarkers::m_bShouldDrawDamage = true;
 				Hitmarkers::AddScreenHitmarker( hitgroup == Hitgroup_Head ? Color( 0, 150, 255 ) : Color( 255, 255, 255 ) );
 			}
 		}

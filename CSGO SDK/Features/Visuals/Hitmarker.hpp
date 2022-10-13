@@ -20,7 +20,8 @@ namespace Hitmarkers {
 	extern std::vector<Hitmarkers_t> m_vecWorldHitmarkers;
 
 
-	inline std::pair<Color, int> m_nLastDamageData;
+	inline bool m_bShouldDrawDamage;
+	inline int m_nLastDamageData;
 
 	void AddWorldHitmarker( float flPosX = -1.f, float flPosY = -1.f, float flPosZ = -1.f );
 

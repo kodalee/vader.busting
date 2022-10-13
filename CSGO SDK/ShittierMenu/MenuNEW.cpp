@@ -2104,6 +2104,7 @@ void Menu::Visuals() {
 			std::vector<MultiItem_t> hitmarkers = {
 					{ XorStr("World"), &g_Vars.esp.visualize_hitmarker_world },
 					{ XorStr("Screen"), &g_Vars.esp.vizualize_hitmarker },
+					{ XorStr("Damage"), &g_Vars.esp.visualize_damage },
 			};
 
 			ImGui::MultiCombo(XorStr("Hitmarkers"), hitmarkers);
