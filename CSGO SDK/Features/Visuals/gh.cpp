@@ -292,7 +292,7 @@ bool c_grenade_prediction::data_t::draw() const
 
         if (m_index == WEAPON_HEGRENADE) {
             std::string dmg = XorStr("-"); dmg += std::to_string(int(local_damage));
-            Render::Engine::esp.string(prev_screen.x - 8, prev_screen.y - 5, Color(255, 255, 255), dmg.c_str());
+            Render::Engine::tahoma_sexy.string(prev_screen.x - 6, prev_screen.y - 5, Color(255, 255, 255), dmg.c_str());
         }
     }
 
