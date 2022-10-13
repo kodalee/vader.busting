@@ -151,7 +151,7 @@ void CGrenadePrediction::Paint( ) {
 			if( !player )
 				continue;
 
-			if( player->IsDead( ) || player->m_bGunGameImmunity( ) || player->IsTeammate( pLocal ) )
+			if( player->IsDead( ) || player->m_bGunGameImmunity( ) || player->IsTeammate( pLocal ) || player == pLocal )
 				continue;
 
 			// get center of mass for player.
