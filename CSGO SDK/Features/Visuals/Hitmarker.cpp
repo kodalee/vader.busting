@@ -137,7 +137,7 @@ void Hitmarkers::RenderHitmarkers( ) {
 		RenderScreenHitmarkers( );
 	}
 
-	if( g_Vars.esp.visualize_damage && Hitmarkers::m_vecWorldHitmarkers.size( ) ) {
+	if( g_Vars.esp.visualize_damage && Hitmarkers::m_vecWorldHitmarkers.size( ) && m_bShouldDrawDamage ) {
 		Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers.back( );
 		Vector2D vecPos;
 		if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) ) {
