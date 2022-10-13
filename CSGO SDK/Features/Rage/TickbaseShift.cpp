@@ -326,11 +326,11 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 							inya = true;
 							goto jmpRunExtraCommands;
 						}
-						else if (g_Vars.globals.m_bShotReady && Weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
-							s_bBuilding = false;
-							inya = true;
-							goto jmpRunExtraCommands;
-						}
+						//else if (g_Vars.globals.m_bShotReady && Weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
+						//	s_bBuilding = false;
+						//	inya = true;
+						//	goto jmpRunExtraCommands;
+						//}
 					}
 				}
 			}

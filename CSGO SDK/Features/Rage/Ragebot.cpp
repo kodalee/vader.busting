@@ -549,7 +549,7 @@ namespace Interfaces
 		if (weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
 			if (!(m_rage_data->m_pCmd->buttons & IN_RELOAD) && weapon->m_iClip1()) {
 				static float cockTime = 0.f;
-				float curtime = local->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick;
+				float curtime = TICKS_TO_TIME(local->m_nTickBase() + g_TickbaseController.s_nExtraProcessingTicks);
 				m_rage_data->m_pCmd->buttons &= ~IN_ATTACK2;
 				if (m_rage_data->m_pLocal->CanShoot(true)) {
 					if (cockTime <= curtime) {
