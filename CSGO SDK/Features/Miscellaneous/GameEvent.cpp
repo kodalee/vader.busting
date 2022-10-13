@@ -86,6 +86,9 @@ void C_GameEvent::Register( ) {
 	ADD_GAMEEVENT( bomb_defused );
 	ADD_GAMEEVENT( bomb_exploded );
 	ADD_GAMEEVENT( player_say );
+	ADD_GAMEEVENT( cs_win_panel_match );
+	ADD_GAMEEVENT( cs_match_end_restart );
+	ADD_GAMEEVENT( match_end_conditions );
 }
 
 void C_GameEvent::Shutdown( ) {
@@ -904,6 +907,21 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		}
 #endif
 
+		break;
+	}
+	case hash_32_fnv1a_const("cs_win_panel_match"):
+	{
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("cs_win_panel_match"))) hk.func(pEvent);
+		break;
+	}
+	case hash_32_fnv1a_const("cs_match_end_restart"):
+	{
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("cs_match_end_restart"))) hk.func(pEvent);
+		break;
+	}
+	case hash_32_fnv1a_const("match_end_conditions"):
+	{
+		for (auto hk : g_luagameeventmanager.get_gameevents(XorStr("match_end_conditions"))) hk.func(pEvent);
 		break;
 	}
 	}
