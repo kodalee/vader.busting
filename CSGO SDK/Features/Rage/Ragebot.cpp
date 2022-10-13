@@ -2165,10 +2165,8 @@ namespace Interfaces
 
 		auto record = GetBestLagRecord(player, &backup);
 		if (!record || !IsRecordValid(player, record)) {
-			if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)) { // ghetto asf; will rework later
-				backup.Apply(player);
-				return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
-			}
+			backup.Apply(player);
+			return 0; // doing return 0 here will make aimbot not shoot at people that dont have any record........
 		}
 
 		backup.Apply(player);
@@ -2278,9 +2276,9 @@ namespace Interfaces
 			return nullptr;
 		}
 
-		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) { // we doubletappin? go for first record$$$
-			return &record;
-		}
+		//if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) { // we doubletappin? go for first record$$$
+		//	return &record;
+		//}
 
 		std::deque <optimized_adjust_data> optimized_records;
 		for (auto i = 0; i < lagData->m_History.size(); ++i)

@@ -171,7 +171,7 @@ namespace Engine
 		//correct += lagData.Xor()->m_flOutLatency;
 
 		// use prediction curtime for this.
-		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() - g_TickbaseController.s_nExtraProcessingTicks);
+		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() + g_TickbaseController.s_nExtraProcessingTicks);
 
 		// correct is the amount of time we have to correct game time,
 		float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flOutLatency;
@@ -202,7 +202,7 @@ namespace Engine
 		if (time_delta > 0.2f) // do we want todo 0.19f or 0.2f? 0.19f might be more accurate and more "safe"
 			return false;
 		
-		auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING));
+		auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING)) - g_TickbaseController.s_nExtraProcessingTicks;
 		auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - 1.0f);
 
 		if (record.m_flSimulationTime < (float)dead_time)
