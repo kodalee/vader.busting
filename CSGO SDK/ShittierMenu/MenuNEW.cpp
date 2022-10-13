@@ -2071,8 +2071,8 @@ void Menu::Visuals() {
 			if (g_Vars.esp.aspect_ratio) {
 				ImGui::SliderFloat(XorStr("Aspect ratio value"), &g_Vars.esp.aspect_ratio_value, 0.02f, 5.f, XorStr("%.2f"));
 			}
-			ImGui::SliderFloat(XorStr("Field of view"), &g_Vars.esp.world_fov, 0.f, 200.f, XorStr("%.0f degress"));
-			ImGui::SliderFloat(XorStr("Viewmodel FOV"), &g_Vars.misc.viewmodel_fov, 0.f, 200.f, XorStr("%.0f degress"));
+			ImGui::SliderFloat(XorStr("Field of view"), &g_Vars.esp.world_fov, 0.f, 200.f, XorStr("%.0f degrees"));
+			ImGui::SliderFloat(XorStr("Viewmodel FOV"), &g_Vars.misc.viewmodel_fov, 0.f, 200.f, XorStr("%.0f degrees"));
 
 
 			ImGui::Spacing();
@@ -2784,7 +2784,7 @@ void Menu::Playerlist() {
 				ImGui::Checkbox(XorStr("Whitelist"), &g_Vars.globals.player_list.white_list[players.at(current_player).i]);
 				ImGui::Checkbox(XorStr("Override Pitch"), &g_Vars.globals.player_list.override_pitch[players.at(current_player).i]);
 				if (g_Vars.globals.player_list.override_pitch[players.at(current_player).i]) {
-					ImGui::SliderFloat(XorStr("Pitch Angle"), &g_Vars.globals.player_list.override_pitch_slider[players.at(current_player).i], -89.f, 89.f, XorStr("%1.f degress"));
+					ImGui::SliderFloat(XorStr("Pitch Angle"), &g_Vars.globals.player_list.override_pitch_slider[players.at(current_player).i], -89.f, 89.f, XorStr("%1.f degrees"));
 				}
 
 			}

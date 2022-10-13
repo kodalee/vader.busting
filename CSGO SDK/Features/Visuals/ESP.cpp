@@ -1402,7 +1402,7 @@ void CEsp::Main( ) {
 				C_Inferno* pInferno = reinterpret_cast<C_Inferno*>(entity);
 				C_CSPlayer* player = (C_CSPlayer*)entity->m_hOwnerEntity().Get();
 
-				int dist = m_LocalPlayer->m_vecOrigin().Distance(entity->m_vecOrigin());
+				int dist = m_LocalPlayer->GetAbsOrigin().Distance(pInferno->GetAbsOrigin());
 
 				if (dist > 2000)
 					return;
@@ -1517,7 +1517,7 @@ void CEsp::Main( ) {
 				const Vector origin = pSmokeEffect->GetAbsOrigin();
 				Vector2D screen_origin = Vector2D();
 
-				int dist = m_LocalPlayer->m_vecOrigin().Distance(entity->m_vecOrigin());
+				int dist = m_LocalPlayer->GetAbsOrigin().Distance(origin);
 
 				if (dist > 2000)
 					return;
