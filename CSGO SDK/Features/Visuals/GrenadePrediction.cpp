@@ -151,7 +151,7 @@ void CGrenadePrediction::Paint( ) {
 			if( !player )
 				continue;
 
-			if( player->IsDead( ) || player->m_bGunGameImmunity( ) || player->IsTeammate( pLocal ) || player == pLocal )
+			if( player->IsDead( ) || player->m_bGunGameImmunity( ) || player->IsTeammate( pLocal ) )
 				continue;
 
 			// get center of mass for player.
@@ -162,7 +162,7 @@ void CGrenadePrediction::Paint( ) {
 
 			if( wpn_index == WEAPON_HEGRENADE ) {
 				// is within damage radius?
-				if( delta.Length( ) > 475.f )
+				if( delta.Length( ) > 350.f )
 					continue;
 
 				// check if our path was obstructed by anything using a trace.
@@ -189,7 +189,7 @@ void CGrenadePrediction::Paint( ) {
 			}
 			else if( wpn_index == WEAPON_MOLOTOV || wpn_index == WEAPON_FIREBOMB ) {
 				// is within damage radius?
-				if( delta.Length( ) > 131.f )
+				if( delta.Length( ) > 125.f )
 					continue;
 
 				// hardcoded bullshit /shrug

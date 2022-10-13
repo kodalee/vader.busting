@@ -1805,9 +1805,9 @@ void Menu::Players() {
 							if (g_Vars.esp.new_chams_enemy_xqz == 3) {
 								ImGui::SliderFloat(XorStr("Enemy XQZ pearlescence"), &g_Vars.esp.chams_enemy_xqz_pearlescence, 0.f, 100.f, XorStr("%.f"));
 								ColorPicker_w_name(XorStr("XQZ pearlescence color"), g_Vars.esp.chams_enemy_xqz_pearlescence_color, true, false);
-								ImGui::SliderFloat(XorStr("Enemy xqz shine"), &g_Vars.esp.chams_enemy_xqz_shine, 0.f, 100.f, XorStr("%.f"));
+								ImGui::SliderFloat(XorStr("Enemy XQZ shine"), &g_Vars.esp.chams_enemy_xqz_shine, 0.f, 100.f, XorStr("%.f"));
 							}
-							ImGui::Combo(XorStr("Enemy xqz overlay"), &g_Vars.esp.new_chams_enemy_xqz_overlay, chams_mats_overlay, IM_ARRAYSIZE(chams_mats_overlay));
+							ImGui::Combo(XorStr("Enemy XQZ overlay"), &g_Vars.esp.new_chams_enemy_xqz_overlay, chams_mats_overlay, IM_ARRAYSIZE(chams_mats_overlay));
 							ColorPicker_w_name(XorStr("Enemy XQZ overlay color"), g_Vars.esp.new_chams_enemy_xqz_overlay_color, true, false);
 							if (g_Vars.esp.new_chams_enemy_xqz_overlay == 1) {
 								ImGui::SliderFloat(XorStr("Glow strength ##enemyxqz"), &g_Vars.esp.chams_enemy_xqz_outline_value, 0.f, 100.f, XorStr("%.f"));
