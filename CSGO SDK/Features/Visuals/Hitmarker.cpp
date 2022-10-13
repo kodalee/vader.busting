@@ -129,7 +129,7 @@ void Hitmarkers::RenderScreenHitmarkers( ) {
 }
 
 void Hitmarkers::RenderHitmarkers( ) {
-	if( g_Vars.esp.visualize_hitmarker_world || g_Vars.esp.visualize_damage ) {
+	if( Hitmarkers::m_bShouldDrawDamage && ( g_Vars.esp.visualize_hitmarker_world || g_Vars.esp.visualize_damage ) ) {
 		RenderWorldHitmarkers( );
 	}
 
