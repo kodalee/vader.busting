@@ -189,7 +189,7 @@ void CGrenadePrediction::Paint( ) {
 			}
 			else if( wpn_index == WEAPON_MOLOTOV || wpn_index == WEAPON_FIREBOMB ) {
 				// is within damage radius?
-				if( delta.Length( ) > 125.f )
+				if( delta.Length( ) > 120.f )
 					continue;
 
 				// hardcoded bullshit /shrug
