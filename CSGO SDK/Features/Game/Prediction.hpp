@@ -65,6 +65,23 @@ namespace Engine {
 	};
 
 	struct PlayerData {
+		void Reset() {
+			m_aimPunchAngle.Set();
+			m_aimPunchAngleVel.Set();
+
+			m_vecViewOffset.Set();
+			m_vecBaseVelocity.Set();
+			m_vecVelocity.Set();
+			m_vecOrigin.Set();
+
+			m_flFallVelocity = 0.0f;
+			m_flVelocityModifier = 0.0f;
+			m_flDuckAmount = 0.0f;
+
+			m_nCommandNumber = 0;
+			m_nTickbase = 0;
+		}
+
 		int m_nTickbase = 0;
 		int m_nCommandNumber = 0;
 		QAngle m_aimPunchAngle = { };
@@ -72,8 +89,10 @@ namespace Engine {
 		Vector m_vecViewOffset = { };
 		Vector m_vecBaseVelocity = { };
 		Vector m_vecVelocity = { };
+		Vector m_vecOrigin = { };
 		float m_flVelocityModifier = 0.f;
 		float m_flFallVelocity = 0.f;
+		float m_flDuckAmount = 0.f;
 	};
 
 	struct LastPredData {

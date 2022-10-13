@@ -232,6 +232,8 @@ namespace Engine
 		predictionData->m_OutgoingCommands.clear();
 
 		predictionData->m_RestoreData.Reset();
+		predictionData->m_Data->Reset();
+		m_bGetNetvarCompressionData = false;
 		predictionData->m_RestoreData.is_filled = false;
 	}
 
@@ -321,14 +323,13 @@ namespace Engine
 
 		auto local = C_CSPlayer::GetLocalPlayer();
 
-		if (!local)
+		if (!local || local->IsDead()) {
+			predictionData->m_Data->Reset();
 			return;
+		}
 
 		auto slot = local->m_nTickBase();
 		auto data = &predictionData->m_Data[slot % 150];
-
-		if (!data)
-			return;
 
 		if (data->m_nTickbase != slot)
 			return;
@@ -353,13 +354,13 @@ namespace Engine
 			local->m_vecBaseVelocity() = data->m_vecBaseVelocity;
 		}
 
-		if (!IsFloatValid(local->m_flFallVelocity(), data->m_flFallVelocity)) {
-			local->m_flFallVelocity() = data->m_flFallVelocity;
+		if (!IsVectorValid(local->m_vecVelocity(), data->m_vecVelocity)) {
+			local->m_vecVelocity() = data->m_vecVelocity;
 		}
 
-		//if (!IsVectorValid(local->m_vecVelocity(), data->m_vecVelocity)) {
-		//	local->m_vecVelocity() = data->m_vecVelocity;
-		//}
+		if (local->m_vecOrigin().Distance(data->m_vecOrigin) <= 0.03125f) {
+			local->m_vecOrigin() = data->m_vecOrigin;
+		}
 
 		//if( !IsVectorValid(local->m_vecViewOffset( ), data->m_vecViewOffset ) ) {
 		//	local->m_vecViewOffset( ) = data->m_vecViewOffset;
@@ -384,11 +385,14 @@ namespace Engine
 		if (std::abs(local->m_flVelocityModifier() - data->m_flVelocityModifier) <= 0.00625f)
 			local->m_flVelocityModifier() = data->m_flVelocityModifier;
 
+		if (std::abs(local->m_flDuckAmount() - data->m_flDuckAmount) <= 0.03125f)
+			local->m_flDuckAmount() = data->m_flDuckAmount;
+
+		if (std::abs(local->m_flFallVelocity() - data->m_flFallVelocity) <= 0.03125f)
+			local->m_flFallVelocity() = data->m_flFallVelocity;
+
 		//if (std::abs(local->m_nTickBase() - data->m_nTickbase) <= 0.00625f && !(g_Vars.rage.key_dt.enabled))
 		//	local->m_nTickBase() = data->m_nTickbase;
-
-		m_bGetNetvarCompressionData = false;
-
 	}
 
 	void Prediction::OnRunCommand(C_CSPlayer* player, CUserCmd* cmd) {
@@ -475,8 +479,10 @@ namespace Engine
 	void Prediction::StoreNetvarCompression(CUserCmd* cmd)
 	{
 		auto local = C_CSPlayer::GetLocalPlayer();
-		if (!local)
+		if (!local || local->IsDead()) {
+			predictionData->m_Data->Reset();
 			return;
+		}
 
 		// collect data for netvar compression fix
 		auto slot = local->m_nTickBase();
@@ -490,6 +496,7 @@ namespace Engine
 		data->m_flVelocityModifier = local->m_flVelocityModifier();
 		data->m_flFallVelocity = local->m_flFallVelocity();
 		data->m_vecVelocity = local->m_vecVelocity();
+		data->m_vecOrigin = local->m_vecOrigin();
 		data->m_nTickbase = slot;
 		m_bGetNetvarCompressionData = true;
 	}
