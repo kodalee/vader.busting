@@ -497,6 +497,7 @@ namespace Engine
 		data->m_flFallVelocity = local->m_flFallVelocity();
 		data->m_vecVelocity = local->m_vecVelocity();
 		data->m_vecOrigin = local->m_vecOrigin();
+		data->m_flDuckAmount = local->m_flDuckAmount();
 		data->m_nTickbase = slot;
 		m_bGetNetvarCompressionData = true;
 	}
