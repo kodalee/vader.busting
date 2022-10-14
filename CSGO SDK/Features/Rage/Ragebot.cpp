@@ -1433,23 +1433,23 @@ namespace Interfaces
 			return false;
 		}
 
-		if (m_rage_data->m_targets.size() >= 5)/// target limit. selects a random target if we have >= targets
-		{
-			auto first = rand() % m_rage_data->m_targets.size();
-			auto second = rand() % m_rage_data->m_targets.size();
-			auto third = rand() % m_rage_data->m_targets.size();
+		//if (m_rage_data->m_targets.size() >= 5)/// target limit. selects a random target if we have >= targets
+		//{
+		//	auto first = rand() % m_rage_data->m_targets.size();
+		//	auto second = rand() % m_rage_data->m_targets.size();
+		//	auto third = rand() % m_rage_data->m_targets.size();
 
-			for (auto i = 0; i < m_rage_data->m_targets.size(); ++i)
-			{
-				if (i == first || i == second || i == third)
-					continue;
+		//	for (auto i = 0; i < m_rage_data->m_targets.size(); ++i)
+		//	{
+		//		if (i == first || i == second || i == third)
+		//			continue;
 
-				m_rage_data->m_targets.erase(m_rage_data->m_targets.begin() + i);
+		//		m_rage_data->m_targets.erase(m_rage_data->m_targets.begin() + i);
 
-				if (i > 0)
-					--i;
-			}
-		}
+		//		if (i > 0)
+		//			--i;
+		//	}
+		//}
 
 		//printf(std::to_string(m_rage_data->m_targets.size()).c_str());
 
@@ -2311,10 +2311,10 @@ namespace Interfaces
 				if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 					continue;
 
-				if (record->m_bTeleportDistance && (player->m_fFlags() & FL_ONGROUND))
+				if (record->m_bTeleportDistance && (record->m_iFlags & FL_ONGROUND))
 					continue;
 
-				else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
+				else if (record->m_bTeleportDistance && !(record->m_iFlags & FL_ONGROUND)) {
 					//printf("front record\n");
 					return &front_record;
 				}
@@ -2335,10 +2335,10 @@ namespace Interfaces
 			if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 				continue;
 
-			if (record->m_bTeleportDistance && (player->m_fFlags() & FL_ONGROUND))
+			if (record->m_bTeleportDistance && (record->m_iFlags & FL_ONGROUND))
 				continue;
 
-			else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
+			else if (record->m_bTeleportDistance && !(record->m_iFlags & FL_ONGROUND)) {
 				//printf("front record\n");
 				return &front_record;
 			}
