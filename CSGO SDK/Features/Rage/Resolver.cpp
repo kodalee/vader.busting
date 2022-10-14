@@ -992,7 +992,7 @@ namespace Engine {
 						record->m_iResolverText = XorStr("+LBY LOGGED");
 					}
 				}
-				else if (!HasStaticRealAngle(anim_data->m_AnimationRecord, 10) && g_Vars.misc.expermimental_resolver) {
+				else if (!HasStaticRealAngle(anim_data->m_AnimationRecord, 10)/* && g_Vars.misc.expermimental_resolver*/) {
 					record->m_angEyeAngles.y = at_target_yaw + 180.f;
 					record->m_iResolverText = XorStr("INVALID LASTMOVE");
 				}
