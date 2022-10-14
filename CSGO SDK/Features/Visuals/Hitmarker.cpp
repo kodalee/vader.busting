@@ -41,12 +41,14 @@ void Hitmarkers::RenderWorldHitmarkers( ) {
 
 		// If the delta between the current time and hurt time is larger than 0.5 seconds then we should erase
 		if( Interfaces::m_pPrediction->GetUnpredictedGlobals( )->curtime - info.m_flTime > 0.5f ) {
-			info.m_flAlpha -= ( 1.0f / 1.0f ) * Interfaces::m_pGlobalVars->frametime;
-			info.m_flAlpha = std::clamp<float>( info.m_flAlpha, 0.0f, 1.0f );
+			if (m_bShouldDrawDamage) {
+				info.m_flAlpha -= (1.0f / 1.0f) * Interfaces::m_pGlobalVars->frametime;
+				info.m_flAlpha = std::clamp<float>(info.m_flAlpha, 0.0f, 1.0f);
+			}
 		}
 
 		Vector2D vecPos;
-		if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) ) {
+		if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) && m_bShouldDrawDamage ) {
 			constexpr int iLineSize{ 8 };
 
 			if( info.m_flAlpha > 0.0f && g_Vars.esp.visualize_hitmarker_world ) {
