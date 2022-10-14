@@ -49,7 +49,7 @@ void Hitmarkers::RenderWorldHitmarkers( ) {
 		if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) ) {
 			constexpr int iLineSize{ 8 };
 
-			if( info.m_flAlpha > 0.0f && g_Vars.esp.visualize_hitmarker_world ) {
+			if( info.m_flAlpha > 0.0f && g_Vars.esp.visualize_hitmarker_world && Hitmarkers::m_bShouldDrawDamage ) {
 				auto DrawHitmarker = [ & ] ( Vector2D pos, Color clr ) {
 					auto col = Color(clr.r(), clr.g(), clr.b(), info.m_flAlpha);
 					Render::Engine::Line(Vector2D(static_cast<int>(pos.x - iLineSize), static_cast<int>(pos.y - iLineSize)),
@@ -129,7 +129,7 @@ void Hitmarkers::RenderScreenHitmarkers( ) {
 }
 
 void Hitmarkers::RenderHitmarkers( ) {
-	if( Hitmarkers::m_bShouldDrawDamage && ( g_Vars.esp.visualize_hitmarker_world || g_Vars.esp.visualize_damage ) ) {
+	if( ( g_Vars.esp.visualize_hitmarker_world || g_Vars.esp.visualize_damage ) ) {
 		RenderWorldHitmarkers( );
 	}
 
