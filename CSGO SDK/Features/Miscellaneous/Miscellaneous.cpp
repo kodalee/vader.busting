@@ -235,6 +235,10 @@ namespace Interfaces
 				tag = g_Vars.misc.custom_clantag;
 				length = tag.length();
 			}
+			else {
+				tag = XorStr(" ");
+				length = tag.length();
+			}
 			break;
 		}
 

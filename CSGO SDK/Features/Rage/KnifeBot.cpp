@@ -67,13 +67,16 @@ namespace Interfaces
 		knifeBotData->m_vecEyePos = knifeBotData->m_pLocalPlayer->GetEyePosition( );
 
 		for( int i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++ ) {
+			player_info_t info;
+			Interfaces::m_pEngine->GetPlayerInfo(i, &info);
+
 			C_CSPlayer* Target = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( i );
 			if( !Target
 				|| Target->IsDead( )
 				|| Target->IsDormant( )
 				|| !Target->IsPlayer( )
 				|| Target->m_iTeamNum( ) == knifeBotData->m_pLocalPlayer->m_iTeamNum( )
-				|| Target->m_bGunGameImmunity( ) || g_Vars.globals.player_list.white_list[i] )
+				|| Target->m_bGunGameImmunity( ) || g_Vars.globals.player_list.white_list[info.userId] )
 				continue;
 
 			auto lag_data = Engine::LagCompensation::Get( )->GetLagData( Target->m_entIndex );
