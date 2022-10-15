@@ -2314,10 +2314,10 @@ namespace Interfaces
 				if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 					continue;
 
-				if (record->m_bTeleportDistance && (record->m_iFlags & FL_ONGROUND))
+				if (record->m_bTeleportDistance && (player->m_fFlags() & FL_ONGROUND))
 					continue;
 
-				else if (record->m_bTeleportDistance && !(record->m_iFlags & FL_ONGROUND)) {
+				else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
 					//printf("front record\n");
 					return &front_record;
 				}
@@ -2338,10 +2338,10 @@ namespace Interfaces
 			if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 				continue;
 
-			if (record->m_bTeleportDistance && (record->m_iFlags & FL_ONGROUND))
+			if (record->m_bTeleportDistance && (player->m_fFlags() & FL_ONGROUND))
 				continue;
 
-			else if (record->m_bTeleportDistance && !(record->m_iFlags & FL_ONGROUND)) {
+			else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
 				//printf("front record\n");
 				return &front_record;
 			}
