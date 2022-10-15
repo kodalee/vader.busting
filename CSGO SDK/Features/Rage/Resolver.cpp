@@ -1012,7 +1012,7 @@ namespace Engine {
 			//else if (record->m_iResolverMode == SPIN) {
 			//	record->m_angEyeAngles.y = (record->spinbody + record->spindelta * record->m_iChokeTicks) * record->step++;
 			//}
-			else if (record->m_iResolverMode == ANTIFREESTAND) {
+			else if (record->m_iResolverMode == ANTIFREESTAND && pLagData->m_iMissedShotsFreestand < 1) {
 				record->m_iResolverText = XorStr("FREESTAND");
 				//if (ShouldUseFreestand(record, player)) {
 				//	if (bFacingleft) {
@@ -1225,7 +1225,7 @@ namespace Engine {
 
 		if (player->m_vecVelocity().Length2D() > 0.1f && !Engine::g_ResolverData[player->EntIndex()].fakewalking && player->m_fFlags() & FL_ONGROUND)
 		{
-			if(player->m_vecVelocity().Length2D() > 30.f)
+			if(player->m_vecVelocity().Length2D() > 10.f)
 				pLagData->m_flLastMovingLowerBodyYawTarget = Math::normalize_float(value);
 
 			pLagData->m_flLastMovingLowerBodyYawTargetTime = player->m_flOldSimulationTime() + Interfaces::m_pGlobalVars->interval_per_tick;
@@ -1727,7 +1727,7 @@ namespace Engine {
 						//}
 						break;
 					case 1:
-						if (AntiFreestanding(player, record->m_angEyeAngles.y)) { // using same freestand twice might not be a good idea so i switched to fatal here
+						if (AntiFreestanding(player, record->m_angEyeAngles.y) && pLagData->m_iMissedShotsFreestand < 1) { // using same freestand twice might not be a good idea so i switched to fatal here
 							record->m_iResolverText = XorStr("FREESTAND_F");
 							m_iMode = 1;
 						}
