@@ -472,8 +472,9 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 
 				}
 
-				Hitmarkers::m_nLastDamageData = dmg_to_health;
-				Hitmarkers::m_bShouldDrawDamage = true;
+				Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers.back();
+				info.m_flDamage = dmg_to_health;
+				info.ShouldDraw = true;
 				Hitmarkers::AddScreenHitmarker( hitgroup == Hitgroup_Head ? Color( 0, 150, 255 ) : Color( 255, 255, 255 ) );
 			}
 		}

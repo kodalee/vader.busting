@@ -39,6 +39,9 @@ void Hitmarkers::RenderWorldHitmarkers( ) {
 		Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers[ i ];
 		// bool bLastHitmarker = Hitmarkers::m_vecWorldHitmarkers.begin( ) + 1 == Hitmarkers::m_vecWorldHitmarkers.end( );
 
+		if (!info.ShouldDraw)
+			continue;
+
 		// If the delta between the current time and hurt time is larger than 0.5 seconds then we should erase
 		if( Interfaces::m_pPrediction->GetUnpredictedGlobals( )->curtime - info.m_flTime > 0.5f ) {
 			info.m_flAlpha -= ( 1.0f / 1.0f ) * Interfaces::m_pGlobalVars->frametime;
@@ -137,15 +140,15 @@ void Hitmarkers::RenderHitmarkers( ) {
 		RenderScreenHitmarkers( );
 	}
 
-	if( g_Vars.esp.visualize_damage && Hitmarkers::m_vecWorldHitmarkers.size( ) && m_bShouldDrawDamage ) {
+	if( g_Vars.esp.visualize_damage && Hitmarkers::m_vecWorldHitmarkers.size( ) ) {
 		Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers.back( );
 		Vector2D vecPos;
-		if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) ) {
-			auto vecTextSize = Render::Engine::tahoma_sexy.size( std::to_string( Hitmarkers::m_nLastDamageData ) );
+		if( WorldToScreen( Vector( info.m_flPosX, info.m_flPosY, info.m_flPosZ ), vecPos ) && info.ShouldDraw ) {
+			auto vecTextSize = Render::Engine::tahoma_sexy.size( std::to_string( info.m_flDamage ) );
 
 			Vector2D vecRenderPos = vecPos - Vector2D( vecTextSize.m_width / 2, 8 + vecTextSize.m_height );
 			Render::Engine::tahoma_sexy.string( vecRenderPos.x, vecRenderPos.y, Color(255, 255, 255, 220 * info.m_flAlpha ),
-				std::to_string( Hitmarkers::m_nLastDamageData ) );
+				std::to_string( info.m_flDamage ) );
 		}
 	}
 }

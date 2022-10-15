@@ -6,7 +6,8 @@ namespace Hitmarkers {
 	struct Hitmarkers_t {
 		float m_flTime = 0.0f;
 		float m_flAlpha = 0.0f;
-		float m_flDamage = 0.0f;
+		int m_flDamage = 0;
+		bool ShouldDraw = false;
 
 		float m_flRandomRotation = 0.0f;
 		float m_flRandomEnlargement = 0.0f;
