@@ -853,9 +853,9 @@ namespace Engine
 			if (!player->IsTeammate(C_CSPlayer::GetLocalPlayer())) { // plist overrides
 				player_info_t info;
 				Interfaces::m_pEngine->GetPlayerInfo(player->EntIndex(), &info);
-				if (g_Vars.globals.player_list.override_pitch[info.userId]) {
-					player->m_angEyeAngles().x = g_Vars.globals.player_list.override_pitch_slider[info.userId];
-				}
+				//if (g_Vars.globals.player_list.override_pitch[info.userId]) {
+				//	player->m_angEyeAngles().x = g_Vars.globals.player_list.override_pitch_slider[info.userId];
+				//}
 				
 			}
 

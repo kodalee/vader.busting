@@ -76,7 +76,7 @@ namespace Interfaces
 				|| Target->IsDormant( )
 				|| !Target->IsPlayer( )
 				|| Target->m_iTeamNum( ) == knifeBotData->m_pLocalPlayer->m_iTeamNum( )
-				|| Target->m_bGunGameImmunity( ) || g_Vars.globals.player_list.white_list[info.userId] )
+				|| Target->m_bGunGameImmunity( ) /*|| g_Vars.globals.player_list.white_list[info.userId]*/ )
 				continue;
 
 			auto lag_data = Engine::LagCompensation::Get( )->GetLagData( Target->m_entIndex );
