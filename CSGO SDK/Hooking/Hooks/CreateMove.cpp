@@ -232,11 +232,11 @@ namespace Hooked
 			else if (Interfaces::m_pGlobalVars->tickcount % 16 == 15)
 				lastTick = 15;
 
-			if (!g_Vars.rage.exploit_standbychoke) {
+			if (!(g_Vars.rage.dt_exploits && g_Vars.rage.exploit_standbychoke)) {
 				if (Interfaces::m_pClientState->m_nChokedCommands() > 0)
 					return;
 			}
-			else if (g_Vars.rage.exploit_standbychoke && (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+			else if (g_Vars.rage.dt_exploits && g_Vars.rage.exploit_standbychoke && (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
 				if (lastTick > 0)
 					return;
 			}
