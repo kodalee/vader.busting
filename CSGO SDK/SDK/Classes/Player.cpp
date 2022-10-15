@@ -657,6 +657,11 @@ Vector C_CSPlayer::GetEyePosition( ) {
 		}
 	}
 
+	if (m_vecViewOffset().z > 64.0f)
+		pos.z = pos.z - m_vecViewOffset().z + 64.0f;
+	else if (m_vecViewOffset().z < 46.099998f)
+		pos.z = pos.z - m_vecViewOffset().z + 46.0f;
+
 	return pos;
 }
 
