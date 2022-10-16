@@ -1414,11 +1414,8 @@ namespace Interfaces
 		m_rage_data->m_pBestTarget = nullptr;
 
 		for (int idx = 1; idx <= Interfaces::m_pGlobalVars->maxClients; ++idx) {
-			player_info_t info;
-			Interfaces::m_pEngine->GetPlayerInfo(idx, &info);
-
 			auto player = C_CSPlayer::GetPlayerByIndex(idx);
-			if (!player || player == m_rage_data->m_pLocal || player->IsDead() || player->m_bGunGameImmunity() || player->IsTeammate(m_rage_data->m_pLocal) /*|| g_Vars.globals.player_list.white_list[info.userId]*/)
+			if (!player || player == m_rage_data->m_pLocal || player->IsDead() || player->m_bGunGameImmunity() || player->IsTeammate(m_rage_data->m_pLocal) || g_Vars.globals.player_list.white_list[player->EntIndex()])
 				continue;
 
 			if (!player->IsDormant())
