@@ -711,17 +711,17 @@ namespace Engine
 			&& (record->m_fFlags & FL_ONGROUND) && record->m_vecVelocity.Length() <= 85.f) {
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
-			printf("FAKEWALKING\n");
+			//printf("FAKEWALKING\n");
 		}
 		else {
-			if (record->m_serverAnimOverlays[12].m_flWeight > 0.0f)
-				printf("[12] WEIGHT INCORRECT\n");
-			if (record->m_serverAnimOverlays[6].m_flWeight > 0.0f)
-				printf("[6] WEIGHT INCORRECT\n");
-			if (record->m_serverAnimOverlays[6].m_flPlaybackRate > 0.0003f)
-				printf("[6] PLAYBACKRATE INCORRECT\n");
-			if (record->m_iChokeTicks < 2)
-				printf("iChokeTicks incorrect\n");
+			//if (record->m_serverAnimOverlays[12].m_flWeight > 0.0f)
+			//	printf("[12] WEIGHT INCORRECT\n");
+			//if (record->m_serverAnimOverlays[6].m_flWeight > 0.0f)
+			//	printf("[6] WEIGHT INCORRECT\n");
+			//if (record->m_serverAnimOverlays[6].m_flPlaybackRate > 0.0003f)
+			//	printf("[6] PLAYBACKRATE INCORRECT\n");
+			//if (record->m_iChokeTicks < 2)
+			//	printf("iChokeTicks incorrect\n");
 			record->m_bFakeWalking = false;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
 		}
