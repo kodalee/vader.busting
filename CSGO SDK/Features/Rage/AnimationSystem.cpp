@@ -851,9 +851,12 @@ namespace Engine
 			};
 
 			if (!player->IsTeammate(C_CSPlayer::GetLocalPlayer())) { // plist overrides
-				if (g_Vars.globals.player_list.override_pitch[player->EntIndex()]) {
-					player->m_angEyeAngles().x = g_Vars.globals.player_list.override_pitch_slider[player->EntIndex()];
-				}
+				player_info_t info;
+				Interfaces::m_pEngine->GetPlayerInfo(player->EntIndex(), &info);
+				//if (g_Vars.globals.player_list.override_pitch[info.userId]) {
+				//	player->m_angEyeAngles().x = g_Vars.globals.player_list.override_pitch_slider[info.userId];
+				//}
+				
 			}
 
 			// attempt to resolve the player	

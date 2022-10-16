@@ -513,6 +513,10 @@ namespace Hooked
 
 				for (auto i = 1; i < Interfaces::m_pGlobalVars->maxClients; i++)
 				{
+					player_info_t player_info;
+					if (!Interfaces::m_pEngine->GetPlayerInfo(i, &player_info))
+						continue;
+
 					auto e = static_cast<C_CSPlayer*>(Interfaces::m_pEntList->GetClientEntity(i));
 
 					if (!e)
@@ -535,10 +539,7 @@ namespace Hooked
 						continue;
 					}
 
-					player_info_t player_info;
-					Interfaces::m_pEngine->GetPlayerInfo(i, &player_info);
-
-					g_Vars.globals.player_list.players.emplace_back(Player_list_data(i, player_info.szName));
+					g_Vars.globals.player_list.players.emplace_back(Player_list_data(player_info.userId, player_info.szName));
 				}
 
 				g_Vars.globals.player_list.refreshing = false;

@@ -86,8 +86,8 @@ float Autowall::ScaleDamage( C_CSPlayer* player, float flDamage, float flArmorRa
 		return -1.f;
 
 	const int nTeamNum = player->m_iTeamNum( );
-	float flHeadDamageScale = nTeamNum == TEAM_CT ? g_Vars.mp_damage_scale_ct_head->GetFloat( ) : g_Vars.mp_damage_scale_t_head->GetFloat( );
-	const float flBodyDamageScale = nTeamNum == TEAM_CT ? g_Vars.mp_damage_scale_ct_body->GetFloat( ) : g_Vars.mp_damage_scale_t_body->GetFloat( );
+	//float flHeadDamageScale = nTeamNum == TEAM_CT ? g_Vars.mp_damage_scale_ct_head->GetFloat( ) : g_Vars.mp_damage_scale_t_head->GetFloat( );
+	//const float flBodyDamageScale = nTeamNum == TEAM_CT ? g_Vars.mp_damage_scale_ct_body->GetFloat( ) : g_Vars.mp_damage_scale_t_body->GetFloat( );
 
 	const bool bIsArmored = IsArmored( player, nHitgroup );
 	const bool bHasHeavyArmor = player->m_bHasHeavyArmor( );
@@ -95,20 +95,23 @@ float Autowall::ScaleDamage( C_CSPlayer* player, float flDamage, float flArmorRa
 
 	const float flArmorValue = static_cast< float >( player->m_ArmorValue( ) );
 
-	if( bHasHeavyArmor )
-		flHeadDamageScale /= 2.f;
+	//if( bHasHeavyArmor )
+	//	flHeadDamageScale /= 2.f;
 
 	if( !bIsZeus ) {
 		switch( nHitgroup ) {
 		case Hitgroup_Head:
-			flDamage = ( flDamage * 4.f ) * flHeadDamageScale;
+			if (bHasHeavyArmor)
+				flDamage = (flDamage * 4.f) * 0.5f;
+			else
+				flDamage = (flDamage * 4.f);
 			break;
 		case Hitgroup_Stomach:
-			flDamage = ( flDamage * 1.25f ) * flBodyDamageScale;
+			flDamage = ( flDamage * 1.25f );
 			break;
 		case Hitgroup_LeftLeg:
 		case Hitgroup_RightLeg:
-			flDamage = ( flDamage * 0.75f ) * flBodyDamageScale;
+			flDamage = ( flDamage * 0.75f );
 			break;
 		default:
 			break;
@@ -136,9 +139,12 @@ float Autowall::ScaleDamage( C_CSPlayer* player, float flDamage, float flArmorRa
 
 		float fDamageToArmor = ( flDamage - fDamageToHealth ) * ( flArmorScale * flArmorBonusRatio );
 
-		// Does this use more armor than we have?
-		if( fDamageToArmor > flArmorValue )
-			fDamageToHealth = flDamage - ( flArmorValue / flArmorBonusRatio );
+		//// Does this use more armor than we have?
+		//if( fDamageToArmor > flArmorValue )
+		//	fDamageToHealth = flDamage - ( flArmorValue / flArmorBonusRatio );
+
+		if (((flDamage - fDamageToHealth) * (flArmorScale * flArmorBonusRatio)) > flArmorValue)
+			fDamageToHealth = flDamage - (flArmorValue / flArmorBonusRatio);
 
 		flDamage = fDamageToHealth;
 	}
@@ -260,7 +266,7 @@ void Autowall::ClipTraceToPlayers( const Vector& vecAbsStart, const Vector& vecA
 	}
 }
 
-bool Autowall::TraceToExit( CGameTrace* pEnterTrace, Vector vecStartPos, Vector vecDirection, CGameTrace* pExitTrace ) {
+bool Autowall::TraceToExit(CGameTrace* pEnterTrace, Vector vecStartPos, Vector vecDirection, CGameTrace* pExitTrace) {
 	constexpr float flMaxDistance = 90.f, flStepSize = 4.f;
 	float flCurrentDistance = 0.f;
 
@@ -269,70 +275,85 @@ bool Autowall::TraceToExit( CGameTrace* pEnterTrace, Vector vecStartPos, Vector 
 	bool bIsWindow = 0;
 	auto v23 = 0;
 
-	do {
+	while (flCurrentDistance <= flMaxDistance) {
 		// Add extra distance to our ray
 		flCurrentDistance += flStepSize;
 
 		// Multiply the direction vector to the distance so we go outwards, add our position to it.
-		Vector vecEnd = vecStartPos + ( vecDirection * flCurrentDistance );
+		Vector vecEnd = vecStartPos + (vecDirection * flCurrentDistance);
 
-		if( !iFirstContents )
-			iFirstContents = Interfaces::m_pEngineTrace->GetPointContents( vecEnd, MASK_SHOT_PLAYER );
+		if (!iFirstContents)
+			iFirstContents = Interfaces::m_pEngineTrace->GetPointContents(vecEnd, MASK_SHOT);
 
-		int iPointContents = Interfaces::m_pEngineTrace->GetPointContents( vecEnd, MASK_SHOT_PLAYER );
+		int iPointContents = Interfaces::m_pEngineTrace->GetPointContents(vecEnd, MASK_SHOT);
 
-		if( !( iPointContents & MASK_SHOT_HULL ) || ( (iPointContents & CONTENTS_HITBOX ) && iPointContents != iFirstContents ) ) {
-			//Let's setup our end position by deducting the direction by the extra added distance
-			Vector vecStart = vecEnd - ( vecDirection * flStepSize );
+		if ((iPointContents & MASK_SHOT_HULL) && (!(iPointContents & CONTENTS_HITBOX) || (iPointContents == iFirstContents)))
+			continue;
 
-			// this gets a bit more complicated and expensive when we have to deal with displacements
-			TraceLine( vecEnd, vecStart, MASK_SHOT, nullptr, pExitTrace ); // was MASK_SHOT_HULL should just be MASK_SHOT
+		//Let's setup our end position by deducting the direction by the extra added distance
+		Vector vecStart = vecEnd - (vecDirection * flStepSize);
 
-			// we hit an ent's hitbox, do another trace.
-			if( pExitTrace->startsolid && pExitTrace->surface.flags & SURF_HITBOX ) {
-				uint32_t filter_[ 4 ] = { *reinterpret_cast< uint32_t* > ( Engine::Displacement.Function.m_TraceFilterSimple ), uint32_t( C_CSPlayer::GetLocalPlayer( ) ), 0, 0 };
-				filter_[ 1 ] = reinterpret_cast< uint32_t >( pExitTrace->hit_entity );
+		// this gets a bit more complicated and expensive when we have to deal with displacements
+		TraceLine(vecEnd, vecStart, MASK_SHOT, nullptr, pExitTrace); // was MASK_SHOT_HULL should just be MASK_SHOT
 
-				// do another trace, but skip the player to get the actual exit surface 
-				TraceLine( vecStartPos, vecStart, MASK_SHOT_HULL, reinterpret_cast< CTraceFilter* >( filter_ ), pExitTrace );
+		// we hit an ent's hitbox, do another trace.
+		if (pExitTrace->startsolid && pExitTrace->surface.flags & SURF_HITBOX) {
+			uint32_t filter_[4] = { *reinterpret_cast<uint32_t*> (Engine::Displacement.Function.m_TraceFilterSimple), uint32_t(C_CSPlayer::GetLocalPlayer()), 0, 0 };
+			filter_[1] = reinterpret_cast<uint32_t>(pExitTrace->hit_entity);
 
-				if( pExitTrace->DidHit( ) && !pExitTrace->startsolid ) {
-					vecEnd = pExitTrace->endpos;
-					return true;
-				}
+			// do another trace, but skip the player to get the actual exit surface 
+			TraceLine(vecEnd, vecStartPos, MASK_SHOT_HULL, reinterpret_cast<CTraceFilter*>(filter_), pExitTrace);
 
-				continue;
+			if (pExitTrace->DidHit() && !pExitTrace->startsolid) {
+				vecEnd = pExitTrace->endpos;
+				return true;
 			}
 
-			  //Can we hit? Is the wall solid?
-			if( pExitTrace->DidHit( ) && !pExitTrace->startsolid ) {
-				if( IsBreakable( ( C_BaseEntity* )pEnterTrace->hit_entity ) && IsBreakable( ( C_BaseEntity* )pExitTrace->hit_entity ) )
-					return true;
+			continue;
+		}
 
-				if( pEnterTrace->surface.flags & SURF_NODRAW ||
-					( !( pExitTrace->surface.flags & SURF_NODRAW ) && pExitTrace->plane.normal.Dot( vecDirection ) <= 1.f ) ) {
-					const float flMultAmount = pExitTrace->fraction * 4.f;
+		////Can we hit? Is the wall solid?
+		//if (pExitTrace->DidHit() && !pExitTrace->startsolid) {
+		//	if (IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity) && IsBreakable((C_BaseEntity*)pExitTrace->hit_entity))
+		//		return true;
 
-					// get the real end pos
-					vecStart -= vecDirection * flMultAmount;
-					return true;
-				}
+		//	if (pEnterTrace->surface.flags & SURF_NODRAW ||
+		//		(!(pExitTrace->surface.flags & SURF_NODRAW) && pExitTrace->plane.normal.Dot(vecDirection) <= 1.f)) {
+		//		const float flMultAmount = pExitTrace->fraction * 4.f;
 
-				continue;
-			}
+		//		// get the real end pos
+		//		vecStart -= vecDirection * flMultAmount;
+		//		return true;
+		//	}
 
-			if( !pExitTrace->DidHit( ) || pExitTrace->startsolid ) {
-				if( pEnterTrace->DidHitNonWorldEntity( ) && IsBreakable( ( C_BaseEntity* )pEnterTrace->hit_entity ) ) {
-					// if we hit a breakable, make the assumption that we broke it if we can't find an exit (hopefully..)
-					// fake the end pos
-					pExitTrace = pEnterTrace;
-					pExitTrace->endpos = vecStartPos + vecDirection;
-					return true;
-				}
+		//	continue;
+		//}
+
+		if (!pExitTrace->DidHit() || pExitTrace->startsolid) {
+			if (/*pEnterTrace->DidHitNonWorldEntity() && */IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity)) {
+				// if we hit a breakable, make the assumption that we broke it if we can't find an exit (hopefully..)
+				// fake the end pos
+				pExitTrace = pEnterTrace;
+				pExitTrace->endpos = vecStartPos + vecDirection;
+				return true;
 			}
 		}
-		// max pen distance is 90 units.
-	} while( flCurrentDistance <= flMaxDistance );
+
+		if ((pExitTrace->surface.flags & SURF_NODRAW)) {
+			if (IsBreakable((C_BaseEntity*)(pExitTrace->hit_entity)) && IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity)) {
+				vecEnd = pExitTrace->endpos;
+				return true;
+			}
+
+			if (!(pEnterTrace->surface.flags & SURF_NODRAW))
+				continue;
+		}
+
+		if (pExitTrace->plane.normal.Dot(vecDirection) <= 1.f) {
+			vecEnd -= (vecDirection * (pExitTrace->fraction * 4.f));
+			return true;
+		}
+	}
 
 	return false;
 }
