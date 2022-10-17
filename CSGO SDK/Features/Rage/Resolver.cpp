@@ -997,7 +997,7 @@ namespace Engine {
 					record->m_iResolverText = XorStr("INVALID LASTMOVE");
 				}
 				else {
-					record->m_angEyeAngles.y = pLagData->m_flLastMovingLowerBodyYawTarget;
+					record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
 					record->m_iResolverText = XorStr("LASTMOVE");
 				}
 			}
