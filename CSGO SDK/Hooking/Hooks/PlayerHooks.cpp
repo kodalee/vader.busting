@@ -34,10 +34,10 @@ namespace Hooked
 		if( !animState )
 			_do_extra_bone_processing( ecx, hdr, pos, rotations, transforma, bone_list, ik_context );
 
-		const auto backup_tickcount = *reinterpret_cast< int32_t* >( animState + 8 );
-		*reinterpret_cast< int32_t* >( animState + 8 ) = 0;
+		const auto backup_tickcount = animState->m_Player;
+		animState->m_Player = 0;
 		_do_extra_bone_processing( ecx, hdr, pos, rotations, transforma, bone_list, ik_context );
-		*reinterpret_cast< int32_t* >( animState + 8 ) = backup_tickcount;
+		animState->m_Player = backup_tickcount;
 	}
 
 	Hooked::PlayerHook::~PlayerHook( ) {
