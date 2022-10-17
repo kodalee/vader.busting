@@ -244,26 +244,26 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 	}
 
 #ifdef DEV
-	//while( !g_Vars.globals.hackUnload ) {
-	//	Sleep( 100 );
-	//}
+	while( !g_Vars.globals.hackUnload ) {
+		Sleep( 100 );
+	}
 
-	//Interfaces::Destroy( );
+	Interfaces::Destroy( );
 
-	//Sleep( 500 );
+	Sleep( 500 );
 
-	//Threading::FinishQueue( );
+	Threading::FinishQueue( );
 
-	//DispatchToAllThreads<decltype( FreeThreadIDWrapper ), FreeThreadIDWrapper>( nullptr );
+	DispatchToAllThreads<decltype( FreeThreadIDWrapper ), FreeThreadIDWrapper>( nullptr );
 
-	//Threading::EndThreads( );
+	Threading::EndThreads( );
 
-	//fclose( ( FILE* )stdin );
-	//fclose( ( FILE* )stdout );
-	//FreeConsole( );
-	//FreeLibraryAndExitThread( pArgs->hModule, EXIT_SUCCESS );
+	fclose( ( FILE* )stdin );
+	fclose( ( FILE* )stdout );
+	FreeConsole( );
+	FreeLibraryAndExitThread( pArgs->hModule, EXIT_SUCCESS );
 
-	//delete pArgs;
+	delete pArgs;
 
 	return FALSE;
 #else

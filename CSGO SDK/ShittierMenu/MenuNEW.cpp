@@ -2610,6 +2610,10 @@ void Menu::Configuration() {
 	ImGui::BeginGroup(); {
 		ImGui::BeginGroupBox("Settings", ImVec2(244.f, 480.f)); {
 			
+			if (ImGui::Button(XorStr("Unload"), ImVec2(213.f, 20.f)))
+			{
+				g_Vars.globals.hackUnload = true;
+			}
 
 			ImGui::Spacing();
 			ImGui::EndGroupBox();
