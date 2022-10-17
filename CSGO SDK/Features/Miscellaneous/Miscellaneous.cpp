@@ -256,6 +256,21 @@ namespace Interfaces
 
 	void C_Miscellaneous::ViewModelChanger( ) {
 		g_Vars.viewmodel_fov->SetValue( g_Vars.misc.viewmodel_fov );
+
+		static auto backup_viewmodel_x = g_Vars.viewmodel_offset_x->GetFloat();
+		static auto backup_viewmodel_y = g_Vars.viewmodel_offset_y->GetFloat();
+		static auto backup_viewmodel_z = g_Vars.viewmodel_offset_z->GetFloat();
+
+		if (g_Vars.misc.viewmodel_change) {
+			g_Vars.viewmodel_offset_x->SetValue(g_Vars.misc.viewmodel_x);
+			g_Vars.viewmodel_offset_y->SetValue(g_Vars.misc.viewmodel_y);
+			g_Vars.viewmodel_offset_z->SetValue(g_Vars.misc.viewmodel_z);
+		}
+		else {
+			g_Vars.viewmodel_offset_x->SetValue(backup_viewmodel_x);
+			g_Vars.viewmodel_offset_y->SetValue(backup_viewmodel_y);
+			g_Vars.viewmodel_offset_z->SetValue(backup_viewmodel_z);
+		}
 	}
 
 	void C_Miscellaneous::SkyboxChanger( ) {

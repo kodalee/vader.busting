@@ -2073,6 +2073,13 @@ void Menu::Visuals() {
 			}
 			ImGui::SliderFloat(XorStr("Field of view"), &g_Vars.esp.world_fov, 0.f, 200.f, XorStr("%.0f degrees"));
 			ImGui::SliderFloat(XorStr("Viewmodel FOV"), &g_Vars.misc.viewmodel_fov, 0.f, 200.f, XorStr("%.0f degrees"));
+			ImGui::Checkbox(XorStr("Viewmodel changer"), &g_Vars.misc.viewmodel_change);
+			if (g_Vars.misc.viewmodel_change) {
+				ImGui::SliderFloat(XorStr("Viewmodel X"), &g_Vars.misc.viewmodel_x, -50.f, 50.f, XorStr("%.0f degrees"));
+				ImGui::SliderFloat(XorStr("Viewmodel Y"), &g_Vars.misc.viewmodel_y, -50.f, 50.f, XorStr("%.0f degrees"));
+				ImGui::SliderFloat(XorStr("Viewmodel Z"), &g_Vars.misc.viewmodel_z, -50.f, 50.f, XorStr("%.0f degrees"));
+			}
+
 
 
 			ImGui::Spacing();
