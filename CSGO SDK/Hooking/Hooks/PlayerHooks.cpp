@@ -24,7 +24,7 @@ namespace Hooked
 		auto& hook = player_hooks[ ecx->m_entIndex ];
 
 		using Fn = void( __thiscall* )( C_CSPlayer*, CStudioHdr*, Vector*, Quaternion*, matrix3x4_t*, void*, void* );
-		auto _do_extra_bone_processing = hook.clientHook.VCall< Fn >( 197 );
+		auto _do_extra_bone_processing = hook.clientHook.VCall< Fn >( 192 );
 
 		if( ecx->m_fEffects( ) & 8 )
 			return;
@@ -50,7 +50,7 @@ namespace Hooked
 		networkableHook.Hook( hkEntityRelease, 1 );
 		networkableHook.Hook( PostDataUpdate, 7 );
 		renderableHook.Hook( hkSetupBones, 13 );
-		//clientHook.Hook( DoExtraBonesProccesing, 197 );
+		clientHook.Hook( DoExtraBonesProccesing, 192 );
 	}
 
 	bool __fastcall hkSetupBones( uintptr_t ecx, void* edx, matrix3x4_t* matrix, int bone_count, int bone_mask, float time ) {
