@@ -443,9 +443,9 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 		}
 
 		// calculate damage  
-		float flPenetrationLength = (ExitTrace.endpos - data->m_EnterTrace.endpos).LengthSquared();
+		float flPenetrationLength = (ExitTrace.endpos - data->m_EnterTrace.endpos).Length();
 		float flModifier = fmaxf(1.0f / flPenetrationModifier, 0.0f);
-		float flTakenFirst = (fmaxf(((3.75f / data->m_WeaponData->m_flPenetration)), 0.0f) * (flModifier * 3.0f) + (data->m_flCurrentDamage * flDamageModifier));
+		float flTakenFirst = (fmaxf(((3.0f / data->m_WeaponData->m_flPenetration) * 1.25f), 0.0f) * (flModifier * 3.0f) + (data->m_flCurrentDamage * flDamageModifier));
 		float flTakenDamage = (((flPenetrationLength * flPenetrationLength) * flModifier) / 24.0f) + flTakenFirst;
 
 		//Did we loose too much damage?
