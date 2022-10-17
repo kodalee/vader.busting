@@ -24,17 +24,17 @@ bool Autowall::IsBreakable( C_BaseEntity* pEntity ) {
 		const char* name = pClientClass->m_pNetworkName;
 
 		// CBreakableSurface, CBaseDoor, ...
-		//if( name[ 1 ] != 'F'
-		//	|| name[ 4 ] != 'c'
-		//	|| name[ 5 ] != 'B'
-		//	|| name[ 9 ] != 'h' ) {
-		//	*( uint8_t* )( ( uintptr_t )pEntity + uTakeDamage ) = 2; /*DAMAGE_YES*/
-		//}
+		if( name[ 1 ] != 'F'
+			|| name[ 4 ] != 'c'
+			|| name[ 5 ] != 'B'
+			|| name[ 9 ] != 'h' ) {
+			*( uint8_t* )( ( uintptr_t )pEntity + uTakeDamage ) = 2; /*DAMAGE_YES*/
+		}
 
-		if (!strcmp(name, "CBreakableSurface"))
-			*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 2; /*DAMAGE_YES*/
-		else if (!strcmp(name, "CBaseDoor") || !strcmp(name, "CDynamicProp"))
-			*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 0; /*DAMAGE_NO*/
+		//if (!strcmp(name, "CBreakableSurface"))
+		//	*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 2; /*DAMAGE_YES*/
+		//else if (!strcmp(name, "CBaseDoor") || !strcmp(name, "CDynamicProp"))
+		//	*(uint8_t*)((uintptr_t)pEntity + uTakeDamage) = 0; /*DAMAGE_NO*/
 
 	}
 
@@ -283,9 +283,9 @@ bool Autowall::TraceToExit(CGameTrace* pEnterTrace, Vector vecStartPos, Vector v
 		Vector vecEnd = vecStartPos + (vecDirection * flCurrentDistance);
 
 		if (!iFirstContents)
-			iFirstContents = Interfaces::m_pEngineTrace->GetPointContents(vecEnd, MASK_SHOT);
+			iFirstContents = Interfaces::m_pEngineTrace->GetPointContents(vecEnd, MASK_SHOT_HULL | CONTENTS_HITBOX);
 
-		int iPointContents = Interfaces::m_pEngineTrace->GetPointContents(vecEnd, MASK_SHOT);
+		int iPointContents = Interfaces::m_pEngineTrace->GetPointContents(vecEnd, MASK_SHOT_HULL | CONTENTS_HITBOX);
 
 		if ((iPointContents & MASK_SHOT_HULL) && (!(iPointContents & CONTENTS_HITBOX) || (iPointContents == iFirstContents)))
 			continue;
@@ -294,7 +294,7 @@ bool Autowall::TraceToExit(CGameTrace* pEnterTrace, Vector vecStartPos, Vector v
 		Vector vecStart = vecEnd - (vecDirection * flStepSize);
 
 		// this gets a bit more complicated and expensive when we have to deal with displacements
-		TraceLine(vecEnd, vecStart, MASK_SHOT, nullptr, pExitTrace); // was MASK_SHOT_HULL should just be MASK_SHOT
+		TraceLine(vecEnd, vecStart, MASK_SHOT_HULL | CONTENTS_HITBOX, nullptr, pExitTrace); // was MASK_SHOT_HULL should just be MASK_SHOT
 
 		// we hit an ent's hitbox, do another trace.
 		if (pExitTrace->startsolid && pExitTrace->surface.flags & SURF_HITBOX) {
@@ -313,24 +313,24 @@ bool Autowall::TraceToExit(CGameTrace* pEnterTrace, Vector vecStartPos, Vector v
 		}
 
 		////Can we hit? Is the wall solid?
-		//if (pExitTrace->DidHit() && !pExitTrace->startsolid) {
-		//	if (IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity) && IsBreakable((C_BaseEntity*)pExitTrace->hit_entity))
-		//		return true;
+		if (pExitTrace->DidHit() && !pExitTrace->startsolid) {
+			if (IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity) && IsBreakable((C_BaseEntity*)pExitTrace->hit_entity))
+				return true;
 
-		//	if (pEnterTrace->surface.flags & SURF_NODRAW ||
-		//		(!(pExitTrace->surface.flags & SURF_NODRAW) && pExitTrace->plane.normal.Dot(vecDirection) <= 1.f)) {
-		//		const float flMultAmount = pExitTrace->fraction * 4.f;
+			if (pEnterTrace->surface.flags & SURF_NODRAW ||
+				(!(pExitTrace->surface.flags & SURF_NODRAW) && pExitTrace->plane.normal.Dot(vecDirection) <= 1.f)) {
+				const float flMultAmount = pExitTrace->fraction * 4.f;
 
-		//		// get the real end pos
-		//		vecStart -= vecDirection * flMultAmount;
-		//		return true;
-		//	}
+				// get the real end pos
+				vecStart -= vecDirection * flMultAmount;
+				return true;
+			}
 
-		//	continue;
-		//}
+			continue;
+		}
 
 		if (!pExitTrace->DidHit() || pExitTrace->startsolid) {
-			if (/*pEnterTrace->DidHitNonWorldEntity() && */IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity)) {
+			if (pEnterTrace->DidHitNonWorldEntity() && IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity)) {
 				// if we hit a breakable, make the assumption that we broke it if we can't find an exit (hopefully..)
 				// fake the end pos
 				pExitTrace = pEnterTrace;
@@ -403,36 +403,33 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 	float flDamageModifier = 0.f;
 	float flPenetrationModifier = 0.f;
 
-	// percent of total damage lost automatically on impacting a surface
-	flDamageModifier = 0.16f;
-	flPenetrationModifier = ( flEnterPenetrationModifier + flExitPenetrationModifier ) * 0.5f;
-
 	// new penetration method
 	if( nPenetrationSystem == 1 ) {
-		// percent of total damage lost automatically on impacting a surface
-		flDamageModifier = 0.16f;
-		flPenetrationModifier = ( flEnterPenetrationModifier + flExitPenetrationModifier ) * 0.5f;
-
-		if( bContentsGrate || bNoDrawSurf || iEnterMaterial == CHAR_TEX_GLASS || iEnterMaterial == CHAR_TEX_GRATE ) {
-
-			if( iEnterMaterial == CHAR_TEX_GLASS || iEnterMaterial == CHAR_TEX_GRATE ) {
-				flPenetrationModifier = 3.f;
-				flDamageModifier = 0.05f;
-			}
-			else {
-				flPenetrationModifier = 1.f;
-			}
+		if (iEnterMaterial == CHAR_TEX_GRATE || iEnterMaterial == CHAR_TEX_GLASS)
+		{
+			flPenetrationModifier = 3.f;
+			flDamageModifier = 0.05f;
+		}
+		else if (bSolidSurf || bLightSurf)
+		{
+			flPenetrationModifier = 1.f;
+			flDamageModifier = 0.16f;
 		}
 		// for some weird reason some community servers have ff_damage_reduction_bullets > 0 but ff_damage_bullet_penetration == 0
 		// so yeah, no shooting through teammates :)
-		else if( iEnterMaterial == CHAR_TEX_FLESH && ( data->m_Player->IsTeammate( ( C_CSPlayer* )( data->m_EnterTrace.hit_entity ) ) ) &&
-			g_Vars.ff_damage_reduction_bullets->GetFloat( ) >= 0.f ) {
+		else if (iEnterMaterial == CHAR_TEX_FLESH && (data->m_Player->IsTeammate((C_CSPlayer*)(data->m_EnterTrace.hit_entity))) &&
+			g_Vars.ff_damage_reduction_bullets->GetFloat() >= 0.f) {
 			//Look's like you aren't shooting through your teammate today
-			if( g_Vars.ff_damage_bullet_penetration->GetFloat( ) == 0.f )
+			if (g_Vars.ff_damage_bullet_penetration->GetFloat() == 0.f)
 				return true;
 
 			//Let's shoot through teammates and get kicked for teamdmg! Whatever, atleast we did damage to the enemy. I call that a win.
-			flPenetrationModifier = g_Vars.ff_damage_bullet_penetration->GetFloat( );
+			flPenetrationModifier = g_Vars.ff_damage_bullet_penetration->GetFloat();
+			flDamageModifier = 0.16f;
+		}
+		else
+		{
+			flPenetrationModifier = (flEnterPenetrationModifier + flExitPenetrationModifier) / 2.f;
 			flDamageModifier = 0.16f;
 		}
 
@@ -450,6 +447,14 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 		float flModifier = fmaxf(1.0f / flPenetrationModifier, 0.0f);
 		float flTakenFirst = (fmaxf(((3.0f / data->m_WeaponData->m_flPenetration) * 1.25f), 0.0f) * (flModifier * 3.0f) + (data->m_flCurrentDamage * flDamageModifier));
 		float flTakenDamage = (((flPenetrationLength * flPenetrationLength) * flModifier) / 24.0f) + flTakenFirst;
+
+		//Did we loose too much damage?
+		if (flTakenDamage > data->m_flCurrentDamage)
+			return true;
+
+		//We can't use any of the damage that we've lost
+		if (flTakenDamage > 0.f)
+			data->m_flCurrentDamage -= flTakenDamage;
 
 		data->m_flCurrentDamage -= fmaxf(0.0f, flTakenDamage);
 		if (data->m_flCurrentDamage < 3.0f)
@@ -539,7 +544,7 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 		// create end point of bullet
 		Vector vecEnd = data->m_vecStart + data->m_vecDirection * data->m_flMaxLength;
 
-		TraceLine( data->m_vecStart, vecEnd, MASK_SHOT_PLAYER, &TraceFilter, &data->m_EnterTrace );
+		TraceLine( data->m_vecStart, vecEnd, MASK_SHOT_HULL | CONTENTS_HITBOX, &TraceFilter, &data->m_EnterTrace );
 
 		// create extended end point
 		Vector vecEndExtended = vecEnd + data->m_vecDirection * rayExtension;
@@ -548,11 +553,16 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 		// Check for player hitboxes extending outside their collision bounds
 		if( data->m_TargetPlayer ) {
 			// clip trace to one player
-			ClipTraceToPlayer( data->m_vecStart, vecEndExtended, MASK_SHOT_PLAYER, data->m_Filter, &data->m_EnterTrace, data );
+			ClipTraceToPlayer( data->m_vecStart, vecEndExtended, MASK_SHOT_HULL | CONTENTS_HITBOX, data->m_Filter, &data->m_EnterTrace, data );
 		}
 		else {
-			ClipTraceToPlayers( data->m_vecStart, vecEndExtended, MASK_SHOT_PLAYER, data->m_Filter, &data->m_EnterTrace );
+			ClipTraceToPlayers( data->m_vecStart, vecEndExtended, MASK_SHOT_HULL | CONTENTS_HITBOX, data->m_Filter, &data->m_EnterTrace );
 		}
+
+		//We have to do this *after* tracing to the player.
+		surfacedata_t* enterSurfaceData = Interfaces::m_pPhysSurface->GetSurfaceData(data->m_EnterTrace.surface.surfaceProps);
+		float enterSurfPenetrationModifier = enterSurfaceData->game.flPenetrationModifier;
+		int enterMaterial = enterSurfaceData->game.material;
 
 		if( data->m_EnterTrace.fraction == 1.f )
 			break;  // we didn't hit anything, stop tracing shoot
@@ -563,6 +573,10 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 		//Let's make our damage drops off the further away the bullet is.
 		if( !data->m_bShouldIgnoreDistance )
 			data->m_flCurrentDamage *= powf( data->m_WeaponData->m_flRangeModifier, data->m_flTraceLength * 0.002f );
+
+		//Sanity checking / Can we actually shoot through?
+		if (enterSurfPenetrationModifier < 0.1f)
+			break;
 
 		C_CSPlayer* pHittedPlayer = ToCSPlayer( ( C_BasePlayer* )data->m_EnterTrace.hit_entity );
 
@@ -621,9 +635,9 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 			Interfaces::m_pDebugOverlay->AddLineOverlay( data->m_vecStart, data->m_EnterTrace.endpos, 0, 0, 255, true, DEBUG_DURATION );
 			Interfaces::m_pDebugOverlay->AddBoxOverlay( data->m_vecStart, Vector( -1.0f, -1.0f, -1.0f ), Vector( 1.0f, 1.0f, 1.0f ), QAngle( 0.0f, 0.0f, 0.0f ), 0, 255, 0, 200, DEBUG_DURATION );
 			Interfaces::m_pDebugOverlay->AddTextOverlay( data->m_vecStart - Vector( 0.0f, 0.0f, 5.0f ), DEBUG_DURATION, XorStr( "^ %.2f damage\t %d pen count\t %.2f thickness" ), data->m_flCurrentDamage, data->m_iPenetrationCount, data->m_flPenetrationDistance );
-	}
+	     }
 #endif
-}
+    }
 
 	g_Vars.globals.m_InHBP = false;
 	return -1.f;
