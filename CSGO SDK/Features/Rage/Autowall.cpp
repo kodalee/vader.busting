@@ -312,7 +312,7 @@ bool Autowall::TraceToExit(CGameTrace* pEnterTrace, Vector vecStartPos, Vector v
 			continue;
 		}
 
-		////Can we hit? Is the wall solid?
+		//Can we hit? Is the wall solid?
 		if (pExitTrace->DidHit() && !pExitTrace->startsolid) {
 			if (IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity) && IsBreakable((C_BaseEntity*)pExitTrace->hit_entity))
 				return true;
@@ -341,20 +341,20 @@ bool Autowall::TraceToExit(CGameTrace* pEnterTrace, Vector vecStartPos, Vector v
 			continue;
 		}
 
-		if ((pExitTrace->surface.flags & SURF_NODRAW)) {
-			if (IsBreakable((C_BaseEntity*)(pExitTrace->hit_entity)) && IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity)) {
-				vecEnd = pExitTrace->endpos;
-				return true;
-			}
+		//if ((pExitTrace->surface.flags & SURF_NODRAW)) {
+		//	if (IsBreakable((C_BaseEntity*)(pExitTrace->hit_entity)) && IsBreakable((C_BaseEntity*)pEnterTrace->hit_entity)) {
+		//		vecEnd = pExitTrace->endpos;
+		//		return true;
+		//	}
 
-			if (!(pEnterTrace->surface.flags & SURF_NODRAW))
-				continue;
-		}
+		//	if (!(pEnterTrace->surface.flags & SURF_NODRAW))
+		//		continue;
+		//}
 
-		if (pExitTrace->plane.normal.Dot(vecDirection) <= 1.f) {
-			vecEnd -= (vecDirection * (pExitTrace->fraction * 4.f));
-			return true;
-		}
+		//if (pExitTrace->plane.normal.Dot(vecDirection) <= 1.f) {
+		//	vecEnd -= (vecDirection * (pExitTrace->fraction * 4.f));
+		//	return true;
+		//}
 	}
 
 	return false;
