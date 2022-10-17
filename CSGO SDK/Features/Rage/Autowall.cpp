@@ -158,6 +158,46 @@ void Autowall::TraceLine( const Vector& start, const Vector& end, uint32_t mask,
 	Interfaces::m_pEngineTrace->TraceRay( ray, mask, ignore, ptr );
 }
 
+__forceinline float DistanceToRay(const Vector& vecPosition, const Vector& vecRayStart, const Vector& vecRayEnd, float* flAlong = NULL, Vector* vecPointOnRay = NULL) {
+	Vector vecTo = vecPosition - vecRayStart;
+	Vector vecDir = vecRayEnd - vecRayStart;
+	float flLength = vecDir.Normalize();
+
+	float flRangeAlong = DotProduct(vecDir, vecTo);
+	if (flAlong) {
+		*flAlong = flRangeAlong;
+	}
+
+	float flRange;
+
+	if (flRangeAlong < 0.0f) {
+		// off start point
+		flRange = -vecTo.Length();
+
+		if (vecPointOnRay) {
+			*vecPointOnRay = vecRayStart;
+		}
+	}
+	else if (flRangeAlong > flLength) {
+		// off end point
+		flRange = -(vecPosition - vecRayEnd).Length();
+
+		if (vecPointOnRay) {
+			*vecPointOnRay = vecRayEnd;
+		}
+	}
+	else { // within ray bounds
+		Vector vecOnRay = vecRayStart + vecDir * flRangeAlong;
+		flRange = (vecPosition - vecOnRay).Length();
+
+		if (vecPointOnRay) {
+			*vecPointOnRay = vecOnRay;
+		}
+	}
+
+	return flRange;
+}
+
 void Autowall::ClipTraceToPlayer( const Vector vecAbsStart, const Vector& vecAbsEnd, uint32_t iMask, ITraceFilter* pFilter, CGameTrace* pGameTrace, Encrypted_t<Autowall::C_FireBulletData> pData ) {
 	constexpr float flMaxRange = 60.0f, flMinRange = 0.0f;
 
@@ -177,30 +217,14 @@ void Autowall::ClipTraceToPlayer( const Vector vecAbsStart, const Vector& vecAbs
 	Ray_t Ray;
 	Ray.Init( vecAbsStart, vecAbsEnd );
 
-	const Vector vecTo = vecPosition - vecAbsStart;
-	Vector vecDirection = vecAbsEnd - vecAbsStart;
-	const float flLength = vecDirection.Normalize( );
-
-	// YOU DONT NEED TO MAKE THIS A TRANNY CODED FUNCTION!!!!!!
-	const float flRangeAlong = vecDirection.Dot( vecTo );
-	float flRange = 0.0f;
-
 	// calculate distance to ray
-	if ( flRangeAlong < 0.0f )
-		// off start point
-		flRange = -vecTo.Length( );
-	else if ( flRangeAlong > flLength )
-		// off end point
-		flRange = -( vecPosition - vecAbsEnd ).Length( );
-	else
-		// within ray bounds
-		flRange = ( vecPosition - ( vecDirection * flRangeAlong + vecAbsStart ) ).Length( );
+	const float flRange = DistanceToRay(vecPosition, vecAbsStart, vecAbsEnd);
 
-	if( flRange < 0.0f || flRange > 60.0f )
+	if (flRange < 0.0f || flRange > 60.0f)
 		return;
 
 	CGameTrace playerTrace;
-	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask | CONTENTS_HITBOX, pData->m_TargetPlayer, &playerTrace );
+	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask, pData->m_TargetPlayer, &playerTrace );
 	if( pData->m_EnterTrace.fraction > playerTrace.fraction )
 		pData->m_EnterTrace = playerTrace;
 }
@@ -227,37 +251,21 @@ void Autowall::ClipTraceToPlayers( const Vector& vecAbsStart, const Vector& vecA
 			continue;
 
 		// get bounding box
-		const Vector vecObbMins = pCollideble->OBBMins( );
-		const Vector vecObbMaxs = pCollideble->OBBMaxs( );
-		const Vector vecObbCenter = ( vecObbMaxs + vecObbMins ) / 2.f;
+		const Vector vecObbMins = pCollideble->OBBMins();
+		const Vector vecObbMaxs = pCollideble->OBBMaxs();
+		const Vector vecObbCenter = (vecObbMaxs + vecObbMins) / 2.f;
 
 		// calculate world space center
-		const Vector vecPosition = vecObbCenter + pPlayer->m_vecOrigin( );
-
-		const Vector vecTo = vecPosition - vecAbsStart;
-		Vector vecDirection = vecAbsEnd - vecAbsStart;
-		const float flLength = vecDirection.Normalize( );
-
-		// YOU DONT NEED TO MAKE THIS A TRANNY CODED FUNCTION!!!!!!
-		const float flRangeAlong = vecDirection.Dot( vecTo );
-		float flRange = 0.0f;
+		const Vector vecPosition = vecObbCenter + pPlayer->GetAbsOrigin();
 
 		// calculate distance to ray
-		if ( flRangeAlong < 0.0f )
-			// off start point
-			flRange = -vecTo.Length( );
-		else if ( flRangeAlong > flLength )
-			// off end point
-			flRange = -( vecPosition - vecAbsEnd ).Length( );
-		else
-			// within ray bounds
-			flRange = ( vecPosition - ( vecDirection * flRangeAlong + vecAbsStart ) ).Length( );
+		const float flRange = DistanceToRay(vecPosition, vecAbsStart, vecAbsEnd);
 
-		if( flRange < flMinRange || flRange > flMaxRange )
+		if (flRange < flMinRange || flRange > flMaxRange)
 			return;
 
 		CGameTrace playerTrace;
-		Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask | CONTENTS_HITBOX, pPlayer, &playerTrace );
+		Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask, pPlayer, &playerTrace );
 		if( playerTrace.fraction < flSmallestFraction ) {
 			// we shortened the ray - save off the trace
 			*pGameTrace = playerTrace;
@@ -454,9 +462,8 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 
 		//We can't use any of the damage that we've lost
 		if (flTakenDamage > 0.f)
-			data->m_flCurrentDamage -= flTakenDamage;
+			data->m_flCurrentDamage -= fmaxf(0.0f, flTakenDamage);
 
-		data->m_flCurrentDamage -= fmaxf(0.0f, flTakenDamage);
 		if (data->m_flCurrentDamage < 1.0f)
 			return true;
 
