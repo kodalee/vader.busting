@@ -247,7 +247,7 @@ namespace Hooked
 		}
 
 		// call original proxy.
-		Interfaces::m_pFlAbsYawSwap->GetOriginalFunction()(pData, pStruct, pOut);
+		Interfaces::m_Body_proxy_swap->GetOriginalFunction()(pData, pStruct, pOut);
 	}
 
 	void _cdecl sequence_proxy(CRecvProxyData* data_const, void* p_struct, void* p_out) {
