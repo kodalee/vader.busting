@@ -564,7 +564,7 @@ namespace Engine {
 				record->m_iResolverMode = ANTIFREESTAND;
 			}
 
-			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition && pLagData->m_iMissedShotsFreestand < 1) {
+			else if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition && pLagData->m_iMissedShotsFreestand < 2) {
 				record->m_iResolverMode = ANTIFREESTAND;
 			}
 			else {
@@ -997,7 +997,7 @@ namespace Engine {
 					record->m_iResolverText = XorStr("INVALID LASTMOVE");
 				}
 				else {
-					record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
+					record->m_angEyeAngles.y = pLagData->m_flLastMovingLowerBodyYawTarget;
 					record->m_iResolverText = XorStr("LASTMOVE");
 				}
 			}
