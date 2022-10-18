@@ -615,12 +615,11 @@ namespace Engine
 
 			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && (previous_record->m_fFlags & FL_ONGROUND);
 			auto animation_speed = 0.0f;
-			auto origin_delta = player->m_vecOrigin() - previous_record->m_vecOrigin;
+			auto origin_delta = record->m_vecOrigin - previous_record->m_vecOrigin;
 
 			Vector vecPreviousOrigin = previous_record->m_vecOrigin;
 			int fPreviousFlags = previous_record->m_fFlags;
-			auto velocity = player->m_vecVelocity();
-			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, player->m_flSimulationTime() - previous_record->m_flSimulationTime);
+			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, record->m_flSimulationTime - previous_record->m_flSimulationTime);
 
 			//if (!record->m_bIsInvalid) {
 			//	AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
