@@ -473,9 +473,14 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				}
 
 				if (Hitmarkers::m_vecWorldHitmarkers.size()) {
-					Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers.back();
-					info.m_flDamage = dmg_to_health;
-					info.ShouldDraw = true;
+					for (size_t i{ }; i < Hitmarkers::m_vecWorldHitmarkers.size(); ++i) {
+						Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers[i];
+
+
+						Hitmarkers::Hitmarkers_t& info_back = Hitmarkers::m_vecWorldHitmarkers.back();
+						info_back.m_flDamage = dmg_to_health;
+						info.ShouldDraw = true;
+					}
 				}
 				Hitmarkers::AddScreenHitmarker( hitgroup == Hitgroup_Head ? Color( 0, 150, 255 ) : Color( 255, 255, 255 ) );
 			}
