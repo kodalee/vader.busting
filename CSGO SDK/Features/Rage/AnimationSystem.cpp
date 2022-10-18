@@ -798,6 +798,14 @@ namespace Engine
 				}
 			}
 
+			// do the fix. hahaha
+			if (bOnGround) {
+				player->m_fFlags() |= FL_ONGROUND;
+			}
+			else {
+				player->m_fFlags() &= ~FL_ONGROUND;
+			}
+
 			data.bOnGround = bOnGround;
 
 			// delta in duckamt and delta in time..
