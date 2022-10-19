@@ -966,7 +966,7 @@ void CEsp::PenetrateCrosshair( Vector2D center ) {
 		Render::Engine::RectFilled( center - 1, { 3, 3 }, Color( 0, 0, 0, 125 ) );
 		Render::Engine::RectFilled( Vector2D( center.x, center.y - 1 ), Vector2D( 1, 3 ), color );
 		Render::Engine::RectFilled( Vector2D( center.x - 1, center.y ), Vector2D( 3, 1 ), color );
-		Render::Engine::tahoma_sexy.string(center.x - 10, center.y + 2, Color(255,255,255,255), std::to_string(g_Vars.globals.m_nPenetrationDmg));
+		//Render::Engine::tahoma_sexy.string(center.x - 10, center.y + 2, Color(255,255,255,255), std::to_string(g_Vars.globals.m_nPenetrationDmg));
 	}
 }
 
