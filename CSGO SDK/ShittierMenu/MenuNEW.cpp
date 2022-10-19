@@ -1224,8 +1224,8 @@ void Menu::Ragebot() {
 					ImGui::SliderFloat(XorStr("Head scale"), &rbot->point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
 					ImGui::SliderFloat(XorStr("Body scale"), &rbot->body_point_scale, 1.f, 100.0f, XorStr("%.0f%%"));
 				}
-				ImGui::SliderFloat(XorStr("Hitchance amount"), &rbot->hitchance, 0.f, 100.f, XorStr("%.0f%%"));
-				ImGui::SliderFloat(XorStr("Hitchance seeds"), &rbot->hitchance_seeds, 64.f, 256.f, XorStr("%1.f seeds"));
+				ImGui::SliderFloat(XorStr("Hitchance amount"), &rbot->hitchance, 0.0f, 100.0f, XorStr("%.0f%%"));
+				ImGui::SliderInt(XorStr("Hitchance seeds"), &rbot->hitchance_seeds, 64, 256, XorStr("%d seeds"));
 
 				ImGui::SliderInt(XorStr("Visible damage"), &rbot->min_damage_visible, 1, 130, std::string(rbot->min_damage_visible > 100 ? (std::string(XorStr("HP + ")).append(std::string(std::to_string(rbot->min_damage_visible - 100)))) : XorStr("%d hp")).c_str());
 				ImGui::Checkbox(XorStr("Auto-wall"), &rbot->autowall);
