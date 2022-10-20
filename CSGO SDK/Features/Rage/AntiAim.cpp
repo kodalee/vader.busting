@@ -433,7 +433,7 @@ namespace Interfaces
 
 		const auto get_add_by_choke = [&]() -> float
 		{
-			static auto max = 137.f;
+			static auto max = 120.f;
 			static auto min = 100.f;
 
 			auto mult = 1.f / 0.2f * TICKS_TO_TIME(Interfaces::m_pClientState->m_nChokedCommands());
