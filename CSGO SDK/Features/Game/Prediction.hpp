@@ -77,6 +77,7 @@ namespace Engine {
 			m_flFallVelocity = 0.0f;
 			m_flVelocityModifier = 0.0f;
 			m_flDuckAmount = 0.0f;
+			m_flDuckSpeed = 0.0f;
 
 			m_nCommandNumber = 0;
 			m_nTickbase = 0;
@@ -93,6 +94,7 @@ namespace Engine {
 		float m_flVelocityModifier = 0.f;
 		float m_flFallVelocity = 0.f;
 		float m_flDuckAmount = 0.f;
+		float m_flDuckSpeed = 0.f;
 	};
 
 	struct LastPredData {

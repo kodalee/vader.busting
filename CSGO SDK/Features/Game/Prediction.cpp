@@ -358,7 +358,7 @@ namespace Engine
 			local->m_vecVelocity() = data->m_vecVelocity;
 		}
 
-		if (local->m_vecOrigin().Distance(data->m_vecOrigin) <= 0.03125f) {
+		if (IsFloatValid(local->m_vecOrigin().Length(), data->m_vecOrigin.Length()) <= 0.03125f) {
 			local->m_vecOrigin() = data->m_vecOrigin;
 		}
 
@@ -387,6 +387,9 @@ namespace Engine
 
 		if (std::abs(local->m_flDuckAmount() - data->m_flDuckAmount) <= 0.03125f)
 			local->m_flDuckAmount() = data->m_flDuckAmount;
+
+		if (std::abs(local->m_flDuckSpeed() - data->m_flDuckSpeed) <= 0.03125f)
+			local->m_flDuckSpeed() = data->m_flDuckSpeed;
 
 		if (std::abs(local->m_flFallVelocity() - data->m_flFallVelocity) <= 0.03125f)
 			local->m_flFallVelocity() = data->m_flFallVelocity;
@@ -498,6 +501,7 @@ namespace Engine
 		data->m_vecVelocity = local->m_vecVelocity();
 		data->m_vecOrigin = local->m_vecOrigin();
 		data->m_flDuckAmount = local->m_flDuckAmount();
+		data->m_flDuckSpeed = local->m_flDuckSpeed();
 		data->m_nTickbase = slot;
 		m_bGetNetvarCompressionData = true;
 	}
