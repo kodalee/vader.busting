@@ -1585,9 +1585,9 @@ namespace Interfaces
 			return { false, C_AimPoint() }; // return here so when scoping dont shooting!!!
 		}
 
-		for( auto& p : m_rage_data->m_aim_points ) {
-			Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
-		}
+		//for( auto& p : m_rage_data->m_aim_points ) {
+			//Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
+		//}
 
 		//bool fakeDucking = g_Vars.misc.fakeduck_bind.enabled;
 

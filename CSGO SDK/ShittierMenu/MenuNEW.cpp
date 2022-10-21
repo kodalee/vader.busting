@@ -1186,7 +1186,7 @@ void Menu::Ragebot() {
 				ImGui::Checkbox(XorStr("Silent aim"), &g_Vars.rage.silent_aim);
 				ImGui::Checkbox(XorStr("Auto-fire"), &g_Vars.rage.auto_fire);
 				ImGui::Checkbox(XorStr("Experimental resolver"), &g_Vars.misc.expermimental_resolver);
-				ImGui::Checkbox(XorStr("Visualize hitscan"), &g_Vars.misc.visualize_hitscan);
+				//ImGui::Checkbox(XorStr("Visualize hitscan"), &g_Vars.misc.visualize_hitscan);
 				ImGui::Checkbox(XorStr("Knife bot"), &g_Vars.misc.knife_bot);
 				const char* knife_bot_type[] = { XorStr("Default"), XorStr("Backstab"), XorStr("Quick") };
 				if (g_Vars.misc.knife_bot) {
