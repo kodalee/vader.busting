@@ -568,7 +568,6 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 
 		//We have to do this *after* tracing to the player.
 		surfacedata_t* enterSurfaceData = Interfaces::m_pPhysSurface->GetSurfaceData(data->m_EnterTrace.surface.surfaceProps);
-		float enterSurfPenetrationModifier = enterSurfaceData->game.flPenetrationModifier;
 		int enterMaterial = enterSurfaceData->game.material;
 
 		if( data->m_EnterTrace.fraction == 1.f )
@@ -580,10 +579,6 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 		//Let's make our damage drops off the further away the bullet is.
 		if( !data->m_bShouldIgnoreDistance )
 			data->m_flCurrentDamage *= powf( data->m_WeaponData->m_flRangeModifier, data->m_flTraceLength * 0.002f );
-
-		//Sanity checking / Can we actually shoot through?
-		if (enterSurfPenetrationModifier < 0.1f)
-			break;
 
 		C_CSPlayer* pHittedPlayer = ToCSPlayer( ( C_BasePlayer* )data->m_EnterTrace.hit_entity );
 
