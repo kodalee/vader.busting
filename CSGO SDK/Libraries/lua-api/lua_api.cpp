@@ -168,6 +168,20 @@ namespace lua_ui {
 
 		items.emplace_back(std::make_pair(full_name, name));
 	}
+
+	void add_button(sol::this_state s, std::string key, const std::string& name)
+	{
+		auto script = get_current_script(s);
+		auto script_id = g_lua.get_script_id(script);
+
+		auto& items = g_lua.items.at(script_id);
+		auto full_name = name;
+
+		if (find_item(items, full_name) != items.end())
+			return;
+
+		items.emplace_back(std::make_pair(full_name, menu_item(key, false, false)));
+	}
 }
 
 namespace lua_config {
@@ -1358,6 +1372,7 @@ bool c_lua::initialize() {
 	ui[XorStr("new_colorpicker")] = lua_ui::add_color_picker;
 	ui[XorStr("new_slider")] = lua_ui::add_slider;
 	ui[XorStr("new_text")] = lua_ui::add_text;
+	ui[XorStr("new_button")] = lua_ui::add_button;
 
 	auto clientstate = this->lua.create_table();
 	clientstate[XorStr("chokedcommands")] = lua_clientstate::chokedcommands;

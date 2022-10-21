@@ -2721,6 +2721,14 @@ void Menu::Scripts() {
 					case TEXT:
 						ImGui::Text(item.first.c_str());
 						break;
+					case BUTTON:
+						if (ImGui::Button(item.first.c_str(), ImVec2(213.f, 20.f)))
+						{
+							LuaConfigSystem::C_BOOL[item.second.key] = true;
+						}
+						else
+							LuaConfigSystem::C_BOOL[item.second.key] = false;
+						break;
 					}
 				}
 			}

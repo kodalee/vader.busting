@@ -14,13 +14,15 @@ enum menu_item_type
 	CHECK_BOX,
 	SLIDER,
 	COLOR_PICKER,
-	TEXT
+	TEXT,
+	BUTTON
 };
 
 class menu_item
 {
 public:
 	bool check_box_value = false;
+	bool button_value = false;
 
 	std::string key = XorStr("");
 
@@ -44,6 +46,7 @@ public:
 	menu_item(const menu_item& item)
 	{
 		check_box_value = item.check_box_value;
+		button_value = item.button_value;
 
 		combo_box_labels = item.combo_box_labels;
 		combo_box_value = item.combo_box_value;
@@ -61,6 +64,7 @@ public:
 	menu_item& operator=(const menu_item& item)
 	{
 		check_box_value = item.check_box_value;
+		button_value = item.button_value;
 
 		combo_box_labels = item.combo_box_labels;
 		combo_box_value = item.combo_box_value;
@@ -105,6 +109,13 @@ public:
 	menu_item(const std::string name)
 	{
 		type = TEXT;
+	}
+
+	menu_item(std::string key2, bool value, bool random)
+	{
+		key = key2;
+		button_value = value;
+		type = BUTTON;
 	}
 };
 
