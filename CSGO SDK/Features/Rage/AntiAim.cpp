@@ -407,6 +407,92 @@ namespace Interfaces
 
 	static float next_lby_update_time = 0;
 
+	bool is_safe_angle(float yaw)
+	{
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (!local || !local->IsAlive())
+			return false;
+
+		// best target.
+		struct AutoTarget_t { float fov; C_CSPlayer* player; };
+		AutoTarget_t target{ 180.f + 1.f, nullptr };
+		// iterate players, for closest distance.
+		for (int i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
+			auto player = C_CSPlayer::GetPlayerByIndex(i);
+			if (!player || player->IsDormant() || player == local || player->IsDead() || player->m_iTeamNum() == local->m_iTeamNum())
+				continue;
+
+			auto lag_data = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+			if (!lag_data.IsValid())
+				continue;
+
+			auto AngleDistance = [&](QAngle& angles, const Vector& start, const Vector& end) -> float {
+				auto direction = end - start;
+				auto aimAngles = direction.ToEulerAngles();
+				auto delta = aimAngles - angles;
+				delta.Normalize();
+
+				return sqrtf(delta.x * delta.x + delta.y * delta.y);
+			};
+
+			float fov = AngleDistance(g_Vars.globals.CurrentLocalViewAngles, local->GetEyePosition(), player->WorldSpaceCenter());
+
+			if (fov < target.fov) {
+				target.fov = fov;
+				target.player = player;
+			}
+		}
+
+		if (!target.player) {
+			return false;
+		}
+
+		C_CSPlayer* threat_id = target.player;
+		if (!threat_id)
+			return false;
+
+		auto weapon = (C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get();
+		if (!weapon)
+			return false;
+
+		auto weaponData = weapon->GetCSWeaponData();
+		if (!weaponData.IsValid())
+			return false;
+
+		float rad = Math::deg_to_rad(yaw);
+		Vector head_pos_flick = local->GetEyePosition();
+
+		head_pos_flick.x += cos(rad) * 25.f;
+		head_pos_flick.y += sin(rad) * 25.f;
+
+		//Interfaces::m_pDebugOverlay->AddBoxOverlay(head_pos_flick, Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0.f, 0.f, 0.f), 0, 255, 0, 100, Interfaces::m_pGlobalVars->interval_per_tick * 2);
+
+		float flick_damage = 0.f;
+
+		Autowall::C_FireBulletData data;
+		CTraceFilterWorldOnly filter;
+
+		data.m_bPenetration = true;
+		data.m_Player = local;
+		data.m_Weapon = weapon;
+		data.m_WeaponData = weaponData.Xor();
+		data.m_vecStart = head_pos_flick;
+		data.m_bShouldIgnoreDistance = true;
+
+		data.m_vecDirection = target.player->GetEyePosition() - head_pos_flick;
+		data.m_flPenetrationDistance = data.m_vecDirection.Normalize();
+		data.m_Filter = &filter;
+
+		flick_damage = Autowall::FireBullets(&data);
+
+		if (flick_damage < 10.f)
+			return false; // safe
+
+		return true; // no safe
+	}
+
+
 	void C_AntiAimbot::lby_prediction(Encrypted_t<CUserCmd> cmd, bool* bSendPacket)
 	{
 		auto localPlayer = C_CSPlayer::GetLocalPlayer();
@@ -420,6 +506,18 @@ namespace Interfaces
 
 		if (Interfaces::m_pClientState->m_nChokedCommands() || (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick))
 			return;
+
+		if (g_Vars.antiaim.lby_disable_fakewalk && g_Vars.globals.Fakewalking)
+			return;
+
+		bool bUsingManualAA = g_Vars.globals.manual_aa != -1 && g_Vars.antiaim.manual;
+
+		if (g_Vars.antiaim.lby_disable_manual && bUsingManualAA)
+			return;
+
+		if (g_Vars.antiaim.lby_disable_unsafe && is_safe_angle(initial_lby)) {
+			return;
+		}
 
 		if (animstate->m_velocity > 0.1f)
 		{

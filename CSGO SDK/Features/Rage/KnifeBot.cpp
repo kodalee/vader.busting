@@ -80,17 +80,13 @@ namespace Interfaces
 			if( !lag_data.IsValid( ) || lag_data->m_History.empty( ) )
 				continue;
 
-			auto& front_record = lag_data->m_History.front();
-			if (!front_record.m_bIsValid)
-				continue;
-
 			Engine::C_LagRecord* previousRecord = nullptr;
 			Engine::C_LagRecord backup;
 			backup.Setup( Target );
 			for( auto& record : lag_data->m_History ) {
 				if( !Engine::LagCompensation::Get( )->IsRecordOutOfBounds( record, 0.2f )
 					|| record.m_bSkipDueToResolver
-					|| !record.m_bIsValid ) {
+					|| !record.m_bIsValid || record.m_bTeleportDistance ) {
 					continue;
 				}
 
@@ -101,10 +97,6 @@ namespace Interfaces
 					|| previousRecord->m_vecMaxs != record.m_vecMaxs
 					|| previousRecord->m_vecMins != record.m_vecMins ) {
 					previousRecord = &record;
-
-					if (Target->m_vecVelocity().Length2D() < 0.1) {
-						record = front_record; // not moving? first record!
-					}
 
 					record.Apply( Target );
 					if( TargetEntity( Target, sendPacket ) ) {

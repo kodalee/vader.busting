@@ -1129,6 +1129,8 @@ namespace Interfaces
 			Interfaces::m_pRenderView->SetBlend(color.a);
 
 			DrawModelRebuild(*it);
+
+			Interfaces::m_pModelRender->ForcedMaterialOverride(nullptr);
 		}
 	}
 

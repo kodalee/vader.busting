@@ -279,9 +279,9 @@ namespace Engine
 			return;
 		}
 
-		//if ( player->m_flOldSimulationTime( ) > simTime ) {
-		//	return;
-		//}
+		if ( player->m_flOldSimulationTime( ) > simTime ) {
+			return;
+		}
 
 		auto anim_data = AnimationSystem::Get( )->GetAnimationData( player->m_entIndex );
 		if( !anim_data )

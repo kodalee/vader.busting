@@ -1202,7 +1202,7 @@ void Menu::Ragebot() {
 				ImGui::Checkbox(XorStr("Enable"), &rbot->active);
 				ImGui::Combo(XorStr("Target selection"), &rbot->target_selection, TargetSelection, IM_ARRAYSIZE(TargetSelection));
 				ImGui::MultiCombo(XorStr("Hitboxes"), hitboxes);
-				ImGui::MultiCombo(XorStr("Multipoints"), multipoints);
+				//ImGui::MultiCombo(XorStr("Multipoints"), multipoints);
 				ImGui::Checkbox(XorStr("Prefer body-aim"), &rbot->prefer_body);
 				if (rbot->prefer_body) {
 					ImGui::MultiCombo(XorStr("Prefer body-aim conditions"), prefer_body_cond);
@@ -1416,6 +1416,14 @@ void Menu::AntiAim() {
 					ImGui::SliderFloat(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -180.f, 180.f, XorStr("%1.f"));
 					ImGui::SliderFloat(XorStr("First Break angle"), &g_Vars.antiaim.break_lby_first, -180.f, 180.f, XorStr("%1.f"));
 					ImGui::Checkbox(XorStr("Static angle"), &g_Vars.antiaim.static_angle);
+
+					std::vector<MultiItem_t> lby_disablers = {
+						{ XorStr("Fakewalking"), &g_Vars.antiaim.lby_disable_fakewalk },
+						{ XorStr("Manual"), &g_Vars.antiaim.lby_disable_manual },
+						{ XorStr("Unsafe"), &g_Vars.antiaim.lby_disable_unsafe },
+					};
+
+					ImGui::MultiCombo(XorStr("LBY disablers"), lby_disablers);
 				}
 
 				ImGui::Checkbox(XorStr("Freestanding"), &g_Vars.antiaim.freestand);
@@ -2075,9 +2083,9 @@ void Menu::Visuals() {
 			ImGui::SliderFloat(XorStr("Viewmodel FOV"), &g_Vars.misc.viewmodel_fov, 0.f, 200.f, XorStr("%.0f degrees"));
 			ImGui::Checkbox(XorStr("Viewmodel changer"), &g_Vars.misc.viewmodel_change);
 			if (g_Vars.misc.viewmodel_change) {
-				ImGui::SliderFloat(XorStr("Viewmodel X"), &g_Vars.misc.viewmodel_x, -50.f, 50.f, XorStr("%.0f degrees"));
-				ImGui::SliderFloat(XorStr("Viewmodel Y"), &g_Vars.misc.viewmodel_y, -50.f, 50.f, XorStr("%.0f degrees"));
-				ImGui::SliderFloat(XorStr("Viewmodel Z"), &g_Vars.misc.viewmodel_z, -50.f, 50.f, XorStr("%.0f degrees"));
+				ImGui::SliderInt(XorStr("Viewmodel X"), &g_Vars.misc.viewmodel_x, -50.f, 50.f, XorStr("%.0f degrees"));
+				ImGui::SliderInt(XorStr("Viewmodel Y"), &g_Vars.misc.viewmodel_y, -50.f, 50.f, XorStr("%.0f degrees"));
+				ImGui::SliderInt(XorStr("Viewmodel Z"), &g_Vars.misc.viewmodel_z, -50.f, 50.f, XorStr("%.0f degrees"));
 			}
 
 

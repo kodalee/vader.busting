@@ -968,6 +968,9 @@ public:
 	config_option( float, break_lby, 100 );
 	config_option( float, break_lby_first, 105 );
 	config_option( bool, static_angle, false );
+	config_option( bool, lby_disable_fakewalk, false );
+	config_option( bool, lby_disable_manual, false );
+	config_option( bool, lby_disable_unsafe, false );	
 	config_option( bool, imposta, false );
 	config_option( bool, flickup, false );
 	config_option( bool, preserve, false );
@@ -1559,9 +1562,9 @@ public:
 
 	config_option( float, viewmodel_fov, 68.f );
 	config_option( bool, viewmodel_change, false );
-	config_option( float, viewmodel_x, 2.f );
-	config_option( float, viewmodel_y, 2.f );
-	config_option( float, viewmodel_z, -2.f );
+	config_option( int, viewmodel_x, 2 );
+	config_option( int, viewmodel_y, 2 );
+	config_option( int, viewmodel_z, -2 );
 
 	config_option( bool, indicators_enabled, false );
 	config_option( bool, indicator_lc, false );

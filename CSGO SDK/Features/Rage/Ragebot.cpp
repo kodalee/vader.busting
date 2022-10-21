@@ -2234,8 +2234,8 @@ namespace Interfaces
 			{
 				auto record = &lagData->m_History.at(i);
 
-				//if (record->m_bSkipDueToResolver)
-				//	continue;
+				if (record->m_bSkipDueToResolver)
+					continue;
 
 				//if (record->m_bTeleportDistance)
 				//	printf("niggaballsHD\n");
@@ -2261,8 +2261,8 @@ namespace Interfaces
 		{
 			auto record = &lagData->m_History.at(optimized_record.i);
 
-			//if (record->m_bSkipDueToResolver)
-			//	continue;
+			if (record->m_bSkipDueToResolver)
+				continue;
 
 			if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 				continue;
