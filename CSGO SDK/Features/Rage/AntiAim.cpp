@@ -706,135 +706,132 @@ namespace Interfaces
 		}
 	}
 
+	void freestand(CUserCmd* cmd, QAngle& angle)
+	{
+		C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
+		if (!LocalPlayer || LocalPlayer->IsDead())
+			return;
 
-	//void C_AntiAimbot::fake_flick(Encrypted_t<CUserCmd> cmd)
-	//{
-	//	static bool balls = false;
-	//	static bool balls2 = false;
+		static float last_real;
+		bool no_active = true;
+		float bestrotation = 0.f;
+		float highestthickness = 0.f;
+		Vector besthead;
 
-	//	static auto curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
+		auto leyepos = LocalPlayer->GetEyePosition();
+		auto headpos = LocalPlayer->GetHitboxPosition(HITBOX_HEAD);
+		auto origin = LocalPlayer->GetAbsOrigin();
 
-	//	if (!balls) {
-	//		curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
-	//		balls = true;
-	//	}
+		auto checkWallThickness = [&](C_BasePlayer* pPlayer, Vector newhead) -> float
+		{
+			Vector endpos1, endpos2;
+			Vector eyepos = pPlayer->GetEyePosition();
 
-	//	if (g_Vars.misc.mind_trick_bind.enabled) {
-	//		if (!balls2) {
-	//			balls = false;
-	//			balls2 = true;
-	//		}
-	//	}
-	//	else {
-	//		balls2 = false;
-	//	}
+			Ray_t ray;
+			ray.Init(newhead, eyepos);
 
-	//	if (g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick) {
+			CTraceFilterSkipTwoEntities filter(pPlayer, LocalPlayer);
 
-	//		auto localPlayer = C_CSPlayer::GetLocalPlayer();
+			CGameTrace trace1, trace2;
+			Interfaces::m_pEngineTrace->TraceRay(ray, MASK_SHOT_BRUSHONLY, &filter, &trace1);
 
-	//		if (localPlayer->IsDead())
-	//			return;
+			if (trace1.DidHit())
+				endpos1 = trace1.endpos;
+			else
+				return 0.f;
 
+			ray.Init(eyepos, newhead);
+			Interfaces::m_pEngineTrace->TraceRay(ray, MASK_SHOT_BRUSHONLY, &filter, &trace2);
 
-	//		if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
-	//			if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
-	//				if (g_Vars.globals.m_flAnimTime < g_Vars.globals.m_flBodyPred) {
-	//					if (Interfaces::m_pGlobalVars->curtime >= curtime) {
-	//						g_Vars.globals.shift_amount = 16;
-	//						//g_TickbaseController.m_didFakeFlick = true;
-	//						static bool switcher = false;
-	//						cmd->viewangles.y += g_Vars.misc.mind_trick_factor;
-	//						switcher = !switcher;
-	//						g_Vars.globals.shift_amount = 0;
-	//						//g_TickbaseController.m_didFakeFlick = false;
-	//						curtime = Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(1);
-	//						//printf("flicking\n");
-	//					}
-	//					if (localPlayer->m_vecVelocity().Length2D() < 11.f) {
-	//						static bool switcher = false;
-	//						cmd->sidemove = switcher ? -13.37f : 13.37f;
-	//						switcher = !switcher;
-	//					}
-	//					//g_TickbaseController.m_didFakeFlick = true;
+			if (trace2.DidHit())
+				endpos2 = trace2.endpos;
 
-	//					//if (g_TickbaseController.m_didFakeFlick) {
-	//					//	g_Vars.globals.shift_amount = 0;
-	//					//	g_TickbaseController.m_didFakeFlick = false;
-	//					//}
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
+			float add = newhead.Distance(eyepos) - leyepos.Distance(eyepos) + 3.f;
+			return endpos1.Distance(endpos2) + add / 3;
+		};
 
-	//	////if (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled) {
-	//	////	if (cmd->sidemove == 0 && cmd->forwardmove == 0 /*&& localPlayer->m_vecVelocity().Length2D() < 10.f*/) {
-	//	////		static bool switcher = false;
-	//	////		cmd->sidemove = switcher ? -9.99f : 9.99f;
-	//	////		switcher = !switcher;
-	//	////	}
-	//	////}
+		struct AutoTarget_t { float fov; C_CSPlayer* player; };
+		AutoTarget_t target{ 180.f + 1.f, nullptr };
+		// iterate players, for closest distance.
+		for (int i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
+			auto player = C_CSPlayer::GetPlayerByIndex(i);
+			if (!player || player->IsDormant() || player == LocalPlayer || player->IsDead() || player->m_iTeamNum() == LocalPlayer->m_iTeamNum())
+				continue;
 
-	//	//static bool swap = false;
-	//	//swap = !swap;
+			auto lag_data = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
+			if (!lag_data.IsValid())
+				continue;
 
-	//	//auto prevTickCount = cmd->tick_count;
+			auto AngleDistance = [&](QAngle& angles, const Vector& start, const Vector& end) -> float {
+				auto direction = end - start;
+				auto aimAngles = direction.ToEulerAngles();
+				auto delta = aimAngles - angles;
+				delta.Normalize();
 
-	//	//auto tickAmount = INT_MAX / 8;
+				return sqrtf(delta.x * delta.x + delta.y * delta.y);
+			};
 
+			float fov = AngleDistance(g_Vars.globals.CurrentLocalViewAngles, LocalPlayer->GetEyePosition(), player->WorldSpaceCenter());
 
-	//	//if (g_Vars.globals.updatingPacket && g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.key && g_Vars.misc.slow_walk_bind.enabled) {
-	//	//	if (/*cmd->sidemove == 0 && cmd->forwardmove == 0 && */localPlayer->m_vecVelocity().Length2D() < 17.f) {
-	//	//		static bool switcher2 = false;
-	//	//		cmd->sidemove = switcher2 ? -17.f : 17.f;
-	//	//		switcher2 = !switcher2;
-	//	//	}
+			if (fov < target.fov) {
+				target.fov = fov;
+				target.player = player;
+			}
+		}
 
-	//	//	static bool switcher = false;
-	//	//	auto curtime = Interfaces::m_pGlobalVars->curtime + .01f;
-	//	//	if (Interfaces::m_pGlobalVars->curtime >= curtime) {
-	//	//		cmd->tick_count = tickAmount;
-	//	//		auto curtime2 = Interfaces::m_pGlobalVars->curtime + .015f;
-	//	//		if (Interfaces::m_pGlobalVars->curtime >= curtime2) {
-	//	//			cmd->tick_count = tickAmount;
-	//	//			cmd->command_number = INT_MAX;
-	//	//		}
-	//	//	}
-	//	//	cmd->viewangles.y += switcher ? -(g_Vars.misc.mind_trick_factor) : (g_Vars.misc.mind_trick_factor);
-	//	//	switcher = !switcher;
-	//	//	//printf("flicking\n");
-	//	//}
+		if (!target.player) {
+			return;
+		}
 
+		float step = (2 * M_PI) / 18.f; // One PI = half a circle ( for stacker cause low iq :sunglasses: ), 28
 
-	//	////if (g_Vars.globals.updatingPacket) {
-	//	////	cmd->viewangles.y += RandomFloat(135.f, 165.f);
-	//	////	printf("flicking\n");
-	//	////}
+		float radius = fabs(Vector(headpos - origin).Length2D());
 
+		if (!target.player)
+		{
+			no_active = true;
+		}
+		else
+		{
+			for (float rotation = 0; rotation < (M_PI * 2.0); rotation += step)
+			{
+				Vector newhead(radius * cos(rotation) + leyepos.x, radius * sin(rotation) + leyepos.y, leyepos.z);
 
+				float totalthickness = 0.f;
 
-	//	////if (localPlayer->m_vecVelocity().Length2D() < 15.f) {
-	//	////	if (Interfaces::m_pClientState->m_nChokedCommands() == 0) {
-	//	////		if (localPlayer->m_flAnimationTime() < g_Vars.globals.m_flBodyPred) {
-	//	////			if (g_TickbaseController.lastShiftedCmdNr != Interfaces::m_pClientState->m_nLastOutgoingCommand()) {
-	//	////				//static bool switcher2 = false;
-	//	////				//g_cl.m_cmd->m_view_angles.x -= 180.f;
-	//	////				//g_cl.m_cmd->m_view_angles.y += switcher2 ? g_menu.main.antiaim.angleflick.get() : -(g_menu.main.antiaim.angleflick.get());
-	//	////				//switcher2 = !switcher2;
-	//	////				cmd->viewangles.y += 135.f;
-	//	////				//g_cl.ticksToShift = 0;
-	//	////				if (/*g_cl.m_cmd->m_side_move == 0 && g_cl.m_cmd->m_forward_move == 0 && */localPlayer->m_vecVelocity().Length2D() < 11.f) {
-	//	////					static bool switcher = false;
-	//	////					cmd->sidemove = switcher ? -13.37f : 13.37f;
-	//	////					switcher = !switcher;
-	//	////				}
-	//	////				g_TickbaseController.m_didFakeFlick = true;
-	//	////			}
-	//	////		}
-	//	////	}
-	//	////}
-	//}
+				no_active = false;
+
+				totalthickness += checkWallThickness(target.player, newhead);
+
+				if (totalthickness > highestthickness)
+				{
+					highestthickness = totalthickness;
+					bestrotation = rotation;
+					besthead = newhead;
+				}
+			}
+		}
+
+		int ServerTime = (float)LocalPlayer->m_nTickBase() * Interfaces::m_pGlobalVars->interval_per_tick;
+		int value = ServerTime % 2;
+
+		static int Ticks = 120;
+
+		//auto air_value = fmod(Interfaces.pGlobalVars->curtime / 0.9f /*speed*/ * 130.0f, 90.0f); // first number is where the angle will end and how fast it goes about it, adding to the second number which is the starting angle.
+		//  auto stand_value = fmod(Interfaces.pGlobalVars->curtime /*speed can go here too*/ * 120.0f, 70.0f); // again, first number is where the angle will end and how fast it goes about it, adding to the second number which is the starting angle.
+		//pCmd->viewangles.y += Hacks.LocalPlayer->GetFlags() & FL_ONGROUND ? NextLBYUpdate() ? 165.0f - 35 : stand_value + 145.0f : 90 + air_value;
+
+		if (no_active)
+		{
+			angle.y -= Ticks; // 180z using ticks
+			Ticks += 4;
+
+			if (Ticks > 240)
+				Ticks = 120;
+		}
+		else
+			angle.y = RAD2DEG(bestrotation);
+	}
 
 	bool C_AntiAimbot::IsEnabled(Encrypted_t<CUserCmd> cmd, Encrypted_t<CVariables::ANTIAIM_STATE> settings) {
 		C_CSPlayer* LocalPlayer = C_CSPlayer::GetLocalPlayer();
@@ -1350,8 +1347,8 @@ namespace Interfaces
 				flRetValue = m_auto + g_Vars.antiaim.add_yaw;
 			}
 			else if (DoFreestanding && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 1) {
-				freestanding();
-				flRetValue = m_auto + g_Vars.antiaim.add_yaw;
+				freestand(cmd.Xor(), cmd->viewangles);
+				flRetValue = cmd->viewangles.y;
 			}
 			//else if (DoFreestanding && DoEdgeAntiAim(local, ang) && !bUsingManualAA && g_Vars.antiaim.freestand_mode == 2) { // run edge aa
 			//	flRetValue = Math::AngleNormalize(ang.y);
