@@ -519,7 +519,7 @@ namespace Interfaces
 			return;
 		}
 
-		if (animstate->m_velocity > 0.1f)
+		if (animstate->m_velocity > 0.1f || localPlayer->m_vecVelocity().Length2D() > 0.1f)
 		{
 			g_Vars.globals.m_flBodyPred += 0.22f;
 			firstupdate = true;
