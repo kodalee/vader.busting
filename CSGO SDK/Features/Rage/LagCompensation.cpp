@@ -61,6 +61,29 @@ namespace Engine
 			return lagData.Xor( )->m_flLerpTime;
 		}
 
+		virtual float LagFix( ) const {
+			float updaterate = Interfaces::m_pCvar->FindVar(XorStr("cl_updaterate"))->GetFloat();
+			auto* minupdate = Interfaces::m_pCvar->FindVar(XorStr("sv_minupdaterate"));
+			auto* maxupdate = Interfaces::m_pCvar->FindVar(XorStr("sv_maxupdaterate"));
+
+			if (minupdate && maxupdate)
+				updaterate = maxupdate->GetFloat();
+
+			float ratio = Interfaces::m_pCvar->FindVar(XorStr("cl_interp_ratio"))->GetFloat();
+
+			if (ratio == 0)
+				ratio = 1.0f;
+
+			float lerp = Interfaces::m_pCvar->FindVar(XorStr("cl_interp"))->GetFloat();
+			auto* cmin = Interfaces::m_pCvar->FindVar(XorStr("sv_client_min_interp_ratio"));
+			auto* cmax = Interfaces::m_pCvar->FindVar(XorStr("sv_client_max_interp_ratio"));
+
+			if (cmin && cmax && cmin->GetFloat() != 1)
+				ratio = std::clamp(ratio, cmin->GetFloat(), cmax->GetFloat());
+
+			return std::max(lerp, ratio / updaterate);
+		}
+
 		virtual void ClearLagData( ) {
 			lagData->m_PlayerHistory.clear( );
 		}
