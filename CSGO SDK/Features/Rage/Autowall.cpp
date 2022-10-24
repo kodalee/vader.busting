@@ -337,6 +337,8 @@ bool Autowall::TraceToExit(CGameTrace* pEnterTrace, Vector vecStartPos, Vector v
 				pExitTrace->endpos = vecStartPos + vecDirection;
 				return true;
 			}
+
+			continue;
 		}
 
 		if ((pExitTrace->surface.flags & SURF_NODRAW)) {
