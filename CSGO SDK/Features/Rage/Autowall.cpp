@@ -554,13 +554,10 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 			ClipTraceToPlayers( data->m_vecStart, vecEndExtended, MASK_SHOT_PLAYER, data->m_Filter, &data->m_EnterTrace );
 		}
 
-<<<<<<< HEAD
 		//We have to do this *after* tracing to the player.
 		surfacedata_t* enterSurfaceData = Interfaces::m_pPhysSurface->GetSurfaceData(data->m_EnterTrace.surface.surfaceProps);
 		int enterMaterial = enterSurfaceData->game.material;
 
-=======
->>>>>>> parent of f4ebc63 (Autowall fix)
 		if( data->m_EnterTrace.fraction == 1.f )
 			break;  // we didn't hit anything, stop tracing shoot
 
