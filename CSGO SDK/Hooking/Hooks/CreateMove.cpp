@@ -424,6 +424,9 @@ namespace Hooked
 
 		g_Vars.globals.CurrentLocalViewAngles = _cmd->viewangles;
 
+
+		g_Vars.globals.m_vecFixedEyePosition = pLocal->GetEyePosition();
+
 		g_Vars.globals.m_flCurtime = Interfaces::m_pGlobalVars->curtime;
 
 		Encrypted_t<CUserCmd> cmd( _cmd );
@@ -480,8 +483,6 @@ namespace Hooked
 		//g_TickbaseController.PreMovement( );
 
 		//Engine::Prediction::Instance()->KeepCommunication(bSendPacket, cmd->command_number);
-
-		g_Vars.globals.m_vecFixedEyePosition = pLocal->GetEyePosition();
 
 		Engine::Prediction::Instance( )->RunGamePrediction( );
 
