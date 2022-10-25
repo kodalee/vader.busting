@@ -615,7 +615,7 @@ namespace Engine
 
 		if (previous_record.IsValid()) {
 
-			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && (previous_record->m_fFlags & FL_ONGROUND);
+			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && !(previous_record->m_fFlags & FL_ONGROUND);
 			auto animation_speed = 0.0f;
 			auto origin_delta = record->m_vecOrigin - previous_record->m_vecOrigin;
 
@@ -623,10 +623,11 @@ namespace Engine
 			int fPreviousFlags = previous_record->m_fFlags;
 			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, record->m_flSimulationTime - previous_record->m_flSimulationTime);
 
-			//if (!record->m_bIsInvalid) {
-			//	AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
-			//	//Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
-			//}
+			if (!record->m_bIsInvalid) {
+				printf("ran extrap\n");
+				AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
+				//Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
+			}
 
 			// fix velocity
 			// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659

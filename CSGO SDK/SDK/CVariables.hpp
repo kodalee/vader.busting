@@ -533,7 +533,7 @@ public:
 		bool m_bLocalPlayerHarmedThisTick = false;
 		bool m_bRenderingDormant[ 65 ];
 
-		std::deque <command> cmds;
+		std::deque <int> cmds;
 		float m_flNextCmdTime = 0.f;
 		int m_iLastCommandAck = 0;
 
