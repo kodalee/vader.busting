@@ -5,6 +5,9 @@ class Quaternion;
 class Vector;
 class matrix3x4_t {
 public:
+	float* Base() { return &m[0][0]; }
+	const float* Base() const { return &m[0][0]; }
+
    float m[ 3 ][ 4 ] = { };
 
    float* operator [] ( const std::uint32_t index );

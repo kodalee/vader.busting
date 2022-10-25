@@ -363,7 +363,7 @@ namespace Interfaces
 
 		__forceinline bool IsPointAccurate(C_AimPoint* point, const Vector& start);
 
-		virtual void AddPoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, const Vector& point, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, bool isMultipoint);
+		virtual void AddPoint(std::vector<std::pair<Vector, bool>>& points, const Vector& point, bool isMultipoint);
 
 		virtual std::pair<bool, C_AimPoint> RunHitscan();
 
@@ -811,13 +811,8 @@ namespace Interfaces
 		return success.first;
 	}
 
-	void C_Ragebot::AddPoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, const Vector& point, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, bool isMultipoint) {
+	void C_Ragebot::AddPoint(std::vector<std::pair<Vector, bool>>& points, const Vector& point, bool isMultipoint) {
 		auto pointTransformed = point;
-		if (!hitbox)
-			return;
-
-		if (!hitboxSet)
-			return;
 
 		points.push_back(std::make_pair(pointTransformed, isMultipoint));
 	}
@@ -1182,27 +1177,63 @@ namespace Interfaces
 	void C_Ragebot::Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& pointScale, int hitboxIndex) {
 		auto boneMatrix = record->GetBoneMatrix();
 
+		points.clear();
+
 		if (!hitbox || !boneMatrix)
 			return;
 
 		if (!hitboxSet)
 			return;
 
-		//printf(std::to_string(Engine::LagCompensation::Get()->IsRecordOutOfBounds(*record, 0.2f)).c_str());
-		//printf("\n");
-
-		Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
-		Vector centerTrans = center.Transform(boneMatrix[hitbox->bone]);
-
-		// the center of feet ain't optimal, we are adding a better point later.
-		AddPoint(player, record, side, points,
-			centerTrans,
-			hitbox, hitboxSet, false
-		);
-
 		auto local = C_CSPlayer::GetLocalPlayer();
 		if (!local || local->IsDead())
 			return;
+
+		Vector min, max;
+		Math::VectorTransform2(hitbox->bbmin, boneMatrix[hitbox->bone], min);
+		Math::VectorTransform2(hitbox->bbmax, boneMatrix[hitbox->bone], max);
+
+		//Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
+		//Vector centerTrans = center.Transform(boneMatrix[hitbox->bone]);
+
+		Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
+		Vector centerTrans = center;
+		Math::VectorTransform2(centerTrans, boneMatrix[hitbox->bone], centerTrans);
+
+		AddPoint(points, centerTrans, false);
+
+		auto aeye = local->GetEyePosition();
+
+		auto delta = centerTrans - aeye;
+		delta.Normalized();
+
+		auto max_min = max - min;
+		max_min.Normalized();
+
+		auto cr = max_min.Cross(delta);
+
+		QAngle d_angle;
+		Math::VectorAngles(delta, d_angle);
+
+		bool vertical = hitboxIndex == HITBOX_HEAD;
+
+		Vector right, up;
+		if (vertical) {
+			QAngle cr_angle;
+			Math::VectorAngles(cr, cr_angle);
+			cr_angle.ToVectors(&right, &up);
+			cr_angle.z = d_angle.x;
+
+			Vector _up = up, _right = right, _cr = cr;
+			cr = _right;
+			right = _cr;
+		}
+		else {
+			Math::VectorVectors(delta, up, right);
+		}
+
+		RayTracer::Hitbox box(min, max, hitbox->m_flRadius);
+		RayTracer::Trace trace;
 
 		if (!m_rage_data->rbot->static_point_scale && m_rage_data->m_pWeapon && hitbox->m_flRadius > 0.0f) {
 			pointScale = 0.91f; // we can go high here because the new multipoint is perfect
@@ -1227,182 +1258,83 @@ namespace Interfaces
 		if (pointScale <= 0.0f)
 			return;
 
-		if (hitbox->m_flRadius <= 0.0f) {
+		if (hitbox->m_flRadius == -1.f) {
+			// convert rotation angle to a matrix.
+			matrix3x4_t rot_matrix;
+			Math::AngleMatrix(hitbox->m_angAngles, rot_matrix);
+
+			// apply the rotation to the entity input space (local).
+			matrix3x4_t matrix;
+			Math::ConcatTransforms(boneMatrix[hitbox->bone], rot_matrix, matrix);
+
+			// extract origin from matrix.
+			const Vector origin = matrix.GetOrigin();
+
+			// compute raw center point.
+			Vector center = (hitbox->bbmin + hitbox->bbmax) / 2.f;
+
+			// the feet hiboxes have a side, heel and the toe.
 			if (hitboxIndex == HITBOX_RIGHT_FOOT || hitboxIndex == HITBOX_LEFT_FOOT) {
+				const float d2 = (hitbox->bbmin.x - center.x) * pointScale;
+				const float d3 = (hitbox->bbmax.x - center.x) * pointScale;
 
-				pointScale = 0.625f;
+				// heel.
+				AddPoint(points, Vector(center.x + d2, center.y, center.z), true);
 
-				if (g_Vars.misc.visualize_hitscan) {
-					Vector sex{ (hitbox->bbmax.x - center.x) * pointScale + center.x, center.y, center.z };
-					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
-				}
+				// toe.
+				AddPoint(points, Vector(center.x + d3, center.y, center.z), true);
+			}
 
-				if (m_rage_data->rbot->mp_hitboxes_feets) {
-					// toe
-					AddPoint(player, record, side, points,
-						Vector(((hitbox->bbmax.x - center.x) * pointScale) + center.x, center.y, center.z).Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
+			// nothing to do here we are done.
+			if (points.empty())
+				return;
 
-					// heel
-					AddPoint(player, record, side, points,
-						Vector(((hitbox->bbmin.x - center.x) * pointScale) + center.x, center.y, center.z).Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-				}
+			// rotate our bbox points by their correct angle
+			// and convert our points to world space.
+			for (auto& p : points) {
+				// VectorRotate.
+				// rotate point by angle stored in matrix.
+				p.first = { p.first.Dot(matrix[0]), p.first.Dot(matrix[1]), p.first.Dot(matrix[2]) };
+
+				// transform point to world space.
+				p.first += origin;
 			}
 		}
 		else {
-			float r = hitbox->m_flRadius * pointScale;
-
 			if (hitboxIndex == HITBOX_HEAD) {
+				Vector middle = (right.Normalized() + up.Normalized()) * 0.5f;
+				Vector middle2 = (right.Normalized() - up.Normalized()) * 0.5f;
 
-				if (g_Vars.misc.visualize_hitscan) {
-					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
-				}
+				RayTracer::Ray ray = RayTracer::Ray(aeye, centerTrans + (middle * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-				if (m_rage_data->rbot->mp_hitboxes_head) {
-					constexpr float rotation = 0.70710678f;
+				ray = RayTracer::Ray(aeye, centerTrans - (middle2 * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-					Vector right{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z + r };
-					AddPoint(player, record, side, points,
-						right.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
+				ray = RayTracer::Ray(aeye, centerTrans + (up * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-					Vector left{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z - r };
-					AddPoint(player, record, side, points,
-						left.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
+				ray = RayTracer::Ray(aeye, centerTrans - (up * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
+			}
+			else {
+				RayTracer::Ray ray = RayTracer::Ray(aeye, centerTrans - ((vertical ? cr : up) * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-					// ok, this looks ghetto as shit but we have to clamp these to not have these be off too much
-					pointScale = std::clamp<float>(pointScale, 0.1f, 0.91f);
-					r = hitbox->m_flRadius * pointScale;
-
-					// top/back 45 deg.
-					// this is the best spot to shoot at (when peeking, when RESOLVED XD!)
-					AddPoint(player, record, side, points,
-						Vector(hitbox->bbmax.x + (rotation * r), hitbox->bbmax.y + (-rotation * r), hitbox->bbmax.z).Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-
-					// ok, this looks ghetto as shit but we have to clamp these to not have these be off too much
-					pointScale = std::clamp<float>(pointScale, 0.1f, 0.91f);
-					r = hitbox->m_flRadius * pointScale;
-
-					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
-					AddPoint(player, record, side, points,
-						back.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-				}
+				ray = RayTracer::Ray(aeye, centerTrans + ((vertical ? up : up) * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 			}
 
-			else if (hitboxIndex == HITBOX_STOMACH) {
-
-				if (g_Vars.misc.visualize_hitscan) {
-					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
-				}
-
-				if (m_rage_data->rbot->mp_hitboxes_stomach) {
-
-					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
-					Vector left{ center.x, center.y, hitbox->bbmax.z - r };
-					Vector right{ center.x, center.y, hitbox->bbmin.z + r };
-
-					AddPoint(player, record, side, points,
-						back.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-
-					AddPoint(player, record, side, points,
-						right.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-
-					AddPoint(player, record, side, points,
-						left.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-				}
-			}
-			else if (hitboxIndex == HITBOX_PELVIS) {
-
-				if (g_Vars.misc.visualize_hitscan) {
-					Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-					Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
-				}
-
-				if (m_rage_data->rbot->mp_hitboxes_stomach) {
-					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
-					Vector left{ center.x, center.y, hitbox->bbmax.z + r };
-					Vector right{ center.x, center.y, hitbox->bbmin.z - r };
-
-					AddPoint(player, record, side, points,
-						back.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-
-					AddPoint(player, record, side, points,
-						right.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-
-					AddPoint(player, record, side, points,
-						left.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-				}
-			}
-
-			else if (hitboxIndex == HITBOX_LOWER_CHEST || hitboxIndex == HITBOX_CHEST) {
-				if (m_rage_data->rbot->mp_hitboxes_chest) {
-
-					if (g_Vars.misc.visualize_hitscan) {
-						Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-						Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
-					}
-
-					if (hitboxIndex == HITBOX_CHEST)
-						r = hitbox->m_flRadius * (pointScale * 0.75f);
-
-					Vector left{ center.x, center.y, hitbox->bbmax.z + r };
-					Vector right{ center.x, center.y, hitbox->bbmin.z - r };
-					Vector back{ center.x, hitbox->bbmax.y - r, center.z };
-					AddPoint(player, record, side, points,
-						back.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-
-					AddPoint(player, record, side, points,
-						left.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-
-					AddPoint(player, record, side, points,
-						right.Transform(boneMatrix[hitbox->bone]),
-						hitbox, hitboxSet, true
-					);
-				}
-			}
-			else if( hitboxIndex == HITBOX_RIGHT_THIGH || hitboxIndex == HITBOX_LEFT_THIGH || hitboxIndex == HITBOX_LEFT_CALF || hitboxIndex == HITBOX_RIGHT_CALF) {
-				if( m_rage_data->rbot->mp_hitboxes_legs ) {
-
-					if (g_Vars.misc.visualize_hitscan) {
-						Vector sex{ hitbox->bbmax.x, hitbox->bbmax.y, hitbox->bbmax.z };
-						Interfaces::m_pDebugOverlay->AddBoxOverlay(sex.Transform(boneMatrix[hitbox->bone]), Vector(-0.7f, -0.7f, -0.7f), Vector(0.7f, 0.7f, 0.7f), QAngle(0, 0, 0), 255, 255, 255, 255, 0.1f);
-					}
-
-					Vector half_bottom{ hitbox->bbmax.x - ( hitbox->m_flRadius * 0.5f ), hitbox->bbmax.y, hitbox->bbmax.z };
-					AddPoint( player, record, side, points,
-						half_bottom.Transform( boneMatrix[ hitbox->bone ] ),
-						hitbox, hitboxSet, true
-					);
-				}
+			for (size_t i = 1; i < points.size(); ++i) {
+				auto delta_center = points[i].first - centerTrans;
+				points[i].first = centerTrans + delta_center * pointScale;
 			}
 		}
 	}
@@ -1654,11 +1586,7 @@ namespace Interfaces
 		}
 
 		//for( auto& p : m_rage_data->m_aim_points ) {
-<<<<<<< HEAD
 			//Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
-=======
-		//	Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
->>>>>>> parent of 7d727e6 (Multipoint recode)
 		//}
 
 		//bool fakeDucking = g_Vars.misc.fakeduck_bind.enabled;
