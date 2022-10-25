@@ -50,8 +50,6 @@ namespace Math
 
 	void VectorTransform(const Vector& in1, const matrix3x4_t& in2, Vector& out);
 
-	void VectorTransform2(Vector& in1, matrix3x4_t& in2, Vector& out);
-
 	void SmoothAngle(QAngle src, QAngle& dst, float factor);
 
 	void CalcAngle3(const Vector src, const Vector dst, QAngle& angles);
@@ -110,16 +108,6 @@ namespace Math
 	Vector GetSmoothedVelocity(float min_delta, Vector a, Vector b);
 
 	float AngleDiff(float src, float dst);
-
-	void VectorVectors(const Vector& forward, Vector& right, Vector& up);
-
-	void AngleMatrix(const QAngle& angles, matrix3x4_t& matrix);
-
-	matrix3x4_t AngleMatrix(const QAngle angles);
-
-	void MatrixCopy(const matrix3x4_t& in, matrix3x4_t& out);
-
-	void ConcatTransforms(const matrix3x4_t& in1, const matrix3x4_t& in2, matrix3x4_t& out);
 
 	__forceinline static float Interpolate(const float from, const float to, const float percent) {
 		return to * percent + from * (1.f - percent);

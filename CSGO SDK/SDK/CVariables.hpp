@@ -770,7 +770,7 @@ public:
 	config_option( int, min_damage, 1 );
 	config_option( int, min_damage_visible, 1 );
 	config_option( float, hitchance, 0.0f );
-	config_option( int, hitchance_seeds, 128 );
+	config_option( float, hitchance_seeds, 128.0f );
 	config_option( float, doubletap_hitchance, 0.0f );
 	config_option( float, doubletap_speed, 14.f );
 	config_option( float, doubletap_dmg, 50.f );
