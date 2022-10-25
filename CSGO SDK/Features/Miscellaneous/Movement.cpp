@@ -475,9 +475,7 @@ namespace Interfaces
 
 		g_BoneSetup.BuildBones( m_movement_data->m_pLocal, BONE_USED_BY_ANYTHING, BoneSetupFlags::None );
 
-
-		//OLD EYEPOS
-		//g_Vars.globals.m_vecFixedEyePosition = m_movement_data->m_pLocal->GetEyePosition( );
+		g_Vars.globals.m_vecFixedEyePosition = m_movement_data->m_pLocal->GetEyePosition( );
 
 		*( float* )( uintptr_t( m_movement_data->m_pLocal ) + Engine::Displacement.DT_BaseAnimating.m_flPoseParameter + 48 ) = PitchPosBackup;
 
