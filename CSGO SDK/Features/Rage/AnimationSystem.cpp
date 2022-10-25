@@ -411,6 +411,8 @@ namespace Engine
 		// update layers
 		std::memcpy( player->m_AnimOverlay( ).Base( ), pAnimationRecord->m_serverAnimOverlays, 13 * sizeof( C_AnimationLayer ) );
 
+		player->InvalidateBoneCache();
+
 		// generate aimbot matrix
 		g_BoneSetup.SetupBonesRebuild( player, m_Bones, 128, BONE_USED_BY_ANYTHING & ~BONE_USED_BY_BONE_MERGE, player->m_flSimulationTime( ), BoneSetupFlags::UseCustomOutput );
 
