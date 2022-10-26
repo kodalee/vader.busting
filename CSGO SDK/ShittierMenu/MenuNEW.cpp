@@ -1364,6 +1364,8 @@ void Menu::Ragebot() {
 	style.ItemSpacing = ImVec2(4.f, 4.f);
 }
 
+int antiaimConditionTab = 0;
+
 void Menu::AntiAim() {
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.ItemSpacing = ImVec2(0.f, 24.f);
@@ -1386,27 +1388,55 @@ void Menu::AntiAim() {
 	ImGui::SetCursorPos(ImVec2(193.f, 76.f));
 	ImGui::BeginGroup(); {
 		if (antiaimTab == 0) {
-			ImGui::BeginGroupBox(XorStr("AntiAim"), ImVec2(244.f, 425.f)); {
+			if (ImGui::SubTab(XorStr("Stand"), ImVec2(169.33f, 35.f), 0 == antiaimConditionTab))
+				antiaimConditionTab = 0;
+			ImGui::SameLine();
+			if (ImGui::SubTab(XorStr("Move"), ImVec2(169.33f, 35.f), 1 == antiaimConditionTab))
+				antiaimConditionTab = 1;
+			ImGui::SameLine();
+			if (ImGui::SubTab(XorStr("Air"), ImVec2(169.33f, 35.f), 2 == antiaimConditionTab))
+				antiaimConditionTab = 2;
+
+			ImGui::BeginGroupBox(XorStr("AntiAim"), ImVec2(244.f, 366.f)); {
 				const char* styles[]{ XorStr("Static"), XorStr("Jitter"), XorStr("Spin") };
 				const char* pitches[] = { XorStr("Off"), XorStr("Down"), XorStr("Up"), XorStr("Zero") };
-				const char* real_yaw[] = { XorStr("Off"), XorStr("180"), XorStr("Rotate"), XorStr("Jitter"), XorStr("180z") };
-				const char* fake_yaw[] = { XorStr("Off"), XorStr("Static") };
+				const char* real_yaw[] = { XorStr("Off"), XorStr("180"), XorStr("Rotate"), XorStr("Jitter"), XorStr("180z"), XorStr("Lowerbody"), XorStr("Custom") };
+				const char* base_yaw[] = { XorStr("forward"), XorStr("backward") };
+				const char* lby_modes[] = { XorStr("Off"), XorStr("Static"), XorStr("Double flick"), XorStr("Twist") };
+				const char* fake_yaw[] = { XorStr("Off"), XorStr("Normal"), XorStr("Spin"), XorStr("Lowerbody") };
 				const char* freestand_mode[] = { XorStr("Crosshair"), XorStr("Thickness") };
 
-				CVariables::ANTIAIM_STATE* settings = &g_Vars.antiaim_stand;
+				CVariables::ANTIAIM_STATE* settings;
+
+				switch (antiaimConditionTab) {
+				case 0:
+					settings = &g_Vars.antiaim_stand;
+					break;
+				case 1:
+					settings = &g_Vars.antiaim_move;
+					break;
+				case 2:
+					settings = &g_Vars.antiaim_air;
+					break;
+				}
+
 				// enable AA.
 				ImGui::Checkbox(XorStr("Enable"), &g_Vars.antiaim.enabled);
 				ImGui::Checkbox(XorStr("Edge antiaim"), &g_Vars.antiaim.edge_aa);
 				ImGui::Combo(XorStr("Pitch"), &settings->pitch, pitches, IM_ARRAYSIZE(pitches));
-				ImGui::Combo(XorStr("Yaw"), &settings->base_yaw, real_yaw, IM_ARRAYSIZE(real_yaw));
+				ImGui::Combo(XorStr("Base yaw"), &settings->base_yaw, base_yaw, IM_ARRAYSIZE(base_yaw));
+				ImGui::Combo(XorStr("Yaw"), &settings->yaw, real_yaw, IM_ARRAYSIZE(real_yaw));
 
-				if (settings->base_yaw == 3) {
-					ImGui::SliderFloat(XorStr("Jitter range"), &g_Vars.antiaim.Jitter_range, -100.f, 100.f, XorStr("%1.f"));
+				if (settings->yaw == 3) {
+					ImGui::SliderFloat(XorStr("Jitter range"), &settings->jitter_range, -180.f, 180.f, XorStr("%1.f"));
+					ImGui::SliderFloat(XorStr("Jitter speed"), &settings->jitter_speed, 1.f, 64.f, XorStr("%1.f"));
 				}
-
-				if (settings->base_yaw == 2) {
-					ImGui::SliderFloat(XorStr("Rotation range"), &g_Vars.antiaim.rot_range, 1.f, 360.f, XorStr("%1.f"));
-					ImGui::SliderFloat(XorStr("Rotation speed"), &g_Vars.antiaim.rot_speed, 1.f, 100.f, XorStr("%1.f"));
+				else if (settings->yaw == 2) {
+					ImGui::SliderFloat(XorStr("Rotation range"), &settings->rot_range, 1.f, 360.f, XorStr("%1.f"));
+					ImGui::SliderFloat(XorStr("Rotation speed"), &settings->rot_speed, 1.f, 100.f, XorStr("%1.f"));
+				}
+				else if (settings->yaw == 6) {
+					ImGui::SliderFloat(XorStr("Custom yaw"), &settings->custom_yaw, -180.f, 180.f, XorStr("%1.f"));
 				}
 				ImGui::Checkbox(XorStr("At targets"), &g_Vars.antiaim.at_targets);
 				ImGui::Checkbox(XorStr("Break LBY"), &g_Vars.antiaim.lby_breaker);
@@ -1489,7 +1519,8 @@ void Menu::AntiAim() {
 	ImGui::BeginGroup(); {
 
 		if (antiaimTab == 0) {
-			ImGui::BeginGroupBox(XorStr("Misc"), ImVec2(244.f, 425.f)); {
+			ImGui::SetCursorPos(ImVec2(457.f, 135.f));
+			ImGui::BeginGroupBox(XorStr("Misc"), ImVec2(244.f, 366.f)); {
 
 				ImGui::Checkbox(XorStr("Distortion"), &g_Vars.antiaim.distort);
 				if (g_Vars.antiaim.distort) {

@@ -310,13 +310,13 @@ namespace lua_config {
 		g_Vars.antiaim_stand.base_yaw = value;
 	}
 
-	int antiaim_jitter_value() {
-		return g_Vars.antiaim.Jitter_range;
-	}
+	//int antiaim_jitter_value() {
+	//	return g_Vars.antiaim.Jitter_range;
+	//}
 
-	void antiaim_jitter_set(int value) {
-		g_Vars.antiaim.Jitter_range = value;
-	}
+	//void antiaim_jitter_set(int value) {
+	//	g_Vars.antiaim.Jitter_range = value;
+	//}
 
 	bool antiaim_fakewalk_enabled() {
 		return g_Vars.misc.slow_walk_bind.enabled;
@@ -1245,8 +1245,8 @@ bool c_lua::initialize() {
 	config[XorStr("antiaim_manual_enabled")] = lua_config::antiaim_manual_enabled;
 	config[XorStr("antiaim_base_yaw")] = lua_config::antiaim_base_yaw;
 	config[XorStr("antiaim_base_yaw_set")] = lua_config::antiaim_base_yaw_set;
-	config[XorStr("antiaim_jitter_value")] = lua_config::antiaim_jitter_value;
-	config[XorStr("antiaim_jitter_set")] = lua_config::antiaim_jitter_set;
+	//config[XorStr("antiaim_jitter_value")] = lua_config::antiaim_jitter_value;
+	//config[XorStr("antiaim_jitter_set")] = lua_config::antiaim_jitter_set;
 	config[XorStr("antiaim_fakewalk_enabled")] = lua_config::antiaim_fakewalk_enabled;
 	config[XorStr("forcebaim_enabled")] = lua_config::forcebaim_enabled;
 	config[XorStr("slide_walk_set")] = lua_config::slide_walk_set;

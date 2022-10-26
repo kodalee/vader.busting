@@ -898,6 +898,12 @@ public:
 	config_option( float, body_lean, 0.f );
 	config_option( float, inverted_body_lean, 0.f );
 
+	config_option( float, rot_speed, 1.f );
+	config_option( float, rot_range, 1.f );
+	config_option( float, custom_yaw, 0.f );
+	config_option( float, shift_range, 0.f );
+	config_option(float, shift_speed, 1.0f);
+
 	config_option( bool, jitter, false );
 	config_option( bool, jitter_in_air, false );
 	config_option( bool, jitter_moving, false );
@@ -905,6 +911,7 @@ public:
 	config_option( bool, jitter_walking, false );
 	config_option( int, jitter_type, 0 );
 	config_option( float, jitter_range, 15.0f );
+	config_option( float, jitter_speed, 1.0f );
 
 	config_option( bool, inverter, false );
 	config_option( bool, inverter_in_air, false );
@@ -965,7 +972,6 @@ public:
 	config_option( bool, distort_disable_run, false );
 	config_option( bool, distort_disable_air, false );
 
-	config_option( float, Jitter_range, 0);
 	config_option( bool, lby_breaker, false );
 	config_option( float, break_lby, 100 );
 	config_option( float, break_lby_first, 105 );
@@ -980,8 +986,6 @@ public:
 	config_option( bool, desync_on_dt, false );
 	config_keybind( desync_on_dt_invert );
 	config_option( bool, at_targets, false );
-	config_option( float, rot_speed, 1 );
-	config_option( float, rot_range, 1 );
 	config_option( float, timeout_time, 4 );
 	config_option( float, add_yaw, 0 );
 
@@ -1750,8 +1754,8 @@ public:
 
 	add_child_group_ex( ANTIAIM, antiaim );
 	add_child_group_ex( ANTIAIM_STATE, antiaim_stand );
-	//add_child_group_ex( ANTIAIM_STATE, antiaim_move );
-	//add_child_group_ex( ANTIAIM_STATE, antiaim_air );
+	add_child_group_ex( ANTIAIM_STATE, antiaim_move );
+	add_child_group_ex( ANTIAIM_STATE, antiaim_air );
 	add_child_group_ex( LEGIT_GENERAL, legit );
 	add_child_group_ex( FAKELAG, fakelag );
 	add_child_group_ex( ESP, esp );
