@@ -573,6 +573,53 @@ namespace Engine
 			return;
 		}
 
+		static int m_iFakeFlickCheck = 0;
+		static int m_iFakeFlickResetCheck = 0;
+		static float m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime;
+		static float m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
+
+		m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime;
+
+		if (player->m_flOldSimulationTime() > player->m_flSimulationTime()) {
+			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
+			m_iFakeFlickCheck++;
+			m_iFakeFlickResetCheck = 0;
+		}
+
+		else if (player->m_flOldSimulationTime() <= player->m_flSimulationTime() && m_flLastResetTime1 >= m_flMaxResetTime1 && m_iFakeFlickCheck > 0) {
+			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
+			m_iFakeFlickResetCheck++;
+		}
+
+		//if (player->m_flOldSimulationTime() > player->m_flSimulationTime()) {
+		//	m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 0.5f;
+		//}
+
+		//if (m_flLastResetTime1 >= m_flMaxResetTime1) {
+		//	m_iFakeFlickCheck++;
+		//	m_iFakeFlickResetCheck = 0;
+		//	printf("reset check reset\n");
+		//	//printf(std::to_string(m_iFakeFlickCheck).c_str());
+		//	//printf(" < fake flick check hit\n");
+		//}
+		//else if (m_flLastResetTime1 >= m_flMaxResetTime1 && m_iFakeFlickCheck >= 0) {
+		//	m_iFakeFlickResetCheck++;
+		//	printf("reset check increased\n");
+		//}
+
+		if (m_iFakeFlickCheck >= 5) {
+			g_Vars.globals.m_bDontExtrap[player->EntIndex()] = true;
+			//printf("SET TO TRUE \n");
+		}
+
+		if (m_iFakeFlickResetCheck >= 3) {
+			g_Vars.globals.m_bDontExtrap[player->EntIndex()] = false;
+			printf("reset\n");
+			m_iFakeFlickResetCheck = 0;
+			m_iFakeFlickCheck = 0;
+			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
+		}
+
 		/*auto flPreviousSimulationTime = previous_record->m_flSimulationTime;
 		auto nTickcountDelta = pThis->m_iCurrentTickCount - pThis->m_iOldTickCount;
 		auto nSimTicksDelta = record->m_iChokeTicks;
@@ -622,12 +669,6 @@ namespace Engine
 			Vector vecPreviousOrigin = previous_record->m_vecOrigin;
 			int fPreviousFlags = previous_record->m_fFlags;
 			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, record->m_flSimulationTime - previous_record->m_flSimulationTime);
-
-			if (!record->m_bIsInvalid) {
-				printf("ran extrap\n");
-				AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
-				//Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
-			}
 
 			// fix velocity
 			// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
@@ -702,6 +743,12 @@ namespace Engine
 
 			}
 
+			if (!record->m_bIsInvalid && !g_Vars.globals.m_bDontExtrap[player->EntIndex()] && record->m_vecVelocity.Length2D() > 1.f) {
+				printf("ran extrap\n");
+				AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
+				//Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
+			}
+
 		}
 
 		//// detect fakewalking players
@@ -760,7 +807,7 @@ namespace Engine
 
 		record->m_vecLastNonDormantOrig = record->m_vecOrigin;
 
-		record->m_bTeleportDistance = record->m_vecOrigin.DistanceSquared( previous_record->m_vecOrigin ) > 4096.0f;
+		record->m_bTeleportDistance = ((record->m_vecOrigin - previous_record->m_vecOrigin).Length2DSquared() > 4096.0f);
 
 		//LinearExtrapolations(record);
 

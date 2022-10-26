@@ -1801,6 +1801,8 @@ namespace Interfaces
 									buffer = XorStr("none");
 								}
 
+								// exon ur a fucking degenerate 3rd world nigger.
+
 								msg << XorStr("dmg: ") << int(bestPoint->damage) << XorStr(" | ");
 								msg << XorStr("hitgroup: ") << TranslateHitbox(bestPoint->hitboxIndex).c_str() /*<< XorStr("(") << int(bestPoint->pointscale * 100.f) << XorStr("%%%%)")*/ << XorStr(" | ");
 								msg << XorStr("lby: ") << int(bestPoint->target->record->m_iResolverMode == 1) << XorStr(" | ");
@@ -2236,20 +2238,26 @@ namespace Interfaces
 
 				if (record->m_bSkipDueToResolver)
 					continue;
-
-				//if (record->m_bTeleportDistance)
+				//	g_Vars.globals.m_bDontExtrap[player->EntIndex()] = true;
+				//	//printf("DONT EXTRAP\n");
+				//}
+				//else
+				//	g_Vars.globals.m_bDontExtrap[player->EntIndex()] = false;
+				////if (record->m_bTeleportDistance)
 				//	printf("niggaballsHD\n");
 
 				if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 					continue;
 
-				if (record->m_bTeleportDistance && (player->m_fFlags() & FL_ONGROUND))
-					continue;
-
-				else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
-					//printf("front record\n");
+				if (record->m_bTeleportDistance /*&& (player->m_fFlags() & FL_ONGROUND)*/) {
+					printf("FRONT RECORD\n");
 					return &front_record;
 				}
+
+				//else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
+				//	//printf("front record\n");
+				//	return &front_record;
+				//}
 
 				return record;
 			}
@@ -2263,17 +2271,24 @@ namespace Interfaces
 
 			if (record->m_bSkipDueToResolver)
 				continue;
+			//	g_Vars.globals.m_bDontExtrap[player->EntIndex()] = true;
+			//	//printf("DONT EXTRAP\n");
+			//}
+			//else
+			//	g_Vars.globals.m_bDontExtrap[player->EntIndex()] = false;
 
 			if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 				continue;
 
-			if (record->m_bTeleportDistance && (player->m_fFlags() & FL_ONGROUND))
-				continue;
-
-			else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
-				//printf("front record\n");
+			if (record->m_bTeleportDistance /*&& (player->m_fFlags() & FL_ONGROUND)*/) {
+				printf("FRONT RECORD\n");
 				return &front_record;
 			}
+
+			//else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
+			//	//printf("front record\n");
+			//	return &front_record;
+			//}
 
 			return record;
 		}

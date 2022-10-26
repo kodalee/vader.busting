@@ -523,6 +523,8 @@ public:
 
 		bool m_bNewMap = false;
 
+		bool m_bDontExtrap[65] = { false };
+
 		HINSTANCE hModule;
 
 		std::vector<IMaterial*> m_CachedMapMaterials;
