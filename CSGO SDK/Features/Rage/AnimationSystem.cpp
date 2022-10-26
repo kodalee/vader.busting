@@ -744,7 +744,6 @@ namespace Engine
 			}
 
 			if (!record->m_bIsInvalid && !g_Vars.globals.m_bDontExtrap[player->EntIndex()] && record->m_vecVelocity.Length2D() > 1.f) {
-				printf("ran extrap\n");
 				AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
 				//Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
 			}
