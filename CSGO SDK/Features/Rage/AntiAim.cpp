@@ -779,10 +779,6 @@ namespace Interfaces
 			}
 		}
 
-		if (!target.player) {
-			return;
-		}
-
 		float step = (2 * M_PI) / 18.f; // One PI = half a circle ( for stacker cause low iq :sunglasses: ), 28
 
 		float radius = fabs(Vector(headpos - origin).Length2D());
