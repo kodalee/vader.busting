@@ -614,7 +614,7 @@ namespace Engine
 
 		if (m_iFakeFlickResetCheck >= 3) {
 			g_Vars.globals.m_bDontExtrap[player->EntIndex()] = false;
-			printf("reset\n");
+			//printf("reset\n");
 			m_iFakeFlickResetCheck = 0;
 			m_iFakeFlickCheck = 0;
 			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
