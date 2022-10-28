@@ -24,6 +24,7 @@
 #include <json.h>
 #include "PH/PH_API/PH_API.hpp"
 #include "Utils/VMProtect/VMProtectSDK.h"
+#include "Utils/vaderinject.h"
 
 #define CURL_STATICLIB
 #include <curl.h>
@@ -224,6 +225,8 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 		Menu::opened = true;
 		bDownloaded = true;
 	}
+
+	PlaySoundA((LPCSTR)vaderinject_wav, NULL, SND_ASYNC | SND_MEMORY); // Inject sound
 
 	if( Interfaces::Create( pArgs->lpReserved ) ) {
 		Interfaces::m_pInputSystem->EnableInput( true );

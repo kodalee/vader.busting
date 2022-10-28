@@ -687,6 +687,7 @@
     <ClInclude Include="SDK\Classes\weapon.hpp" />
     <ClInclude Include="SDK\Classes\WeaponInfo.hpp" />
     <ClInclude Include="Utils\tinyformat.h" />
+    <ClInclude Include="Utils\vaderinject.h" />
     <ClInclude Include="Utils\VMProtect\VMProtectSDK.h" />
     <ClInclude Include="Utils\winapir.h" />
     <ClInclude Include="Utils\XorStr.hpp" />
