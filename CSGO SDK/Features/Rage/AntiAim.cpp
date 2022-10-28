@@ -1387,8 +1387,10 @@ namespace Interfaces
 			break;
 		}
 		case 4: { // 180z
-			flRetValue = (g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge + 180.f / 2.f);
-			flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
+			if (!bUsingManualAA) {
+				flRetValue = (g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge + 180.f / 2.f);
+				flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
+			}
 
 			break;
 		}
