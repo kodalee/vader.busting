@@ -85,9 +85,16 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 
 
 	const bool bStart = s_bBuilding;
-	s_bBuilding = /*m_didFakeFlick || */((g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)
+
+	if (g_Vars.rage.double_tap_type == 0) {
+		s_bBuilding = /*m_didFakeFlick || */((g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)
 			&& s_nTicksSinceUse >= s_nTicksRequired
-		&& !m_bSupressRecharge || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1));
+			&& !m_bSupressRecharge || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1));
+	}
+	else {
+		s_bBuilding = /*m_didFakeFlick || */((g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit)
+			&& s_nTicksSinceUse >= s_nTicksRequired || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1));
+	}
 
 	if (bStart && !s_bBuilding && ((s_nExtraProcessingTicks > 0 && !s_bAckedBuild) || (int)s_nExtraProcessingTicks < s_iClockCorrectionTicks))
 	{
@@ -323,10 +330,17 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 
 						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && Weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && Weapon->m_iItemDefinitionIndex() != WEAPON_C4)
 						{
-							copy_command(cmd, s_nSpeed);
-							s_bBuilding = false;
-							inya = true;
-							goto jmpRunExtraCommands;
+							if (g_Vars.rage.double_tap_type == 0) {
+								copy_command(cmd, s_nSpeed);
+								s_bBuilding = false;
+								inya = true;
+								goto jmpRunExtraCommands;
+							}
+							else {
+								m_bSupressRecharge = true;
+								inya = true;
+								goto jmpRunExtraCommands;
+							}
 						}
 						//else if (g_Vars.globals.m_bShotReady && Weapon->m_iItemDefinitionIndex() == WEAPON_REVOLVER) {
 						//	s_bBuilding = false;

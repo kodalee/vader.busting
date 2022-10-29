@@ -120,6 +120,47 @@ void PreserveKillfeed() {
 	}
 }
 
+void UserCmdDoubletap(CUserCmd* cmd) {
+	static bool bCharged = false;
+
+	if (!(g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) || g_Vars.rage.double_tap_type != 1) {
+		bCharged = false;
+		return;
+	}
+
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	if (!local || !local->IsAlive())
+		return;
+
+	auto weapon = (C_WeaponCSBaseGun*)(local->m_hActiveWeapon().Get());
+
+	if (!weapon)
+		return;
+
+	if (g_TickbaseController.s_bBuilding && !bCharged && g_TickbaseController.s_nExtraProcessingTicks > 0) {
+		//printf("pre-shift\n");
+
+		if (!(cmd->buttons & IN_ATTACK) && weapon->m_fLastShotTime() + 0.5f < Interfaces::m_pGlobalVars->curtime) {
+
+			if (!(cmd->buttons & IN_ATTACK)) {
+
+				g_Vars.globals.shift_amount = 14;
+				//printf("shift\n");
+				cmd->tick_count == INT_MAX;
+				bCharged = true;
+			}
+		}
+	}
+
+	if ((cmd->buttons & IN_ATTACK || g_TickbaseController.m_bSupressRecharge) && bCharged) {
+		g_Vars.globals.shift_amount = 13;
+		cmd->tick_count == INT_MAX;
+		//printf("release\n");
+		bCharged = false;
+	}
+}
+
 namespace Hooked
 {
 	inline float anglemod(float a)
@@ -579,6 +620,8 @@ namespace Hooked
 
 			Engine::C_ShotInformation::Get()->CorrectSnapshots(*bSendPacket);
 
+			UserCmdDoubletap(cmd.Xor());
+
 			UpdateInformation(cmd.Xor(), *bSendPacket);
 
 			//walkbot::Instance().move( cmd.Xor( ) );
@@ -703,6 +746,7 @@ namespace Hooked
 
 		if (g_TickbaseController.bShifting) {
 			*bSendPacket = g_TickbaseController.s_nExtraProcessingTicks == 1; // Only send on the last shifted tick
+			_cmd->buttons &= ~(IN_ATTACK | IN_ATTACK2);
 		}
 
 		int iLagLimit = 16;
