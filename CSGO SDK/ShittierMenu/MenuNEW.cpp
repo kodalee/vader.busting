@@ -1248,6 +1248,10 @@ void Menu::Ragebot() {
 				ImGui::Checkbox(XorStr("Doubletap"), &g_Vars.rage.exploit);
 				ImGui::SameLine(213.f);
 				ImGui::Keybind("##DTkey", &g_Vars.rage.key_dt.key, &g_Vars.rage.key_dt.cond);
+				const char* doubletap_modes[] = { XorStr("Offensive"), XorStr("Defensive") };
+
+				ImGui::Combo(XorStr("Doubletap type"), &g_Vars.rage.double_tap_type, doubletap_modes, IM_ARRAYSIZE(doubletap_modes));
+				
 				if (g_Vars.rage.exploit) {
 					ImGui::Checkbox(XorStr("Extended teleport"), &g_Vars.rage.dt_defensive_teleport);
 					ImGui::Checkbox(XorStr("Doubletap exploits"), &g_Vars.rage.dt_exploits);
