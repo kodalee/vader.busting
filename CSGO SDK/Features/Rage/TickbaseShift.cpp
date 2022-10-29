@@ -224,6 +224,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 
 		while (s_nExtraProcessingTicks > 0)
 		{
+			bShifting = true;
 			bFinalTick = s_nExtraProcessingTicks == 1;
 			//g_Vars.globals.m_pCmd->tick_count = INT_MAX;
 			Hooked::oCL_Move(bFinalTick, 0.f);
@@ -244,6 +245,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 			//}
 
 		}
+		bShifting = false;
 
 		//keep track of time
 		s_iServerIdealTick++;

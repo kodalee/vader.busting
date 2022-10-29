@@ -42,6 +42,7 @@ public:
 
 	int s_iServerIdealTick = 0;
 	bool s_bBuilding = false;
+	bool bShifting = false;
 
 	size_t s_nExtraProcessingTicks = 0;
 	std::vector<TickbaseShift_t> g_iTickbaseShifts;

@@ -701,6 +701,10 @@ namespace Hooked
 		if (!*bFinalTick)
 			*bSendPacket = false;
 
+		if (g_TickbaseController.bShifting) {
+			*bSendPacket = g_TickbaseController.s_nExtraProcessingTicks == 1; // Only send on the last shifted tick
+		}
+
 		int iLagLimit = 16;
 		g_Vars.fakelag.iLagLimit = std::clamp(iLagLimit, 0, 16);
 
