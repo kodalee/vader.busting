@@ -3564,6 +3564,12 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
         }
     }
 
+    const ImRect frame_bb_fit(frame_bb.Min - ImVec2(0.f, 10.f), frame_bb.Max);
+
+    //CTRL+Click manual input.
+    if (temp_input_is_active)
+        return TempInputScalar(frame_bb_fit, id, label, data_type, p_data, format, p_min, p_max); // changing label to ## + label will cause a runtime error, we will just ignore the text lol - exon
+
     // render
     window->DrawList->AddRectFilled(frame_bb.Min + ImVec2(0.f, 4.f), frame_bb.Max - ImVec2(0.f, 4.f), (hovered || g.ActiveId == id) ? GetColorU32(ImGuiCol_AccentDarker) : ImColor(80, 80, 80, 50), 2.f);
 
