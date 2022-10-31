@@ -882,13 +882,13 @@ void Menu::Render() noexcept {
 		// bottom info //
 		const std::string user = g_Vars.globals.c_username;
 
-		window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 466.f)), ImColor(255, 255, 255), user.c_str());
+		window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 468.f)), ImColor(80, 80, 80), user.c_str());
 
 		// sub days
 		{
 			if (g_Vars.globals.userdata.size()) {
 				ImGui::PushFont(fonts.roboto);
-				window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 488.f)), ImColor(200, 200, 200), std::string(g_Vars.globals.userdata["expiry"]["left"]).c_str());
+				window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 488.f)), ImColor(100, 100, 100), std::string(g_Vars.globals.userdata["expiry"]["left"]).c_str());
 				ImGui::PopFont();
 			}
 		}
@@ -1012,7 +1012,7 @@ bool Menu::Initialize(IDirect3DDevice9* device) noexcept {
 			15.f, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
 
 		fonts.robotoTitle = io.Fonts->AddFontFromMemoryCompressedTTF(roboto_data, roboto_size,
-			25.f, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
+			20.f, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
 
 		fonts.icons = io.Fonts->AddFontFromMemoryCompressedTTF(icons_data, icons_size,
 			19.f, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
