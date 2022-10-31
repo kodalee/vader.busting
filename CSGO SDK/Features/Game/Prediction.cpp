@@ -358,9 +358,9 @@ namespace Engine
 			local->m_vecVelocity() = data->m_vecVelocity;
 		}
 
-		if (local->m_vecOrigin().Distance(data->m_vecOrigin) <= 0.03125f) {
-			local->m_vecOrigin() = data->m_vecOrigin;
-		}
+		//if (local->m_vecOrigin().Distance(data->m_vecOrigin) <= 0.03125f) {
+		//	local->m_vecOrigin() = data->m_vecOrigin;
+		//}
 
 		//if( !IsVectorValid(local->m_vecViewOffset( ), data->m_vecViewOffset ) ) {
 		//	local->m_vecViewOffset( ) = data->m_vecViewOffset;

@@ -1682,7 +1682,7 @@ namespace Interfaces
 					if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
 						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
 						auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
-						auto targedt = TIME_TO_TICKS(bestPoint->target->player->m_flSimulationTime() + Engine::LagCompensation::Get()->GetLerp());
+						auto targedt = TIME_TO_TICKS(bestPoint->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
 
 						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
 						//	targedt -= 3;
