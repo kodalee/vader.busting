@@ -1682,7 +1682,7 @@ namespace Interfaces
 					if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
 						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
 						auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
-						auto targedt = TIME_TO_TICKS(bestPoint->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
+						auto targedt = TIME_TO_TICKS(bestPoint->target->player->m_flSimulationTime() + Engine::LagCompensation::Get()->GetLerp());
 
 						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
 						//	targedt -= 3;
@@ -1850,8 +1850,8 @@ namespace Interfaces
 										auto min = hitbox->bbmin.Transform(matrix[hitbox->bone]);
 										auto max = hitbox->bbmax.Transform(matrix[hitbox->bone]);
 
-										//Interfaces::m_pDebugOverlay->AddCapsuleOverlay(min, max, hitbox->m_flRadius, g_Vars.esp.hitboxes_color.r * 255, g_Vars.esp.hitboxes_color.g * 255, g_Vars.esp.hitboxes_color.b * 255, g_Vars.esp.hitboxes_color.a * 255,
-										//	Interfaces::m_pCvar->FindVar(XorStr("sv_showlagcompensation_duration"))->GetFloat(), 0, 1);
+										Interfaces::m_pDebugOverlay->AddCapsuleOverlay(min, max, hitbox->m_flRadius, g_Vars.esp.hitboxes_color.r * 255, g_Vars.esp.hitboxes_color.g * 255, g_Vars.esp.hitboxes_color.b * 255, g_Vars.esp.hitboxes_color.a * 255,
+											Interfaces::m_pCvar->FindVar(XorStr("sv_showlagcompensation_duration"))->GetFloat(), 0, 1);
 									}
 								}
 							}
