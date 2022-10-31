@@ -142,8 +142,14 @@ namespace Hooked
 			stagebro = stage;
 
 		if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_END) {
-			if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(local->EntIndex())) > 89) {
-				printf("PING MET\n");
+			auto netchan = Interfaces::m_pEngine->GetNetChannelInfo();
+			if (!netchan)
+				return;
+
+			auto delay = std::max(0, (int)std::round(netchan->GetLatency(FLOW_OUTGOING) * 1000.f));
+
+			if (delay > 89) {
+				//printf("PING MET\n");
 				for (int i = 0; i < Interfaces::m_pEngine->GetMaxClients(); i++)
 				{
 					auto localPlayer = C_CSPlayer::GetLocalPlayer();

@@ -1904,8 +1904,10 @@ namespace Interfaces
 		}
 
 		if (m_rage_data->rbot->prefer_body_in_air) {
-			if (!(player->m_fFlags() & FL_ONGROUND))
+			if (!(player->m_fFlags() & FL_ONGROUND)) {
+				printf("PREFERRING BAIM\n");
 				return true;
+			}
 		}
 
 		return false;
@@ -1941,8 +1943,10 @@ namespace Interfaces
 		}
 
 		if (m_rage_data->rbot->force_body_air) {
-			if (!(player->m_fFlags() & FL_ONGROUND))
+			if (!(player->m_fFlags() & FL_ONGROUND)) {
+				printf("FORCING BAIM\n");
 				return true;
+			}
 		}
 
 		return false;
