@@ -53,6 +53,117 @@ void sendWebhook(const char* content)
 	curl_global_cleanup();
 }
 
+static size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb,
+	void* userp) {
+	size_t realsize = size * nmemb;
+	struct MemoryStruct* mem = (struct MemoryStruct*)userp;
+
+	mem->memory = (char*)realloc(mem->memory, mem->size + realsize + 1);
+	if (mem->memory == NULL) {
+		/* out of memory! */
+		//printf("not enough memory (realloc returned NULL)\n");
+		return 0;
+	}
+
+	memcpy(&(mem->memory[mem->size]), contents, realsize);
+	mem->size += realsize;
+	mem->memory[mem->size] = 0;
+
+	return realsize;
+}
+
+
+MemoryStruct DownloadImgToMem(std::string image_url) {
+	CURL* curl;
+	CURLcode res;
+	curl = curl_easy_init();
+
+	if (curl) {
+		unsigned char* response_buffer;
+
+		struct MemoryStruct chunk;
+
+		chunk.memory = (char*)malloc(1); /* will be grown as needed by the realloc above */
+		chunk.size = 0; /* no data at this point */
+
+		curl_easy_setopt(curl, CURLOPT_URL, image_url.c_str());
+		curl_easy_setopt(curl, CURLOPT_POST, 0);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+		/* we pass our 'chunk' struct to the callback function */
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
+
+		/* get it! */
+		res = curl_easy_perform(curl);
+
+		/* check for errors */
+		if (res != CURLE_OK) {
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
+		}
+		else {
+			/*
+			 * Now, our chunk.memory points to a memory block that is chunk.size
+			 * bytes big and contains the remote file.
+			 *
+			 * Do something nice with it!
+			 *
+			 * You should be aware of the fact that at this point we might have an
+			 * allocated data block, and nothing has yet deallocated that data. So when
+			 * you're done with it, you should free() it as a nice application.
+			 */
+
+			//printf("%lu bytes retrieved\n", (long)chunk.size);
+
+			return chunk;
+		}
+
+		/* cleanup curl stuff */
+		curl_easy_cleanup(curl);
+
+		if (chunk.memory) {
+			free(chunk.memory);
+		}
+
+		/* we're done with libcurl, so clean it up */
+		curl_global_cleanup();
+	}
+}
+
+static size_t StrWriteCB(void* contents, size_t size, size_t nmemb, void* userp)
+{
+	((std::string*)userp)->append((char*)contents, size * nmemb);
+	return size * nmemb;
+}
+
+nlohmann::json getClientInfo(std::string username) {
+	std::string link = XorStr("https://vader.tech/wafer/safety/client?username=") + username;
+
+	CURL* curl;
+	CURLcode res;
+	curl = curl_easy_init();
+
+	if (curl) {
+		long http_code = 0;
+		std::string response_buffer;
+
+		curl_easy_setopt(curl, CURLOPT_URL, link.c_str());
+		curl_easy_setopt(curl, CURLOPT_POST, 0);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, StrWriteCB);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
+		res = curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+		nlohmann::json response = nlohmann::json::parse(response_buffer);
+		return response;
+	}
+	else {
+		return NULL;
+	}
+
+}
+
 static Semaphore dispatchSem;
 static SharedMutex smtx;
 
@@ -175,6 +286,7 @@ static bool m_bSecurityInitialized;
 static bool m_bWebSocketInitialized;
 static bool m_bShouldBan;
 static bool m_bUserValidated;
+static bool request_clientinfo_once = true;
 
 DWORD WINAPI Entry( DllArguments* pArgs ) {
 #ifdef DEV 
@@ -227,6 +339,23 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 	}
 
 	PlaySoundA((LPCSTR)vaderinject_wav, NULL, SND_ASYNC | SND_MEMORY); // Inject sound
+
+	if (request_clientinfo_once) { // grab userdata from the api
+
+		g_Vars.globals.userdata = getClientInfo(g_Vars.globals.c_username);
+		request_clientinfo_once = false;
+	}
+
+	// grab pfp
+	if (g_Vars.globals.userdata.size()) // do we have a valid userdata?
+	{
+		std::string link = XorStr("https://vader.tech/wafer/safety/profilepicture?user=") + g_Vars.globals.c_username;
+
+		g_Vars.globals.userdata_pfp = DownloadImgToMem(link);
+	}
+
+	//while (!finished_downloading_pfp)
+	//	Sleep(1);
 
 	if( Interfaces::Create( pArgs->lpReserved ) ) {
 		Interfaces::m_pInputSystem->EnableInput( true );

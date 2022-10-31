@@ -16,6 +16,11 @@
 
 #include "../Utils/XorStr.hpp"
 
+struct MemoryStruct {
+	char* memory;
+	size_t size;
+};
+
 class CUserCmd;
 
 namespace KeyBindType
@@ -515,6 +520,8 @@ public:
 		std::string c_login, c_password, server_adress;
 
 		std::string c_username; // ph uses string
+		nlohmann::json userdata;
+		MemoryStruct userdata_pfp;
 
 		float m_flCurtime;
 

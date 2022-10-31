@@ -63,6 +63,7 @@ void ColorPicker_w_name(const char* name, float* color, bool alpha, bool combo) 
 
 IDirect3DTexture9* logo_nuts;
 IDirect3DTexture9* logo_nuts_highres;
+IDirect3DTexture9* user_pfp;
 
 bool BufferingBar(const char* label, float value, const ImVec2& size_arg, const ImU32& bg_col, const ImU32& fg_col) {
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -85,8 +86,8 @@ bool BufferingBar(const char* label, float value, const ImVec2& size_arg, const 
 	// Render
 	const float circleStart = size.x * 0.7f;
 	window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart, bb.Max.y), bg_col);
-	window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart * value, bb.Max.y), fg_col);}
-
+	window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart * value, bb.Max.y), fg_col);
+}
 
 void Menu::Loading() noexcept {
 
@@ -867,13 +868,33 @@ void Menu::Render() noexcept {
 		//ImGui::PushFont(fonts.iconsLarge);
 		//window->DrawList->AddText(ImVec2((pos.x + 17.f), (pos.y + 18.f)), ImColor(107, 107, 107), "1");
 
-		ImGui::AddCircleImageFilled(logo_nuts, ImVec2((pos.x + 30.f), (pos.y + 32.f)), 27.f, ImColor(1.f, 1.f, 1.f, 1.f), 360);
+		ImGui::AddCircleImageFilled(user_pfp, ImVec2((pos.x + 30.f), (pos.y + 32.f)), 27.f, ImColor(1.f, 1.f, 1.f, 1.f), 360);
 
 
 		ImGui::PopFont();
 		ImGui::PushFont(fonts.StarWars);
 
-		window->DrawList->AddText(ImVec2((pos.x + 60.f), (pos.y + 22.f)), ImColor(255, 0, 0), XorStr("VADER"));
+		window->DrawList->AddText(ImVec2((pos.x + 62.f), (pos.y + 22.f)), ImColor(255, 0, 0), XorStr("VADER"));
+
+		ImGui::PopFont();
+		ImGui::PushFont(fonts.robotoTitle);
+
+		// bottom info //
+		const std::string user = g_Vars.globals.c_username;
+
+		window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 466.f)), ImColor(255, 255, 255), user.c_str());
+
+		// sub days
+		{
+			if (g_Vars.globals.userdata.size()) {
+				ImGui::PushFont(fonts.roboto);
+				window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 488.f)), ImColor(200, 200, 200), std::string(g_Vars.globals.userdata["expiry"]["left"]).c_str());
+				ImGui::PopFont();
+			}
+		}
+		// sub days
+
+		// bottom info //
 
 		ImGui::PopFont();
 		ImGui::PushFont(fonts.roboto);
@@ -1018,6 +1039,8 @@ bool Menu::Initialize(IDirect3DDevice9* device) noexcept {
 		if (!logo_nuts_highres)
 			D3DXCreateTextureFromFileInMemoryEx(device, logo_png, sizeof(logo_png), 400, 442, D3DUSAGE_DYNAMIC, 0, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &logo_nuts_highres);
 
+		if (!user_pfp)
+			D3DXCreateTextureFromFileInMemoryEx(device, g_Vars.globals.userdata_pfp.memory, g_Vars.globals.userdata_pfp.size, 192, 192, D3DUSAGE_DYNAMIC, 0, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &user_pfp);
 
 		initialized = true;
 	}
