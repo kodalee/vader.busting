@@ -1461,8 +1461,8 @@ void Menu::AntiAim() {
 				ImGui::Combo(XorStr("Yaw"), &settings->yaw, real_yaw, IM_ARRAYSIZE(real_yaw));
 
 				if (settings->yaw == 3) {
-					ImGui::SliderFloat(XorStr("Jitter range"), &settings->jitter_range, -180.f, 180.f, XorStr("%1.f"));
-					ImGui::SliderFloat(XorStr("Jitter speed"), &settings->jitter_speed, 1.f, 64.f, XorStr("%1.f"));
+					ImGui::SliderInt(XorStr("Jitter range"), &settings->jitter_range, -180, 180, XorStr("%d"));
+					ImGui::SliderInt(XorStr("Jitter swap"), &settings->jitter_speed, 1, 64, settings->jitter_speed == 1 ? XorStr("every %d tick") : XorStr("every %d ticks"));
 				}
 				else if (settings->yaw == 2) {
 					ImGui::SliderFloat(XorStr("Rotation range"), &settings->rot_range, 1.f, 360.f, XorStr("%1.f"));

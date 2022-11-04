@@ -919,8 +919,8 @@ public:
 	config_option( bool, jitter_standing, false );
 	config_option( bool, jitter_walking, false );
 	config_option( int, jitter_type, 0 );
-	config_option( float, jitter_range, 15.0f );
-	config_option( float, jitter_speed, 1.0f );
+	config_option( int, jitter_range, 15 );
+	config_option( int, jitter_speed, 1 );
 
 	config_option( bool, inverter, false );
 	config_option( bool, inverter_in_air, false );
