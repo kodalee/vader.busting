@@ -365,10 +365,10 @@ namespace Engine
 		if( !pLocal )
 			return;
 
-		//if (this->player->IsTeammate(pLocal))
-		//	return;
+		if (this->player->IsTeammate(pLocal))
+			return;
 
-		auto pAnimationRecord = Encrypted_t<Engine::C_AnimationRecord>(&this->m_AnimationRecord.front());
+		auto pAnimationRecord = Encrypted_t<Engine::C_AnimationRecord>( &this->m_AnimationRecord.front( ) );
 		Encrypted_t<Engine::C_AnimationRecord> pPreviousAnimationRecord( nullptr );
 		if( this->m_AnimationRecord.size( ) > 1 ) {
 			pPreviousAnimationRecord = &this->m_AnimationRecord.at( 1 );
@@ -434,11 +434,7 @@ namespace Engine
 		if (!local)
 			return;
 
-		//if (player->IsTeammate(local))
-		//	return;
-
-		auto netchannel = Interfaces::m_pEngine->GetNetChannelInfo();
-		if (!netchannel)
+		if (player->IsTeammate(local))
 			return;
 
 		auto pThis = Encrypted_t<C_AnimationData>( this );
@@ -752,18 +748,15 @@ namespace Engine
 					record->m_vecVelocity.z = 0.0f;
 
 			}
-
-			auto delay = std::max(0, (int)std::round(netchannel->GetLatency(FLOW_OUTGOING) * 1000.f));
-
-			if (delay <= 89 && !(player->IsTeammate(local))) {
-				if (!record->m_bIsInvalid /*&& !g_Vars.globals.m_bDontExtrap[player->EntIndex()]*/ /*&& record->m_vecVelocity.Length2D() > 1.f*/) {
+			if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(local->EntIndex())) <= 89) {
+				if (!record->m_bIsInvalid && !g_Vars.globals.m_bDontExtrap[player->EntIndex()] && record->m_vecVelocity.Length2D() > 1.f) {
 					AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
 					//Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
 				}
 			}
-			//else {
-			//	printf("PING > 90\n");
-			//}
+			else {
+				printf("PING > 90\n");
+			}
 		}
 
 		//// detect fakewalking players

@@ -116,8 +116,6 @@ namespace Engine {
 		float GetAwayAngle(C_AnimationRecord* record);
 		void ResolveAngles(C_CSPlayer* player, C_AnimationRecord* record);
 
-		void resolve2(C_CSPlayer* player, C_AnimationRecord* record);
-
 		AntiFreestandingRecord anti_freestanding_record;
 
 		class PlayerResolveRecord
