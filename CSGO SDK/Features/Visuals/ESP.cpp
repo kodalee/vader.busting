@@ -235,7 +235,7 @@ void DrawWatermark() {
 		col_accent = FloatColor(255, 0, 0, 255);
 	}
 	else {
-		col_accent = g_Vars.misc.accent_color;
+		col_accent = g_Vars.misc.accent_colorz;
 	}
 
 	const auto col_text = Color(255, 255, 255); // Watermark text color
@@ -492,7 +492,7 @@ void CEsp::Indicators() {
 	std::vector< Indicator_t > indicators{ };
 
 	if (auto pLocal = C_CSPlayer::GetLocalPlayer(); pLocal) {
-		if (g_Vars.esp.indicator_aimbot) {
+		if (g_Vars.esp.indicator_ping) {
 			if (g_Vars.misc.extended_backtrack_key.enabled && g_Vars.misc.extended_backtrack) {
 				Indicator_t ind{ };
 				ind.color = Color(123, 194, 21);
@@ -502,7 +502,7 @@ void CEsp::Indicators() {
 			}
 		}
 
-		if (g_Vars.esp.indicator_antiaim) {
+		if (g_Vars.esp.indicator_lby) {
 			if (g_Vars.antiaim.enabled && (pLocal->m_vecVelocity().Length2D() <= 0.1f || g_Vars.globals.Fakewalking) && !((g_Vars.antiaim.desync_on_dt && g_TickbaseController.s_nExtraProcessingTicks > 0) || (g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled))) {
 				Indicator_t ind{ };
 				// get the absolute change between current lby and animated angle.
@@ -518,7 +518,7 @@ void CEsp::Indicators() {
 			if (pLocal->m_vecVelocity().Length2D() > 270.f || g_Vars.globals.bBrokeLC) {
 				Indicator_t ind{ };
 				if (g_Vars.rage.dt_exploits && g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit_lagcomp) {
-					ind.color = Color(100, 255, 25);
+					ind.color = Color(123, 194, 21);
 				}
 				else
 					ind.color = g_Vars.globals.bBrokeLC ? Color(123, 194, 21) : Color(255, 0, 0);
@@ -532,8 +532,18 @@ void CEsp::Indicators() {
 		if (g_Vars.esp.indicator_exploits) {
 			if (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled) {
 				Indicator_t ind{ };
-				ind.color = g_TickbaseController.s_nExtraProcessingTicks > 0 ? Color(255, 255, 255, 200) : Color(255, 0, 0);
+				ind.color = g_TickbaseController.s_nExtraProcessingTicks > 0 ? Color(220, 220, 220) : Color(255, 0, 0);
 				ind.text = XorStr("DT");
+
+				indicators.push_back(ind);
+			}
+		}
+
+		if (g_Vars.esp.indicator_mindmg) {
+			if (g_Vars.rage.key_dmg_override.enabled && g_Vars.globals.OverridingMinDmg) {
+				Indicator_t ind{ };
+				ind.color = Color(220, 220, 220);
+				ind.text = XorStr("DMG: ") + std::to_string(g_Vars.globals.OverrideDmgAmount);
 
 				indicators.push_back(ind);
 			}
@@ -1232,6 +1242,68 @@ void CEsp::SpreadCrosshair() {
 	Render::Engine::CircleFilled(center.x / 2, center.y / 2, radius, segements, col);
 }
 
+std::map<int, char> weapon_icons = {
+	{ WEAPON_DEAGLE, 'A' },
+	{ WEAPON_ELITE, 'B' },
+	{ WEAPON_FIVESEVEN, 'C' },
+	{ WEAPON_GLOCK, 'D' },
+	{ WEAPON_P2000, 'E' },
+	{ WEAPON_P250, 'F' },
+	{ WEAPON_USPS, 'G' },
+	{ WEAPON_TEC9, 'H' },
+	{ WEAPON_CZ75A, 'I' },
+	{ WEAPON_REVOLVER, 'J' },
+	{ WEAPON_MAC10, 'K' },
+	{ WEAPON_UMP45, 'L' },
+	{ WEAPON_BIZON, 'M' },
+	{ WEAPON_MP7, 'N' },
+	{ WEAPON_MP9, 'O' },
+	{ WEAPON_P90, 'P' },
+	{ WEAPON_GALIL, 'Q' },
+	{ WEAPON_FAMAS, 'R' },
+	{ WEAPON_M4A4, 'S' },
+	{ WEAPON_M4A1S, 'T' },
+	{ WEAPON_AUG, 'U' },
+	{ WEAPON_SG553, 'V' },
+	{ WEAPON_AK47, 'W' },
+	{ WEAPON_G3SG1, 'X' },
+	{ WEAPON_SCAR20, 'Y' },
+	{ WEAPON_AWP, 'Z' },
+	{ WEAPON_SSG08, 'a' },
+	{ WEAPON_XM1014, 'b' },
+	{ WEAPON_SAWEDOFF, 'c' },
+	{ WEAPON_MAG7, 'd' },
+	{ WEAPON_NOVA, 'e' },
+	{ WEAPON_NEGEV, 'f' },
+	{ WEAPON_M249, 'g' },
+	{ WEAPON_ZEUS, 'h' },
+	{ WEAPON_KNIFE_T, 'i' },
+	{ WEAPON_KNIFE_CT, 'j' },
+	{ WEAPON_KNIFE_FALCHION, '0' },
+	{ WEAPON_KNIFE_BAYONET, '1' },
+	{ WEAPON_KNIFE_FLIP, '2' },
+	{ WEAPON_KNIFE_GUT, '3' },
+	{ WEAPON_KNIFE_KARAMBIT, '4' },
+	{ WEAPON_KNIFE_M9_BAYONET, '5' },
+	{ WEAPON_KNIFE_HUNTSMAN, '6' },
+	{ WEAPON_KNIFE_BOWIE, '7' },
+	{ WEAPON_KNIFE_BUTTERFLY, '8' },
+	{ WEAPON_FLASHBANG, 'k' },
+	{ WEAPON_HEGRENADE, 'l' },
+	{ WEAPON_SMOKE, 'm' },
+	{ WEAPON_MOLOTOV, 'n' },
+	{ WEAPON_DECOY, 'o' },
+	{ WEAPON_FIREBOMB, 'p' },
+	{ WEAPON_C4, 'q' },
+};
+
+std::string GetWeaponIcon(const int id) {
+	auto search = weapon_icons.find(id);
+	if (search != weapon_icons.end())
+		return std::string(&search->second, 1);
+
+	return "";
+}
 
 void CEsp::Main( ) {
 	//DrawWatermark( );
@@ -1782,13 +1854,24 @@ void CEsp::Main( ) {
 				continue;
 
 			if( g_Vars.esp.dropped_weapons ) {
-				Render::Engine::tahoma_sexy.string( out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor( ).OverrideAlpha( static_cast< int >( initial_alpha ) ), name );
+				if (g_Vars.esp.dropped_weapons_font == 0) {
+					Render::Engine::cs.string(out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor().OverrideAlpha(static_cast<int>(initial_alpha)), GetWeaponIcon(weapon->m_iItemDefinitionIndex()));
+				}
+				else
+					Render::Engine::tahoma_sexy.string(out.x + 2, out.y, g_Vars.esp.dropped_weapons_color.ToRegularColor().OverrideAlpha(static_cast<int>(initial_alpha)), name);
 			}
 
 			if( g_Vars.esp.dropped_weapons_ammo ) {
 				auto clip = weapon->m_iClip1( );
 				if( clip > 0 ) {
-					const auto TextSize = Render::Engine::tahoma_sexy.size( name );
+
+					Render::Engine::FontSize_t TextSize;
+						
+					if (g_Vars.esp.dropped_weapons_font == 0) {
+						TextSize = Render::Engine::cs.size(GetWeaponIcon(weapon->m_iItemDefinitionIndex()));
+					}
+					else
+						TextSize = Render::Engine::tahoma_sexy.size(name);
 
 					const auto MaxClip = weapondata->m_iMaxClip;
 					auto Width = TextSize.m_width;
@@ -2300,69 +2383,6 @@ void CEsp::DrawInfo( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 		Render::Engine::pixel_reg.string( bbox.x + bbox.w + 3, bbox.y + i, text.first.ToRegularColor( ), text.second.c_str( ) );
 		i += ( Render::Engine::pixel_reg.m_size.m_height - 1 );
 	}
-}
-
-std::map<int, char> weapon_icons = {
-	{ WEAPON_DEAGLE, 'A' },
-	{ WEAPON_ELITE, 'B' },
-	{ WEAPON_FIVESEVEN, 'C' },
-	{ WEAPON_GLOCK, 'D' },
-	{ WEAPON_P2000, 'E' },
-	{ WEAPON_P250, 'F' },
-	{ WEAPON_USPS, 'G' },
-	{ WEAPON_TEC9, 'H' },
-	{ WEAPON_CZ75A, 'I' },
-	{ WEAPON_REVOLVER, 'J' },
-	{ WEAPON_MAC10, 'K' },
-	{ WEAPON_UMP45, 'L' },
-	{ WEAPON_BIZON, 'M' },
-	{ WEAPON_MP7, 'N' },
-	{ WEAPON_MP9, 'O' },
-	{ WEAPON_P90, 'P' },
-	{ WEAPON_GALIL, 'Q' },
-	{ WEAPON_FAMAS, 'R' },
-	{ WEAPON_M4A4, 'S' },
-	{ WEAPON_M4A1S, 'T' },
-	{ WEAPON_AUG, 'U' },
-	{ WEAPON_SG553, 'V' },
-	{ WEAPON_AK47, 'W' },
-	{ WEAPON_G3SG1, 'X' },
-	{ WEAPON_SCAR20, 'Y' },
-	{ WEAPON_AWP, 'Z' },
-	{ WEAPON_SSG08, 'a' },
-	{ WEAPON_XM1014, 'b' },
-	{ WEAPON_SAWEDOFF, 'c' },
-	{ WEAPON_MAG7, 'd' },
-	{ WEAPON_NOVA, 'e' },
-	{ WEAPON_NEGEV, 'f' },
-	{ WEAPON_M249, 'g' },
-	{ WEAPON_ZEUS, 'h' },
-	{ WEAPON_KNIFE_T, 'i' },
-	{ WEAPON_KNIFE_CT, 'j' },
-	{ WEAPON_KNIFE_FALCHION, '0' },
-	{ WEAPON_KNIFE_BAYONET, '1' },
-	{ WEAPON_KNIFE_FLIP, '2' },
-	{ WEAPON_KNIFE_GUT, '3' },
-	{ WEAPON_KNIFE_KARAMBIT, '4' },
-	{ WEAPON_KNIFE_M9_BAYONET, '5' },
-	{ WEAPON_KNIFE_HUNTSMAN, '6' },
-	{ WEAPON_KNIFE_BOWIE, '7' },
-	{ WEAPON_KNIFE_BUTTERFLY, '8' },
-	{ WEAPON_FLASHBANG, 'k' },
-	{ WEAPON_HEGRENADE, 'l' },
-	{ WEAPON_SMOKE, 'm' },
-	{ WEAPON_MOLOTOV, 'n' },
-	{ WEAPON_DECOY, 'o' },
-	{ WEAPON_FIREBOMB, 'p' },
-	{ WEAPON_C4, 'q' },
-};
-
-std::string GetWeaponIcon( const int id ) {
-	auto search = weapon_icons.find( id );
-	if( search != weapon_icons.end( ) )
-		return std::string( &search->second, 1 );
-
-	return "";
 }
 
 std::string GetLocalizedName( CCSWeaponInfo* wpn_data ) {

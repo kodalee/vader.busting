@@ -200,7 +200,7 @@ void Autowall::ClipTraceToPlayer( const Vector vecAbsStart, const Vector& vecAbs
 		return;
 
 	CGameTrace playerTrace;
-	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask | CONTENTS_HITBOX, pData->m_TargetPlayer, &playerTrace );
+	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask, pData->m_TargetPlayer, &playerTrace );
 	if( pData->m_EnterTrace.fraction > playerTrace.fraction )
 		pData->m_EnterTrace = playerTrace;
 }
@@ -257,7 +257,7 @@ void Autowall::ClipTraceToPlayers( const Vector& vecAbsStart, const Vector& vecA
 			return;
 
 		CGameTrace playerTrace;
-		Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask | CONTENTS_HITBOX, pPlayer, &playerTrace );
+		Interfaces::m_pEngineTrace->ClipRayToEntity( Ray, iMask, pPlayer, &playerTrace );
 		if( playerTrace.fraction < flSmallestFraction ) {
 			// we shortened the ray - save off the trace
 			*pGameTrace = playerTrace;
@@ -451,7 +451,12 @@ bool Autowall::HandleBulletPenetration( Encrypted_t<C_FireBulletData> data ) {
 		float flTakenFirst = (fmaxf(((3.0f / data->m_WeaponData->m_flPenetration) * 1.25f), 0.0f) * (flModifier * 3.0f) + (data->m_flCurrentDamage * flDamageModifier));
 		float flTakenDamage = (((flPenetrationLength * flPenetrationLength) * flModifier) / 24.0f) + flTakenFirst;
 
+		//Did we loose too much damage?
+		if (fmaxf(0.0f, flTakenDamage) > data->m_flCurrentDamage)
+			return true;
+
 		data->m_flCurrentDamage -= fmaxf(0.0f, flTakenDamage);
+
 		if (data->m_flCurrentDamage < 3.0f)
 			return true;
 
@@ -539,7 +544,7 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 		// create end point of bullet
 		Vector vecEnd = data->m_vecStart + data->m_vecDirection * data->m_flMaxLength;
 
-		TraceLine( data->m_vecStart, vecEnd, MASK_SHOT_PLAYER, &TraceFilter, &data->m_EnterTrace );
+		TraceLine( data->m_vecStart, vecEnd, MASK_SHOT, &TraceFilter, &data->m_EnterTrace );
 
 		// create extended end point
 		Vector vecEndExtended = vecEnd + data->m_vecDirection * rayExtension;
@@ -548,10 +553,10 @@ float Autowall::FireBullets( Encrypted_t<C_FireBulletData> data ) {
 		// Check for player hitboxes extending outside their collision bounds
 		if( data->m_TargetPlayer ) {
 			// clip trace to one player
-			ClipTraceToPlayer( data->m_vecStart, vecEndExtended, MASK_SHOT_PLAYER, data->m_Filter, &data->m_EnterTrace, data );
+			ClipTraceToPlayer( data->m_vecStart, vecEndExtended, MASK_SHOT, data->m_Filter, &data->m_EnterTrace, data );
 		}
 		else {
-			ClipTraceToPlayers( data->m_vecStart, vecEndExtended, MASK_SHOT_PLAYER, data->m_Filter, &data->m_EnterTrace );
+			ClipTraceToPlayers( data->m_vecStart, vecEndExtended, MASK_SHOT, data->m_Filter, &data->m_EnterTrace );
 		}
 
 		//We have to do this *after* tracing to the player.

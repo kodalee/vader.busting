@@ -429,6 +429,7 @@ public:
 		float MouseOverrideYaw = 0.0f;
 		bool MouseOverrideEnabled = false;
 		bool OverridingMinDmg = false;
+		int OverrideDmgAmount = 0;
 		bool OverridingHitscan = false;
 		bool bInRagebot = false;
 		QAngle PreviousViewangles;
@@ -863,6 +864,7 @@ public:
 	config_option( bool, prefer_body_in_air, false );
 	config_option( bool, prefer_body_lethal, false );
 	config_option( bool, prefer_body_x2lethal, false );
+	config_option( bool, prefer_body_doubletapping, false );
 
 	config_option(bool, prefer_head, false);
 	config_option(bool, prefer_head_resolved, false);
@@ -983,6 +985,7 @@ public:
 	config_option( float, break_lby, 100 );
 	config_option( float, break_lby_first, 105 );
 	config_option( bool, static_angle, false );
+	config_option( bool, optimal_adjust, false );
 	config_option( bool, lby_disable_fakewalk, false );
 	config_option( bool, lby_disable_manual, false );
 	config_option( bool, lby_disable_unsafe, false );	
@@ -1222,6 +1225,7 @@ public:
 	config_option( FloatColor, team_death_chams_color_xqz, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );*/
 	config_option( FloatColor, chams_lag_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, chams_history_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
+	config_option(int, chams_history_material, 0);
 
 	config_option(int, new_chams_hands_overlay, 0);
 	config_option(FloatColor, new_chams_hands_overlay_color, FloatColor(1.0f, 1.0f, 1.0f, 1.0f));
@@ -1370,6 +1374,7 @@ public:
 	config_option(bool, smoke_radius, true);
 
 	config_option( bool, dropped_weapons, false );
+	config_option( int, dropped_weapons_font, 0 );
 	config_option( bool, dropped_weapons_ammo, false );
 	config_option( FloatColor, dropped_weapons_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	config_option( FloatColor, dropped_weapons_ammo_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
@@ -1481,10 +1486,11 @@ public:
 	config_option(float, sunset_rot_y, 150.f);
 	config_option(float, sunset_rot_x, 150.f);
 
-	config_option( bool, indicator_antiaim, false );
+	config_option( bool, indicator_lby, false );
 	config_option( bool, indicator_lagcomp, false );
 	config_option( bool, indicator_exploits, false );
-	config_option( bool, indicator_aimbot, false );
+	config_option( bool, indicator_ping, false );
+	config_option( bool, indicator_mindmg, false );
 	config_option( bool, indicator_fake_duck, false );
 	config_option( FloatColor, indicator_color, FloatColor( 1.0f, 1.0f, 1.0f, 1.0f ) );
 
@@ -1549,7 +1555,7 @@ public:
 	config_option( bool, slide_walk, false );
 	config_option( bool, fakeduck, false );
 	config_option(bool, custom_menu, false);
-	config_option(FloatColor, accent_color, FloatColor(255, 215, 0));
+	config_option(FloatColor, accent_colorz, FloatColor(1.0f, 0.25f, 0.25f));
 	config_option(FloatColor, logo_color, FloatColor(0, 87, 255));
 
 	config_keybind( fakeduck_bind );

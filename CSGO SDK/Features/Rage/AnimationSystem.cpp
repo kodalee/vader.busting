@@ -8,195 +8,63 @@
 
 #define MT_SETUP_BONES
 
-void SimulateMovement(C_CSPlayer* player, Vector velocity, Engine::C_AnimationRecord* record, bool isInAir) {
-	auto local = C_CSPlayer::GetLocalPlayer();
-	auto weapon = Encrypted_t<C_WeaponCSBaseGun>((C_WeaponCSBaseGun*)local->m_hActiveWeapon().Get());
-	if (!weapon.IsValid())
-		return;
-
-	auto weaponInfo = weapon->GetCSWeaponData();
-	if (!weaponInfo.IsValid())
-		return;
-
-	Vector mins = player->OBBMins(), maxs = player->OBBMaxs();
-
-	Vector                start, end, normal;
-	CGameTrace            trace;
-	CTraceFilterWorldOnly filter;
-
+void player_extrapolation(C_CSPlayer* e, Vector& vecorigin, Vector& vecvelocity, int& fFlags, bool bOnGround, int ticks)
+{
+	Vector start, end;
+	Ray_t ray;
+	CTraceFilterWorldAndPropsOnly filter;
+	CGameTrace trace;
 	// define trace start.
-	start = record->m_vecOrigin;
+	start = vecorigin;
 
 	// move trace end one tick into the future using predicted velocity.
-	end = start + (velocity * Interfaces::m_pGlobalVars->interval_per_tick);
+	end = start + (vecvelocity * Interfaces::m_pGlobalVars->interval_per_tick);
 
 	// trace.
-	Interfaces::m_pEngineTrace->TraceRay(Ray_t(start, end, mins, maxs), CONTENTS_SOLID, &filter, &trace);
+	ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
+	Interfaces::m_pEngineTrace->TraceRay(ray, MASK_PLAYERSOLID, &filter, &trace);
 
 	// we hit shit
-	// we need to fix hit.
+	// we need to fix shit.
 	if (trace.fraction != 1.f) {
-		// fix sliding on planes.
-		for (int i{}; i < 2; ++i) {
-			record->m_vecVelocity -= trace.plane.normal * velocity.Dot(trace.plane.normal);
 
-			float adjust = record->m_vecVelocity.Dot(trace.plane.normal);
+		// fix sliding on planes.
+		for (int i{ }; i < ticks; ++i) {
+			vecvelocity -= trace.plane.normal * vecvelocity.Dot(trace.plane.normal);
+
+			float adjust = vecvelocity.Dot(trace.plane.normal);
 			if (adjust < 0.f)
-				record->m_vecVelocity -= (trace.plane.normal * adjust);
+				vecvelocity -= (trace.plane.normal * adjust);
 
 			start = trace.endpos;
-			end = start + (record->m_vecVelocity * (Interfaces::m_pGlobalVars->interval_per_tick * (1.f - trace.fraction)));
+			end = start + (vecvelocity * (Interfaces::m_pGlobalVars->interval_per_tick * (1.f - trace.fraction)));
 
-			Interfaces::m_pEngineTrace->TraceRay(Ray_t(start, end, mins, maxs), CONTENTS_SOLID, &filter, &trace);
+			ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
+			Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, &filter, &trace);
+
 			if (trace.fraction == 1.f)
 				break;
 		}
 	}
 
 	// set new final origin.
-	start = end = record->m_vecOrigin = trace.endpos;
+	start = end = vecorigin = trace.endpos;
 
 	// move endpos 2 units down.
 	// this way we can check if we are in/on the ground.
 	end.z -= 2.f;
 
 	// trace.
-	Interfaces::m_pEngineTrace->TraceRay(Ray_t(start, end, mins, maxs), CONTENTS_SOLID, &filter, &trace);
+	ray.Init(start, end, e->OBBMins(), e->OBBMaxs());
+	Interfaces::m_pEngineTrace->TraceRay(ray, CONTENTS_SOLID, &filter, &trace);
 
 	// strip onground flag.
-	record->m_fFlags &= ~FL_ONGROUND;
+	fFlags &= ~FL_ONGROUND;
 
 	// add back onground flag if we are onground.
 	if (trace.fraction != 1.f && trace.plane.normal.z > 0.7f)
-		record->m_fFlags |= FL_ONGROUND;
+		fFlags |= FL_ONGROUND;
 }
-
-void AimwareExtrapolation(C_CSPlayer* player, Vector velocity, Engine::C_AnimationRecord* record, Engine::C_AnimationRecord* previousRecord) {
-	auto pNetChannelInfo = Encrypted_t<INetChannelInfo>(Interfaces::m_pEngine->GetNetChannelInfo());
-	if (!pNetChannelInfo.IsValid())
-		return;
-
-	float interval_per_tick; // ST20_4
-	float simulationTime; // xmm4_4
-	float deltaTime; // xmm2_4
-	float simulationTimeDelta; // xmm4_4
-	signed int simulationTicks; // edi
-	float v15; // xmm1_4
-	float velocityDegree; // xmm2_4
-	float velocityAngle; // xmm3_4
-	int v18; // ebp
-	float v19; // xmm3_4 MAPDST
-	signed int v20; // esi
-	float v21; // xmm0_4
-	float tickInterval; // [esp+14h] [ebp-34h]
-	float incomingAvgLatency; // [esp+4Ch] [ebp+4h]
-	float v29; // [esp+4Ch] [ebp+4h]
-	float v30; // [esp+4Ch] [ebp+4h]
-	float velocityLength2D; // [esp+4Ch] [ebp+4h]
-	float outgoingAvgLatency; // [esp+50h] [ebp+8h]
-	float extrapolatedMovement; // [esp+50h] [ebp+8h]
-
-	Vector backupVelocity = velocity;
-	Vector backupOrigin = record->m_vecOrigin;
-
-	interval_per_tick = Interfaces::m_pGlobalVars->interval_per_tick;
-	tickInterval = 1.0 / Interfaces::m_pGlobalVars->interval_per_tick;
-	incomingAvgLatency = pNetChannelInfo->GetAvgLatency(1);
-	outgoingAvgLatency = pNetChannelInfo->GetAvgLatency(0);
-	simulationTime = record->m_flSimulationTime;
-
-	deltaTime = (((((incomingAvgLatency + outgoingAvgLatency) * tickInterval) + 0.5) + Interfaces::m_pGlobalVars->tickcount + 1) * interval_per_tick) - simulationTime;
-	if (deltaTime > 1.0)
-		deltaTime = 1.0;
-
-	simulationTimeDelta = simulationTime - previousRecord->m_flSimulationTime;
-	simulationTicks = ((simulationTimeDelta * tickInterval) + 0.5);
-	if (simulationTicks <= 15) {
-		if (simulationTicks < 1)
-			simulationTicks = 1;
-	}
-	else {
-		simulationTicks = 15;
-	}
-
-	v29 = atan2(velocity.y, velocity.x);
-	v15 = (tickInterval * deltaTime) + 0.5;
-	velocityDegree = v29 * 57.295776;
-	v30 = atan2(previousRecord->m_vecVelocity.y, previousRecord->m_vecVelocity.x);
-
-	velocityAngle = velocityDegree - (v30 * 57.295776);
-	if (velocityAngle <= 180.0) {
-		if (velocityAngle < -180.0)
-			velocityAngle = velocityAngle + 360.0;
-	}
-	else {
-		velocityAngle = velocityAngle - 360.0;
-	}
-
-	v18 = v15 - simulationTicks;
-	v19 = velocityAngle / simulationTimeDelta;
-	velocityLength2D = sqrt((velocity.y * velocity.y) + (velocity.x * velocity.x));
-	if (v18 < 0) {
-		record->m_vecOrigin = backupOrigin;
-		record->m_vecVelocity = backupVelocity;
-	}
-	else {
-		do {
-			if (simulationTicks > 0) {
-				v20 = simulationTicks;
-				do {
-					extrapolatedMovement = velocityDegree + (Interfaces::m_pGlobalVars->interval_per_tick * v19);
-
-					float extrapolatedSin, extrapolatedCos;
-					Math::SinCos((extrapolatedMovement * 0.017453292), &extrapolatedSin, &extrapolatedCos);
-
-					velocity.x = extrapolatedCos * velocityLength2D;
-					v21 = extrapolatedSin;
-					velocity.y = v21 * velocityLength2D;
-
-					SimulateMovement(player, velocity, record, !(record->m_fFlags & FL_ONGROUND));
-
-					velocityDegree = extrapolatedMovement;
-					--v20;
-				} while (v20);
-			}
-			v18 -= simulationTicks;
-		} while (v18 >= 0);
-	}
-}
-
-void LinearExtrapolations(Engine::C_AnimationRecord* record)
-{
-	auto m_local = C_CSPlayer::GetLocalPlayer();
-
-	if (m_local && m_local->IsAlive()) {
-
-		for (int i = 1; i < Interfaces::m_pGlobalVars->maxClients; i++)
-		{
-
-			auto m_entity = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
-
-			if (m_entity && !m_entity->IsDormant() && !m_entity->IsTeammate(m_local)) {
-
-				int choked_ticks = record->m_iChokeTicks;
-				if (record->m_bTeleportDistance)
-				{
-					Vector velocity_per_tick = record->m_vecVelocity * Interfaces::m_pGlobalVars->interval_per_tick;
-
-					auto new_origin = m_entity->m_vecOrigin() + (velocity_per_tick * choked_ticks);
-
-					m_entity->SetAbsOrigin(new_origin);
-					Interfaces::m_pDebugOverlay->AddBoxOverlay(new_origin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 30, 30, 255, 255, 0.01f);
-
-				}
-
-			}
-
-		}
-
-	}
-}
-
 
 namespace Engine
 {
@@ -365,9 +233,6 @@ namespace Engine
 		if( !pLocal )
 			return;
 
-		if (this->player->IsTeammate(pLocal))
-			return;
-
 		auto pAnimationRecord = Encrypted_t<Engine::C_AnimationRecord>( &this->m_AnimationRecord.front( ) );
 		Encrypted_t<Engine::C_AnimationRecord> pPreviousAnimationRecord( nullptr );
 		if( this->m_AnimationRecord.size( ) > 1 ) {
@@ -414,8 +279,6 @@ namespace Engine
 		// update layers
 		std::memcpy( player->m_AnimOverlay( ).Base( ), pAnimationRecord->m_serverAnimOverlays, 13 * sizeof( C_AnimationLayer ) );
 
-		player->InvalidateBoneCache();
-
 		// generate aimbot matrix
 		g_BoneSetup.SetupBonesRebuild( player, m_Bones, 128, BONE_USED_BY_ANYTHING & ~BONE_USED_BY_BONE_MERGE, player->m_flSimulationTime( ), BoneSetupFlags::UseCustomOutput );
 
@@ -432,9 +295,6 @@ namespace Engine
 			player = nullptr;
 
 		if (!local)
-			return;
-
-		if (player->IsTeammate(local))
 			return;
 
 		auto pThis = Encrypted_t<C_AnimationData>( this );
@@ -467,7 +327,13 @@ namespace Engine
 			return;
 		}
 
-		if( pThis->m_flOldSimulationTime == pThis->m_flSimulationTime ) {
+		//bool update = (this->m_AnimationRecord.empty() || player->m_flSimulationTime() > this->m_AnimationRecord.front().m_flSimulationTime);
+
+		//if( !update ) {
+		//	return;
+		//}
+
+		if (pThis->m_flOldSimulationTime == pThis->m_flSimulationTime) {
 			return;
 		}
 
@@ -522,7 +388,7 @@ namespace Engine
 		record->m_flSimulationTime = pThis->m_flSimulationTime;
 		record->m_anim_time = pThis->m_flOldSimulationTime + Interfaces::m_pGlobalVars->interval_per_tick;
 		record->m_flLowerBodyYawTarget = pThis->player->m_flLowerBodyYawTarget( );
-		record->m_body = pThis->player->m_flLowerBodyYawTarget();
+		//record->m_body = pThis->player->m_flLowerBodyYawTarget();
 
 		auto weapon = ( C_WeaponCSBaseGun* )( player->m_hActiveWeapon( ).Get( ) );
 
@@ -579,54 +445,7 @@ namespace Engine
 			return;
 		}
 
-		static int m_iFakeFlickCheck = 0;
-		static int m_iFakeFlickResetCheck = 0;
-		static float m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime;
-		static float m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
-
-		m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime;
-
-		if (player->m_flOldSimulationTime() > player->m_flSimulationTime()) {
-			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
-			m_iFakeFlickCheck++;
-			m_iFakeFlickResetCheck = 0;
-		}
-
-		else if (player->m_flOldSimulationTime() <= player->m_flSimulationTime() && m_flLastResetTime1 >= m_flMaxResetTime1 && m_iFakeFlickCheck > 0) {
-			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
-			m_iFakeFlickResetCheck++;
-		}
-
-		//if (player->m_flOldSimulationTime() > player->m_flSimulationTime()) {
-		//	m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 0.5f;
-		//}
-
-		//if (m_flLastResetTime1 >= m_flMaxResetTime1) {
-		//	m_iFakeFlickCheck++;
-		//	m_iFakeFlickResetCheck = 0;
-		//	printf("reset check reset\n");
-		//	//printf(std::to_string(m_iFakeFlickCheck).c_str());
-		//	//printf(" < fake flick check hit\n");
-		//}
-		//else if (m_flLastResetTime1 >= m_flMaxResetTime1 && m_iFakeFlickCheck >= 0) {
-		//	m_iFakeFlickResetCheck++;
-		//	printf("reset check increased\n");
-		//}
-
-		if (m_iFakeFlickCheck >= 5) {
-			g_Vars.globals.m_bDontExtrap[player->EntIndex()] = true;
-			//printf("SET TO TRUE \n");
-		}
-
-		if (m_iFakeFlickResetCheck >= 3) {
-			g_Vars.globals.m_bDontExtrap[player->EntIndex()] = false;
-			//printf("reset\n");
-			m_iFakeFlickResetCheck = 0;
-			m_iFakeFlickCheck = 0;
-			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
-		}
-
-		/*auto flPreviousSimulationTime = previous_record->m_flSimulationTime;
+		auto flPreviousSimulationTime = previous_record->m_flSimulationTime;
 		auto nTickcountDelta = pThis->m_iCurrentTickCount - pThis->m_iOldTickCount;
 		auto nSimTicksDelta = record->m_iChokeTicks;
 		auto nChokedTicksUnk = nSimTicksDelta;
@@ -657,7 +476,7 @@ namespace Engine
 
 				pThis->m_iTicksUnknown++;
 			}
-		}*/
+		}
 
 		if( weapon ) {
 			record->m_flShotTime = weapon->m_fLastShotTime( );
@@ -666,9 +485,21 @@ namespace Engine
 
 		record->m_bIsInvalid = false;
 
-		if (previous_record.IsValid()) {
+		auto animState = player->m_PlayerAnimState();
 
-			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && !(previous_record->m_fFlags & FL_ONGROUND);
+		// thanks llama.
+		if (record->m_fFlags & FL_ONGROUND) {
+			if (animState) {
+				// they are on ground.
+				animState->m_bOnGround = true;
+				// no they didnt land.
+				animState->m_bHitground = false;
+			}
+		}
+
+		// velocity fixa -> previous_record.IsValid() already checked so i removed it 
+		if(!previous_record->dormant()) {
+			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && (previous_record->m_fFlags & FL_ONGROUND);
 			auto animation_speed = 0.0f;
 			auto origin_delta = record->m_vecOrigin - previous_record->m_vecOrigin;
 
@@ -681,12 +512,6 @@ namespace Engine
 			if (!origin_delta.IsZero() && TIME_TO_TICKS(time_difference) > 0) {
 				//record->m_vecVelocity = (record->m_vecOrigin - previous_record->m_vecOrigin) * (1.f / record->m_flChokeTime);
 				record->m_vecVelocity = origin_delta * (1.0f / time_difference);
-
-				//if (player->m_vecVelocity().Length2D() >= 100.f)
-				//{
-				//	player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, record->m_fFlags, (fPreviousFlags& FL_ONGROUND), 3);
-				//	Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 20.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
-				//}
 
 				if (player->m_fFlags() & FL_ONGROUND && record->m_serverAnimOverlays[11].m_flWeight > 0.0f && record->m_serverAnimOverlays[11].m_flWeight < 1.0f && record->m_serverAnimOverlays[11].m_flCycle > previous_record->m_serverAnimOverlays[11].m_flCycle)
 				{
@@ -747,15 +572,14 @@ namespace Engine
 				else
 					record->m_vecVelocity.z = 0.0f;
 
-			}
-			if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(local->EntIndex())) <= 89) {
-				if (!record->m_bIsInvalid && !g_Vars.globals.m_bDontExtrap[player->EntIndex()] && record->m_vecVelocity.Length2D() > 1.f) {
-					AimwareExtrapolation(player, record->m_vecVelocity, record, previous_record.Xor());
-					//Interfaces::m_pDebugOverlay->AddBoxOverlay(record->m_vecOrigin, Vector(-20.f, -20.f, -20.f), Vector(20.f, 100.f, 80.f), QAngle(0, 0, 0), 255, 30, 30, 255, 0.01f);
+				if (record->m_vecVelocity.Length2D() >= 100.f)
+				{
+					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 8);
 				}
-			}
-			else {
-				printf("PING > 90\n");
+				if (record->m_vecVelocity.z > 0)
+				{
+					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 3);
+				}
 			}
 		}
 
@@ -798,24 +622,9 @@ namespace Engine
 			record->m_vecAnimationVelocity.Init( );
 		}
 
-		// delta in time..
-		float time = record->m_flSimulationTime - previous_record->m_flSimulationTime;
-
-		if( !record->m_bFakeWalking ) {
-			// fix the velocity till the moment of animation.
-			Vector velo = record->m_vecVelocity - previous_record->m_vecVelocity;
-
-			// accel per tick.
-			Vector accel = ( velo / time ) * Interfaces::m_pGlobalVars->interval_per_tick;
-
-			// set the anim velocity to the previous velocity.
-			// and predict one tick ahead.
-			record->m_vecAnimationVelocity = previous_record->m_vecVelocity + accel;
-		}
-
 		record->m_vecLastNonDormantOrig = record->m_vecOrigin;
 
-		record->m_bTeleportDistance = ((record->m_vecOrigin - previous_record->m_vecOrigin).Length2DSquared() > 4096.0f);
+		record->m_bTeleportDistance = (record->m_vecOrigin - previous_record->m_vecOrigin).Length() > 4096.f;
 
 		//LinearExtrapolations(record);
 
@@ -827,8 +636,8 @@ namespace Engine
 		data.m_vecVelocity = record->m_vecAnimationVelocity;
 		data.bOnGround = record->m_fFlags & FL_ONGROUND;
 
-		// lets check if its been more than 2 ticks, so we can fix jumpfall.
-		if( record->m_iChokeTicks > 2 ) {
+		//lets check if its been more than 1 tick, so we can fix jumpfall.
+		if( record->m_iChokeTicks > 1 && !previous_record->dormant() ) {
 			// TODO: calculate jump time
 			// calculate landing time
 			float flLandTime = 0.0f;
@@ -840,7 +649,7 @@ namespace Engine
 				// and alpha didn't realize this but i did, so its fine.
 				// improper way to do this -> flLandTime = record->m_flSimulationTime - float( record->m_serverAnimOverlays[ 4 ].m_flPlaybackRate * record->m_serverAnimOverlays[ 4 ].m_flCycle );
 				// we need to divide instead of multiplication.
-				flLandTime = record->m_flSimulationTime - float( record->m_serverAnimOverlays[ 4 ].m_flPlaybackRate / record->m_serverAnimOverlays[ 4 ].m_flCycle );
+				flLandTime = record->m_flSimulationTime - float( record->m_serverAnimOverlays[ 4 ].m_flPlaybackRate * record->m_serverAnimOverlays[ 4 ].m_flCycle ); // VIO you fucking retarded
 				bLandedOnServer = flLandTime >= previous_record->m_flSimulationTime;
 			}
 
@@ -856,7 +665,6 @@ namespace Engine
 				}
 			}
 
-			// do the fix. hahaha
 			if (bOnGround) {
 				player->m_fFlags() |= FL_ONGROUND;
 			}
@@ -865,6 +673,21 @@ namespace Engine
 			}
 
 			data.bOnGround = bOnGround;
+
+			// delta in time..
+			//float time = record->m_flSimulationTime - previous_record->m_flSimulationTime;
+
+			//if (!record->m_bFakeWalking) {
+			//	// fix the velocity till the moment of animation.
+			//	Vector velo = record->m_vecVelocity - previous_record->m_vecVelocity;
+
+			//	// accel per tick.
+			//	Vector accel = (velo / time) * Interfaces::m_pGlobalVars->interval_per_tick;
+
+			//	// set the anim velocity to the previous velocity.
+			//	// and predict one tick ahead.
+			//	record->m_vecAnimationVelocity = previous_record->m_vecVelocity + accel;
+			//}
 
 			// delta in duckamt and delta in time..
 			float duck = record->m_flDuckAmount - previous_record->m_flDuckAmount;
@@ -875,6 +698,10 @@ namespace Engine
 
 			// fix crouching players.
 			player->m_flDuckAmount() = previous_record->m_flDuckAmount + change;
+
+			// fix these niggas.
+			if ((record->m_vecOrigin - previous_record->m_vecOrigin).IsZero())
+				record->m_vecAnimationVelocity.Init();
 		}
 	}
 
@@ -882,6 +709,11 @@ namespace Engine
 		auto UpdateAnimations = [ & ] ( C_CSPlayer* player, float flTime ) {
 			auto curtime = Interfaces::m_pGlobalVars->curtime;
 			auto frametime = Interfaces::m_pGlobalVars->frametime;
+			auto realtime = Interfaces::m_pGlobalVars->realtime;
+			auto absframetime = Interfaces::m_pGlobalVars->absoluteframetime;
+			auto framecount = Interfaces::m_pGlobalVars->framecount;
+			auto tickcount = Interfaces::m_pGlobalVars->tickcount;
+			auto interpolation = Interfaces::m_pGlobalVars->interpolation_amount;
 
 			// force to use correct abs origin and velocity ( no CalcAbsolutePosition and CalcAbsoluteVelocity calls )
 			player->m_iEFlags( ) &= ~( EFL_DIRTY_ABSTRANSFORM | EFL_DIRTY_ABSVELOCITY );
@@ -890,7 +722,12 @@ namespace Engine
 
 			// calculate animations based on ticks aka server frames instead of render frames
 			Interfaces::m_pGlobalVars->curtime = flTime;
+			Interfaces::m_pGlobalVars->realtime = flTime;
 			Interfaces::m_pGlobalVars->frametime = Interfaces::m_pGlobalVars->interval_per_tick;
+			Interfaces::m_pGlobalVars->absoluteframetime = Interfaces::m_pGlobalVars->interval_per_tick;
+			Interfaces::m_pGlobalVars->framecount = TIME_TO_TICKS(current->m_anim_time);
+			Interfaces::m_pGlobalVars->tickcount = TIME_TO_TICKS(current->m_anim_time);
+			Interfaces::m_pGlobalVars->interpolation_amount = 0.0f;
 
 			auto animstate = player->m_PlayerAnimState( );
 			if( animstate && animstate->m_nLastFrame >= Interfaces::m_pGlobalVars->framecount )
@@ -956,6 +793,11 @@ namespace Engine
 
 			Interfaces::m_pGlobalVars->curtime = curtime;
 			Interfaces::m_pGlobalVars->frametime = frametime;
+			Interfaces::m_pGlobalVars->realtime = realtime;
+			Interfaces::m_pGlobalVars->absoluteframetime = absframetime;
+			Interfaces::m_pGlobalVars->framecount = framecount;
+			Interfaces::m_pGlobalVars->tickcount = tickcount;
+			Interfaces::m_pGlobalVars->interpolation_amount = interpolation;
 		};
 
 		SimulationRestore SimulationRecordBackup;
@@ -964,48 +806,29 @@ namespace Engine
 		auto animState = player->m_PlayerAnimState( );
 
 		if( previous.IsValid( ) ) {
-			if( previous->m_bIsInvalid && current->m_fFlags & FL_ONGROUND ) {
-				animState->m_bOnGround = true;
-				animState->m_bHitground = false;
-			}
+			animState->m_flFeetCycle = previous->m_flFeetCycle;
+			animState->m_flFeetYawRate = previous->m_flFeetYawRate;
+			*( float* )( uintptr_t( animState ) + 0x180 ) = previous->m_serverAnimOverlays[ 12 ].m_flWeight;
 
-			if( previous.IsValid( ) ) {
-				if( previous->m_bIsInvalid && current->m_fFlags & FL_ONGROUND ) {
-					animState->m_bOnGround = true;
-					animState->m_bHitground = false;
-				}
-
-				animState->m_flFeetCycle = previous->m_flFeetCycle;
-				animState->m_flFeetYawRate = previous->m_flFeetYawRate;
-				*( float* )( uintptr_t( animState ) + 0x180 ) = previous->m_serverAnimOverlays[ 12 ].m_flWeight;
-
-				std::memcpy( player->m_AnimOverlay( ).Base( ), previous->m_serverAnimOverlays, sizeof( previous->m_serverAnimOverlays ) );
-			}
-			else {
-				animState->m_flFeetCycle = current->m_flFeetCycle;
-				animState->m_flFeetYawRate = current->m_flFeetYawRate;
-				*( float* )( uintptr_t( animState ) + 0x180 ) = current->m_serverAnimOverlays[ 12 ].m_flWeight;
-			}
+			std::memcpy( player->m_AnimOverlay( ).Base( ), previous->m_serverAnimOverlays, sizeof( previous->m_serverAnimOverlays ) );
+		}
+		else {
+			animState->m_flFeetCycle = current->m_flFeetCycle;
+			animState->m_flFeetYawRate = current->m_flFeetYawRate;
+			*( float* )( uintptr_t( animState ) + 0x180 ) = current->m_serverAnimOverlays[ 12 ].m_flWeight;
 		}
 
 		if( current->m_iChokeTicks > 1 ) {
 			for( auto it = this->m_vecSimulationData.begin( ); it < this->m_vecSimulationData.end( ); it++ ) {
 				m_bForceVelocity = true;
 				const auto& simData = *it;
-				if( simData.bOnGround ) {
-					player->m_fFlags( ) |= FL_ONGROUND;
-				}
-				else {
-					player->m_fFlags( ) &= ~FL_ONGROUND;
-				}
 
 				player->m_vecOrigin( ) = simData.m_vecOrigin;
 				player->m_flDuckAmount( ) = simData.m_flDuckAmount;
 				player->m_vecVelocity( ) = simData.m_vecVelocity;
 				player->SetAbsVelocity( simData.m_vecVelocity );
 				player->SetAbsOrigin( simData.m_vecOrigin );
-				//player->m_flLowerBodyYawTarget( ) = simData.m_flLowerBodyYawTarget;
-				player->m_flLowerBodyYawTarget() = current->m_body;
+				player->m_flLowerBodyYawTarget( ) = simData.m_flLowerBodyYawTarget;
 
 				UpdateAnimations( player, player->m_flOldSimulationTime( ) + Interfaces::m_pGlobalVars->interval_per_tick );
 
@@ -1016,7 +839,7 @@ namespace Engine
 			m_bForceVelocity = true;
 			this->player->SetAbsVelocity( current->m_vecAnimationVelocity );
 			this->player->SetAbsOrigin( current->m_vecOrigin );
-			this->player->m_flLowerBodyYawTarget( ) = current->m_body;
+			this->player->m_flLowerBodyYawTarget( ) = current->m_flLowerBodyYawTarget;
 
 			UpdateAnimations( player, player->m_flOldSimulationTime( ) + Interfaces::m_pGlobalVars->interval_per_tick );
 

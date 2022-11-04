@@ -72,7 +72,7 @@ namespace Engine
 		float m_flLowerBodyYawTarget;
 		float m_flAbsRotation;
 
-		float m_body;
+		//float m_body; // fuck this variable.
 		float m_moving_body;
 		float m_old_body;
 
@@ -97,6 +97,7 @@ namespace Engine
 		std::string m_iResolverText;
 
 		C_AnimationLayer m_serverAnimOverlays[ 13 ];
+		float            m_serverPoseParams[24];
 	public:
 		__forceinline bool dormant() {
 			return m_dormant;

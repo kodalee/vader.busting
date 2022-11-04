@@ -57,31 +57,7 @@ namespace Engine
 		}
 
 		virtual float GetLerp( ) const {
-			//return std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
 			return lagData.Xor( )->m_flLerpTime;
-		}
-
-		virtual float LagFix( ) const {
-			float updaterate = Interfaces::m_pCvar->FindVar(XorStr("cl_updaterate"))->GetFloat();
-			auto* minupdate = Interfaces::m_pCvar->FindVar(XorStr("sv_minupdaterate"));
-			auto* maxupdate = Interfaces::m_pCvar->FindVar(XorStr("sv_maxupdaterate"));
-
-			if (minupdate && maxupdate)
-				updaterate = maxupdate->GetFloat();
-
-			float ratio = Interfaces::m_pCvar->FindVar(XorStr("cl_interp_ratio"))->GetFloat();
-
-			if (ratio == 0)
-				ratio = 1.0f;
-
-			float lerp = Interfaces::m_pCvar->FindVar(XorStr("cl_interp"))->GetFloat();
-			auto* cmin = Interfaces::m_pCvar->FindVar(XorStr("sv_client_min_interp_ratio"));
-			auto* cmax = Interfaces::m_pCvar->FindVar(XorStr("sv_client_max_interp_ratio"));
-
-			if (cmin && cmax && cmin->GetFloat() != 1)
-				ratio = std::clamp(ratio, cmin->GetFloat(), cmax->GetFloat());
-
-			return std::max(lerp, ratio / updaterate);
 		}
 
 		virtual void ClearLagData( ) {
@@ -284,7 +260,7 @@ namespace Engine
 
 		if( isDormant ) {
 			pThis->m_flLastUpdateTime = 0.0f;
-			if( pThis->m_History.size( ) > 0 && pThis->m_History.front( ).m_bTeleportDistance ) {
+			if( pThis->m_History.size( ) > 0 ) {
 				pThis->m_History.clear( );
 			}
 
@@ -297,30 +273,37 @@ namespace Engine
 		}
 
 		// did player update?
-		float simTime = player->m_flSimulationTime( );
-		if( pThis->m_flLastUpdateTime >= simTime ) {
-			return;
-		}
-
-		if ( player->m_flOldSimulationTime( ) > simTime ) {
-			return;
-		}
+		//float simTime = player->m_flSimulationTime( );
+		//if( pThis->m_flLastUpdateTime >= simTime ) {
+		//	return;
+		//}
 
 		auto anim_data = AnimationSystem::Get( )->GetAnimationData( player->m_entIndex );
 		if( !anim_data )
 			return;
 
-		if( anim_data->m_AnimationRecord.empty( ) )
+		if( anim_data->m_AnimationRecord.empty( ) ) {
 			return;
+		}
+
+		if (player->m_flSimulationTime() == 0.0f || player->IsDormant()) {
+			if (pThis->m_History.size() > 0) {
+				pThis->m_History.clear();
+			}
+
+			return;
+		}
+
+		// this is the first data update we are receving
+		// OR we received data with a newer simulation context.
+		if(player->m_flOldSimulationTime() == player->m_flSimulationTime()) {
+			return;
+		}
 
 		auto anim_record = &anim_data->m_AnimationRecord.front( );
-		if( anim_record->m_bShiftingTickbase )
+		if( anim_record->m_bShiftingTickbase ) {
 			return;
-
-		pThis->m_flLastUpdateTime = simTime;
-
-		bool isTeam = local->IsTeammate( player );
-
+		}
 
 		//LOOK AT THIS LATER GEICO FROM FUTURE (exploiting players?)
 		//// invalidate all records, if player abusing teleport distance

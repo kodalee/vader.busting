@@ -231,16 +231,39 @@ namespace Hooked
 		}
 	}
 
+	struct stack_frame {
+		stack_frame* next;
+		DWORD ret;
+	};
+
+	__forceinline DWORD get_ret_addr(int depth = 0) {
+		stack_frame* fp;
+
+		_asm mov fp, ebp;
+
+		for (int i = 0; i < depth; i++) {
+			if (!fp)
+				break;
+
+			fp = fp->next;
+		}
+
+		return fp ? fp->ret : 0;
+	}
+
 	void Body_proxy(CRecvProxyData* pData, void* pStruct, void* pOut) {
 		g_Vars.globals.szLastHookCalled = XorStr("51");
 
-		static DWORD RecvTable_Decode{ pattern::find(PE::GetModule(HASH("engine.dll")), XorStr("EB 3F FF 77 10")) };
+		static DWORD RecvTable_Decode = Engine::Displacement.DT_CSPlayer.m_flLowerBodyYawTargetProxy;
 
 		const auto player = reinterpret_cast<C_CSPlayer*>(pStruct);
 
+		// skip "unwanted" lowerbody updates originating from CopyNewEntity.
+	    // happens on entity creation + pvs re-enter.
+
 		// call from entity going into pvs.
-		if (RecvTable_Decode != GetReturnAddress(2)) {
-			//printf("faggot\n");
+		if (RecvTable_Decode != get_ret_addr(2)) {
+			//printf("called\n");
 
 			// store data about the update.
 			Engine::g_Resolver.OnBodyUpdate(player, pData->m_Value.m_Float);

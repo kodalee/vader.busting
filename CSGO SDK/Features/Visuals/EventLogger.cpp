@@ -90,9 +90,9 @@ void CLogger::PushEvent(std::string msg, FloatColor clr, bool visualise, std::st
 
 	FloatColor Color = FloatColor(1.f, 0.f, 0.f);
 
-	Interfaces::m_pCvar->ConsoleColorPrintf(/*g_Vars.menu.ascent.ToRegularColor()*/Color.ToRegularColor(), XorStr("[vader.tech] "));
+	Interfaces::m_pCvar->ConsoleColorPrintf(g_Vars.misc.accent_colorz.ToRegularColor()/*Color.ToRegularColor()*/, XorStr("[vader.tech] "));
 	if (!prefix.empty()) {
-		Interfaces::m_pCvar->ConsoleColorPrintf(/*g_Vars.menu.ascent.ToRegularColor()*/Color.ToRegularColor(), std::string(XorStr("")).append(prefix.data()).append(XorStr("")).data());
+		Interfaces::m_pCvar->ConsoleColorPrintf(g_Vars.misc.accent_colorz.ToRegularColor()/*Color.ToRegularColor()*/, std::string(XorStr("")).append(prefix.data()).append(XorStr("")).data());
 	}
 
 	Interfaces::m_pCvar->ConsoleColorPrintf(clr.ToRegularColor(), std::string(msg + XorStr("\n")).c_str());

@@ -107,7 +107,7 @@ namespace Engine
 
 		Displacement.C_CSPlayer.m_PlayerAnimState = *( int* )( Memory::Scan( image_client, XorStr( "8B 8E ?? ?? ?? ?? 85 C9 74 3E" ) ) + 2 );
 		Displacement.C_CSPlayer.m_flSpawnTime = *( int* )( Memory::Scan( image_client, XorStr( "89 86 ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 BE ?? ?? ?? ?? ??" ) ) + 2 );
-		Displacement.DT_CSPlayer.m_flLowerBodyYawTargetProxy = Memory::Scan( image_engine, XorStr( "EB 0D FF 77 10" ) );
+		Displacement.DT_CSPlayer.m_flLowerBodyYawTargetProxy = Memory::Scan( image_engine, XorStr( "EB 3F FF 77 10" ) );
 
 		Displacement.DT_CSPlayer.m_angEyeAngles = pPropManager->GetOffset( XorStr( "DT_CSPlayer" ), XorStr( "m_angEyeAngles[0]" ) );
 		Displacement.DT_CSPlayer.m_nSurvivalTeam = pPropManager->GetOffset( XorStr( "DT_CSPlayer" ), XorStr( "m_nSurvivalTeam" ) );

@@ -531,7 +531,7 @@ namespace Interfaces
 
 		const auto get_add_by_choke = [&]() -> float
 		{
-			static auto max = 120.f;
+			static auto max = 137.f;
 			static auto min = 100.f;
 
 			auto mult = 1.f / 0.2f * TICKS_TO_TIME(Interfaces::m_pClientState->m_nChokedCommands());
@@ -555,7 +555,12 @@ namespace Interfaces
 		if (!firstupdate && Interfaces::m_pGlobalVars->curtime + TICKS_TO_TIME(Interfaces::m_pClientState->m_nChokedCommands() + 1) > g_Vars.globals.m_flBodyPred
 			&& fabsf(Math::normalize_float(cmd->viewangles.y - initial_lby)) < get_add_by_choke() && g_Vars.antiaim.lby_breaker)
 		{
-			cmd->viewangles.y = initial_lby + get_add_by_choke();
+			if (g_Vars.antiaim.optimal_adjust) {
+				cmd->viewangles.y = initial_lby + get_add_by_choke();
+			}
+			else {
+				cmd->viewangles.y = initial_lby;
+			}
 
 			//cmd->viewangles.y = initial_lby;
 

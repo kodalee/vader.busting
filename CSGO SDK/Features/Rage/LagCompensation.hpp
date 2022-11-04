@@ -162,6 +162,7 @@ namespace Engine
 		float m_flLowerBodyYawTarget = 0.f;
 		float m_flSavedLbyDelta = 0.f;
 		bool fakewalking = false;
+		bool m_bUnsafeVelocityTransition = false;
 
 		// ragebot scan data
 		float m_flLastSpread, m_flLastInaccuracy;
@@ -184,7 +185,6 @@ namespace Engine
 		virtual bool is_breaking_lagcomp(C_CSPlayer* player, const float& simtime) = 0;
 		virtual bool IsRecordOutOfBounds(const Engine::C_LagRecord& record, float target_time = 0.2f, int tickbase_shift = -1, bool tick_count_check = true) const = 0;;
 		virtual float GetLerp() const = 0;
-		virtual float LagFix() const = 0;
 
 		virtual Encrypted_t<C_EntityLagData> GetLagData(int entindex) = 0;
 

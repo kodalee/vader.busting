@@ -54,6 +54,8 @@ void CAutoBuy::Main( ) {
 			Buy( XorStr( "buy elite" ) ); break;
 		case 2: // deagle / revolver
 			Buy( XorStr( "buy deagle" ) ); break;
+		case 3: // tec9 / five-seven
+			Buy( XorStr( "buy tec9" ) ); break;
 		default:
 			break;
 		}

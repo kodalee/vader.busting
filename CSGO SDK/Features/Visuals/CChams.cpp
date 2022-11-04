@@ -1614,7 +1614,29 @@ namespace Interfaces
 						// start from begin
 						matrix3x4_t out[ 128 ];
 						if( CChams::GetBacktrackMatrix( entity, out ) ) {
-							OverrideMaterial( true, MATERIAL_REGULAR, g_Vars.esp.chams_history_color );
+
+							int material; // la premium
+
+							switch (g_Vars.esp.chams_history_material) {
+							case 0:
+							{
+								material = MATERIAL_REGULAR;
+								break;
+							}
+							case 1:
+							{
+								material = MATERIAL_FLAT;
+								break;
+							}
+							case 2:
+							{
+								material = MATERIAL_GLOW;
+								break;
+							}
+
+							}
+
+							OverrideMaterial( true, material, g_Vars.esp.chams_history_color, std::clamp<float>((100.0f - g_Vars.esp.chams_history_outline_value) * 0.2f, 1.f, 20.f));
 							Hooked::oDrawModelExecute( ECX, MatRenderContext, DrawModelState, RenderInfo, out );
 
 							InvalidateMaterial( );

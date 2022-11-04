@@ -368,7 +368,7 @@ void create_watermark()
 			auto main_coll = ImColor(15, 15, 15, 210);
 			d->AddRectFilled(p, ImVec2(s.x + p.x - (Menu::opened ? 0 : 25), 36 + p.y), main_coll);
 
-			ImColor line_colf = ImColor(255, 0, 0, 255);
+			ImColor line_colf = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 255);
 
 			d->AddRectFilled(p, ImVec2((s.x + p.x - (Menu::opened ? 0 : 25)), 2 + p.y), line_colf);
 
@@ -580,9 +580,9 @@ void create_spectators(std::vector <std::string> vec) {
 	if (ImGui::Begin(XorStr("spectators"), nullptr, dw_window_flags))
 	{
 		//get vars :::
-		ImColor theme = ImColor(255, 0, 0, 255);
-		ImColor theme_zero = ImColor(255, 0, 0, 0);
-		ImColor circle_color = ImColor(255, 0, 0, 255);
+		ImColor theme = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 255);
+		ImColor theme_zero = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 0);
+		ImColor circle_color = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 255);
 
 		ImColor black = ImColor(0, 0, 0, 210);
 		ImColor black_zero = ImColor(0, 0, 0, 0);
@@ -659,9 +659,9 @@ void create_keybinds(std::vector <std::string> vec) {
 	if (ImGui::Begin(XorStr("keybinds"), nullptr, dw_window_flags))
 	{
 		//get vars :::
-		ImColor theme = ImColor(255, 0, 0, 255);
-		ImColor theme_zero = ImColor(255, 0, 0, 0);
-		ImColor circle_color = ImColor(255, 0, 0, 255);
+		ImColor theme = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 255);
+		ImColor theme_zero = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 0);
+		ImColor circle_color = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 255);
 
 		ImColor black = ImColor(0, 0, 0, 210);
 		ImColor black_zero = ImColor(0, 0, 0, 0);
@@ -855,6 +855,11 @@ void Menu::Render() noexcept {
 	ImGui::SetNextWindowSize(ImVec2(722.f, 522.f));
 	ImGui::PushFont(fonts.roboto);
 
+	style.Colors[ImGuiCol_Accent] = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 255);
+	style.Colors[ImGuiCol_AccentDarker] = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 150);
+	style.Colors[ImGuiCol_AccentLight] = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 50);
+	style.Colors[ImGuiCol_AccentNoAlpha] = ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 0);
+
 	ImGui::Begin(XorStr("Blackout"), &opened, windowFlags); {
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		ImVec2 pos = ImVec2(window->Pos.x + 1.f, window->Pos.y + 1.f);
@@ -874,7 +879,7 @@ void Menu::Render() noexcept {
 		ImGui::PopFont();
 		ImGui::PushFont(fonts.StarWars);
 
-		window->DrawList->AddText(ImVec2((pos.x + 62.f), (pos.y + 22.f)), ImColor(255, 0, 0), XorStr("VADER"));
+		window->DrawList->AddText(ImVec2((pos.x + 62.f), (pos.y + 22.f)), ImColor(g_Vars.misc.accent_colorz.ToRegularColor().r(), g_Vars.misc.accent_colorz.ToRegularColor().g(), g_Vars.misc.accent_colorz.ToRegularColor().b(), 255), XorStr("VADER"));
 
 		ImGui::PopFont();
 		ImGui::PushFont(fonts.robotoTitle);
@@ -882,13 +887,13 @@ void Menu::Render() noexcept {
 		// bottom info //
 		const std::string user = g_Vars.globals.c_username;
 
-		window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 468.f)), ImColor(80, 80, 80), user.c_str());
+		window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 467.f)), ImColor(80, 80, 80), user.c_str());
 
 		// sub days
 		{
 			if (g_Vars.globals.userdata.size()) {
 				ImGui::PushFont(fonts.roboto);
-				window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 488.f)), ImColor(100, 100, 100), std::string(g_Vars.globals.userdata["expiry"]["left"]).c_str());
+				window->DrawList->AddText(ImVec2((pos.x + 10), (pos.y + 487.f)), ImColor(100, 100, 100), std::string(g_Vars.globals.userdata["expiry"]["left"]).c_str());
 				ImGui::PopFont();
 			}
 		}
@@ -1193,6 +1198,7 @@ void Menu::Ragebot() {
 				{ XorStr("Not resolved"), &rbot->prefer_body_not_resolved },
 				{ XorStr("In air"), &rbot->prefer_body_in_air },
 				{ XorStr("Lethal x2"), &rbot->prefer_body_x2lethal },
+				{ XorStr("Doubletapping"), &rbot->prefer_body_doubletapping },
 			};
 
 			std::vector<MultiItem_t> prefer_head_cond = {
@@ -1470,8 +1476,15 @@ void Menu::AntiAim() {
 				ImGui::Checkbox(XorStr("Pre-Break"), &g_Vars.antiaim.anti_lastmove);
 				if (g_Vars.antiaim.lby_breaker) {
 					ImGui::SliderFloat(XorStr("Break angle"), &g_Vars.antiaim.break_lby, -180.f, 180.f, XorStr("%1.f"));
-					ImGui::SliderFloat(XorStr("First Break angle"), &g_Vars.antiaim.break_lby_first, -180.f, 180.f, XorStr("%1.f"));
+					ImGui::SliderFloat(XorStr("First break angle"), &g_Vars.antiaim.break_lby_first, -180.f, 180.f, XorStr("%1.f"));
 					ImGui::Checkbox(XorStr("Static angle"), &g_Vars.antiaim.static_angle);
+					ImGui::Checkbox(XorStr("Optimal adjust"), &g_Vars.antiaim.optimal_adjust);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+					{
+						ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.15, 0.15, 0.15, 240));
+						ImGui::SetTooltip(XorStr("Your LBY is automaticlly adjusted to be ensure you always break LBY."));
+						ImGui::PopStyleColor(1);
+					}
 
 					std::vector<MultiItem_t> lby_disablers = {
 						{ XorStr("Fakewalking"), &g_Vars.antiaim.lby_disable_fakewalk },
@@ -1827,6 +1840,7 @@ void Menu::Players() {
 
 		const char* chams_mats[] = { XorStr("Disabled"),  XorStr("Texture"), XorStr("Flat"), XorStr("Custom") };
 		const char* chams_mats_overlay[] = { XorStr("Disabled"), XorStr("Glow") };
+		const char* chams_mats_backtrack[] = { XorStr("Flat"), XorStr("Texture"), XorStr("Glow") };
 		const char* glow_types[] = { XorStr("Standard"), XorStr("Pulse"), XorStr("Inner") };
 		const char* chams_mats_overlay_viewmodel[] = { XorStr("Disabled"), XorStr("Glow"), XorStr("Animated") };
 		const char* chams_filter_menu[] = { XorStr("Enemy"), XorStr("Local"), XorStr("Viewmodel"), XorStr("Glow") };
@@ -1837,6 +1851,10 @@ void Menu::Players() {
 					ImGui::Checkbox(XorStr("Backtrack Chams"), &g_Vars.esp.chams_history);
 					if (g_Vars.esp.chams_history) {
 						ColorPicker(XorStr("##enemybacktrackcolor"), g_Vars.esp.chams_history_color, true, false);
+						ImGui::Combo(XorStr("Backtrack material"), &g_Vars.esp.chams_history_material, chams_mats_backtrack, IM_ARRAYSIZE(chams_mats_backtrack));
+						if (g_Vars.esp.chams_history_material == 2) {
+							ImGui::SliderFloat(XorStr("Glow strength ##backtrack"), &g_Vars.esp.chams_history_outline_value, 0.f, 100.f, XorStr("%.f"));
+						}
 					}
 					ImGui::Checkbox(XorStr("Enemy Glow"), &g_Vars.esp.glow_enemy);
 					ColorPicker(XorStr("##enemyglowcolor"), g_Vars.esp.glow_enemy_color, true, false);
@@ -2067,16 +2085,20 @@ void Menu::World() {
 
 		ImGui::BeginGroupBox(XorStr("Weapons"), ImVec2(244.f, 133.f)); {
 			const char* glow_types[] = { XorStr("Standard"), XorStr("Pulse"), XorStr("Inner") };
+			const char* tracers[]{ XorStr("Icon"), XorStr("Text") };
 
+			ImGui::Checkbox("Name", &g_Vars.esp.dropped_weapons);
+			if (g_Vars.esp.dropped_weapons) {
+				ImGui::Combo(XorStr("Name type"), &g_Vars.esp.dropped_weapons_font, tracers, IM_ARRAYSIZE(tracers));
+			}
 
-			ImGui::Checkbox("Text", &g_Vars.esp.dropped_weapons);
 			ImGui::Checkbox("Ammo", &g_Vars.esp.dropped_weapons_ammo);
+			ColorPicker_w_name(XorStr("Weapons color"), g_Vars.esp.dropped_weapons_color, false, false);
 			ImGui::Checkbox(XorStr("Glow"), &g_Vars.esp.glow_weapons);
 			ColorPicker(XorStr("##weaponsglowcolor"), g_Vars.esp.glow_weapons_color, true, false);
 			if (g_Vars.esp.glow_weapons) {
 				ImGui::Combo(XorStr("Glow Type"), &g_Vars.esp.glow_type_weapons, glow_types, IM_ARRAYSIZE(glow_types));
 			}
-			ColorPicker_w_name(XorStr("Weapons color"), g_Vars.esp.dropped_weapons_color, false, false);
 
 
 			ImGui::Spacing();
@@ -2423,7 +2445,6 @@ void Menu::Misc() {
 	ImGui::BeginGroup(); {
 
 		ImGui::BeginGroupBox(XorStr("Misc"), ImVec2(244.f, 480.f)); {
-
 			std::vector<MultiItem_t> notifications = {
 				{ XorStr("Damage dealt"), &g_Vars.esp.event_dmg },
 				{ XorStr("Damage taken"), &g_Vars.esp.event_harm },
@@ -2446,10 +2467,11 @@ void Menu::Misc() {
 			ImGui::MultiCombo(XorStr("Local Extras"), local_extras);
 
 			std::vector<MultiItem_t> indicators = {
-				{ XorStr("PING"), &g_Vars.esp.indicator_aimbot },
+				{ XorStr("PING"), &g_Vars.esp.indicator_ping },
 				{ XorStr("DT"), &g_Vars.esp.indicator_exploits },
-				{ XorStr("LBY"), &g_Vars.esp.indicator_antiaim },
+				{ XorStr("LBY"), &g_Vars.esp.indicator_lby },
 				{ XorStr("LC"), &g_Vars.esp.indicator_lagcomp },
+				{ XorStr("DMG"), &g_Vars.esp.indicator_mindmg },
 			};
 
 			ImGui::MultiCombo(XorStr("Indicators"), indicators);
@@ -2503,7 +2525,7 @@ void Menu::Misc() {
 			ImGui::Checkbox(XorStr("Buy Bot"), &g_Vars.misc.autobuy_enabled);
 
 			const char* first_weapon_str[]{ XorStr("None"), XorStr("SCAR-20 / G3SG1"), XorStr("SSG-08"), XorStr("AWP") };
-			const char* second_weapon_str[]{ XorStr("None"), XorStr("Dualies"), XorStr("Desert Eagle / R8 Revolver") };
+			const char* second_weapon_str[]{ XorStr("None"), XorStr("Dualies"), XorStr("Desert Eagle / R8 Revolver"), XorStr("Tec-9 / Five-SeveN") };
 
 			std::vector<MultiItem_t> other_weapon_conditions = {
 				{ XorStr("Armor"), &g_Vars.misc.autobuy_armor },
@@ -2682,6 +2704,8 @@ void Menu::Configuration() {
 	ImGui::BeginGroup(); {
 		ImGui::BeginGroupBox("Settings", ImVec2(244.f, 480.f)); {
 			
+			ColorPicker_w_name(XorStr("Accent color"), g_Vars.misc.accent_colorz, false, false);
+
 #ifdef DEV
 			if (ImGui::Button(XorStr("Unload"), ImVec2(213.f, 20.f)))
 			{

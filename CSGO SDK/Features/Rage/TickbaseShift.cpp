@@ -338,7 +338,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 							}
 							else {
 								m_bSupressRecharge = true;
-								inya = true;
+								//inya = true; // man what the fuck does this do?
 								goto jmpRunExtraCommands;
 							}
 						}

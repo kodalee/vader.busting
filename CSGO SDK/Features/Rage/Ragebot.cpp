@@ -543,6 +543,7 @@ namespace Interfaces
 		m_rage_data->m_bEarlyStop = false;
 		g_Vars.globals.OverridingMinDmg = m_rage_data->rbot->min_damage_override && g_Vars.rage.key_dmg_override.enabled;
 		g_Vars.globals.OverridingHitscan = m_rage_data->rbot->override_hitscan && g_Vars.rage.override_key.enabled;
+		g_Vars.globals.OverrideDmgAmount = m_rage_data->rbot->min_damage_override_amount;
 
 		g_TickbaseController.s_nSpeed = m_rage_data->rbot->doubletap_speed;
 
@@ -1682,7 +1683,7 @@ namespace Interfaces
 					if (m_rage_data->m_pCmd->buttons & IN_ATTACK) {
 						Encrypted_t<Engine::C_EntityLagData> m_lag_data = Engine::LagCompensation::Get()->GetLagData(bestPoint->target->player->m_entIndex);
 						auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
-						auto targedt = TIME_TO_TICKS(bestPoint->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
+						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
 
 						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
 						//	targedt -= 3;
@@ -1808,6 +1809,12 @@ namespace Interfaces
 								msg << XorStr("clientside: ") << int(*m_rage_data->m_pSendPacket) << XorStr(" | ");
 								msg << XorStr("hitchance: ") << int(bestPoint->hitchance) << XorStr(" | ");
 								msg << XorStr("miss: ") << m_lag_data->m_iMissedShots << XorStr(":") << m_lag_data->m_iMissedShotsLBY << XorStr(":") << bestPoint->target->record->m_iResolverMode << XorStr(" | ");
+								msg << XorStr("vel: ") << bestPoint->target->record->m_vecVelocity.Length2D() << XorStr(" | ");
+								msg << XorStr("resolved: ") << bestPoint->target->record->m_bResolved << XorStr(" | ");
+								msg << XorStr("lag: ") << bestPoint->target->record->m_iLaggedTicks << XorStr(" | ");
+								msg << XorStr("front: ") << bestPoint->target->record->m_bTeleportDistance << XorStr(" | ");
+								msg << XorStr("ground: ") << (bestPoint->target->record->m_iFlags & FL_ONGROUND) << XorStr(" | ");
+								msg << XorStr("air: ") << !(bestPoint->target->record->m_iFlags & FL_ONGROUND) << XorStr(" | ");
 								msg << XorStr("flag: ") << buffer.data() << XorStr(" | ");
 								msg << FixedStrLength(info.szName).data() << XorStr(" | ");
 
@@ -1906,6 +1913,10 @@ namespace Interfaces
 		if (m_rage_data->rbot->prefer_body_in_air) {
 			if (!(player->m_fFlags() & FL_ONGROUND))
 				return true;
+		}
+
+		if(m_rage_data->rbot->prefer_body_doubletapping && (g_Vars.rage.exploit && g_Vars.rage.key_dt.enabled)) {
+			return true;
 		}
 
 		return false;
@@ -2236,26 +2247,14 @@ namespace Interfaces
 
 				if (record->m_bSkipDueToResolver)
 					continue;
-				//	g_Vars.globals.m_bDontExtrap[player->EntIndex()] = true;
-				//	//printf("DONT EXTRAP\n");
-				//}
-				//else
-				//	g_Vars.globals.m_bDontExtrap[player->EntIndex()] = false;
-				////if (record->m_bTeleportDistance)
-				//	printf("niggaballsHD\n");
 
 				if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 					continue;
 
-				if (record->m_bTeleportDistance /*&& (player->m_fFlags() & FL_ONGROUND)*/) {
+				if (record->m_bTeleportDistance) {
 					//printf("FRONT RECORD\n");
 					return &front_record;
 				}
-
-				//else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
-				//	//printf("front record\n");
-				//	return &front_record;
-				//}
 
 				return record;
 			}
@@ -2269,24 +2268,14 @@ namespace Interfaces
 
 			if (record->m_bSkipDueToResolver)
 				continue;
-			//	g_Vars.globals.m_bDontExtrap[player->EntIndex()] = true;
-			//	//printf("DONT EXTRAP\n");
-			//}
-			//else
-			//	g_Vars.globals.m_bDontExtrap[player->EntIndex()] = false;
 
 			if (!record->m_bIsValid || !IsRecordValid(player, &*record))
 				continue;
 
-			if (record->m_bTeleportDistance /*&& (player->m_fFlags() & FL_ONGROUND)*/) {
+			if (record->m_bTeleportDistance) {
 				//printf("FRONT RECORD\n");
 				return &front_record;
 			}
-
-			//else if (record->m_bTeleportDistance && !(player->m_fFlags() & FL_ONGROUND)) {
-			//	//printf("front record\n");
-			//	return &front_record;
-			//}
 
 			return record;
 		}
