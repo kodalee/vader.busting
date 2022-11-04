@@ -466,7 +466,7 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD dwReason, LPVOID lpReserved ) {
 		if( thread ) {
 			//strcpy( g_Vars.globals.user_info.username, XorStr( "admin" ) );
 			//g_Vars.globals.user_info.sub_expiration = 99999999999999999; // sencible date
-			g_Vars.globals.c_username = XorStr("Exon");
+			g_Vars.globals.c_username = XorStr("admin");
 
 			CloseHandle( thread );
 
