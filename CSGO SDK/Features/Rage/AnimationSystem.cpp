@@ -445,7 +445,7 @@ namespace Engine
 			return;
 		}
 
-		auto flPreviousSimulationTime = previous_record->m_flSimulationTime;
+		/*auto flPreviousSimulationTime = previous_record->m_flSimulationTime;
 		auto nTickcountDelta = pThis->m_iCurrentTickCount - pThis->m_iOldTickCount;
 		auto nSimTicksDelta = record->m_iChokeTicks;
 		auto nChokedTicksUnk = nSimTicksDelta;
@@ -476,7 +476,7 @@ namespace Engine
 
 				pThis->m_iTicksUnknown++;
 			}
-		}
+		}*/
 
 		if( weapon ) {
 			record->m_flShotTime = weapon->m_fLastShotTime( );
