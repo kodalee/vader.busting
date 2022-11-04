@@ -1482,7 +1482,7 @@ void Menu::AntiAim() {
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 					{
 						ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.15, 0.15, 0.15, 240));
-						ImGui::SetTooltip(XorStr("Your LBY is automaticlly adjusted to be ensure you always break LBY."));
+						ImGui::SetTooltip(XorStr("Your LBY is automatically adjusted to be ensure you always break LBY."));
 						ImGui::PopStyleColor(1);
 					}
 

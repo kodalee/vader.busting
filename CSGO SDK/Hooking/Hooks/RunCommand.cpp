@@ -115,10 +115,10 @@ namespace Hooked
 
 		local->m_vphysicsCollisionState( ) = 0;
 
-		if( !local->IsDead( ) ) {
-			auto& prediction = Engine::Prediction::Instance( );
-			prediction.OnRunCommand( local, ucmd );
-		}
+		//if( !local->IsDead( ) ) {
+		//	auto& prediction = Engine::Prediction::Instance( );
+		//	prediction.OnRunCommand( local, ucmd );
+		//}
 
 		if (!m_update)
 			player->m_flVelocityModifier() = flVelocityModifierBackup;

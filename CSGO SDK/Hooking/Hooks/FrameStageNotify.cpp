@@ -318,7 +318,7 @@ namespace Hooked
 
 		if( stage == FRAME_RENDER_START ) {
 
-			if( g_Vars.esp.remove_smoke ) {
+			if( g_Vars.esp.remove_smoke && Interfaces::m_pEngine->IsConnected() && local) { // crashed here once so i added more checks.
 				static auto smoke_count = *reinterpret_cast< uintptr_t* >( Engine::Displacement.DT_SmokeGrenadeProjectile.m_nSmokeCount );
 				if( smoke_count )
 					*reinterpret_cast< int* >( smoke_count ) = 0;

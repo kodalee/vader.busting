@@ -1555,7 +1555,7 @@ public:
 	config_option( bool, slide_walk, false );
 	config_option( bool, fakeduck, false );
 	config_option(bool, custom_menu, false);
-	config_option(FloatColor, accent_colorz, FloatColor(1.0f, 0.25f, 0.25f));
+	config_option(FloatColor, accent_colorz, FloatColor(1.0f, 0.0f, 0.0f));
 	config_option(FloatColor, logo_color, FloatColor(0, 87, 255));
 
 	config_keybind( fakeduck_bind );
