@@ -1247,7 +1247,7 @@ namespace Interfaces
 
 		float flViewAnlge = cmd->viewangles.y;
 
-		auto GetTargetYaw = [local, flViewAnlge]() -> float
+		auto GetTargetYaw = [local, flViewAnlge, settings]() -> float
 		{
 			float_t flBestDistance = FLT_MAX;
 
@@ -1272,8 +1272,13 @@ namespace Interfaces
 				pFinalPlayer = pPlayer;
 			}
 
-			if (!pFinalPlayer)
-				return flViewAnlge;
+			if (!pFinalPlayer) {
+				if (settings.Xor()->base_yaw == 0) {
+					return flViewAnlge;
+				}
+				else
+					return flViewAnlge + 180.f;
+			}
 
 			return Math::CalcAngle(local->GetAbsOrigin() + local->m_vecViewOffset(), pFinalPlayer->GetAbsOrigin()).yaw;
 		};
