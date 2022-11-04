@@ -2478,10 +2478,6 @@ void Menu::Misc() {
 
 			const char* models[]{ XorStr("Off"), XorStr("Darth Vader"), XorStr("StormTrooper"), XorStr("Custom") };
 
-			ImGui::Checkbox(XorStr("Watermark"), &g_Vars.misc.watermark);
-			ImGui::Checkbox(XorStr("Keybinds list"), &g_Vars.esp.keybind_window_enabled);
-			ImGui::Checkbox(XorStr("Spectators list"), &g_Vars.esp.spec_window_enabled);
-
 #if defined(BETA_MODE) || defined(DEV)
 			ImGui::Text(XorStr("----------beta/debug----------"));
 			ImGui::Checkbox(XorStr("Resolver flags"), &g_Vars.misc.resolver_flags);
@@ -2705,6 +2701,9 @@ void Menu::Configuration() {
 		ImGui::BeginGroupBox("Settings", ImVec2(244.f, 480.f)); {
 			
 			ColorPicker_w_name(XorStr("Accent color"), g_Vars.misc.accent_colorz, false, false);
+			ImGui::Checkbox(XorStr("Watermark"), &g_Vars.misc.watermark);
+			ImGui::Checkbox(XorStr("Keybinds list"), &g_Vars.esp.keybind_window_enabled);
+			ImGui::Checkbox(XorStr("Spectators list"), &g_Vars.esp.spec_window_enabled);
 
 #ifdef DEV
 			if (ImGui::Button(XorStr("Unload"), ImVec2(213.f, 20.f)))
