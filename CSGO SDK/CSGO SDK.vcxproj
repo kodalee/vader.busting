@@ -206,6 +206,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Features\Game\netdata.cpp" />
+    <ClCompile Include="Features\Miscellaneous\MusicPlayer.cpp" />
     <ClCompile Include="Features\Miscellaneous\skinchanger2.cpp" />
     <ClCompile Include="Features\Miscellaneous\walkbot.cpp" />
     <ClCompile Include="Features\Miscellaneous\WeatherController.cpp" />
@@ -370,6 +371,7 @@
     <ClInclude Include="Features\Game\netdata.h" />
     <ClInclude Include="Features\Game\SimulationContext.hpp" />
     <ClInclude Include="Features\Miscellaneous\hitsounds.h" />
+    <ClInclude Include="Features\Miscellaneous\MusicPlayer.hpp" />
     <ClInclude Include="Features\Miscellaneous\skinchanger2.h" />
     <ClInclude Include="Features\Miscellaneous\walkbot.h" />
     <ClInclude Include="Features\Miscellaneous\WeatherController.hpp" />
@@ -661,6 +663,7 @@
     <ClInclude Include="Utils\modules.h" />
     <ClInclude Include="Utils\pattern.h" />
     <ClInclude Include="Utils\pe.h" />
+    <ClInclude Include="Utils\screenshot_sound.h" />
     <ClInclude Include="Utils\stack.h" />
     <ClInclude Include="Utils\Threading\packed_heap.h" />
     <ClInclude Include="Utils\syscall.hpp" />

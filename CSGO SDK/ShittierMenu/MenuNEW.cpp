@@ -2220,6 +2220,7 @@ void Menu::Visuals() {
 					ImGui::SliderFloat(XorStr("Hitsound volume"), &g_Vars.misc.hitsound_volume, 1.f, 100.f, XorStr("%.f"));
 				}
 			}
+			ImGui::Checkbox(XorStr("F12 sound (microphone)"), &g_Vars.misc.f12_kill_sound);
 			ImGui::Checkbox(XorStr("Killsound"), &g_Vars.misc.killsound);
 			if (g_Vars.misc.killsound) {
 				static char custom_killsound[64] = "\0";

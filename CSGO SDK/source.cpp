@@ -24,6 +24,7 @@
 
 #include "Utils/fnv.h"
 #include "Utils/lazy_importer.hpp"
+#include "Features/Miscellaneous/MusicPlayer.hpp"
 
 #include <fstream>
 
@@ -1317,6 +1318,8 @@ namespace Interfaces
 
 		static auto createmove_hltv = Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 E4 F8 81 EC ? ? ? ? 8B 45 08 89 0C 24"));
 		oCreateMoveHltv = Hooked::HooksManager.CreateHook<decltype(oCreateMoveHltv) >(&create_move_hltv, (void*)createmove_hltv);
+
+		Interfaces::MusicPlayer::Instance()->init();
 
 		Hooked::HooksManager.Enable( );
 		g_lua.initialize();

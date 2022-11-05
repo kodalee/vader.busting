@@ -31,6 +31,7 @@
 #include "Trace.h"
 #include "../Miscellaneous/walkbot.h"
 #include "gh.h"
+#include "../Miscellaneous/MusicPlayer.hpp"
 
 #include <iomanip>
 
@@ -1330,6 +1331,14 @@ void CEsp::Main( ) {
 		Interfaces::m_pSurface->DrawLine( center.x / 2, 0, center.x / 2, center.y );
 		Interfaces::m_pSurface->DrawLine( 0, center.y / 2, center.x, center.y / 2 );
 
+	}
+
+	if (Interfaces::m_pGlobalVars->tickcount % 2 == 1)
+	{
+		if (Interfaces::MusicPlayer::Instance()->time_to_reset_sound > 0.f && Interfaces::MusicPlayer::Instance()->time_to_reset_sound <= Interfaces::m_pGlobalVars->realtime) {
+			Interfaces::MusicPlayer::Instance()->stop();
+			Interfaces::MusicPlayer::Instance()->time_to_reset_sound = 0.f;
+		}
 	}
 
 	IndicateAngles( );

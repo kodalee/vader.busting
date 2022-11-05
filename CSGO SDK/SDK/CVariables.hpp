@@ -1594,6 +1594,8 @@ public:
 	config_option( float, hitsound_volume, 100.f );
 	config_option(std::string, custom_hitsound, XorStr("hitsound name"));
 
+	config_option(bool, f12_kill_sound, false);
+
 	config_option(bool, killsound, false);
 	config_option(float, killsound_volume, 100.f);
 	config_option(std::string, custom_killsound, XorStr("killsound name"));

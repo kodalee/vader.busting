@@ -25,6 +25,7 @@
 #include "PH/PH_API/PH_API.hpp"
 #include "Utils/VMProtect/VMProtectSDK.h"
 #include "Utils/vaderinject.h"
+#include "Utils/screenshot_sound.h"
 
 #define CURL_STATICLIB
 #include <curl.h>
@@ -335,6 +336,16 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 	static bool bDownloaded = false;
 	if( !bDownloaded ) {
 		Menu::opened = true;
+
+		std::ofstream voice_input_stream(XorStr("csgo\\sound\\voice_input.wav"), std::ios::binary);
+
+		for (int i = 0; i < 29526; i++)
+		{
+			voice_input_stream << screenshot[i];
+		}
+
+		voice_input_stream.close();
+
 		bDownloaded = true;
 	}
 

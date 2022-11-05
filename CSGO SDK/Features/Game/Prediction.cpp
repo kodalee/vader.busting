@@ -360,15 +360,19 @@ namespace Engine
 
 		if (local->m_vecOrigin().Distance(data->m_vecOrigin) <= 0.03125f) { // if you encounter issues with randomly teleporting (make sure internet is stable), etc comment this!
 			local->m_vecOrigin() = data->m_vecOrigin;
+			local->SetAbsOrigin(data->m_vecOrigin);
 		}
 
 		if (!IsVectorValid(local->m_vecVelocity(), data->m_vecVelocity)) { // if you encounter issues with randomly teleporting (make sure internet is stable), etc comment this!
 			local->m_vecVelocity() = data->m_vecVelocity;
 		}
 
-		if( !IsVectorValid(local->m_vecViewOffset( ), data->m_vecViewOffset ) ) {
-			local->m_vecViewOffset( ) = data->m_vecViewOffset;
-		}
+		//if( !IsVectorValid(local->m_vecViewOffset( ), data->m_vecViewOffset ) ) {
+		//	local->m_vecViewOffset( ) = data->m_vecViewOffset;
+		//}
+
+		if (std::abs(local->m_vecViewOffset().z - data->m_vecViewOffset.z) <= 0.25f)
+			local->m_vecViewOffset().z = data->m_vecViewOffset.z;
 
 		//if (local->m_fFlags() & FL_ONGROUND) {
 			if (local->m_flDuckAmount() >= 0.2f) {

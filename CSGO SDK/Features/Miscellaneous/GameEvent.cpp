@@ -25,6 +25,7 @@
 
 #include "../../Loader/Security/Security.hpp"
 #include "WeatherController.hpp"
+#include "MusicPlayer.hpp"
 
 
 #define ADD_GAMEEVENT(n)  Interfaces::m_pGameEvent->AddListener(this, XorStr(#n), false)
@@ -744,9 +745,16 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 		if( pAttacker ) {
 			if (iAttacker == Interfaces::m_pEngine->GetLocalPlayer() && iUserID != Interfaces::m_pEngine->GetLocalPlayer()) {
 				Hitmarkers::AddScreenHitmarker(Color(255, 0, 0));
+				if (Hitmarkers::m_vecWorldHitmarkers.size()) {
+					for (size_t i{ }; i < Hitmarkers::m_vecWorldHitmarkers.size(); ++i) {
+						Hitmarkers::Hitmarkers_t& info = Hitmarkers::m_vecWorldHitmarkers[i];
+						info.ShouldDraw = true;
+					}
+				}
 
-
-
+				if (g_Vars.misc.f12_kill_sound) {
+					Interfaces::MusicPlayer::Instance()->play(XorStr("csgo\\sound\\voice_input.wav"), 0.6f);
+				}
 
 				using FX_TeslaFn = void(__thiscall*)(CTeslaInfo&);
 				using FX_GunshipImpactFn = void(__cdecl*)(const Vector& origin, const QAngle& angles, float scale, int numParticles, unsigned char* pColor, int iAlpha);

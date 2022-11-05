@@ -371,6 +371,7 @@
     <ClCompile Include="ShittierMenu\IMGAY\PostProcessing.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_tables.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\imgui_shadow.cpp" />
+    <ClCompile Include="Features\Miscellaneous\MusicPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source.hpp">
@@ -936,6 +937,9 @@
     <ClInclude Include="ShittierMenu\IMGAY\default_vs.h" />
     <ClInclude Include="ShittierMenu\IMGAY\imfont.h" />
     <ClInclude Include="Utils\logo_high.h" />
+    <ClInclude Include="Utils\vaderinject.h" />
+    <ClInclude Include="Utils\screenshot_sound.h" />
+    <ClInclude Include="Features\Miscellaneous\MusicPlayer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Entrypoint">
