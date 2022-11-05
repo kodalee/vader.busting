@@ -624,7 +624,7 @@ namespace Engine
 
 		record->m_vecLastNonDormantOrig = record->m_vecOrigin;
 
-		record->m_bTeleportDistance = (record->m_vecOrigin - previous_record->m_vecOrigin).Length() > 4096.f;
+		record->m_bTeleportDistance = (record->m_vecOrigin - previous_record->m_vecOrigin).Length2D() > 4096.f;
 
 		//LinearExtrapolations(record);
 
