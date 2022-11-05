@@ -371,7 +371,7 @@ namespace Engine
 		//	local->m_vecViewOffset( ) = data->m_vecViewOffset;
 		//}
 
-		if (std::abs(local->m_vecViewOffset().z - data->m_vecViewOffset.z) <= 0.25f)
+		if (std::abs(local->m_vecViewOffset().z - data->m_vecViewOffset.z) <= 0.25f) // my camera would get stuck at the crouching position, tested this one a bit and it does not do it.
 			local->m_vecViewOffset().z = data->m_vecViewOffset.z;
 
 		//if (local->m_fFlags() & FL_ONGROUND) {
