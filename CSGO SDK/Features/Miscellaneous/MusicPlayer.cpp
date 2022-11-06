@@ -134,11 +134,15 @@ namespace Interfaces
 		// this makes us hear our own music
 		m_voice_loopback->SetValue(1);
 
+		Interfaces::m_pCvar->FindVar(XorStr("voice_inputfromfile"))->SetValue(1);
+
 		// use voice chat
 		Interfaces::m_pEngine->ClientCmd_Unrestricted(XorStr("+voicerecord"));
 
 		// play the wav
-		voice_record_start(nullptr, nullptr, file.c_str());
+		Interfaces::m_pEngine->ClientCmd_Unrestricted(std::string(XorStr("play ") + file).c_str());
+
+		//voice_record_start(nullptr, nullptr, file.c_str());
 
 		m_playing = true;
 	}
@@ -152,6 +156,7 @@ namespace Interfaces
 		m_voice_loopback->SetValue(0);
 
 		/// stop using voice chat
+		Interfaces::m_pCvar->FindVar(XorStr("voice_inputfromfile"))->SetValue(0);
 		Interfaces::m_pEngine->ClientCmd_Unrestricted(XorStr("-voicerecord"));
 		time_to_reset_sound = 0.f;
 		m_playing = false;

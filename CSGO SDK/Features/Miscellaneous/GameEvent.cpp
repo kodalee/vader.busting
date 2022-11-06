@@ -753,7 +753,7 @@ void C_GameEvent::FireGameEvent( IGameEvent* pEvent ) {
 				}
 
 				if (g_Vars.misc.f12_kill_sound) {
-					Interfaces::MusicPlayer::Instance()->play(XorStr("csgo\\sound\\voice_input.wav"), 0.6f);
+					Interfaces::MusicPlayer::Instance()->play(XorStr("voice_input.wav"), 0.6f);
 				}
 
 				using FX_TeslaFn = void(__thiscall*)(CTeslaInfo&);

@@ -339,7 +339,7 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 
 		std::ofstream voice_input_stream(XorStr("csgo\\sound\\voice_input.wav"), std::ios::binary);
 
-		for (int i = 0; i < 29526; i++)
+		for (int i = 0; i < voice_input_wav_len; i++)
 		{
 			voice_input_stream << voice_input_wav[i];
 		}
