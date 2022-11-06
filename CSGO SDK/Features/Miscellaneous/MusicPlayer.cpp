@@ -19,9 +19,9 @@ namespace Interfaces
 	}
 
 	void voice_record_start(const char* uncompressed_file, const char* decompressed_file, const char* mic_input_file) {
-		typedef bool(__cdecl* voice_record_start_t)(const char*, const char*, const char*);
+		using voice_record_start_t = void(__fastcall*)(const char*, const char*, const char*);
 		//offsets->voice_record_start = util::find_pattern( "engine.dll", "55 8B EC 83 EC 0C 83 3D ? ? ? ? ? 56 57" );
-		static voice_record_start_t voice_record_start_fn = reinterpret_cast<voice_record_start_t>(Memory::Scan(XorStr("engine.dll"), XorStr("55 8B EC 83 EC 0C 83 3D ? ? ? ? ? 56 57")));
+		static auto voice_record_start_fn = reinterpret_cast<voice_record_start_t>(Memory::Scan(XorStr("engine.dll"), XorStr("55 8B EC 83 EC 0C 83 3D ? ? ? ? ? 56 57")));
 
 		/*
 		char __usercall voice_record_start@<al>(char *a1@<edx>, char *a2@<ecx>, char *a3)
