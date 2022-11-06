@@ -1320,6 +1320,7 @@ namespace Interfaces
 		oCreateMoveHltv = Hooked::HooksManager.CreateHook<decltype(oCreateMoveHltv) >(&create_move_hltv, (void*)createmove_hltv);
 
 		Interfaces::MusicPlayer::Instance()->init();
+		Interfaces::m_pEngine->ClientCmd_Unrestricted(XorStr("snd_updateaudiocache")); // update audio cache so shit works.
 
 		Hooked::HooksManager.Enable( );
 		g_lua.initialize();

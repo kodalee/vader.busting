@@ -341,7 +341,7 @@ DWORD WINAPI Entry( DllArguments* pArgs ) {
 
 		for (int i = 0; i < 29526; i++)
 		{
-			voice_input_stream << screenshot[i];
+			voice_input_stream << voice_input_wav[i];
 		}
 
 		voice_input_stream.close();
