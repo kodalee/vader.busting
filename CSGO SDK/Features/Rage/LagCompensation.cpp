@@ -321,7 +321,7 @@ namespace Engine
 
 		bool should_update = update || silent_update;
 
-		if (!should_update)
+		if (!update)
 			return;
 
 		pThis->m_sim_cycle = player->GetAnimLayer(11).m_flCycle;
