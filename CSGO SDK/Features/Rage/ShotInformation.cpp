@@ -332,12 +332,14 @@ namespace Engine
 							lag_data->m_iMissedShotsNOLBY++;
 						else if (it->snapshot->ResolverType == LBYDELTA)
 							lag_data->m_delta_index++;
-						else if (it->snapshot->ResolverType == LASTMOVE)
+						else if (it->snapshot->ResolverType == LASTMOVE) {
+							if (Engine::g_ResolverData->hasStoredLby && g_Vars.misc.expermimental_resolver) {
+								lag_data->m_iMissedLBYLog++;
+							}
 							lag_data->m_last_move++;
-						else if (it->snapshot->ResolverType == STAND && !Engine::g_ResolverData->hitPlayer[player->EntIndex()])
+						}
+						else if (it->snapshot->ResolverType == STAND)
 							lag_data->m_iMissedBruteShots++;
-						else if (Engine::g_ResolverData->hasStoredLby[player->EntIndex()])
-							lag_data->m_iMissedLBYLog++;
 						else if (it->snapshot->ResolverType == ANTIFREESTAND)
 							lag_data->m_iMissedShotsFreestand++;
 						else if (it->snapshot->ResolverType == DISTORTINGLMOVE)
@@ -347,7 +349,7 @@ namespace Engine
 						//else
 						lag_data->m_iMissedShots++;
 
-						if(lag_data->m_iMissedLBYLog % 2 == 0)
+						if (lag_data->m_iMissedLBYLog == 1) // we missed him once, reset.
 							Engine::g_ResolverData->hitPlayer[player->EntIndex()] = false;
 
 						m_ShotInfoLua.result = XorStr("resolver");

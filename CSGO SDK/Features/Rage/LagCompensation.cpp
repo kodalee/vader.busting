@@ -248,6 +248,8 @@ namespace Engine
 			pThis->m_History.clear( );
 			pThis->m_flLastUpdateTime = 0.0f;
 			pThis->m_flLastScanTime = 0.0f;
+			pThis->m_old_sim = 0.0f;
+			pThis->m_cur_sim = 0.0f;
 			return;
 		}
 
@@ -260,6 +262,8 @@ namespace Engine
 
 		if( isDormant ) {
 			pThis->m_flLastUpdateTime = 0.0f;
+			pThis->m_old_sim = 0.0f;
+			pThis->m_cur_sim = 0.0f;
 			if( pThis->m_History.size( ) > 0 ) {
 				pThis->m_History.clear( );
 			}
@@ -271,6 +275,63 @@ namespace Engine
 			pThis->Clear( );
 			pThis->m_iUserID = info.userId;
 		}
+
+		if (player->m_flSimulationTime() == 0.0f || player->IsDormant()) {
+			if (pThis->m_History.size() > 0) {
+				pThis->m_History.clear();
+			}
+
+			return;
+		}
+
+		int player_updated = false;
+		int invalid_simulation = false;
+
+		if (player->m_flSimulationTime() != 0.0f)
+		{
+			if (player->GetAnimLayer(11).m_flCycle != pThis->m_sim_cycle
+				|| player->GetAnimLayer(11).m_flPlaybackRate != pThis->m_sim_rate)
+				player_updated = 1;
+			else
+			{
+				player->m_flOldSimulationTime() = pThis->m_old_sim;
+				invalid_simulation = 1;
+				player->m_flSimulationTime() = pThis->m_cur_sim;
+			}
+		}
+		else
+			return;
+
+		bool silent_update = false;
+
+		auto update = 0;
+		if (!invalid_simulation)
+		{
+
+			auto v23 = pThis->m_cur_sim;
+			pThis->m_old_sim = v23;
+			auto v24 = player->m_flSimulationTime();
+			pThis->m_cur_sim = v24;
+			if (player_updated || v24 != v23 && (pThis->m_cur_sim == 0))
+				update = 1;
+
+			if (player_updated && v24 == v23)
+				silent_update = true;
+		}
+
+		bool should_update = update || silent_update;
+
+		if (!should_update)
+			return;
+
+		pThis->m_sim_cycle = player->GetAnimLayer(11).m_flCycle;
+		pThis->m_sim_rate = player->GetAnimLayer(11).m_flPlaybackRate;
+
+		// this is the first data update we are receving
+		// OR we received data with a newer simulation context.
+		//if (player->m_flOldSimulationTime() == player->m_flSimulationTime()) {
+		//	return;
+		//}
 
 		// did player update?
 		//float simTime = player->m_flSimulationTime( );
@@ -286,23 +347,17 @@ namespace Engine
 			return;
 		}
 
-		if (player->m_flSimulationTime() == 0.0f || player->IsDormant()) {
-			if (pThis->m_History.size() > 0) {
-				pThis->m_History.clear();
-			}
-
-			return;
-		}
-
-		// this is the first data update we are receving
-		// OR we received data with a newer simulation context.
-		if(player->m_flOldSimulationTime() == player->m_flSimulationTime()) {
-			return;
-		}
-
 		auto anim_record = &anim_data->m_AnimationRecord.front( );
 		if( anim_record->m_bShiftingTickbase ) {
 			return;
+		}
+
+		if (silent_update) {
+			anim_record->m_bTeleportDistance = true;
+		}
+
+		if (Engine::LagCompensation::Get()->is_breaking_lagcomp(player, player->m_flSimulationTime())) {
+			anim_record->m_bTeleportDistance = true;
 		}
 
 		//LOOK AT THIS LATER GEICO FROM FUTURE (exploiting players?)

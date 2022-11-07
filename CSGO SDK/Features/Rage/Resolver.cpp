@@ -543,7 +543,6 @@ namespace Engine {
 			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking && pLagData->m_iMissedShotsLBY < 1) {
 				record->m_iResolverMode = FLICK;
 			}
-
 			else if (record->m_moved && !record->m_iDistorting[player->EntIndex()] && pLagData->m_last_move < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
 				record->m_iResolverMode = LASTMOVE;
 			}
@@ -970,10 +969,10 @@ namespace Engine {
 					absrotation_before_flick = animstate->m_flAbsRotation;
 				}
 
+				static bool repeat[64];
 				if (g_ResolverData->hitPlayer[player->EntIndex()] && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (player->m_vecVelocity().Length2D() < 0.1f || (player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking))) {
-					static bool repeat[64];
 					if (!repeat[player->EntIndex()]) {
-						if (pLagData->m_iMissedLBYLog % 2 == 1) {
+						if (pLagData->m_iMissedLBYLog == 0) {
 							g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y - pLagData->m_body);
 						}
 						else
@@ -990,8 +989,14 @@ namespace Engine {
 					g_ResolverData->hasStoredLby[player->EntIndex()] = false;
 				}
 
+				if (pLagData->m_iMissedLBYLog >= 2) {
+					g_ResolverData->hitPlayer[player->EntIndex()] = false;
+					repeat[player->EntIndex()] = false; // log that nigga again
+					pLagData->m_iMissedLBYLog = 0; // reset that shit.
+				}
+
 				if (g_ResolverData->hasStoredLby[player->EntIndex()] && g_Vars.misc.expermimental_resolver) {
-					if (pLagData->m_iMissedLBYLog % 2 == 1) {
+					if (pLagData->m_iMissedLBYLog == 0) {
 						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget - g_ResolverData->storedLbyDelta[player->EntIndex()]);
 						record->m_iResolverText = XorStr("-LBY LOGGED");
 					}
@@ -1000,10 +1005,10 @@ namespace Engine {
 						record->m_iResolverText = XorStr("+LBY LOGGED");
 					}
 				}
-				else if (!HasStaticRealAngle(anim_data->m_AnimationRecord, 10) && g_Vars.misc.expermimental_resolver) {
-					record->m_angEyeAngles.y = at_target_yaw + 180.f;
-					record->m_iResolverText = XorStr("INVALID LASTMOVE");
-				}
+				//else if (!HasStaticRealAngle(anim_data->m_AnimationRecord, 10) && g_Vars.misc.expermimental_resolver) {
+				//	record->m_angEyeAngles.y = at_target_yaw + 180.f;
+				//	record->m_iResolverText = XorStr("INVALID LASTMOVE");
+				//}
 				else {
 					record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget; // geico please stop using the other one it literally sets to lby every time i use it. (even in local server)
 					record->m_iResolverText = XorStr("LASTMOVE");
@@ -1045,10 +1050,16 @@ namespace Engine {
 					absrotation_before_flick = animstate->m_flAbsRotation;
 				}
 
+				static bool repeat[64];
+				if (pLagData->m_iMissedLBYLog >= 2) {
+					g_ResolverData->hitPlayer[player->EntIndex()] = false;
+					repeat[player->EntIndex()] = false; // log that nigga again
+					pLagData->m_iMissedLBYLog = 0; // reset that shit.
+				}
+
 				if (g_ResolverData->hitPlayer[player->EntIndex()] && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (player->m_vecVelocity().Length2D() < 0.1f || (player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking))) {
-					static bool repeat[64];
 					if (!repeat[player->EntIndex()]) {
-						if (pLagData->m_iMissedLBYLog % 2 == 1) {
+						if (pLagData->m_iMissedLBYLog == 0) {
 							g_ResolverData->storedLbyDelta[player->EntIndex()] = Math::normalize_float(record->m_angEyeAngles.y + pLagData->m_body);
 						}
 						else
@@ -1066,12 +1077,12 @@ namespace Engine {
 				}
 
 				if (g_ResolverData->hasStoredLby[player->EntIndex()] && g_Vars.misc.expermimental_resolver) {
-					if (pLagData->m_iMissedLBYLog % 2 == 1) {
-						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget + g_ResolverData->storedLbyDelta[player->EntIndex()]);
-						record->m_iResolverText = XorStr("+LBY LOGGED");
+					if (pLagData->m_iMissedLBYLog == 0) {
+						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget - g_ResolverData->storedLbyDelta[player->EntIndex()]);
+						record->m_iResolverText = XorStr("-LBY LOGGED");
 					}
 					else {
-						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget - g_ResolverData->storedLbyDelta[player->EntIndex()]);
+						record->m_angEyeAngles.y = (record->m_flLowerBodyYawTarget + g_ResolverData->storedLbyDelta[player->EntIndex()]);
 						record->m_iResolverText = XorStr("+LBY LOGGED");
 					}
 				}

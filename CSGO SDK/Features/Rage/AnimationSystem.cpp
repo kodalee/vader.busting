@@ -8,6 +8,260 @@
 
 #define MT_SETUP_BONES
 
+void recalculate_velocity(Encrypted_t<Engine::C_AnimationData> anim_data, Encrypted_t<Engine::C_AnimationRecord> record, C_BasePlayer* m_player, Encrypted_t<Engine::C_AnimationRecord> previous)
+{
+	static /*const*/ ConVar* sv_gravity = g_Vars.sv_gravity;
+	static /*const*/ ConVar* sv_jump_impulse = g_Vars.sv_jump_impulse;
+	static /*const*/ ConVar* sv_enablebunnyhopping = Interfaces::m_pCvar->FindVar(XorStr("sv_enablebunnyhopping"));
+
+	/* fix z velocity if enemy is in air. */
+	/* https://github.com/ValveSoftware/source-sdk-2013/blob/master/mp/src/game/shared/gamemovement.cpp#L1697 */
+
+	//auto& old_origin = *(Vector*)(uintptr_t(m_player) + 0x3A4);
+
+	if (record->m_fFlags & FL_ONGROUND
+		&& record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_flWeight > 0.0f
+		&& record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_flWeight < 1.0f)
+	{
+		// float val = clamp ( ( speed - 0.55f ) / ( 0.9f - 0.55f), 0.f, 1.f );
+		// layer11_weight = 1.f - val;
+		auto val = (1.0f - record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_flWeight) * 0.35f;
+
+		if (val > 0.0f && val < 1.0f)
+			record->animation_speed = val + 0.55f;
+		else
+			record->animation_speed = -1.f;
+	}
+
+	if (_fdtest(&record->m_vecVelocity.x) > 0
+		|| _fdtest(&record->m_vecVelocity.y) > 0
+		|| _fdtest(&record->m_vecVelocity.z) > 0)
+		record->m_vecVelocity.Init();
+
+	if (!record->m_dormant && previous.IsValid() && !previous->dormant())
+	{
+		//
+		//	calculate new velocity based on (new_origin - old_origin) / (new_time - old_time) formula.
+		//
+		if (record->m_iChokeTicks > 1 && record->m_iChokeTicks <= 20)
+			record->m_vecVelocity = (record->m_vecOrigin - previous->m_vecOrigin) / record->m_flChokeTime;
+
+		if (abs(record->m_vecVelocity.x) < 0.001f)
+			record->m_vecVelocity.x = 0.0f;
+		if (abs(record->m_vecVelocity.y) < 0.001f)
+			record->m_vecVelocity.y = 0.0f;
+		if (abs(record->m_vecVelocity.z) < 0.001f)
+			record->m_vecVelocity.z = 0.0f;
+
+		if (_fdtest(&record->m_vecVelocity.x) > 0
+			|| _fdtest(&record->m_vecVelocity.y) > 0
+			|| _fdtest(&record->m_vecVelocity.z) > 0)
+			record->m_vecVelocity.Init();
+
+		auto curr_direction = RAD2DEG(std::atan2f(record->m_vecVelocity.y, record->m_vecVelocity.x));
+		auto prev_direction = !previous.IsValid() ? FLT_MAX : RAD2DEG(std::atan2f(previous->m_vecVelocity.y, previous->m_vecVelocity.x));
+
+		auto delta = Math::normalize_angle(curr_direction - prev_direction);
+
+		//if (record->m_vecVelocity.Length2D() > 0.1f) {
+		//	if (previous->m_vecVelocity.Length2D() > 0.1f && abs(delta) >= 60.f)
+		//		r_log->last_time_changed_direction = csgo.m_globals()->realtime;
+		//}
+		//else
+		//	r_log->last_time_changed_direction = 0;
+
+		//
+		// these requirements pass only when layer[6].weight is accurate to normalized velocity.
+		//
+		if (record->m_fFlags & FL_ONGROUND
+			&& record->m_vecVelocity.Length2D() >= 0.1f
+			&& std::abs(delta) < 1.0f
+			&& std::abs(record->m_flDuckAmount - previous->m_flDuckAmount) <= 0.0f
+			&& record->m_serverAnimOverlays[6].m_flPlaybackRate > previous->m_serverAnimOverlays[6].m_flPlaybackRate
+			&& record->m_serverAnimOverlays[6].m_flWeight > previous->m_serverAnimOverlays[6].m_flWeight)
+		{
+			auto weight_speed = record->m_serverAnimOverlays[6].m_flWeight;
+
+			if (weight_speed <= 0.7f && weight_speed > 0.0f)
+			{
+				if (record->m_serverAnimOverlays[6].m_flPlaybackRate == 0.0f)
+					record->m_vecVelocity.Init();
+				else
+				{
+					const auto m_post_velocity_lenght = record->m_vecVelocity.Length2D();
+
+					if (m_post_velocity_lenght != 0.0f)
+					{
+						float mult = 1;
+						if (record->m_fFlags & 6)
+							mult = 0.34f;
+						else if (record->m_bFakeWalking)
+							mult = 0.52f;
+
+						record->m_vecVelocity.x = (record->m_vecVelocity.x / m_post_velocity_lenght) * (weight_speed * (record->max_current_speed * mult));
+						record->m_vecVelocity.y = (record->m_vecVelocity.y / m_post_velocity_lenght) * (weight_speed * (record->max_current_speed * mult));
+					}
+				}
+			}
+		}
+
+		//
+		// fix velocity with fakelag.
+		//
+		if (record->m_fFlags & FL_ONGROUND && record->m_vecVelocity.Length2D() > 0.1f && record->m_iChokeTicks > 1)
+		{
+			//
+			// get velocity lenght from 11th layer calc.
+			//
+			if (record->animation_speed > 0) {
+				const auto m_pre_velocity_lenght = record->m_vecVelocity.Length2D();
+				C_WeaponCSBaseGun* weapon = (C_WeaponCSBaseGun*)m_player->m_hActiveWeapon().Get();
+
+				if (weapon) {
+					auto wdata = weapon->GetCSWeaponData();
+					if (wdata.IsValid()) {
+						auto adjusted_velocity = (record->animation_speed * record->max_current_speed) / m_pre_velocity_lenght;
+						record->m_vecVelocity.x *= adjusted_velocity;
+						record->m_vecVelocity.y *= adjusted_velocity;
+					}
+				}
+			}
+
+			/*if (record->entity_flags & FL_ONGROUND && (sv_enablebunnyhopping && !sv_enablebunnyhopping->GetBool() || previous->entity_flags & FL_ONGROUND)) {
+				auto max_speed = record->max_current_speed;
+
+				if (record->entity_flags & 6)
+					max_speed *= 0.34f;
+				else if (record->fake_walking)
+					max_speed *= 0.52f;
+
+				if (max_speed < m_pre_velocity_lenght)
+					record->velocity *= (max_speed / m_pre_velocity_lenght);
+
+				if (previous->entity_flags & FL_ONGROUND)
+					record->velocity.z = 0.f;
+			}*/
+		}
+
+		if (anim_data->m_AnimationRecord.size() > 2 && record->m_iChokeTicks > 1 && !record->dormant()
+			&& previous->m_vecVelocity.Length() > 0 && !(record->m_fFlags & FL_ONGROUND && previous->m_fFlags & FL_ONGROUND))
+		{
+			auto pre_pre_record = &anim_data->m_AnimationRecord.at(2);
+
+			if (!pre_pre_record->dormant()) {
+				//if (record->velocity.Length2D() > (record->max_current_speed * 0.52f) && previous->velocity.Length2D() > (record->max_current_speed * 0.52f)
+				//	|| record->velocity.Length2D() <= (record->max_current_speed * 0.52f) && previous->velocity.Length2D() <= (record->max_current_speed * 0.52f))
+				//{
+				//	auto manually_calculated = log->tick_records[(log->records_count - 2) & 63].stop_to_full_run_frac;
+				//	manually_calculated += (record->velocity.Length2D() > (record->max_current_speed * 0.52f) ? (2.f * previous->time_delta) : -(2.f * previous->time_delta));
+
+				//	manually_calculated = Math::clamp(manually_calculated, 0, 1);
+
+				//	if (abs(manually_calculated - previous->stop_to_full_run_frac) >= 0.1f)// {
+				//		m_player->get_animation_state()->m_walk_run_transition = manually_calculated;
+				//}
+
+				const auto prev_direction = RAD2DEG(std::atan2f(previous->m_vecVelocity.y, previous->m_vecVelocity.x));
+
+				auto real_velocity = record->m_vecVelocity.Length2D();
+
+				float delta = curr_direction - prev_direction;
+
+				if (delta <= 180.0f)
+				{
+					if (delta < -180.0f)
+						delta = delta + 360.0f;
+				}
+				else
+				{
+					delta = delta - 360.0f;
+				}
+
+				float v63 = delta * 0.5f + curr_direction;
+
+				auto direction = (v63 + 90.f) * 0.017453292f;
+
+				record->m_vecVelocity.x = sinf(direction) * real_velocity;
+				record->m_vecVelocity.y = cosf(direction) * real_velocity;
+			}
+		}
+
+		//bool is_jumping = record->entity_flags & FL_ONGROUND && previous && previous->data_filled && !previous->dormant && !(previous->entity_flags & FL_ONGROUND);
+
+		/*if (is_jumping && record->ground_accel_last_time != record->simulation_time)
+		{
+			if (sv_enablebunnyhopping->GetInt() == 0) {
+
+				// 260 x 1.1 = 286 units/s.
+				float max = m_player->m_flMaxSpeed() * 1.1f;
+
+				// get current velocity.
+				float speed = record->velocity.Length();
+
+				// reset velocity to 286 units/s.
+				if (max > 0.f && speed > max)
+					record->velocity *= (max / speed);
+			}
+
+			// assume the player is bunnyhopping here so set the upwards impulse.
+			record->velocity.z = sv_jump_impulse->GetFloat();
+
+			record->in_jump = true;
+		}
+		else */if (!(record->m_fFlags & FL_ONGROUND))
+		{
+			record->m_vecVelocity.z -= sv_gravity->GetFloat() * record->m_flChokeTime * 0.5f;
+
+			//record->in_jump = true;
+		}
+	}
+	else if (record->dormant())
+	{
+		auto weight_speed = record->m_serverAnimOverlays[6].m_flWeight;
+
+		if (record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.00001f)
+			record->m_vecVelocity.Init();
+		else
+		{
+			const auto m_post_velocity_lenght = record->m_vecVelocity.Length2D();
+
+			if (m_post_velocity_lenght != 0.0f && weight_speed > 0.01f && weight_speed < 0.95f)
+			{
+				float mult = 1;
+				if (record->m_fFlags & 6)
+					mult = 0.34f;
+				else if (record->m_bFakeWalking)
+					mult = 0.52f;
+
+				record->m_vecVelocity.x = (record->m_vecVelocity.x / m_post_velocity_lenght) * (weight_speed * (record->max_current_speed * mult));
+				record->m_vecVelocity.y = (record->m_vecVelocity.y / m_post_velocity_lenght) * (weight_speed * (record->max_current_speed * mult));
+			}
+		}
+
+		if (record->m_fFlags & FL_ONGROUND)
+			record->m_vecVelocity.z = 0;
+	}
+
+	if (_fdtest(&record->m_vecVelocity.x) > 0
+		|| _fdtest(&record->m_vecVelocity.y) > 0
+		|| _fdtest(&record->m_vecVelocity.z) > 0)
+		record->m_vecVelocity.Init();
+	//
+	//	if server had 0 velocity at animation time -> reset velocity
+	//
+	if (record->m_fFlags & FL_ONGROUND && record->m_iChokeTicks > 1 && record->m_vecVelocity.Length() > 0.1f && record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.00001f)
+		record->m_vecVelocity.Init();
+
+	//m_player->invalidate_anims(4);
+
+	/* apply proper velocity and force flags so game will not try to recalculate it. */
+	//m_player->m_vecAbsVelocity() = record->velocity;
+	//m_player->m_vecVelocity() = record->m_vecVelocity;
+	//m_player->invalidate_anims(VELOCITY_CHANGED);
+
+	//*(Vector*)(uintptr_t(m_player) + 0x114) = record->velocity;
+}
+
 void player_extrapolation(C_CSPlayer* e, Vector& vecorigin, Vector& vecvelocity, int& fFlags, bool bOnGround, int ticks)
 {
 	Vector start, end;
@@ -265,14 +519,6 @@ namespace Engine
 			}
 		}
 
-		bool update = (this->m_AnimationRecord.empty() || player->m_flSimulationTime() > this->m_AnimationRecord.front().m_flSimulationTime);
-
-		if (update) {
-			C_AnimationRecord current = this->m_AnimationRecord.front();
-
-			current.m_dormant = false;
-		}
-
 		// simulate animations
 		SimulateAnimations( pAnimationRecord, pPreviousAnimationRecord );
 
@@ -311,6 +557,8 @@ namespace Engine
 			pThis->m_bIsDormant = pThis->m_bBonesCalculated = false;
 			pThis->player = player;
 			pThis->m_bIsAlive = false;
+			pThis->m_old_sim = 0.0f;
+			pThis->m_cur_sim = 0.0f;
 		}
 
 		if( !player )
@@ -320,22 +568,59 @@ namespace Engine
 		pThis->m_flOldSimulationTime = pThis->m_flSimulationTime;
 		pThis->m_flSimulationTime = pThis->player->m_flSimulationTime( );
 
-		if( pThis->m_flSimulationTime == 0.0f || pThis->player->IsDormant( ) ) {
+		if (pThis->m_flSimulationTime == 0.0f || pThis->player->IsDormant()) {
 			pThis->m_bIsDormant = true;
-			Engine::g_ResolverData[ player->EntIndex( ) ].m_bWentDormant = true;
+			Engine::g_ResolverData[player->EntIndex()].m_bWentDormant = true;
 			Engine::g_ResolverData[player->EntIndex()].m_vecSavedOrigin = pThis->m_vecOrigin;
 			return;
 		}
 
-		//bool update = (this->m_AnimationRecord.empty() || player->m_flSimulationTime() > this->m_AnimationRecord.front().m_flSimulationTime);
+		int player_updated = false;
+		int invalid_simulation = false;
 
-		//if( !update ) {
+		if (player->m_flSimulationTime() != 0.0f)
+		{
+			if (player->GetAnimLayer(11).m_flCycle != pThis->m_sim_cycle
+				|| player->GetAnimLayer(11).m_flPlaybackRate != pThis->m_sim_rate)
+				player_updated = 1;
+			else
+			{
+				player->m_flOldSimulationTime() = pThis->m_old_sim;
+				invalid_simulation = 1;
+				player->m_flSimulationTime() = pThis->m_cur_sim;
+			}
+		}
+		else
+			return;
+
+		bool silent_update = false;
+
+		auto update = 0;
+		if (!invalid_simulation)
+		{
+
+			auto v23 = pThis->m_cur_sim;
+			pThis->m_old_sim = v23;
+			auto v24 = player->m_flSimulationTime();
+			pThis->m_cur_sim = v24;
+			if (player_updated || v24 != v23 && (pThis->m_cur_sim == 0))
+				update = 1;
+
+			if (player_updated && v24 == v23)
+				silent_update = true;
+		}
+
+		bool should_update = update || silent_update;
+
+		if (!should_update)
+			return;
+
+		//if (pThis->m_flOldSimulationTime == pThis->m_flSimulationTime) {
 		//	return;
 		//}
 
-		if (pThis->m_flOldSimulationTime == pThis->m_flSimulationTime) {
-			return;
-		}
+		pThis->m_sim_cycle = player->GetAnimLayer(11).m_flCycle;
+		pThis->m_sim_rate = player->GetAnimLayer(11).m_flPlaybackRate;
 
 		if( pThis->m_bIsDormant ) {
 			pThis->m_iTicksAfterDormancy = 0;
@@ -423,14 +708,75 @@ namespace Engine
 		record->m_bFakeWalking = false;
 		Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
 
-		if( previous_record.IsValid( ) ) {
-			record->m_flChokeTime = pThis->m_flSimulationTime - pThis->m_flOldSimulationTime;
-			record->m_iChokeTicks = TIME_TO_TICKS( record->m_flChokeTime );
+		// if record is marked as exploit. do not store simulation time and let aimbot ignore it.
+		if (silent_update) {
+			record->m_bTeleportDistance = true;
 		}
-		else {
-			record->m_flChokeTime = Interfaces::m_pGlobalVars->interval_per_tick;
-			record->m_iChokeTicks = 1;
+
+		int ticks_to_simulate = 1;
+
+		if (previous_record.IsValid() && !previous_record->dormant())
+		{
+			int simulation_ticks = TIME_TO_TICKS(record->m_flSimulationTime - previous_record->m_flSimulationTime);
+
+			if ((simulation_ticks - 1) > 31 || previous_record->m_flSimulationTime == 0.f)
+				simulation_ticks = 1;
+
+			auto layer_cycle = record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_flCycle;
+			auto previous_playback = previous_record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_flPlaybackRate;
+
+			if (previous_playback > 0.f && record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_flPlaybackRate > 0.f
+				&& previous_record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_nSequence == record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_nSequence
+				/*&& m_player->get_animation_state()->m_weapon == m_player->get_animation_state()->m_weapon_last*/)
+			{
+				auto previous_cycle = previous_record->m_serverAnimOverlays[11].m_flCycle;
+				simulation_ticks = 0;
+
+				if (previous_cycle > layer_cycle)
+					layer_cycle = layer_cycle + 1.0f;
+
+				while (layer_cycle > previous_cycle)
+				{
+					const auto ticks_backup = simulation_ticks;
+					const auto playback_mult_ipt = Interfaces::m_pGlobalVars->interval_per_tick * previous_playback;
+
+					previous_cycle = previous_cycle + (Interfaces::m_pGlobalVars->interval_per_tick * previous_playback);
+
+					if (previous_cycle >= 1.0f)
+						previous_playback = record->m_serverAnimOverlays[ANIMATION_LAYER_ALIVELOOP].m_flPlaybackRate;
+
+					++simulation_ticks;
+
+					if (previous_cycle > layer_cycle && (previous_cycle - layer_cycle) > (playback_mult_ipt * 0.5f))
+						simulation_ticks = ticks_backup;
+				}
+			}
+
+			ticks_to_simulate = simulation_ticks;
+
+			//if (record->exploit)
+			//	record->simulation_time = previous->simulation_time + TICKS_TO_TIME(simulation_ticks);
 		}
+
+		ticks_to_simulate = Math::Clamp(ticks_to_simulate, 1, 64);
+
+		record->m_flChokeTime = float(ticks_to_simulate) * Interfaces::m_pGlobalVars->interval_per_tick;
+		record->m_iChokeTicks = ticks_to_simulate;
+
+		record->max_current_speed = player->GetMaxSpeed();
+
+		record->max_current_speed = fmaxf(record->max_current_speed, 0.001f);
+
+		record->animation_speed = -1.f;
+
+		//if( previous_record.IsValid( ) ) {
+		//	record->m_flChokeTime = pThis->m_flSimulationTime - pThis->m_flOldSimulationTime;
+		//	record->m_iChokeTicks = TIME_TO_TICKS( record->m_flChokeTime );
+		//}
+		//else {
+		//	record->m_flChokeTime = Interfaces::m_pGlobalVars->interval_per_tick;
+		//	record->m_iChokeTicks = 1;
+		//}
 
 		if( !previous_record.IsValid( ) ) {
 			record->m_bIsInvalid = true;
@@ -485,20 +831,14 @@ namespace Engine
 
 		record->m_bIsInvalid = false;
 
-		auto animState = player->m_PlayerAnimState();
-
-		// thanks llama.
-		if (record->m_fFlags & FL_ONGROUND) {
-			if (animState) {
-				// they are on ground.
-				animState->m_bOnGround = true;
-				// no they didnt land.
-				animState->m_bHitground = false;
-			}
+		// velocity fixa
+		if (record->m_iChokeTicks > 1) {
+			recalculate_velocity(pThis, record, player, previous_record);
 		}
+		else
+			record->m_vecVelocity = player->m_vecVelocity();
 
-		// velocity fixa -> previous_record.IsValid() already checked so i removed it 
-		if(!previous_record->dormant()) {
+		if (!previous_record->dormant()) {
 			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && (previous_record->m_fFlags & FL_ONGROUND);
 			auto animation_speed = 0.0f;
 			auto origin_delta = record->m_vecOrigin - previous_record->m_vecOrigin;
@@ -507,81 +847,25 @@ namespace Engine
 			int fPreviousFlags = previous_record->m_fFlags;
 			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, record->m_flSimulationTime - previous_record->m_flSimulationTime);
 
-			// fix velocity
+			// extrapolate!!!
 			// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
 			if (!origin_delta.IsZero() && TIME_TO_TICKS(time_difference) > 0) {
-				//record->m_vecVelocity = (record->m_vecOrigin - previous_record->m_vecOrigin) * (1.f / record->m_flChokeTime);
-				record->m_vecVelocity = origin_delta * (1.0f / time_difference);
-
-				if (player->m_fFlags() & FL_ONGROUND && record->m_serverAnimOverlays[11].m_flWeight > 0.0f && record->m_serverAnimOverlays[11].m_flWeight < 1.0f && record->m_serverAnimOverlays[11].m_flCycle > previous_record->m_serverAnimOverlays[11].m_flCycle)
-				{
-					auto weapon = player->m_hActiveWeapon().Get();
-
-					if (weapon)
+				if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(local->EntIndex())) < 199) {
+					if (record->m_vecVelocity.Length2D() >= 100.f)
 					{
-						auto max_speed = 260.0f;
-						C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)player->m_hActiveWeapon().Get();
-						auto weapon_info = Weapon->GetCSWeaponData();
-
-						if (weapon_info.IsValid())
-							max_speed = player->m_bIsScoped() ? weapon_info->m_flMaxSpeed2 : weapon_info->m_flMaxSpeed;
-
-						auto modifier = 0.35f * (1.0f - record->m_serverAnimOverlays[11].m_flWeight);
-
-						if (modifier > 0.0f && modifier < 1.0f)
-							animation_speed = max_speed * (modifier + 0.55f);
+						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 8);
 					}
-				}
-
-				if (animation_speed > 0.0f)
-				{
-					animation_speed /= record->m_vecVelocity.Length2D();
-
-					record->m_vecVelocity.x *= animation_speed;
-					record->m_vecVelocity.y *= animation_speed;
-				}
-
-				if (pThis->m_AnimationRecord.size() >= 3 && time_difference > Interfaces::m_pGlobalVars->interval_per_tick)
-				{
-					auto previous_velocity = (previous_record->m_vecOrigin - pThis->m_AnimationRecord.at(2).m_vecOrigin) * (1.0f / time_difference);
-
-					if (!previous_velocity.IsZero() && !was_in_air)
+					if (record->m_vecVelocity.z > 0)
 					{
-						auto current_direction = Math::normalize_float(RAD2DEG(atan2(record->m_vecVelocity.y, record->m_vecVelocity.x)));
-						auto previous_direction = Math::normalize_float(RAD2DEG(atan2(previous_velocity.y, previous_velocity.x)));
-
-						auto average_direction = current_direction - previous_direction;
-						average_direction = DEG2RAD(Math::normalize_float(current_direction + average_direction * 0.5f));
-
-						auto direction_cos = cos(average_direction);
-						auto dirrection_sin = sin(average_direction);
-
-						auto velocity_speed = record->m_vecVelocity.Length2D();
-
-						record->m_vecVelocity.x = direction_cos * velocity_speed;
-						record->m_vecVelocity.y = dirrection_sin * velocity_speed;
+						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 3);
 					}
-				}
-
-				// fix CGameMovement::FinishGravity
-				if (!(player->m_fFlags() & FL_ONGROUND)) {
-					static auto sv_gravity = g_Vars.sv_gravity;
-					auto fixed_timing = Math::Clamp(time_difference, Interfaces::m_pGlobalVars->interval_per_tick, 1.0f);
-					record->m_vecVelocity.z -= sv_gravity->GetFloat() * fixed_timing * 0.5f;
-				}
-				else
-					record->m_vecVelocity.z = 0.0f;
-
-				if (record->m_vecVelocity.Length2D() >= 100.f)
-				{
-					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 8);
-				}
-				if (record->m_vecVelocity.z > 0)
-				{
-					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 3);
 				}
 			}
 		}
+
+		//printf("velocity: ");
+		//printf(std::to_string(record->m_vecVelocity.Length2D()).c_str());
+		//printf(" \n");
 
 		//// detect fakewalking players
 		if (record->m_vecVelocity.Length() > 0.1f
@@ -649,27 +933,21 @@ namespace Engine
 				// and alpha didn't realize this but i did, so its fine.
 				// improper way to do this -> flLandTime = record->m_flSimulationTime - float( record->m_serverAnimOverlays[ 4 ].m_flPlaybackRate * record->m_serverAnimOverlays[ 4 ].m_flCycle );
 				// we need to divide instead of multiplication.
-				flLandTime = record->m_flSimulationTime - float( record->m_serverAnimOverlays[ 4 ].m_flPlaybackRate * record->m_serverAnimOverlays[ 4 ].m_flCycle ); // VIO you fucking retarded
-				bLandedOnServer = flLandTime >= previous_record->m_flSimulationTime;
+				flLandTime = record->m_flSimulationTime - float( record->m_serverAnimOverlays[ 4 ].m_flCycle / record->m_serverAnimOverlays[ 4 ].m_flPlaybackRate );
+				bLandedOnServer = flLandTime >= record->m_flSimulationTime;
 			}
 
 			bool bOnGround = record->m_fFlags & FL_ONGROUND;
 			// jump_fall fix
 			if( bLandedOnServer && !bJumped ) {
-				if( flLandTime <= data.m_flTime ) {
+				if( flLandTime < data.m_flTime ) {
+					player->m_fFlags() |= FL_ONGROUND;
 					bJumped = true;
 					bOnGround = true;
+					auto layer = &player->GetAnimLayer(4);
+					layer->m_flCycle = 0;
+					layer->m_flWeight = 0;
 				}
-				else {
-					bOnGround = previous_record->m_fFlags & FL_ONGROUND;
-				}
-			}
-
-			if (bOnGround) {
-				player->m_fFlags() |= FL_ONGROUND;
-			}
-			else {
-				player->m_fFlags() &= ~FL_ONGROUND;
 			}
 
 			data.bOnGround = bOnGround;
@@ -689,19 +967,26 @@ namespace Engine
 			//	record->m_vecAnimationVelocity = previous_record->m_vecVelocity + accel;
 			//}
 
-			// delta in duckamt and delta in time..
-			float duck = record->m_flDuckAmount - previous_record->m_flDuckAmount;
-			float time = record->m_flSimulationTime - previous_record->m_flSimulationTime;
+			float duck_amount_per_tick = 0.0f;
 
-			// get the duckamt change per tick.
-			float change = (duck / time) * Interfaces::m_pGlobalVars->interval_per_tick;
+			if (record->m_flDuckAmount != previous_record->m_flDuckAmount
+				&& record->m_fFlags & FL_ONGROUND
+				&& previous_record->m_fFlags & FL_ONGROUND)
+			{
+				//if (record->time_delta != 0.0f)
+				//	record->duck_amount_per_tick = csgo.m_globals()->interval_per_tick / record->time_delta;
+				auto v210 = record->m_flChokeTime - TICKS_TO_TIME(1);
+				if (v210 != 0.f)
+					duck_amount_per_tick = Interfaces::m_pGlobalVars->interval_per_tick / v210;
+			}
 
-			// fix crouching players.
-			player->m_flDuckAmount() = previous_record->m_flDuckAmount + change;
+			if (duck_amount_per_tick != 0.0f)
+			{
+				auto v208 = ((record->m_flDuckAmount - player->m_flDuckAmount()) * duck_amount_per_tick)
+					+ player->m_flDuckAmount();
 
-			// fix these niggas.
-			if ((record->m_vecOrigin - previous_record->m_vecOrigin).IsZero())
-				record->m_vecAnimationVelocity.Init();
+				player->m_flDuckAmount() = fminf(fmaxf(v208, 0.0f), 1.0f);
+			}
 		}
 	}
 

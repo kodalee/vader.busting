@@ -81,6 +81,19 @@ namespace Math
 		angles.z = 0.0f;
 	}
 
+	__forceinline float normalize_angle(float angle)
+	{
+		//return remainderf(angle, 360.0f);
+		float rtn = angle;
+
+		for (; rtn > 180.0f; rtn = rtn - 360.0f)
+			;
+		for (; rtn < -180.0f; rtn = rtn + 360.0f)
+			;
+
+		return rtn;
+	}
+
 	__forceinline float normalize_pitch(float pitch)
 	{
 		while (pitch > 89.0f)

@@ -124,6 +124,11 @@ namespace Engine
 		float m_flLastUpdateTime = 0.0f;
 		float m_flRate = 0.0f;
 
+		float m_old_sim = 0.0f;
+		float m_cur_sim = 0.0f;
+		float m_sim_cycle = 0.0f;
+		float m_sim_rate = 0.0f;
+
 		int m_iMissedShots = 0;
 		int m_iMissedBruteShots = 0;
 		int m_iMissedShotsLBYTEST = 0;

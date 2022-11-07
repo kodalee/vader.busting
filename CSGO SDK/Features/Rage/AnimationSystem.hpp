@@ -72,6 +72,9 @@ namespace Engine
 		float m_flLowerBodyYawTarget;
 		float m_flAbsRotation;
 
+		float animation_speed;
+		float max_current_speed;
+
 		//float m_body; // fuck this variable.
 		float m_moving_body;
 		float m_old_body;
@@ -132,6 +135,11 @@ namespace Engine
 		bool m_bInvertedSide = false;
 		bool m_bForceFake = false;
 		float m_flLastScannedYaw = 0.0f;
+
+		float m_old_sim = 0.0f;
+		float m_cur_sim = 0.0f;
+		float m_sim_cycle = 0.0f;
+		float m_sim_rate = 0.0f;
 
 		int m_iCurrentTickCount = 0;
 		int m_iOldTickCount = 0;
