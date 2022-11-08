@@ -1087,7 +1087,7 @@ namespace Engine {
 					}
 				}
 				else {
-					switch (pLagData->m_iMissedBruteShots % 6) {
+					switch (pLagData->m_iMissedBruteShots % 8) {
 					case 0:
 						if (pLagData->m_iMissedShotsDistort < 1) {
 							record->m_angEyeAngles.y = at_target_yaw + 180.f;
@@ -1117,6 +1117,18 @@ namespace Engine {
 					case 5:
 						record->m_angEyeAngles.y = at_target_yaw + 120.f;
 						record->m_iResolverText = XorStr("+120");
+						break;
+					case 6:
+						static float randomfloat = RandomFloat(35.0, 120.0);
+
+						record->m_angEyeAngles.y = randomfloat + pLagData->m_body;
+						record->m_iResolverText = XorStr("LBY+RND");
+						break;
+					case 7:
+						static float randomfloat2 = RandomFloat(35.0, 60.0);
+
+						record->m_angEyeAngles.y = pLagData->m_body - randomfloat2;
+						record->m_iResolverText = XorStr("LBY-RND");
 						break;
 					}
 				}

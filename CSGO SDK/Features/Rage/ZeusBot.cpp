@@ -62,7 +62,7 @@ namespace Interfaces {
 		if( zeusBotData->m_pLocalWeapon->m_iItemDefinitionIndex( ) != WEAPON_ZEUS )
 			return;
 
-		zeusBotData->m_vecEyePos = g_Vars.globals.m_vecFixedEyePosition;
+		zeusBotData->m_vecEyePos = zeusBotData->m_pLocalPlayer->GetEyePosition();
 		for( int i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++ ) {
 			C_CSPlayer* Target = ( C_CSPlayer* )Interfaces::m_pEntList->GetClientEntity( i );
 			if( !Target

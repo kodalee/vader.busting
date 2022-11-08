@@ -201,11 +201,11 @@ namespace Engine
 		if (time_delta > 0.2f) // do we want todo 0.19f or 0.2f? 0.19f might be more accurate and more "safe"
 			return false;
 		
-		auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING)) - g_TickbaseController.s_nExtraProcessingTicks;
-		auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - 1.0f);
+		//auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING));
+		//auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - 1.0f);
 
-		if (record.m_flSimulationTime < (float)dead_time)
-			return false;
+		//if (record.m_flSimulationTime < (float)dead_time)
+		//	return false;
 
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
@@ -264,7 +264,7 @@ namespace Engine
 			pThis->m_flLastUpdateTime = 0.0f;
 			pThis->m_old_sim = 0.0f;
 			pThis->m_cur_sim = 0.0f;
-			if( pThis->m_History.size( ) > 0 ) {
+			if (pThis->m_History.size() > 0 && pThis->m_History.front().m_bTeleportDistance) {
 				pThis->m_History.clear( );
 			}
 
@@ -277,34 +277,51 @@ namespace Engine
 		}
 
 		if (player->m_flSimulationTime() == 0.0f || player->IsDormant()) {
-			if (pThis->m_History.size() > 0) {
+			if (pThis->m_History.size() > 0 && pThis->m_History.front().m_bTeleportDistance) {
 				pThis->m_History.clear();
 			}
 
 			return;
 		}
 
-		auto update = pThis->m_History.empty() || player->m_flSimulationTime() != player->m_flOldSimulationTime();
+		int player_updated = false;
+		int invalid_simulation = false;
 
-		if (update && !pThis->m_History.empty())
+		if (player->m_flSimulationTime() != 0.0f)
 		{
-			auto server_tick = Interfaces::m_pClientState->m_ClockDriftMgr.m_nServerTick % Interfaces::m_pGlobalVars->nTimestampRandomizeWindow;
-			auto current_tick = server_tick - server_tick % Interfaces::m_pGlobalVars->nTimestampNetworkingBase;
-
-			if (TIME_TO_TICKS(player->m_flOldSimulationTime()) < current_tick && TIME_TO_TICKS(player->m_flSimulationTime()) == current_tick)
+			if (player->GetAnimLayer(11).m_flCycle != pThis->m_sim_cycle
+				|| player->GetAnimLayer(11).m_flPlaybackRate != pThis->m_sim_rate)
+				player_updated = 1;
+			else
 			{
-				auto layer = &player->m_AnimOverlay()[11];
-				auto previous_layer = &pThis->m_History.front().m_LayerRecords[11];
-
-				if (layer->m_flCycle == previous_layer->m_flCycle)
-				{
-					player->m_flSimulationTime() = player->m_flOldSimulationTime();
-					update = false;
-				}
+				player->m_flOldSimulationTime() = pThis->m_old_sim;
+				invalid_simulation = 1;
+				player->m_flSimulationTime() = pThis->m_cur_sim;
 			}
 		}
+		else
+			return;
 
-		if (!update)
+		bool silent_update = false;
+
+		auto update = 0;
+		if (!invalid_simulation)
+		{
+
+			auto v23 = pThis->m_cur_sim;
+			pThis->m_old_sim = v23;
+			auto v24 = player->m_flSimulationTime();
+			pThis->m_cur_sim = v24;
+			if (player_updated || v24 != v23 && (pThis->m_cur_sim == 0))
+				update = 1;
+
+			if (player_updated && v24 == v23)
+				silent_update = true;
+		}
+
+		bool should_update = update || silent_update;
+
+        if (!update)
 			return;
 
 		pThis->m_sim_cycle = player->GetAnimLayer(11).m_flCycle;
@@ -331,8 +348,13 @@ namespace Engine
 		}
 
 		auto anim_record = &anim_data->m_AnimationRecord.front( );
-		if( anim_record->m_bShiftingTickbase ) {
-			return;
+		//if( anim_record->m_bShiftingTickbase ) {
+		//	return;
+		//}
+
+		if (silent_update) {
+			anim_record->m_bTeleportDistance = true;
+			//anim_record->m_bIsInvalid = true;
 		}
 
 		if (Engine::LagCompensation::Get()->is_breaking_lagcomp(player, player->m_flSimulationTime())) {

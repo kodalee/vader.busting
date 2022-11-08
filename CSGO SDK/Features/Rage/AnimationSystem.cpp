@@ -575,25 +575,42 @@ namespace Engine
 			return;
 		}
 
-		auto update = pThis->m_AnimationRecord.empty() || player->m_flSimulationTime() != player->m_flOldSimulationTime();
+		int player_updated = false;
+		int invalid_simulation = false;
 
-		if (update && !pThis->m_AnimationRecord.empty())
+		if (player->m_flSimulationTime() != 0.0f)
 		{
-			auto server_tick = Interfaces::m_pClientState->m_ClockDriftMgr.m_nServerTick % Interfaces::m_pGlobalVars->nTimestampRandomizeWindow;
-			auto current_tick = server_tick - server_tick % Interfaces::m_pGlobalVars->nTimestampNetworkingBase;
-
-			if (TIME_TO_TICKS(player->m_flOldSimulationTime()) < current_tick && TIME_TO_TICKS(player->m_flSimulationTime()) == current_tick)
+			if (player->GetAnimLayer(11).m_flCycle != pThis->m_sim_cycle
+				|| player->GetAnimLayer(11).m_flPlaybackRate != pThis->m_sim_rate)
+				player_updated = 1;
+			else
 			{
-				auto layer = &player->m_AnimOverlay()[11];
-				auto previous_layer = &pThis->m_AnimationRecord.front().m_serverAnimOverlays[11];
-
-				if (layer->m_flCycle == previous_layer->m_flCycle)
-				{
-					player->m_flSimulationTime() = player->m_flOldSimulationTime();
-					update = false;
-				}
+				player->m_flOldSimulationTime() = pThis->m_old_sim;
+				invalid_simulation = 1;
+				player->m_flSimulationTime() = pThis->m_cur_sim;
 			}
 		}
+		else
+			return;
+
+		bool silent_update = false;
+
+		auto update = 0;
+		if (!invalid_simulation)
+		{
+
+			auto v23 = pThis->m_cur_sim;
+			pThis->m_old_sim = v23;
+			auto v24 = player->m_flSimulationTime();
+			pThis->m_cur_sim = v24;
+			if (player_updated || v24 != v23 && (pThis->m_cur_sim == 0))
+				update = 1;
+
+			if (player_updated && v24 == v23)
+				silent_update = true;
+		}
+
+		bool should_update = update || silent_update;
 
 		if (!update)
 			return;
@@ -691,6 +708,12 @@ namespace Engine
 		record->m_bFakeWalking = false;
 		Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
 
+		// if record is marked as exploit. do not store simulation time and let aimbot ignore it.
+		if (silent_update) {
+			record->m_bTeleportDistance = true;
+			//record->m_bIsInvalid = true;
+		}
+
 		int ticks_to_simulate = 1;
 
 		if (previous_record.IsValid() && !previous_record->dormant())
@@ -769,7 +792,7 @@ namespace Engine
 			return;
 		}
 
-		/*auto flPreviousSimulationTime = previous_record->m_flSimulationTime;
+		auto flPreviousSimulationTime = previous_record->m_flSimulationTime;
 		auto nTickcountDelta = pThis->m_iCurrentTickCount - pThis->m_iOldTickCount;
 		auto nSimTicksDelta = record->m_iChokeTicks;
 		auto nChokedTicksUnk = nSimTicksDelta;
@@ -800,7 +823,7 @@ namespace Engine
 
 				pThis->m_iTicksUnknown++;
 			}
-		}*/
+		}
 
 		if( weapon ) {
 			record->m_flShotTime = weapon->m_fLastShotTime( );
@@ -810,13 +833,13 @@ namespace Engine
 		record->m_bIsInvalid = false;
 
 		// velocity fixa
-		if (record->m_iChokeTicks > 1) {
+		if (record->m_iChokeTicks > 1 && !silent_update) {
 			recalculate_velocity(pThis, record, player, previous_record);
 		}
 		else
 			record->m_vecVelocity = player->m_vecVelocity();
 
-		if (!previous_record->dormant()) {
+		if (!previous_record->dormant() && !silent_update) {
 			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && (previous_record->m_fFlags & FL_ONGROUND);
 			auto animation_speed = 0.0f;
 			auto origin_delta = record->m_vecOrigin - previous_record->m_vecOrigin;
@@ -899,7 +922,7 @@ namespace Engine
 		data.bOnGround = record->m_fFlags & FL_ONGROUND;
 
 		//lets check if its been more than 1 tick, so we can fix jumpfall.
-		if( record->m_iChokeTicks > 1 && !previous_record->dormant() ) {
+		if( record->m_iChokeTicks > 1 && !previous_record->dormant() && !silent_update ) {
 			// TODO: calculate jump time
 			// calculate landing time
 			float flLandTime = 0.0f;
