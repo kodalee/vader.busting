@@ -284,42 +284,25 @@ namespace Engine
 			return;
 		}
 
-		int player_updated = false;
-		int invalid_simulation = false;
+		auto update = pThis->m_History.empty() || player->m_flSimulationTime() != player->m_flOldSimulationTime();
 
-		if (player->m_flSimulationTime() != 0.0f)
+		if (update && !pThis->m_History.empty())
 		{
-			if (player->GetAnimLayer(11).m_flCycle != pThis->m_sim_cycle
-				|| player->GetAnimLayer(11).m_flPlaybackRate != pThis->m_sim_rate)
-				player_updated = 1;
-			else
+			auto server_tick = Interfaces::m_pClientState->m_ClockDriftMgr.m_nServerTick % Interfaces::m_pGlobalVars->nTimestampRandomizeWindow;
+			auto current_tick = server_tick - server_tick % Interfaces::m_pGlobalVars->nTimestampNetworkingBase;
+
+			if (TIME_TO_TICKS(player->m_flOldSimulationTime()) < current_tick && TIME_TO_TICKS(player->m_flSimulationTime()) == current_tick)
 			{
-				player->m_flOldSimulationTime() = pThis->m_old_sim;
-				invalid_simulation = 1;
-				player->m_flSimulationTime() = pThis->m_cur_sim;
+				auto layer = &player->m_AnimOverlay()[11];
+				auto previous_layer = &pThis->m_History.front().m_LayerRecords[11];
+
+				if (layer->m_flCycle == previous_layer->m_flCycle)
+				{
+					player->m_flSimulationTime() = player->m_flOldSimulationTime();
+					update = false;
+				}
 			}
 		}
-		else
-			return;
-
-		bool silent_update = false;
-
-		auto update = 0;
-		if (!invalid_simulation)
-		{
-
-			auto v23 = pThis->m_cur_sim;
-			pThis->m_old_sim = v23;
-			auto v24 = player->m_flSimulationTime();
-			pThis->m_cur_sim = v24;
-			if (player_updated || v24 != v23 && (pThis->m_cur_sim == 0))
-				update = 1;
-
-			if (player_updated && v24 == v23)
-				silent_update = true;
-		}
-
-		bool should_update = update || silent_update;
 
 		if (!update)
 			return;
@@ -350,10 +333,6 @@ namespace Engine
 		auto anim_record = &anim_data->m_AnimationRecord.front( );
 		if( anim_record->m_bShiftingTickbase ) {
 			return;
-		}
-
-		if (silent_update) {
-			anim_record->m_bTeleportDistance = true;
 		}
 
 		if (Engine::LagCompensation::Get()->is_breaking_lagcomp(player, player->m_flSimulationTime())) {

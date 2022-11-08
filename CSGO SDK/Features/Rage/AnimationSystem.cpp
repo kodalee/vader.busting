@@ -575,44 +575,27 @@ namespace Engine
 			return;
 		}
 
-		int player_updated = false;
-		int invalid_simulation = false;
+		auto update = pThis->m_AnimationRecord.empty() || player->m_flSimulationTime() != player->m_flOldSimulationTime();
 
-		if (player->m_flSimulationTime() != 0.0f)
+		if (update && !pThis->m_AnimationRecord.empty())
 		{
-			if (player->GetAnimLayer(11).m_flCycle != pThis->m_sim_cycle
-				|| player->GetAnimLayer(11).m_flPlaybackRate != pThis->m_sim_rate)
-				player_updated = 1;
-			else
+			auto server_tick = Interfaces::m_pClientState->m_ClockDriftMgr.m_nServerTick % Interfaces::m_pGlobalVars->nTimestampRandomizeWindow;
+			auto current_tick = server_tick - server_tick % Interfaces::m_pGlobalVars->nTimestampNetworkingBase;
+
+			if (TIME_TO_TICKS(player->m_flOldSimulationTime()) < current_tick && TIME_TO_TICKS(player->m_flSimulationTime()) == current_tick)
 			{
-				player->m_flOldSimulationTime() = pThis->m_old_sim;
-				invalid_simulation = 1;
-				player->m_flSimulationTime() = pThis->m_cur_sim;
+				auto layer = &player->m_AnimOverlay()[11];
+				auto previous_layer = &pThis->m_AnimationRecord.front().m_serverAnimOverlays[11];
+
+				if (layer->m_flCycle == previous_layer->m_flCycle)
+				{
+					player->m_flSimulationTime() = player->m_flOldSimulationTime();
+					update = false;
+				}
 			}
 		}
-		else
-			return;
 
-		bool silent_update = false;
-
-		auto update = 0;
-		if (!invalid_simulation)
-		{
-
-			auto v23 = pThis->m_cur_sim;
-			pThis->m_old_sim = v23;
-			auto v24 = player->m_flSimulationTime();
-			pThis->m_cur_sim = v24;
-			if (player_updated || v24 != v23 && (pThis->m_cur_sim == 0))
-				update = 1;
-
-			if (player_updated && v24 == v23)
-				silent_update = true;
-		}
-
-		bool should_update = update || silent_update;
-
-		if (!should_update)
+		if (!update)
 			return;
 
 		//if (pThis->m_flOldSimulationTime == pThis->m_flSimulationTime) {
@@ -707,11 +690,6 @@ namespace Engine
 		record->m_flShotTime = 0.0f;
 		record->m_bFakeWalking = false;
 		Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
-
-		// if record is marked as exploit. do not store simulation time and let aimbot ignore it.
-		if (silent_update) {
-			record->m_bTeleportDistance = true;
-		}
 
 		int ticks_to_simulate = 1;
 
