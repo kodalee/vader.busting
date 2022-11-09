@@ -95,7 +95,7 @@ void recalculate_velocity(Encrypted_t<Engine::C_AnimationData> anim_data, Encryp
 						float mult = 1;
 						if (record->m_fFlags & 6)
 							mult = 0.34f;
-						else if (record->m_bFakeWalking)
+						else if (m_player->m_bIsWalking())
 							mult = 0.52f;
 
 						record->m_vecVelocity.x = (record->m_vecVelocity.x / m_post_velocity_lenght) * (weight_speed * (record->max_current_speed * mult));
@@ -230,7 +230,7 @@ void recalculate_velocity(Encrypted_t<Engine::C_AnimationData> anim_data, Encryp
 				float mult = 1;
 				if (record->m_fFlags & 6)
 					mult = 0.34f;
-				else if (record->m_bFakeWalking)
+				else if (m_player->m_bIsWalking())
 					mult = 0.52f;
 
 				record->m_vecVelocity.x = (record->m_vecVelocity.x / m_post_velocity_lenght) * (weight_speed * (record->max_current_speed * mult));
@@ -249,8 +249,8 @@ void recalculate_velocity(Encrypted_t<Engine::C_AnimationData> anim_data, Encryp
 	//
 	//	if server had 0 velocity at animation time -> reset velocity
 	//
-	if (record->m_fFlags & FL_ONGROUND && record->m_iChokeTicks > 1 && record->m_vecVelocity.Length() > 0.1f && record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.00001f)
-		record->m_vecVelocity.Init();
+	//if (record->m_fFlags & FL_ONGROUND && record->m_iChokeTicks > 1 && record->m_vecVelocity.Length() > 0.1f && record->m_serverAnimOverlays[6].m_flPlaybackRate < 0.00001f)
+	//	record->m_vecVelocity.Init();
 
 	//m_player->invalidate_anims(4);
 
@@ -877,19 +877,10 @@ namespace Engine
 			&& (record->m_fFlags & FL_ONGROUND) && record->m_vecVelocity.Length() <= 85.f) {
 			record->m_bFakeWalking = true;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = true;
-			//printf("FAKEWALKING\n");
 		}
 		else {
-			//if (record->m_serverAnimOverlays[12].m_flWeight > 0.0f)
-			//	printf("[12] WEIGHT INCORRECT\n");
-			//if (record->m_serverAnimOverlays[6].m_flWeight > 0.0f)
-			//	printf("[6] WEIGHT INCORRECT\n");
-			//if (record->m_serverAnimOverlays[6].m_flPlaybackRate > 0.0003f)
-			//	printf("[6] PLAYBACKRATE INCORRECT\n");
-			//if (record->m_iChokeTicks < 2)
-			//	printf("iChokeTicks incorrect\n");
-			record->m_bFakeWalking = false;
 			Engine::g_ResolverData[player->EntIndex()].fakewalking = false;
+			record->m_bFakeWalking = false;
 		}
 
 		// detect players abusing micromovements or other trickery

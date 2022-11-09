@@ -51,6 +51,13 @@ int& C_BasePlayer::m_iHealth( ) {
 	return *( int* )( ( uintptr_t )this + Engine::Displacement.DT_BasePlayer.m_iHealth );
 }
 
+bool& C_BasePlayer::m_bIsWalking()
+{
+	static int m_bIsWalking = Engine::PropManager::Instance()->GetOffset(XorStr("DT_CSPlayer"), XorStr("m_bIsWalking"));
+
+	return *(bool*)(uintptr_t(this) + m_bIsWalking);
+}
+
 bool C_BasePlayer::IsTeammate(C_BasePlayer* player) {
 	if (!player || !this)
 		return false;

@@ -91,6 +91,7 @@ public:
 
    float GetLayerSequenceCycleRate( C_AnimationLayer* pLayer, int iSequence );
    void TryInitiateAnimation( C_AnimationLayer* pLayer, int nSequence );
+   bool& m_bIsWalking();
 };
 
 class C_CSPlayer : public C_BasePlayer {

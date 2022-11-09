@@ -714,6 +714,10 @@ namespace Engine {
 		//	printf("Static yaw diff\n");
 		//}
 
+		//if (player->IsAlive() && !player->IsDormant()) {
+		//	player->m_PlayerAnimState()->m_flAbsRotation = Math::normalize_angle(pLagData->m_body);
+		//}
+
 		static int m_iFakeFlickCheck = 0;
 		static int m_iFakeFlickResetCheck = 0;
 		static float m_flLastResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
