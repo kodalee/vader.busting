@@ -1563,6 +1563,12 @@ void Menu::AntiAim() {
 			ImGui::BeginGroupBox(XorStr("Misc"), ImVec2(244.f, 366.f)); {
 
 				ImGui::Checkbox(XorStr("Condition specific"), &g_Vars.antiaim.condition_specific);
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+				{
+					ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.15, 0.15, 0.15, 240));
+					ImGui::SetTooltip(XorStr("Anti-Aim modes for when you're standing, moving, or in air."));
+					ImGui::PopStyleColor(1);
+				}
 				ImGui::SliderFloat(XorStr("Stand velocity threshold"), &g_Vars.antiaim.stand_velocity_threshold, 0.1f, 250.0f, XorStr("%.1f"));
 
 				ImGui::Checkbox(XorStr("Distortion"), &g_Vars.antiaim.distort);
