@@ -179,7 +179,7 @@ bool apply_glove(C_BaseAttributableItem* glove, const char* model, int item_defi
 	glove->m_Item().m_nFallbackPaintKit() = paint_kit;
 	glove->m_Item().m_nFallbackStatTrak() = -1;
 	glove->m_Item().m_iItemDefinitionIndex() = item_definition_index;
-	glove->m_Item().m_bInitialized() = true;
+	//glove->m_Item().m_bInitialized() = true;
 	glove->SetModelIndex(model_index + 2);
 
 	static auto fnEquip
