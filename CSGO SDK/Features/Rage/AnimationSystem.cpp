@@ -925,13 +925,15 @@ namespace Engine
 				else
 					record->m_vecVelocity.z = 0.0f;
 
-				if (record->m_vecVelocity.Length2D() >= 100.f)
-				{
-					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 8);
-				}
-				if (record->m_vecVelocity.z > 0)
-				{
-					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 3);
+				if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(local->EntIndex())) < 199) {
+					if (record->m_vecVelocity.Length2D() >= 100.f)
+					{
+						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 8);
+					}
+					if (record->m_vecVelocity.z > 0)
+					{
+						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 3);
+					}
 				}
 			}
 		}
@@ -1012,6 +1014,10 @@ namespace Engine
 					layer->m_flCycle = 0;
 					layer->m_flWeight = 0;
 				}
+			}
+
+			if (record->m_fFlags & FL_ONGROUND) {
+				player->m_fFlags() &= ~FL_ONGROUND;
 			}
 
 			data.bOnGround = bOnGround;
