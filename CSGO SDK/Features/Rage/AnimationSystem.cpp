@@ -337,8 +337,8 @@ namespace Engine
 			m_angEyeAngles = player->m_angEyeAngles( );
 
 			auto animState = player->m_PlayerAnimState( );
-			m_flFeetCycle = animState->m_flFeetCycle;
-			m_flFeetYawRate = animState->m_flFeetYawRate;
+			m_flFeetCycle = animState->m_primary_cycle;
+			m_flFeetYawRate = animState->m_move_weight;
 		}
 
 		void Apply( C_CSPlayer* player ) const {
@@ -348,8 +348,8 @@ namespace Engine
 			player->m_angEyeAngles( ) = m_angEyeAngles;
 
 			auto animState = player->m_PlayerAnimState( );
-			animState->m_flFeetCycle = m_flFeetCycle;
-			animState->m_flFeetYawRate = m_flFeetYawRate;
+			animState->m_primary_cycle = m_flFeetCycle;
+			animState->m_move_weight = m_flFeetYawRate;
 		}
 	};
 
@@ -640,7 +640,7 @@ namespace Engine
 		if( pThis->m_flSpawnTime != pThis->player->m_flSpawnTime( ) ) {
 			auto animState = pThis->player->m_PlayerAnimState( );
 			if( animState ) {
-				animState->m_Player = pThis->player;
+				animState->m_player = pThis->player;
 				animState->Reset( );
 			}
 
@@ -699,6 +699,11 @@ namespace Engine
 
 		record->m_flFeetCycle = record->m_serverAnimOverlays[ 6 ].m_flCycle;
 		record->m_flFeetYawRate = record->m_serverAnimOverlays[ 6 ].m_flWeight;
+
+		record->m_strafe_sequence = record->m_serverAnimOverlays[7].m_nSequence;
+		record->m_strafe_change_weight = record->m_serverAnimOverlays[7].m_flWeight;
+		record->m_strafe_change_cycle = record->m_serverAnimOverlays[7].m_flCycle;
+		record->m_acceleration_weight = record->m_serverAnimOverlays[12].m_flWeight;
 
 		record->m_fFlags = player->m_fFlags( );
 		record->m_flDuckAmount = player->m_flDuckAmount( );
@@ -787,7 +792,7 @@ namespace Engine
 
 			//auto animstate = player->m_PlayerAnimState( );
 			//if( animstate )
-			//	animstate->m_flAbsRotation = record->m_angEyeAngles.yaw;
+			//	animstate->m_abs_yaw = record->m_angEyeAngles.yaw;
 
 			return;
 		}
@@ -1085,8 +1090,8 @@ namespace Engine
 			Interfaces::m_pGlobalVars->interpolation_amount = 0.0f;
 
 			auto animstate = player->m_PlayerAnimState( );
-			if( animstate && animstate->m_nLastFrame >= Interfaces::m_pGlobalVars->framecount )
-				animstate->m_nLastFrame = Interfaces::m_pGlobalVars->framecount - 1;
+			if( animstate && animstate->m_last_update_frame >= Interfaces::m_pGlobalVars->framecount )
+				animstate->m_last_update_frame = Interfaces::m_pGlobalVars->framecount - 1;
 
 			for( int i = 0; i < player->m_AnimOverlay( ).Count( ); ++i ) {
 				player->m_AnimOverlay( ).Base( )[ i ].m_pOwner = player;
@@ -1160,18 +1165,42 @@ namespace Engine
 
 		auto animState = player->m_PlayerAnimState( );
 
-		if( previous.IsValid( ) ) {
-			animState->m_flFeetCycle = previous->m_flFeetCycle;
-			animState->m_flFeetYawRate = previous->m_flFeetYawRate;
-			*( float* )( uintptr_t( animState ) + 0x180 ) = previous->m_serverAnimOverlays[ 12 ].m_flWeight;
 
-			std::memcpy( player->m_AnimOverlay( ).Base( ), previous->m_serverAnimOverlays, sizeof( previous->m_serverAnimOverlays ) );
+		if (previous.IsValid() && !previous->dormant()) {
+			animState->m_primary_cycle = previous->m_flFeetCycle;
+			animState->m_move_weight = previous->m_flFeetYawRate;
+			animState->m_strafe_sequence = previous->m_strafe_sequence;
+			animState->m_strafe_change_weight = previous->m_strafe_change_weight;
+			animState->m_strafe_change_cycle = previous->m_strafe_change_cycle;
+			animState->m_acceleration_weight = previous->m_acceleration_weight;
+
+			// these two can be tested with, i run them both but i could see either one of them causing issues as you are storing old data over new;
+			// immortal actually does this one and not the bottom one which i also understand as there could be a possibility that the layer data isn't 100% correct
+			std::memcpy(player->m_AnimOverlay().Base(), previous->m_serverAnimOverlays, sizeof(previous->m_serverAnimOverlays));
 		}
 		else {
-			animState->m_flFeetCycle = current->m_flFeetCycle;
-			animState->m_flFeetYawRate = current->m_flFeetYawRate;
-			*( float* )( uintptr_t( animState ) + 0x180 ) = current->m_serverAnimOverlays[ 12 ].m_flWeight;
+			animState->m_primary_cycle = current->m_flFeetCycle;
+			animState->m_move_weight = current->m_flFeetYawRate;
+			animState->m_strafe_sequence = current->m_strafe_sequence;
+			animState->m_strafe_change_weight = current->m_strafe_change_weight;
+			animState->m_strafe_change_cycle = current->m_strafe_change_cycle;
+			animState->m_acceleration_weight = current->m_acceleration_weight;
+
+			std::memcpy(player->m_AnimOverlay().Base(), current->m_serverAnimOverlays, sizeof(current->m_serverAnimOverlays));
 		}
+
+		//if( previous.IsValid( ) ) {
+		//	animState->m_primary_cycle = previous->m_flFeetCycle;
+		//	animState->m_move_weight = previous->m_flFeetYawRate;
+		//	*( float* )( uintptr_t( animState ) + 0x180 ) = previous->m_serverAnimOverlays[ 12 ].m_flWeight;
+
+		//	std::memcpy( player->m_AnimOverlay( ).Base( ), previous->m_serverAnimOverlays, sizeof( previous->m_serverAnimOverlays ) );
+		//}
+		//else {
+		//	animState->m_primary_cycle = current->m_flFeetCycle;
+		//	animState->m_move_weight = current->m_flFeetYawRate;
+		//	*( float* )( uintptr_t( animState ) + 0x180 ) = current->m_serverAnimOverlays[ 12 ].m_flWeight;
+		//}
 
 		if( current->m_iChokeTicks > 1 ) {
 			for( auto it = this->m_vecSimulationData.begin( ); it < this->m_vecSimulationData.end( ); it++ ) {

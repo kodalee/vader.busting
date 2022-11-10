@@ -21,7 +21,7 @@ namespace Engine
 
 			auto animState = player->m_PlayerAnimState( );
 			if( animState )
-				m_flAbsRotation = animState->m_flAbsRotation;
+				m_flAbsRotation = animState->m_abs_yaw;
 		}
 	};
 
@@ -82,6 +82,10 @@ namespace Engine
 		float spindelta;
 		float spinbody;
 
+		uint32_t m_strafe_sequence;
+		float m_strafe_change_weight;
+		float m_strafe_change_cycle;
+		float m_acceleration_weight;
 
 		float m_flFeetYawRate;
 		float m_flFeetCycle;

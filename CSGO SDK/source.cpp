@@ -551,13 +551,13 @@ void __fastcall DoExtraBonesProccesing( C_CSPlayer* ecx, void* edx, CStudioHdr* 
 
 	const auto state = ecx->m_PlayerAnimState( );
 
-	if( !state || !state->m_Player )
+	if( !state || !state->m_player )
 		return oDoExtraBonesProccesing( ecx, hdr, pos, rotations, transforma, bone_list, ik_context );
 
-	const auto backup_tickcount = state->m_bOnGround;
-	state->m_bOnGround = false;
+	const auto backup_tickcount = state->m_on_ground;
+	state->m_on_ground = false;
 	oDoExtraBonesProccesing( ecx, hdr, pos, rotations, transforma, bone_list, ik_context );
-	state->m_bOnGround = backup_tickcount;
+	state->m_on_ground = backup_tickcount;
 }
 
 typedef void( __thiscall* fnBuildTransformations )( C_CSPlayer*, CStudioHdr*, Vector*, Quaternion*, const matrix3x4_t&, const int32_t, BYTE* );
