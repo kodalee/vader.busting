@@ -845,9 +845,9 @@ namespace Engine
 		if (record->m_fFlags & FL_ONGROUND) {
 			if (animState) {
 				// they are on ground.
-				animState->m_on_ground = true;
+				animState->m_bOnGround = true;
 				// no they didnt land.
-				animState->m_landing = false;
+				animState->m_bHitground = false;
 			}
 		}
 
