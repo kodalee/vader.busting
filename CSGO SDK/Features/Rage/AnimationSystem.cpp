@@ -833,11 +833,23 @@ namespace Engine
 		record->m_bIsInvalid = false;
 
 		// velocity fixa
-		if (record->m_iChokeTicks > 1 && !silent_update) {
-			recalculate_velocity(pThis, record, player, previous_record);
+		//if (record->m_iChokeTicks > 1 && !silent_update) {
+		//	recalculate_velocity(pThis, record, player, previous_record);
+		//}
+		//else
+		//	record->m_vecVelocity = player->m_vecVelocity();
+
+		// thanks llama.
+		auto animState = player->m_PlayerAnimState();
+
+		if (record->m_fFlags & FL_ONGROUND) {
+			if (animState) {
+				// they are on ground.
+				animState->m_bOnGround = true;
+				// no they didnt land.
+				animState->m_bHitground = false;
+			}
 		}
-		else
-			record->m_vecVelocity = player->m_vecVelocity();
 
 		if (!previous_record->dormant() && !silent_update) {
 			auto was_in_air = (player->m_fFlags() & FL_ONGROUND) && (previous_record->m_fFlags & FL_ONGROUND);
@@ -848,18 +860,78 @@ namespace Engine
 			int fPreviousFlags = previous_record->m_fFlags;
 			auto time_difference = std::max(Interfaces::m_pGlobalVars->interval_per_tick, record->m_flSimulationTime - previous_record->m_flSimulationTime);
 
-			// extrapolate!!!
+			// fix velocity
 			// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
 			if (!origin_delta.IsZero() && TIME_TO_TICKS(time_difference) > 0) {
-				if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(local->EntIndex())) < 199) {
-					if (record->m_vecVelocity.Length2D() >= 100.f)
+				//record->m_vecVelocity = (record->m_vecOrigin - previous_record->m_vecOrigin) * (1.f / record->m_flChokeTime);
+				record->m_vecVelocity = origin_delta * (1.0f / time_difference);
+
+				if (player->m_fFlags() & FL_ONGROUND && record->m_serverAnimOverlays[11].m_flWeight > 0.0f && record->m_serverAnimOverlays[11].m_flWeight < 1.0f && record->m_serverAnimOverlays[11].m_flCycle > previous_record->m_serverAnimOverlays[11].m_flCycle)
+				{
+					auto weapon = player->m_hActiveWeapon().Get();
+
+					if (weapon)
 					{
-						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 8);
+						auto max_speed = 260.0f;
+						C_WeaponCSBaseGun* Weapon = (C_WeaponCSBaseGun*)player->m_hActiveWeapon().Get();
+						auto weapon_info = Weapon->GetCSWeaponData();
+
+						if (weapon_info.IsValid())
+							max_speed = player->m_bIsScoped() ? weapon_info->m_flMaxSpeed2 : weapon_info->m_flMaxSpeed;
+
+						auto modifier = 0.35f * (1.0f - record->m_serverAnimOverlays[11].m_flWeight);
+
+						if (modifier > 0.0f && modifier < 1.0f)
+							animation_speed = max_speed * (modifier + 0.55f);
 					}
-					if (record->m_vecVelocity.z > 0)
+				}
+
+				if (animation_speed > 0.0f)
+				{
+					animation_speed /= record->m_vecVelocity.Length2D();
+
+					record->m_vecVelocity.x *= animation_speed;
+					record->m_vecVelocity.y *= animation_speed;
+				}
+
+				if (pThis->m_AnimationRecord.size() >= 3 && time_difference > Interfaces::m_pGlobalVars->interval_per_tick)
+				{
+					auto previous_velocity = (previous_record->m_vecOrigin - pThis->m_AnimationRecord.at(2).m_vecOrigin) * (1.0f / time_difference);
+
+					if (!previous_velocity.IsZero() && !was_in_air)
 					{
-						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 3);
+						auto current_direction = Math::normalize_float(RAD2DEG(atan2(record->m_vecVelocity.y, record->m_vecVelocity.x)));
+						auto previous_direction = Math::normalize_float(RAD2DEG(atan2(previous_velocity.y, previous_velocity.x)));
+
+						auto average_direction = current_direction - previous_direction;
+						average_direction = DEG2RAD(Math::normalize_float(current_direction + average_direction * 0.5f));
+
+						auto direction_cos = cos(average_direction);
+						auto dirrection_sin = sin(average_direction);
+
+						auto velocity_speed = record->m_vecVelocity.Length2D();
+
+						record->m_vecVelocity.x = direction_cos * velocity_speed;
+						record->m_vecVelocity.y = dirrection_sin * velocity_speed;
 					}
+				}
+
+				// fix CGameMovement::FinishGravity
+				if (!(player->m_fFlags() & FL_ONGROUND)) {
+					static auto sv_gravity = g_Vars.sv_gravity;
+					auto fixed_timing = Math::Clamp(time_difference, Interfaces::m_pGlobalVars->interval_per_tick, 1.0f);
+					record->m_vecVelocity.z -= sv_gravity->GetFloat() * fixed_timing * 0.5f;
+				}
+				else
+					record->m_vecVelocity.z = 0.0f;
+
+				if (record->m_vecVelocity.Length2D() >= 100.f)
+				{
+					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 8);
+				}
+				if (record->m_vecVelocity.z > 0)
+				{
+					player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 3);
 				}
 			}
 		}
