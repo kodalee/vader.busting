@@ -179,7 +179,7 @@ bool apply_glove(C_BaseAttributableItem* glove, const char* model, int item_defi
 	glove->m_Item().m_nFallbackPaintKit() = paint_kit;
 	glove->m_Item().m_nFallbackStatTrak() = -1;
 	glove->m_Item().m_iItemDefinitionIndex() = item_definition_index;
-	//glove->m_Item().m_bInitialized() = true;
+	glove->m_Item().m_bInitialized() = true;
 	glove->SetModelIndex(model_index + 2);
 
 	static auto fnEquip
@@ -313,7 +313,19 @@ void skins_speedy::Skinchanger()
 
 			static auto create_wearable_fn = get_wearable_create_fn();
 
-			const auto entry = Interfaces::m_pEntList->GetHighestEntityIndex() + 1;
+			auto entry = Interfaces::m_pEntList->GetHighestEntityIndex() + 1;
+
+			for (int i = 0; i < Interfaces::m_pEntList->GetHighestEntityIndex(); i++)
+			{
+				auto pEntity = Interfaces::m_pEntList->GetClientEntity(i);
+
+				if (pEntity && pEntity->GetClientClass()->m_ClassID == CRopeKeyframe)
+				{
+					entry = i;
+					break;
+				}
+			}
+
 			const auto serial = rand() % 0x1000;
 			create_wearable_fn(entry, serial);
 
