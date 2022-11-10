@@ -1362,60 +1362,62 @@ namespace Interfaces
 			//}
 		}
 
-		// lets do our real yaw.'
-		switch (settings->yaw) {
-		case 2: { // rotate
-			flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (settings->rot_speed * 20.f), settings->rot_range);
-			break;
-		}
-		case 3: { // jitter
-			auto jitter_range = settings->jitter_range * 0.5f;
-			const auto jitter_speed = settings->jitter_speed;
-
-			static auto last_set_tick = 0;
-			static auto flip = false;
-
-			static auto add = 0.f;
-
-			if (last_set_tick + jitter_speed < local->m_nTickBase() || last_set_tick > local->m_nTickBase())
-			{
-				last_set_tick = local->m_nTickBase();
-
-				//if (get_antiaim(type)->jitter_random->get<int>())
-				//{
-				//	jitter_range = random_float(-jitter_range, jitter_range);
-				//	flip = true;
-				//}
-
-				add = flip ? jitter_range : -jitter_range;
-
-				flip = !flip;
+		if (!(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled)) {
+			// lets do our real yaw.'
+			switch (settings->yaw) {
+			case 2: { // rotate
+				flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (settings->rot_speed * 20.f), settings->rot_range);
+				break;
 			}
+			case 3: { // jitter
+				auto jitter_range = settings->jitter_range * 0.5f;
+				const auto jitter_speed = settings->jitter_speed;
 
-			flRetValue += add;
+				static auto last_set_tick = 0;
+				static auto flip = false;
 
-			break;
-		}
-		case 4: { // 180z
-			if (!bUsingManualAA) {
-				flRetValue = (g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge + 180.f / 2.f);
-				flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
+				static auto add = 0.f;
+
+				if (last_set_tick + jitter_speed < local->m_nTickBase() || last_set_tick > local->m_nTickBase())
+				{
+					last_set_tick = local->m_nTickBase();
+
+					//if (get_antiaim(type)->jitter_random->get<int>())
+					//{
+					//	jitter_range = random_float(-jitter_range, jitter_range);
+					//	flip = true;
+					//}
+
+					add = flip ? jitter_range : -jitter_range;
+
+					flip = !flip;
+				}
+
+				flRetValue += add;
+
+				break;
 			}
+			case 4: { // 180z
+				if (!bUsingManualAA) {
+					flRetValue = (g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge + 180.f / 2.f);
+					flRetValue += std::fmod(Interfaces::m_pGlobalVars->curtime * (3.5 * 20.f), 180.f);
+				}
 
-			break;
-		}
-		case 5: { // lowerbody
-			flRetValue = flViewAnlge + local->m_flLowerBodyYawTarget();
-			break;
-		}
-		case 6: { // custom
-			if (!bUsingManualAA) {
-				flRetValue = g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge + settings->custom_yaw;
+				break;
 			}
-			break;
-		}
-		default:
-			break;
+			case 5: { // lowerbody
+				flRetValue = flViewAnlge + local->m_flLowerBodyYawTarget();
+				break;
+			}
+			case 6: { // custom
+				if (!bUsingManualAA) {
+					flRetValue = g_Vars.antiaim.at_targets ? GetTargetYaw() : flViewAnlge + settings->custom_yaw;
+				}
+				break;
+			}
+			default:
+				break;
+			}
 		}
 
 		return flRetValue;
