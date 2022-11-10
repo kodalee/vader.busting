@@ -27,23 +27,6 @@ const char* CCSGOPlayerAnimState::GetWeaponPrefix() {
     return ((fnGetWeaponPrefix)get_weapon_adr) (this);
 }
 
-float CCSGOPlayerAnimState::GetMaxFraction( ) {
-   float speedFactor = Math::Clamp( m_flDuckingSpeed, 0.0f, 1.0f );
-   float groundFraction = ( ( m_flGroundFraction * -0.3f ) - 0.2f ) * speedFactor;
-   float maxFraction = groundFraction + 1.0f;
-
-   if ( m_fDuckAmount > 0.0f ) {
-	  float maxVelocity = Math::Clamp( m_flRunningSpeed, 0.0f, 1.0f );
-	  float duckSpeed = m_fDuckAmount * maxVelocity;
-	  maxFraction += ( duckSpeed * ( 0.5f - maxFraction ) );
-   }
-   return maxFraction;
-}
-
-float CCSGOPlayerAnimState::GetDesyncDelta( bool useMinYaw ) {
-   return m_flMaxBodyYaw * GetMaxFraction( );
-}
-
 struct mstudioposeparamdesc_t1 {
    int sznameindex;
    inline char* const pszName( void ) const { return ( ( char* ) this ) + sznameindex; }

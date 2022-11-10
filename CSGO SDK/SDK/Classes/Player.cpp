@@ -606,7 +606,7 @@ void CCSGOPlayerAnimState::ModifyEyePosition( CCSGOPlayerAnimState *pState, Vect
 	 * boom you're here
 	 */
 
-	if( !pState || !pState->m_Player ) {
+	if( !pState || !pState->m_player ) {
 		return;
 	}
 
@@ -614,12 +614,12 @@ void CCSGOPlayerAnimState::ModifyEyePosition( CCSGOPlayerAnimState *pState, Vect
 	// https://i.imgur.com/zGnqd3y.png
 	static auto C_BaseAnimating__LookupBone = *reinterpret_cast< int( __thiscall * )( void *, const char * ) >( Memory::Scan( XorStr( "client.dll" ), XorStr( "55 8B EC 53 56 8B F1 57 83 BE ?? ?? ?? ?? ?? 75 14" ) ) );
 
-	if( pState->m_Player && pState->m_bHitground || pState->m_fDuckAmount != 0.f ) { // https://www.unknowncheats.me/forum/counterstrike-global-offensive/338731-weapon_shootpos-rebuilt-server-code.html
+	if( pState->m_player && pState->m_landing || pState->m_anim_duck_amount != 0.f ) { // https://www.unknowncheats.me/forum/counterstrike-global-offensive/338731-weapon_shootpos-rebuilt-server-code.html
 		// this returns 8 but i'd rather grab it dynamically in the rare event of it changing
-		auto v5 = C_BaseAnimating__LookupBone( pState->m_Player, XorStr( "head_0" ) );
+		auto v5 = C_BaseAnimating__LookupBone( pState->m_player, XorStr( "head_0" ) );
 
 		if (v5 != -1) {
-			auto bone_pos = (reinterpret_cast<C_CSPlayer*>(pState->m_Player))->GetBonePos(v5);
+			auto bone_pos = (reinterpret_cast<C_CSPlayer*>(pState->m_player))->GetBonePos(v5);
 
 			bone_pos.z += 1.7f;
 

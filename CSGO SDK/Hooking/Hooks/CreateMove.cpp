@@ -294,7 +294,7 @@ namespace Hooked
 		g_Vars.globals.RegularAngles = cmd->viewangles;
 
 		// fix landing anim.
-		if (state->m_bHitground && g_Vars.globals.m_fFlags & FL_ONGROUND && local->m_fFlags() & FL_ONGROUND && g_Vars.esp.zeropitch)
+		if (state->m_landing && g_Vars.globals.m_fFlags & FL_ONGROUND && local->m_fFlags() & FL_ONGROUND && g_Vars.esp.zeropitch)
 			g_Vars.globals.RegularAngles.x = -12.f;
 
 		Math::Clamp(g_Vars.globals.RegularAngles.x, -90.f, 90.f);
@@ -309,7 +309,7 @@ namespace Hooked
 		C_AnimationLayer old_anim_layers[13];
 		std::memcpy(old_anim_layers, local->m_AnimOverlay().m_Memory.m_pMemory, 13 * sizeof(C_AnimationLayer));
 
-		if (local->m_flSpawnTime() != m_real_spawntime || state->m_Player != local)
+		if (local->m_flSpawnTime() != m_real_spawntime || state->m_player != local)
 		{
 			local->UpdateClientSideAnimationEx();
 
@@ -319,9 +319,9 @@ namespace Hooked
 
 		const auto old_pose_params = local->m_flPoseParameter();
 
-		state->m_flLastUpdateIncrement = fmaxf(Interfaces::m_pGlobalVars->curtime - state->m_flLastUpdateTime, 0.f);
+		state->m_last_update_increment = fmaxf(Interfaces::m_pGlobalVars->curtime - state->m_last_update_time, 0.f);
 
-		if (state->m_ActiveWeapon != state->m_LastActiveWeapon)
+		if (state->m_weapon != state->m_weapon_last)
 		{
 			for (int i = 0; i < 13; i++)
 			{
@@ -335,24 +335,24 @@ namespace Hooked
 
 		float flNewDuckAmount;
 
-		flNewDuckAmount = Math::Clamp(local->m_flDuckAmount() + state->m_fLandingDuckAdditiveSomething, 0.0f, 1.0f);
-		flNewDuckAmount = Math::ApproachAngle(flNewDuckAmount, state->m_fDuckAmount, state->m_flLastUpdateIncrement * 6.0f);
+		flNewDuckAmount = Math::Clamp(local->m_flDuckAmount() + state->m_duck_additional, 0.0f, 1.0f);
+		flNewDuckAmount = Math::ApproachAngle(flNewDuckAmount, state->m_anim_duck_amount, state->m_last_update_increment * 6.0f);
 		flNewDuckAmount = Math::Clamp(flNewDuckAmount, 0.0f, 1.0f);
 
-		state->m_fDuckAmount = flNewDuckAmount;
+		state->m_anim_duck_amount = flNewDuckAmount;
 
 		// CCSGOPlayerAnimState::Update, bypass already animated checks.
-		if (state->m_nLastFrame == Interfaces::m_pGlobalVars->framecount)
-			state->m_nLastFrame -= 1;
+		if (state->m_last_update_frame == Interfaces::m_pGlobalVars->framecount)
+			state->m_last_update_frame -= 1;
 
 		local->m_iEFlags() &= ~(EFL_DIRTY_ABSTRANSFORM | EFL_DIRTY_ABSVELOCITY);
 
-		state->m_flFeetYawRate = 0.f;
+		state->m_move_weight = 0.f;
 
 		local->UpdateClientSideAnimationEx();
 
-		local->m_PlayerAnimState()->m_flFeetCycle = old_anim_layers[6].m_flCycle;
-		local->m_PlayerAnimState()->m_flFeetYawRate = old_anim_layers[6].m_flWeight;
+		local->m_PlayerAnimState()->m_primary_cycle = old_anim_layers[6].m_flCycle;
+		local->m_PlayerAnimState()->m_move_weight = old_anim_layers[6].m_flWeight;
 
 		for (int i = 0; i < 13; ++i)
 		{
@@ -373,24 +373,24 @@ namespace Hooked
 		}
 
 		if (local->m_vecVelocity().Length() <= 1.0f) {
-			if (state->m_bOnGround) {
+			if (state->m_on_ground) {
 				local->m_AnimOverlay().Element(3).m_flCycle = 0.0;
 				local->m_AnimOverlay().Element(3).m_flWeight = 0.0;
 			}
 		}
 
 		// pull the lower body direction towards the eye direction, but only when the player is moving
-		if (state->m_bOnGround) {
+		if (state->m_on_ground) {
 			const float CSGO_ANIM_LOWER_CATCHUP_IDLE = 100.0f;
 			const float CSGO_ANIM_LOWER_REALIGN_DELAY = 1.1f;
 
-			if (state->m_velocity > 0.1f && !g_Vars.globals.Fakewalking) {
+			if (state->m_velocity.Length2D() > 0.1f && !g_Vars.globals.Fakewalking) {
 				g_Vars.globals.m_flBodyPred = g_Vars.globals.m_flAnimTime + (CSGO_ANIM_LOWER_REALIGN_DELAY * 0.2f);
 
 				// we are moving n cant update.
 				g_Vars.globals.m_bUpdate = false;
 			}
-			else if (state->m_velocity > 0.1f && g_Vars.globals.Fakewalking) {
+			else if (state->m_velocity.Length2D() > 0.1f && g_Vars.globals.Fakewalking) {
 				// we can no update our LBY.
 				g_Vars.globals.m_bUpdate = true;
 
@@ -414,7 +414,7 @@ namespace Hooked
 		{
 			g_BoneSetup.BuildBones(local, BONE_USED_BY_ANYTHING, BoneSetupFlags::None);
 
-			g_Vars.globals.flRealYaw = state->m_flAbsRotation;
+			g_Vars.globals.flRealYaw = state->m_abs_yaw;
 			g_Vars.globals.angViewangles = cmd->viewangles;
 
 			// copy real bone positions
@@ -435,7 +435,7 @@ namespace Hooked
 		}
 
 		// save updated data.
-		g_Vars.globals.m_bGround = state->m_bOnGround;
+		g_Vars.globals.m_bGround = state->m_on_ground;
 		g_Vars.globals.m_fFlags = local->m_fFlags();
 	}
 
