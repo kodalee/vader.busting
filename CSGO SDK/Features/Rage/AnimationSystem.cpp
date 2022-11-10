@@ -1007,7 +1007,7 @@ namespace Engine
 			// jump_fall fix
 			if( bLandedOnServer && !bJumped ) {
 				if( flLandTime < data.m_flTime ) {
-					player->m_fFlags() |= FL_ONGROUND;
+					player->m_fFlags() &= ~FL_ONGROUND;
 					bJumped = true;
 					bOnGround = true;
 					auto layer = &player->GetAnimLayer(4);
@@ -1017,7 +1017,7 @@ namespace Engine
 			}
 
 			if (record->m_fFlags & FL_ONGROUND) {
-				player->m_fFlags() &= ~FL_ONGROUND;
+				player->m_fFlags() |= FL_ONGROUND;
 			}
 
 			data.bOnGround = bOnGround;
