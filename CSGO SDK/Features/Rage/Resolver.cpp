@@ -715,7 +715,7 @@ namespace Engine {
 		//}
 
 		//if (player->IsAlive() && !player->IsDormant()) {
-		//	player->m_PlayerAnimState()->m_abs_yaw = Math::normalize_angle(pLagData->m_body);
+		//	player->m_PlayerAnimState()->m_flAbsRotation = Math::normalize_angle(pLagData->m_body);
 		//}
 
 		static int m_iFakeFlickCheck = 0;
@@ -914,7 +914,7 @@ namespace Engine {
 		static float absrotation_before_flick;
 
 		if (animstate && !is_flicking) {
-			absrotation_before_flick = animstate->m_abs_yaw;
+			absrotation_before_flick = animstate->m_flAbsRotation;
 		}
 
 		//if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
@@ -955,7 +955,7 @@ namespace Engine {
 		{
 			//m_iMode = 0;
 			record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
-			player->SetAbsAngles(QAngle(0.f, pLagData->m_flLowerBodyYawTarget, 0.f));
+
 			//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 
 			record->m_iResolverMode = FLICK;
@@ -970,7 +970,7 @@ namespace Engine {
 				static float absrotation_before_flick;
 
 				if (animstate && !is_flicking) {
-					absrotation_before_flick = animstate->m_abs_yaw;
+					absrotation_before_flick = animstate->m_flAbsRotation;
 				}
 
 				static bool repeat[64];
@@ -1051,7 +1051,7 @@ namespace Engine {
 				static float absrotation_before_flick;
 
 				if (animstate && !is_flicking) {
-					absrotation_before_flick = animstate->m_abs_yaw;
+					absrotation_before_flick = animstate->m_flAbsRotation;
 				}
 
 				static bool repeat[64];

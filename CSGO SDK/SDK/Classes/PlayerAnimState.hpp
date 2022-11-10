@@ -5,208 +5,112 @@ class C_CSPlayer;
 class C_WeaponCSBaseGun;
 
 struct animstate_pose_param_cache_t {
-	bool valid = false;
-	int index = -1;
-	const char* name;
-	void SetValue(C_CSPlayer* player, float flValue);
-};
-
-enum animstate_pose_param_idx_t {
-	PLAYER_POSE_PARAM_FIRST = 0,
-	PLAYER_POSE_PARAM_LEAN_YAW = PLAYER_POSE_PARAM_FIRST,
-	PLAYER_POSE_PARAM_SPEED,
-	PLAYER_POSE_PARAM_LADDER_SPEED,
-	PLAYER_POSE_PARAM_LADDER_YAW,
-	PLAYER_POSE_PARAM_MOVE_YAW,
-	PLAYER_POSE_PARAM_RUN,
-	PLAYER_POSE_PARAM_BODY_YAW,
-	PLAYER_POSE_PARAM_BODY_PITCH,
-	PLAYER_POSE_PARAM_DEATH_YAW,
-	PLAYER_POSE_PARAM_STAND,
-	PLAYER_POSE_PARAM_JUMP_FALL,
-	PLAYER_POSE_PARAM_AIM_BLEND_STAND_IDLE,
-	PLAYER_POSE_PARAM_AIM_BLEND_CROUCH_IDLE,
-	PLAYER_POSE_PARAM_STRAFE_DIR,
-	PLAYER_POSE_PARAM_AIM_BLEND_STAND_WALK,
-	PLAYER_POSE_PARAM_AIM_BLEND_STAND_RUN,
-	PLAYER_POSE_PARAM_AIM_BLEND_CROUCH_WALK,
-	PLAYER_POSE_PARAM_MOVE_BLEND_WALK,
-	PLAYER_POSE_PARAM_MOVE_BLEND_RUN,
-	PLAYER_POSE_PARAM_MOVE_BLEND_CROUCH_WALK,
-	//PLAYER_POSE_PARAM_STRAFE_CROSS,
-	PLAYER_POSE_PARAM_COUNT,
+  bool valid = false;
+  int index = -1;
+  const char* name;
+  void SetValue( C_CSPlayer* player, float flValue );
 };
 
 class CCSGOPlayerAnimState {
 public:
-	int* m_layer_order_preset = nullptr;
-	bool					m_first_run_since_init = false;
+  char pad[3];
+  char bUnknown;									  // 0x03
+  bool m_bInvalid;								  // 0x04
+  char pad2[72];
+  int m_iModelIndex;
+  char pad_[11];
+  C_CSPlayer* m_Player;                     // 0x60
+  C_WeaponCSBaseGun* m_ActiveWeapon;        // 0x64
+  C_WeaponCSBaseGun* m_LastActiveWeapon;	  // 0x68
+  float m_flLastUpdateTime;                 // 0x6C
+  int m_nLastFrame;                         // 0x70
+  float m_flLastUpdateIncrement;                      // 0x74
+  float m_flEyeYaw;                         // 0x78
+  float m_flPitch;                          // 0x7C
+  float m_flAbsRotation;                    // 0x80
+  float m_flOldAbsRotation;                 // 0x84
+  float m_flCurrentTorsoYaw;                // 0x88
+  float m_flUnknownVelocityLean;            // 0x8C changes when moving/jumping/hitting ground
+  float m_flLeanAmount;                     // 0x90
+  float m_flUnknown1;                       // 0x94
+  float m_flFeetCycle;                      // 0x98 0 to 1
+  float m_flFeetYawRate;                    // 0x9C 0 to 1
+  float m_fUnknown2;								  // 0xA0
+  float m_fDuckAmount;							  // 0xA4
+  float m_fLandingDuckAdditiveSomething;	  // 0xA8
+  float m_fUnknown3;								  // 0xAC
+  Vector m_vOrigin;								  // 0xB0, 0xB4, 0xB8
+  Vector m_vLastOrigin;							  // 0xBC, 0xC0, 0xC4
+  Vector m_vecVelocity;							  // 0xC8
+  Vector m_vecNormalizedVelocity;			  // 0xD4 velocity * (1.0 / velocity_length)
+  Vector m_vecNormalizedMovingVelocity;	  // 0xE0
+  float m_velocity;								  // 0xEC
+  float flUpVelocity;							  // 0xF0
+  float m_flSpeedNormalized;					  // 0xF4 //from 0 to 1
+  float m_flDuckingSpeed;						  // 0xF8 calculation: (1.923077 / flMaxPlayerSpeed) * velocity;
+  float m_flRunningSpeed;						  // 0xFC calculation: (2.9411764 / flMaxPlayerSpeed) * velocity; 1.0 / 2.9411764 = 0.34
+  float m_flTimeSinceStartedMoving;			  // 0x100
+  float m_flTimeSinceStoppedMoving;			  // 0x104
+  bool m_bOnGround;								  // 0x108
+  bool m_bHitground;								  // 0x109
+  float m_flLastBodyUpdate;					  // 0x10C
+  float m_flAirTime;								  // 0x110
+  float m_fUnknown4;								  // 0x114
+  float m_flLastOriginZ;						  // 0x118
+  float m_flGroundFraction;					  // 0x11C decreasing if velocity smaller 135.2, and vice versa
+  float m_flStopToFullRunningFraction;		  // 0x120
+  float m_flProceduralFootPlant;				  // 0x124
+  float m_flUnknownFraction;					  // 0x128
+  float m_fUnknown5;                        // 0x12C
+  float m_flUnknown3;							  // 0x130
+  bool m_StartedMoving;							  // 0x134
+  char pad10[ 35 ];                               // 0x157
+  float m_unkLeanTime;                            // 0x15B
+  Vector m_vecLeanVelocity;                       // 0x16D
+  Vector m_velocityUnk2;                          // 0x17F
+  Vector m_leanVelocity1;                         // 0x191
+  Vector m_leanVelocity2;
+  char pad11[32];
+  bool m_bUnknown01;
+  bool m_bIsAccelerating;
+  animstate_pose_param_cache_t lean_yaw; // 0x1B0
+  animstate_pose_param_cache_t speed;
+  animstate_pose_param_cache_t ladder_speed;
+  animstate_pose_param_cache_t ladder_yaw;
+  animstate_pose_param_cache_t move_yaw;
+  animstate_pose_param_cache_t run;
+  animstate_pose_param_cache_t body_yaw;
+  animstate_pose_param_cache_t body_pitch;
+  animstate_pose_param_cache_t death_yaw;
+  animstate_pose_param_cache_t stand;
+  animstate_pose_param_cache_t jump_fall;
+  animstate_pose_param_cache_t aim_blend_stand_idle;
+  animstate_pose_param_cache_t aim_blend_crouch_idle;
+  animstate_pose_param_cache_t strafe_yaw;
+  animstate_pose_param_cache_t aim_blend_stand_walk;
+  animstate_pose_param_cache_t aim_blend_stand_run;
+  animstate_pose_param_cache_t aim_blend_crouch_walk;
+  animstate_pose_param_cache_t move_blend_walk;
+  animstate_pose_param_cache_t move_blend_run;
+  animstate_pose_param_cache_t move_blend_crouch;
+  float unk_speed_01;
+  float m_flVelocityUnknown;
 
-	bool					m_first_foot_plant_since_init = false;
-	int						m_last_update_tick = 0;
-	float					m_eye_position_smooth_lerp = 0.0f;
+  // note; alpha:
+  // vars after dis r used in DoProceduralFootPlant, so idk wtf they are (idc either)
+  char pad12[136];
 
-	float					m_strafe_change_weight_smooth_fall_off = 0.0f;
+  // used for pose calculations ( body_yaw and body_pitch )
+  float m_flMinBodyYaw; // 0x330
+  float m_flMaxBodyYaw; // 0x334
+  float m_flMinBodyPitch;
+  float m_flMaxBodyPitch;
+  int anim_state_version; // this is 2, i havent seen it change at all
 
-	float					m_stand_walk_duration_state_has_been_valid = 0.0f;
-	float					m_stand_walk_duration_state_has_been_invalid = 0.0f;
-	float					m_stand_walk_how_long_to_wait_until_transition_can_blend_in = 0.0f;
-	float					m_stand_walk_how_long_to_wait_until_transition_can_blend_out = 0.0f;
-	float					m_stand_walk_blend_value = 0.0f;
-
-	float					m_stand_run_duration_state_has_been_valid = 0.0f;
-	float					m_stand_run_duration_state_has_been_invalid = 0.0f;
-	float					m_stand_run_how_long_to_wait_until_transition_can_blend_in = 0.0f;
-	float					m_stand_run_how_long_to_wait_until_transition_can_blend_out = 0.0f;
-	float					m_stand_run_blend_value = 0.0f;
-
-	float					m_crouch_walk_duration_state_has_been_valid = 0.0f;
-	float					m_crouch_walk_duration_state_has_been_invalid = 0.0f;
-	float					m_crouch_walk_how_long_to_wait_until_transition_can_blend_in = 0.0f;
-	float					m_crouch_walk_how_long_to_wait_until_transition_can_blend_out = 0.0f;
-	float					m_crouch_walk_blend_value = 0.0f;
-
-	int						m_cached_model_index = 0;
-
-	float					m_step_height_left = 0.0f;
-	float					m_step_height_right = 0.0f;
-
-	C_WeaponCSBaseGun* m_weapon_last_bone_setup = nullptr;
-
-	C_CSPlayer* m_player = nullptr;//0x0060 
-	C_WeaponCSBaseGun* m_weapon = nullptr;//0x0064
-	C_WeaponCSBaseGun* m_weapon_last = nullptr;//0x0068
-
-	float					m_last_update_time = 0.0f;//0x006C	
-	int						m_last_update_frame = 0;//0x0070 
-	float					m_last_update_increment = 0.0f;//0x0074 
-
-	float					m_eye_yaw = 0.0f; //0x0078 
-	float					m_eye_pitch = 0.0f; //0x007C 
-	float					m_abs_yaw = 0.0f; //0x0080 : absRotation : goalFeetYaw : footYaw
-	float					m_abs_yaw_last = 0.0f; //0x0084 : absRotationOld : currentFeetYaw : footYawLast
-	float					m_move_yaw = 0.0f; //0x0088 : currentTorsoYaw
-	float					m_move_yaw_ideal = 0.0f; //0x008C : unknwownVelocityLean
-	float					m_move_yaw_current_to_ideal = 0.0f; //0x0090 : leanAmount
-	float					m_time_to_align_lower_body;
-
-	float					m_primary_cycle = 0.0f; // m_flFeetCycle //0x0098
-	float					m_move_weight = 0.0f; // m_flFeetYawRate //0x009C 
-
-	float					m_move_weight_smoothed = 0.0f;
-	float					m_anim_duck_amount = 0.0f; //0x00A4
-	float					m_duck_additional = 0.0f; //0x00A8 : landingDuckAdditiveSomething
-	float					m_recrouch_weight = 0.0f;
-
-	Vector					m_position_current = Vector(0, 0, 0); //0x00B0 : origin
-	Vector					m_position_last = Vector(0, 0, 0); //0x00BC : originLast
-
-	Vector					m_velocity = Vector(0, 0, 0); //0x00C8
-	Vector					m_velocity_normalized = Vector(0, 0, 0); // 
-	Vector					m_velocity_normalized_non_zero = Vector(0, 0, 0); //0x00E0
-	float					m_velocity_length_xy = 0.0f; //0x00EC
-	float					m_velocity_length_z = 0.0f; //0x00F0
-
-	float					m_speed_as_portion_of_run_top_speed = 0.0f; //0x00F4
-	float					m_speed_as_portion_of_walk_top_speed = 0.0f; //0x00F8 
-	float					m_speed_as_portion_of_crouch_top_speed = 0.0f; //0x00FC
-
-	float					m_duration_moving = 0.0f; //0x0100 // timeSinceStartedMoving
-	float					m_duration_still = 0.0f; //0x0104 // timeSinceStoppedMoving
-
-	bool					m_on_ground = false; //0x0108 
-
-	bool					m_landing = false; //0x0109 : hitGroundAnimation
-	float					m_jump_to_fall = 0.0f;
-	float					m_duration_in_air = 0.0f; //0x0110
-	float					m_left_ground_height = 0.0f; //0x0114 
-	float					m_land_anim_multiplier = 0.0f; //0x0118 
-
-	float					m_walk_run_transition = 0.0f; //0x011C
-
-	bool					m_landed_on_ground_this_frame = false;
-	bool					m_left_the_ground_this_frame = false;
-	float					m_in_air_smooth_value = 0.0f;
-
-	bool					m_on_ladder = false; //0x0124
-	float					m_ladder_weight = 0.0f; //0x0128
-	float					m_ladder_speed = 0.0f;
-
-	bool					m_walk_to_run_transition_state = false;
-
-	bool					m_defuse_started = false;
-	bool					m_plant_anim_started = false;
-	bool					m_twitch_anim_started = false;
-	bool					m_adjust_started = false;
-
-	char					m_activity_modifiers_server[20] = {};
-	//CUtlVector<CUtlSymbol>	m_activity_modifiers;
-
-	float					m_next_twitch_time = 0.0f;
-
-	float					m_time_of_last_known_injury = 0.0f;
-
-	float					m_last_velocity_test_time = 0.0f;
-	Vector					m_velocity_last = Vector(0, 0, 0);
-	Vector					m_target_acceleration = Vector(0, 0, 0);
-	Vector					m_acceleration = Vector(0, 0, 0);
-	float					m_acceleration_weight = 0.0f;
-
-	float					m_aim_matrix_transition = 0.0f;
-	float					m_aim_matrix_transition_delay = 0.0f;
-
-	bool					m_flashed = false;
-
-	float					m_strafe_change_weight = 0.0f;
-	float					m_strafe_change_target_weight = 0.0f;
-	float					m_strafe_change_cycle = 0.0f;
-	int						m_strafe_sequence = 0;
-	bool					m_strafe_changing = false;
-	float					m_duration_strafing = 0.0f;
-
-	float					m_foot_lerp = 0.0f;
-
-	bool					m_feet_crossed = false;
-
-	bool					m_player_is_accelerating = false;
-
-	animstate_pose_param_cache_t m_pose_param_mappings[PLAYER_POSE_PARAM_COUNT] = {};
-
-	float					m_duration_move_weight_is_too_high = 0.0f;
-	float					m_static_approach_speed = 0.0f;
-
-	int						m_previous_move_state = 0;
-	float					m_stutter_step = 0.0f;
-
-	float					m_action_weight_bias_remainder = 0.0f;
-
-	Vector m_foot_left_pos_anim = Vector(0, 0, 0);
-	Vector m_foot_left_pos_anim_last = Vector(0, 0, 0);
-	Vector m_foot_left_pos_plant = Vector(0, 0, 0);
-	Vector m_foot_left_plant_vel = Vector(0, 0, 0);
-	float m_foot_left_lock_amount = 0.0f;
-	float m_foot_left_last_plant_time = 0.0f;
-
-	Vector m_foot_right_pos_anim = Vector(0, 0, 0);
-	Vector m_foot_right_pos_anim_last = Vector(0, 0, 0);
-	Vector m_foot_right_pos_plant = Vector(0, 0, 0);
-	Vector m_foot_right_plant_vel = Vector(0, 0, 0);
-	float m_foot_right_lock_amount = 0.0f;
-	float m_foot_right_last_plant_time = 0.0f;
-
-	float					m_camera_smooth_height = 0.0f;
-	bool					m_smooth_height_valid = false;
-	float					m_last_time_velocity_over_ten = 0.0f; // 0x032C
-
-	float					m_aim_yaw_min = 0.0f;//0x0330
-	float					m_aim_yaw_max = 0.0f;//0x0334
-	float					m_aim_pitch_min = 0.0f;
-	float					m_aim_pitch_max = 0.0f;
-
-	int						m_animstate_model_version = 0;
-
-	void Reset();
-	void Update(QAngle angles);
-	const char* GetWeaponPrefix();
-	static void ModifyEyePosition(CCSGOPlayerAnimState* pState, Vector* pos);
+  void Reset();
+  void Update( QAngle angles );
+  float GetMaxFraction( );
+  float GetDesyncDelta( bool useMinYaw = false );
+  const char* GetWeaponPrefix();
+  static void ModifyEyePosition( CCSGOPlayerAnimState * pState, Vector * pos );
 };//Size=0x344

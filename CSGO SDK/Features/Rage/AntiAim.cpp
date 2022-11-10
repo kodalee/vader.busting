@@ -519,7 +519,7 @@ namespace Interfaces
 			return;
 		}
 
-		if (animstate->m_velocity.Length2D() > 0.1f || localPlayer->m_vecVelocity().Length2D() > 0.1f)
+		if (animstate->m_velocity > 0.1f || localPlayer->m_vecVelocity().Length2D() > 0.1f)
 		{
 			g_Vars.globals.m_flBodyPred += 0.22f;
 			firstupdate = true;
@@ -541,7 +541,7 @@ namespace Interfaces
 
 		Encrypted_t<CVariables::ANTIAIM_STATE> settings(&g_Vars.antiaim_stand);
 
-		if (firstupdate && animstate->m_velocity.Length2D() <= 0.1f || firstupdate && animstate->m_velocity.Length() <= 0.1f && settings->yaw == 1)
+		if (firstupdate && animstate->m_velocity <= 0.1f || firstupdate && animstate->m_vecVelocity.Length() <= 0.1f && settings->yaw == 1)
 		{
 			initial_lby = cmd->viewangles.y + g_Vars.antiaim.break_lby_first;
 
@@ -1323,7 +1323,7 @@ namespace Interfaces
 			if (g_Vars.antiaim.freestand_disable_air && !g_Vars.globals.m_bGround)
 				DoFreestanding = false;
 
-			if (local->m_PlayerAnimState()->m_velocity.Length2D() > 0.1f && g_Vars.globals.m_bGround && !g_Vars.globals.Fakewalking) {
+			if (local->m_PlayerAnimState()->m_velocity > 0.1f && g_Vars.globals.m_bGround && !g_Vars.globals.Fakewalking) {
 				if (g_Vars.antiaim.freestand_disable_run)
 					DoFreestanding = false;
 			}
@@ -1445,7 +1445,7 @@ namespace Interfaces
 		static bool bGenerate = true;
 		static float flGenerated = 0.f;
 
-		if (local->m_PlayerAnimState()->m_velocity.Length2D() > 0.1f && g_Vars.globals.m_bGround && !g_Vars.globals.Fakewalking) {
+		if (local->m_PlayerAnimState()->m_velocity > 0.1f && g_Vars.globals.m_bGround && !g_Vars.globals.Fakewalking) {
 			flLastMoveTime = Interfaces::m_pGlobalVars->realtime;
 			flLastMoveYaw = local->m_flLowerBodyYawTarget();
 
@@ -1498,7 +1498,7 @@ namespace Interfaces
 		if (!pLocal)
 			return;
 
-		bool bCrouching = pLocal->m_PlayerAnimState()->m_anim_duck_amount > 0.f;
+		bool bCrouching = pLocal->m_PlayerAnimState()->m_fDuckAmount > 0.f;
 		float flVelocity = (bCrouching ? 3.25f : 1.01f);
 		static int iUpdates = 0;
 
