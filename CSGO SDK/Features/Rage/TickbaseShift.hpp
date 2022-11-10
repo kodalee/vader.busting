@@ -30,6 +30,7 @@ public:
 	bool s_bAckedBuild = true;
 
 	bool m_bSupressRecharge = false;
+	bool m_bForceUnChargeState = true;
 
 	float s_flTimeRequired = 0.3f;
 	size_t s_nTicksRequired = ( int )( s_flTimeRequired / s_flTickInterval + 0.5f );

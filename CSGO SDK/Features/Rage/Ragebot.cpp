@@ -2323,7 +2323,7 @@ namespace Interfaces
 				*m_rage_data->m_pSendPacket = false;
 			}
 
-			if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
+			if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && g_TickbaseController.m_bForceUnChargeState) {
 				g_TickbaseController.m_bSupressRecharge = true;
 			}
 

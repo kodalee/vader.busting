@@ -744,11 +744,6 @@ namespace Hooked
 		if (!*bFinalTick)
 			*bSendPacket = false;
 
-		if (g_TickbaseController.bShifting) {
-			*bSendPacket = g_TickbaseController.s_nExtraProcessingTicks == 1; // Only send on the last shifted tick
-			_cmd->buttons &= ~(IN_ATTACK | IN_ATTACK2);
-		}
-
 		int iLagLimit = 16;
 		g_Vars.fakelag.iLagLimit = std::clamp(iLagLimit, 0, 16);
 
@@ -760,6 +755,11 @@ namespace Hooked
 		if (!g_Vars.globals.HackIsReady || !pLocal || !Interfaces::m_pEngine->IsInGame()) {
 			Engine::Prediction::Instance().Invalidate();
 			return oCreateMove(ft, _cmd);
+		}
+
+		if (g_TickbaseController.bShifting) {
+			*bSendPacket = g_TickbaseController.s_nExtraProcessingTicks == 1; // Only send on the last shifted tick
+			_cmd->buttons &= ~(IN_ATTACK | IN_ATTACK2);
 		}
 
 		return result;

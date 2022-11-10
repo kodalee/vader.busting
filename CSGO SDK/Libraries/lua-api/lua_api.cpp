@@ -991,79 +991,12 @@ namespace lua_exploits {
 	{
 		g_TickbaseController.s_flTimeRequired = time;
 	}
+
+	void force_unchargestate(bool state)
+	{
+		g_TickbaseController.m_bForceUnChargeState = state;
+	}
 }
-
-template<class T>
-T propGetter(int entityID, std::string tableName, std::string propName)
-{
-	C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(entityID);
-	if (!player || !player->IsPlayer())
-		return T{};
-
-	auto& pPropManager = Engine::PropManager::Instance();
-
-	auto offset = pPropManager->GetOffset(tableName, propName);
-
-	if (!offset)
-		return T{};
-
-	return player->get<T>(offset);
-}
-
-size_t pPropGetter(int entityID, std::string tableName, std::string propName)
-{
-	C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(entityID);
-	if (!player || !player->IsPlayer())
-		return size_t{};
-
-	auto& pPropManager = Engine::PropManager::Instance();
-
-	auto offset = pPropManager->GetOffset(tableName, propName);
-
-	return offset;
-}
-
-struct luaProp
-{
-	void* propptr;
-	luaProp() {
-		return;
-	}
-	luaProp(void* pNetvar) {
-		propptr = pNetvar;
-	}
-	int GetInt()
-	{
-		if (!propptr)
-			return {};
-
-		return *(int*)(propptr);
-	}
-};
-
-struct luaPlayer
-{
-	int entityID;
-	luaPlayer()
-	{
-		return;
-	}
-	luaPlayer(int id)
-	{
-		entityID = id;
-	}
-	luaProp getProp(std::string tableName, std::string propName)
-	{
-		C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(entityID);
-		if (!player || !player->IsPlayer())
-			return {};
-		auto offset = pPropGetter(entityID, tableName, propName);
-		if (!offset)
-			return {};
-		luaProp* netvar = new luaProp((void*)(player + offset));
-		return *netvar;
-	}
-};
 
 // ----- lua functions -----
 
@@ -1207,7 +1140,15 @@ bool c_lua::initialize() {
 		XorStr("get_fflags"), &C_CSPlayer::m_fFlags,
 		XorStr("is_scoped"), &C_CSPlayer::m_bIsScoped,
 		XorStr("get_velmodifer"), &C_CSPlayer::m_flVelocityModifier,
-		XorStr("get_health"), &C_CSPlayer::m_iHealth
+		XorStr("get_health"), &C_CSPlayer::m_iHealth,
+		XorStr("get_prop_int"), &C_CSPlayer::GetPropInt,
+		XorStr("get_prop_float"), &C_CSPlayer::GetPropFloat,
+		XorStr("get_prop_bool"), &C_CSPlayer::GetPropBool,
+		XorStr("get_prop_string"), &C_CSPlayer::GetPropString,
+		XorStr("set_prop_int"), &C_CSPlayer::SetPropInt,
+		XorStr("set_prop_float"), &C_CSPlayer::SetPropFloat,
+		XorStr("set_prop_bool"), &C_CSPlayer::SetPropBool,
+		XorStr("set_prop_string"), &C_CSPlayer::SetPropString
 		);
 	this->lua.new_usertype<Engine::ShotSnapshot>(XorStr("shot_info"), sol::constructors <>(),
 		XorStr("result"), &Engine::ShotSnapshot::result,
@@ -1219,13 +1160,6 @@ bool c_lua::initialize() {
 		XorStr("hitchance"), &Engine::ShotSnapshot::hitchance,
 		XorStr("player"), &Engine::ShotSnapshot::player
 		);
-	this->lua.new_usertype<luaPlayer>(XorStr("entity"),
-		sol::constructors<luaPlayer(), luaPlayer(int)>(),
-		XorStr("get_prop"), &luaPlayer::getProp
-		);
-	this->lua[XorStr("get_player")] = [](int entityID) {
-		return luaPlayer(entityID);
-	};
 
 	auto events = this->lua.create_table();
 	events[XorStr("register_event")] = lua_events::gameevent_callback;
@@ -1396,6 +1330,7 @@ bool c_lua::initialize() {
 	exploits[XorStr("force_uncharge")] = lua_exploits::force_uncharge;
 	exploits[XorStr("force_speed")] = lua_exploits::force_speed;
 	exploits[XorStr("force_chargedelay")] = lua_exploits::force_chargedelay;
+	exploits[XorStr("force_unchargestate")] = lua_exploits::force_unchargestate;
 
 	this->lua[XorStr("event")] = events;
 	this->lua[XorStr("config")] = config;

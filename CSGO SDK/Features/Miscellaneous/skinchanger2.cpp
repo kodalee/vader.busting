@@ -165,6 +165,11 @@ const weapon_info* GetWeaponInfo(int defindex) {
 }
 
 bool apply_glove(C_BaseAttributableItem* glove, const char* model, int item_definition_index, int paint_kit, int model_index, int entity_quality, float fallback_wear) {
+	auto local = C_CSPlayer::GetLocalPlayer();
+
+	if (!local || local->IsDead())
+		return false;
+
 	player_info_t info;
 	Interfaces::m_pEngine->GetPlayerInfo(Interfaces::m_pEngine->GetLocalPlayer(), &info);
 	glove->m_Item().m_iItemIDHigh() = -1;
@@ -174,7 +179,23 @@ bool apply_glove(C_BaseAttributableItem* glove, const char* model, int item_defi
 	glove->m_Item().m_nFallbackPaintKit() = paint_kit;
 	glove->m_Item().m_nFallbackStatTrak() = -1;
 	glove->m_Item().m_iItemDefinitionIndex() = item_definition_index;
-	glove->SetModelIndex(model_index);
+	glove->m_Item().m_bInitialized() = true;
+	glove->SetModelIndex(model_index + 2);
+
+	static auto fnEquip
+		= reinterpret_cast<int(__thiscall*)(void*, void*)>(
+			Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 EC 10 53 8B 5D 08 57 8B F9"))
+			);
+
+	static auto fnInitializeAttributes
+		= reinterpret_cast<int(__thiscall*)(void*)>(
+			Memory::Scan(XorStr("client.dll"), XorStr("55 8B EC 83 E4 F8 83 EC 0C 53 56 8B F1 8B 86"))
+			);
+
+	fnEquip(glove, local); //follow entity, owner etc.
+	*(int*)((uintptr_t)local + 0xA20) = 1; // remove default arms in 3th person mode dword_15268230 = (int)"m_nBody";
+	fnInitializeAttributes(glove); //set paintkit etc. from inventory changer by itemid
+
 	auto networkable = glove->GetClientNetworkable();
 	if (networkable) {
 		networkable->PreDataUpdate(0);
