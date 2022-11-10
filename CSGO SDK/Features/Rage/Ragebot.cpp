@@ -37,84 +37,6 @@ extern int LastShotTime;
 // Refactoring
 // Rework exploits
 
-float g_CapsuleVertices[][3] =
-{
-	{ -0.01f, -0.01f, 1.00f },
-	{ 0.51f, 0.00f, 0.86f },
-	{ 0.44f, 0.25f, 0.86f },
-	{ 0.25f, 0.44f, 0.86f },
-	{ -0.01f, 0.51f, 0.86f },
-	{ -0.26f, 0.44f, 0.86f },
-	{ -0.45f, 0.25f, 0.86f },
-	{ -0.51f, 0.00f, 0.86f },
-	{ -0.45f, -0.26f, 0.86f },
-	{ -0.26f, -0.45f, 0.86f },
-	{ -0.01f, -0.51f, 0.86f },
-	{ 0.25f, -0.45f, 0.86f },
-	{ 0.44f, -0.26f, 0.86f },
-	{ 0.86f, 0.00f, 0.51f },
-	{ 0.75f, 0.43f, 0.51f },
-	{ 0.43f, 0.75f, 0.51f },
-	{ -0.01f, 0.86f, 0.51f },
-	{ -0.44f, 0.75f, 0.51f },
-	{ -0.76f, 0.43f, 0.51f },
-	{ -0.87f, 0.00f, 0.51f },
-	{ -0.76f, -0.44f, 0.51f },
-	{ -0.44f, -0.76f, 0.51f },
-	{ -0.01f, -0.87f, 0.51f },
-	{ 0.43f, -0.76f, 0.51f },
-	{ 0.75f, -0.44f, 0.51f },
-	{ 1.00f, 0.00f, 0.01f },
-	{ 0.86f, 0.50f, 0.01f },
-	{ 0.49f, 0.86f, 0.01f },
-	{ -0.01f, 1.00f, 0.01f },
-	{ -0.51f, 0.86f, 0.01f },
-	{ -0.87f, 0.50f, 0.01f },
-	{ -1.00f, 0.00f, 0.01f },
-	{ -0.87f, -0.50f, 0.01f },
-	{ -0.51f, -0.87f, 0.01f },
-	{ -0.01f, -1.00f, 0.01f },
-	{ 0.49f, -0.87f, 0.01f },
-	{ 0.86f, -0.51f, 0.01f },
-	{ 1.00f, 0.00f, -0.02f },
-	{ 0.86f, 0.50f, -0.02f },
-	{ 0.49f, 0.86f, -0.02f },
-	{ -0.01f, 1.00f, -0.02f },
-	{ -0.51f, 0.86f, -0.02f },
-	{ -0.87f, 0.50f, -0.02f },
-	{ -1.00f, 0.00f, -0.02f },
-	{ -0.87f, -0.50f, -0.02f },
-	{ -0.51f, -0.87f, -0.02f },
-	{ -0.01f, -1.00f, -0.02f },
-	{ 0.49f, -0.87f, -0.02f },
-	{ 0.86f, -0.51f, -0.02f },
-	{ 0.86f, 0.00f, -0.51f },
-	{ 0.75f, 0.43f, -0.51f },
-	{ 0.43f, 0.75f, -0.51f },
-	{ -0.01f, 0.86f, -0.51f },
-	{ -0.44f, 0.75f, -0.51f },
-	{ -0.76f, 0.43f, -0.51f },
-	{ -0.87f, 0.00f, -0.51f },
-	{ -0.76f, -0.44f, -0.51f },
-	{ -0.44f, -0.76f, -0.51f },
-	{ -0.01f, -0.87f, -0.51f },
-	{ 0.43f, -0.76f, -0.51f },
-	{ 0.75f, -0.44f, -0.51f },
-	{ 0.51f, 0.00f, -0.87f },
-	{ 0.44f, 0.25f, -0.87f },
-	{ 0.25f, 0.44f, -0.87f },
-	{ -0.01f, 0.51f, -0.87f },
-	{ -0.26f, 0.44f, -0.87f },
-	{ -0.45f, 0.25f, -0.87f },
-	{ -0.51f, 0.00f, -0.87f },
-	{ -0.45f, -0.26f, -0.87f },
-	{ -0.26f, -0.45f, -0.87f },
-	{ -0.01f, -0.51f, -0.87f },
-	{ 0.25f, -0.45f, -0.87f },
-	{ 0.44f, -0.26f, -0.87f },
-	{ 0.00f, 0.00f, -1.00f },
-};
-
 enum OverrideConditions {
 	OnShot,
 	Running,
@@ -1253,172 +1175,69 @@ namespace Interfaces
 		return true;
 	}
 
-#define CHECK_VALID( _v ) 0
-
-	static constexpr float pi = 3.14159265358979323846f;
-	static constexpr float radpi = 57.295779513082f;
-	static constexpr float pirad = 0.01745329251f;
-	inline void AngleMatrix(Vector angles, matrix3x4_t& matrix)
-	{
-		float sr, sp, sy, cr, cp, cy;
-
-		sp = sinf(angles.x * pirad);
-		cp = cosf(angles.x * pirad);
-		sy = sinf(angles.y * pirad);
-		cy = cosf(angles.y * pirad);
-		sr = sinf(angles.z * pirad);
-		cr = cosf(angles.z * pirad);
-
-		matrix[0][0] = cp * cy;
-		matrix[1][0] = cp * sy;
-		matrix[2][0] = -sp;
-
-		float crcy = cr * cy;
-		float crsy = cr * sy;
-		float srcy = sr * cy;
-		float srsy = sr * sy;
-		matrix[0][1] = sp * srcy - crsy;
-		matrix[1][1] = sp * srsy + crcy;
-		matrix[2][1] = sr * cp;
-
-		matrix[0][2] = (sp * crcy + srsy);
-		matrix[1][2] = (sp * crsy - srcy);
-		matrix[2][2] = cr * cp;
-
-		matrix[0][3] = 0.f;
-		matrix[1][3] = 0.f;
-		matrix[2][3] = 0.f;
-	}
-
-	__forceinline float __cdecl DotProduct_ASM(const float _v1[3], const float _v2[3])
-	{
-		float dotret;
-		__asm
-		{
-			mov ecx, _v1
-			mov eax, _v2
-			; optimized dot product; 15 cycles
-			fld dword ptr[eax + 0]; starts& ends on cycle 0
-			fmul dword ptr[ecx + 0]; starts on cycle 1
-			fld dword ptr[eax + 4]; starts& ends on cycle 2
-			fmul dword ptr[ecx + 4]; starts on cycle 3
-			fld dword ptr[eax + 8]; starts& ends on cycle 4
-			fmul dword ptr[ecx + 8]; starts on cycle 5
-			fxch st(1); no cost
-			faddp st(2), st(0); starts on cycle 6, stalls for cycles 7 - 8
-			faddp st(1), st(0); starts on cycle 9, stalls for cycles 10 - 12
-			fstp dword ptr[dotret]; starts on cycle 13, ends on cycle 14
-		}
-		return dotret;
-	}
-
-	inline Vector VectorRotate(const Vector& vec, const Vector& in2)
-	{
-		Vector out;
-
-		matrix3x4_t rotate;
-		AngleMatrix(in2, rotate);
-		out.x = DotProduct_ASM(reinterpret_cast<const float*>(&vec), rotate[0]);
-		out.y = DotProduct_ASM(reinterpret_cast<const float*>(&vec), rotate[1]);
-		out.z = DotProduct_ASM(reinterpret_cast<const float*>(&vec), rotate[2]);
-
-		return out;
-	}
-
-	void VectorRotate(const float* in1, const matrix3x4_t& in2, float* out)
-	{
-		out[0] = DotProduct_ASM(in1, in2[0]);
-		out[1] = DotProduct_ASM(in1, in2[1]);
-		out[2] = DotProduct_ASM(in1, in2[2]);
-	}
-
-	// even more fps friendly :D
-	__forceinline void VectorTransformASM(const float* in1, const matrix3x4_t& in2, float* out1)
-	{
-		out1[0] = DotProduct_ASM(in1, in2[0]) + in2[0][3];
-		out1[1] = DotProduct_ASM(in1, in2[1]) + in2[1][3];
-		out1[2] = DotProduct_ASM(in1, in2[2]) + in2[2][3];
-	}
-
-	void CrossProduct(const float* v1, const float* v2, float* cross)
-	{
-		Assert(s_bMathlibInitialized);
-		Assert(v1 != cross);
-		Assert(v2 != cross);
-		cross[0] = v1[1] * v2[2] - v1[2] * v2[1];
-		cross[1] = v1[2] * v2[0] - v1[0] * v2[2];
-		cross[2] = v1[0] * v2[1] - v1[1] * v2[0];
-	}
-
-	inline void CrossProduct(const Vector& a, const Vector& b, Vector& result)
-	{
-		CHECK_VALID(a);
-		CHECK_VALID(b);
-		Assert(&a != &result);
-		Assert(&b != &result);
-		result.x = a.y * b.z - a.z * b.y;
-		result.y = a.z * b.x - a.x * b.z;
-		result.z = a.x * b.y - a.y * b.x;
-	}
-
-	void VectorVectors(const Vector& forward, Vector& right, Vector& up)
-	{
-		Assert(s_bMathlibInitialized);
-		Vector tmp;
-
-		if (fabs(forward[0]) < 1e-6 && fabs(forward[1]) < 1e-6)
-		{
-			// pitch 90 degrees up/down from identity
-			right[0] = 0;
-			right[1] = -1;
-			right[2] = 0;
-			up[0] = -forward[2];
-			up[1] = 0;
-			up[2] = 0;
-		}
-		else
-		{
-			tmp[0] = 0; tmp[1] = 0; tmp[2] = 1.0;
-			CrossProduct(forward, tmp, right);
-			right = right.Normalized();
-			CrossProduct(right, forward, up);
-			up = up.Normalized();
-		}
-	}
-
-	void MatrixSetColumn(const Vector& in, int column, matrix3x4_t& out)
-	{
-		out[0][column] = in.x;
-		out[1][column] = in.y;
-		out[2][column] = in.z;
-	}
-
-	void VectorMatrix(const Vector& forward, matrix3x4_t& matrix)
-	{
-		Assert(s_bMathlibInitialized);
-		Vector right, up;
-		VectorVectors(forward, right, up);
-
-		MatrixSetColumn(forward, 0, matrix);
-		MatrixSetColumn(-right, 1, matrix);
-		MatrixSetColumn(up, 2, matrix);
-	}
-
 	void C_Ragebot::Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& pointScale, int hitboxIndex) {
 		auto boneMatrix = record->GetBoneMatrix();
 
-		if (!hitbox || !boneMatrix || !hitboxSet)
+		points.clear();
+
+		if (!hitbox || !boneMatrix)
 			return;
 
-		Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
-		Vector centerTrans = center.Transform(boneMatrix[hitbox->bone]);
+		if (!hitboxSet)
+			return;
 
 		auto local = C_CSPlayer::GetLocalPlayer();
 		if (!local || local->IsDead())
 			return;
 
+		Vector min, max;
+		Math::VectorTransform2(hitbox->bbmin, boneMatrix[hitbox->bone], min);
+		Math::VectorTransform2(hitbox->bbmax, boneMatrix[hitbox->bone], max);
+
+		//Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
+		//Vector centerTrans = center.Transform(boneMatrix[hitbox->bone]);
+
+		Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
+		Vector centerTrans = center;
+		Math::VectorTransform2(centerTrans, boneMatrix[hitbox->bone], centerTrans);
+
+		AddPoint(points, centerTrans, false);
+
+		auto aeye = local->GetEyePosition();
+
+		auto delta = centerTrans - aeye;
+		delta.Normalized();
+
+		auto max_min = max - min;
+		max_min.Normalized();
+
+		auto cr = max_min.Cross(delta);
+
+		QAngle d_angle;
+		Math::VectorAngles(delta, d_angle);
+
+		bool vertical = hitboxIndex == HITBOX_HEAD;
+
+		Vector right, up;
+		if (vertical) {
+			QAngle cr_angle;
+			Math::VectorAngles(cr, cr_angle);
+			cr_angle.ToVectors(&right, &up);
+			cr_angle.z = d_angle.x;
+
+			Vector _up = up, _right = right, _cr = cr;
+			cr = _right;
+			right = _cr;
+		}
+		else {
+			Math::VectorVectors(delta, up, right);
+		}
+
+		RayTracer::Hitbox box(min, max, hitbox->m_flRadius);
+		RayTracer::Trace trace;
+
 		if (!m_rage_data->rbot->static_point_scale && m_rage_data->m_pWeapon && hitbox->m_flRadius > 0.0f) {
-			pointScale = .8f; // we can go high here because the new multipoint is perfect; now this statement is actually true
+			pointScale = 0.91f; // we can go high here because the new multipoint is perfect
 
 			float spreadCone = Engine::Prediction::Instance()->GetSpread() + Engine::Prediction::Instance()->GetInaccuracy();
 			float dist = centerTrans.Distance(m_rage_data->m_vecEyePos);
@@ -1434,281 +1253,92 @@ namespace Interfaces
 
 			float ps = pointScale;
 			pointScale = (radiusScaled / hitbox->m_flRadius);
-			pointScale = Math::Clamp(pointScale, 0.1f, ps);
+			pointScale = Math::Clamp(pointScale, 0.0f, ps);
 		}
 
 		if (pointScale <= 0.0f)
 			return;
 
-		// get the hitbox radius (could be redone)
-		const float hitboxRadius = hitbox->m_flRadius * pointScale;
+		if (hitbox->m_flRadius == -1.f) {
+			// convert rotation angle to a matrix.
+			matrix3x4_t rot_matrix;
+			Math::AngleMatrix(hitbox->m_angAngles, rot_matrix);
 
-		// backup mins
-		Vector norm, mins = hitbox->bbmin, maxs = hitbox->bbmax;
+			// apply the rotation to the entity input space (local).
+			matrix3x4_t matrix;
+			Math::ConcatTransforms(boneMatrix[hitbox->bone], rot_matrix, matrix);
 
-		VectorTransformASM(&hitbox->bbmin[0], boneMatrix[hitbox->bone], &mins[0]);
-		VectorTransformASM(&hitbox->bbmax[0], boneMatrix[hitbox->bone], &maxs[0]);
+			// extract origin from matrix.
+			const Vector origin = matrix.GetOrigin();
 
-		auto hitboxCenter = (mins + maxs) * 0.5f;
+			// compute raw center point.
+			Vector center = (hitbox->bbmin + hitbox->bbmax) / 2.f;
 
-		unsigned int pointAmount = 0;
-		float feetScale = 0.0f;
-
-		// little multipoint check ya know
-		bool runMultipoint = false;
-		if (hitboxIndex == HITBOX_HEAD && m_rage_data->rbot->mp_hitboxes_head) {
-			pointAmount = 3;
-			runMultipoint = true;
-		}
-		else if (hitboxIndex == HITBOX_CHEST && m_rage_data->rbot->mp_hitboxes_chest) {
-			pointAmount = 6;
-			runMultipoint = true;
-		}
-		else if (hitboxIndex == HITBOX_STOMACH && m_rage_data->rbot->mp_hitboxes_stomach) {
-			pointAmount = 8;
-			runMultipoint = true;
-		}
-		else if ((hitboxIndex == HITBOX_LEFT_CALF || hitboxIndex == HITBOX_RIGHT_CALF || hitboxIndex == HITBOX_LEFT_THIGH || hitboxIndex == HITBOX_RIGHT_THIGH) && m_rage_data->rbot->mp_hitboxes_legs) {
-			pointAmount = 3;
-			runMultipoint = true;
-		}
-		else if ((hitboxIndex == HITBOX_LEFT_FOOT || hitboxIndex == HITBOX_RIGHT_FOOT) && m_rage_data->rbot->mp_hitboxes_feets) {
-			feetScale = m_rage_data->rbot->static_point_scale ? pointScale * 0.1 : 10.f;
-			runMultipoint = true;
-		}
-		else // extra safe in this bitch
-			runMultipoint = false;
-
-		if (hitbox->m_flRadius <= 0.0f) {
+			// the feet hiboxes have a side, heel and the toe.
 			if (hitboxIndex == HITBOX_RIGHT_FOOT || hitboxIndex == HITBOX_LEFT_FOOT) {
-				float d1 = (hitbox->bbmin.z - center.z) * 0.425f;
+				const float d2 = (hitbox->bbmin.x - center.x) * pointScale;
+				const float d3 = (hitbox->bbmax.x - center.x) * pointScale;
 
-				if (hitboxIndex == HITBOX_LEFT_FOOT)
-					d1 *= -1.f;
+				// heel.
+				AddPoint(points, Vector(center.x + d2, center.y, center.z), true);
 
-				// optimal point for feet
-				AddPoint(points,
-					Vector(center.x, center.y, center.z + d1).Transform(boneMatrix[hitbox->bone]),
-					true
-				);
+				// toe.
+				AddPoint(points, Vector(center.x + d3, center.y, center.z), true);
+			}
 
-				if (runMultipoint) {
-					// toe
-					AddPoint(points,
-						Vector(((hitbox->bbmax.x - center.x) * feetScale) + center.x, center.y, center.z).Transform(boneMatrix[hitbox->bone]),
-						true
-					);
+			// nothing to do here we are done.
+			if (points.empty())
+				return;
 
-					// heel
-					AddPoint(points,
-						Vector(((hitbox->bbmin.x - center.x) * feetScale) + center.x, center.y, center.z).Transform(boneMatrix[hitbox->bone]),
-						true
-					);
-				}
+			// rotate our bbox points by their correct angle
+			// and convert our points to world space.
+			for (auto& p : points) {
+				// VectorRotate.
+				// rotate point by angle stored in matrix.
+				p.first = { p.first.Dot(matrix[0]), p.first.Dot(matrix[1]), p.first.Dot(matrix[2]) };
+
+				// transform point to world space.
+				p.first += origin;
 			}
 		}
 		else {
-			matrix3x4_t dmatrix, rmatrix;
+			if (hitboxIndex == HITBOX_HEAD) {
+				Vector middle = (right.Normalized() + up.Normalized()) * 0.5f;
+				Vector middle2 = (right.Normalized() - up.Normalized()) * 0.5f;
 
-			Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
-			points.emplace_back(center, true);
+				RayTracer::Ray ray = RayTracer::Ray(aeye, centerTrans + (middle * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-			if (runMultipoint) {
-				norm = (maxs - mins);
-				norm = norm.Normalized();
+				ray = RayTracer::Ray(aeye, centerTrans - (middle2 * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-				VectorMatrix(Vector(0.0f, 0.0f, .9f), rmatrix);
-				VectorMatrix(norm, dmatrix);
+				ray = RayTracer::Ray(aeye, centerTrans + (up * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-				Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
-				points.emplace_back(center, true);
+				ray = RayTracer::Ray(aeye, centerTrans - (up * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-				for (int i = 0; i < 74; i += (int)(74 / pointAmount)) {
-					if (i >= 74)
-						i = 73;
+			}
+			else {
+				RayTracer::Ray ray = RayTracer::Ray(aeye, centerTrans - ((vertical ? cr : up) * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
 
-					float flPoints[3];
-					VectorRotate(g_CapsuleVertices[i], rmatrix, &flPoints[0]);
-					VectorRotate(&flPoints[0], dmatrix, &flPoints[0]);
+				ray = RayTracer::Ray(aeye, centerTrans + ((vertical ? up : up) * 1000.0f));
+				RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
+				AddPoint(points, trace.m_traceEnd, true);
+			}
 
-					Vector vecPoint = Vector(flPoints) * (hitbox->m_flRadius * pointScale);
-					if (g_CapsuleVertices[i][2] > 0.f)
-						vecPoint += (mins - maxs);
-
-					// don't need to make an extra center point.
-					if (vecPoint == center)
-						continue;
-
-					points.emplace_back(Vector(maxs + vecPoint), false);
-				}
+			for (size_t i = 1; i < points.size(); ++i) {
+				auto delta_center = points[i].first - centerTrans;
+				points[i].first = centerTrans + delta_center * pointScale;
 			}
 		}
 	}
-
-	//void C_Ragebot::Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& pointScale, int hitboxIndex) {
-	//	auto boneMatrix = record->GetBoneMatrix();
-
-	//	points.clear();
-
-	//	if (!hitbox || !boneMatrix)
-	//		return;
-
-	//	if (!hitboxSet)
-	//		return;
-
-	//	auto local = C_CSPlayer::GetLocalPlayer();
-	//	if (!local || local->IsDead())
-	//		return;
-
-	//	Vector min, max;
-	//	Math::VectorTransform2(hitbox->bbmin, boneMatrix[hitbox->bone], min);
-	//	Math::VectorTransform2(hitbox->bbmax, boneMatrix[hitbox->bone], max);
-
-	//	//Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
-	//	//Vector centerTrans = center.Transform(boneMatrix[hitbox->bone]);
-
-	//	Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
-	//	Vector centerTrans = center;
-	//	Math::VectorTransform2(centerTrans, boneMatrix[hitbox->bone], centerTrans);
-
-	//	AddPoint(points, centerTrans, false);
-
-	//	auto aeye = local->GetEyePosition();
-
-	//	auto delta = centerTrans - aeye;
-	//	delta.Normalized();
-
-	//	auto max_min = max - min;
-	//	max_min.Normalized();
-
-	//	auto cr = max_min.Cross(delta);
-
-	//	QAngle d_angle;
-	//	Math::VectorAngles(delta, d_angle);
-
-	//	bool vertical = hitboxIndex == HITBOX_HEAD;
-
-	//	Vector right, up;
-	//	if (vertical) {
-	//		QAngle cr_angle;
-	//		Math::VectorAngles(cr, cr_angle);
-	//		cr_angle.ToVectors(&right, &up);
-	//		cr_angle.z = d_angle.x;
-
-	//		Vector _up = up, _right = right, _cr = cr;
-	//		cr = _right;
-	//		right = _cr;
-	//	}
-	//	else {
-	//		Math::VectorVectors(delta, up, right);
-	//	}
-
-	//	RayTracer::Hitbox box(min, max, hitbox->m_flRadius);
-	//	RayTracer::Trace trace;
-
-	//	if (!m_rage_data->rbot->static_point_scale && m_rage_data->m_pWeapon && hitbox->m_flRadius > 0.0f) {
-	//		pointScale = 0.91f; // we can go high here because the new multipoint is perfect
-
-	//		float spreadCone = Engine::Prediction::Instance()->GetSpread() + Engine::Prediction::Instance()->GetInaccuracy();
-	//		float dist = centerTrans.Distance(m_rage_data->m_vecEyePos);
-
-	//		dist /= sinf(DEG2RAD(90.0f - RAD2DEG(spreadCone)));
-
-	//		spreadCone = sinf(spreadCone);
-
-	//		float radiusScaled = (hitbox->m_flRadius - (dist * spreadCone));
-	//		if (radiusScaled < 0.0f) {
-	//			radiusScaled *= -1.f;
-	//		}
-
-	//		float ps = pointScale;
-	//		pointScale = (radiusScaled / hitbox->m_flRadius);
-	//		pointScale = Math::Clamp(pointScale, 0.0f, ps);
-	//	}
-
-	//	if (pointScale <= 0.0f)
-	//		return;
-
-	//	if (hitbox->m_flRadius == -1.f) {
-	//		// convert rotation angle to a matrix.
-	//		matrix3x4_t rot_matrix;
-	//		Math::AngleMatrix(hitbox->m_angAngles, rot_matrix);
-
-	//		// apply the rotation to the entity input space (local).
-	//		matrix3x4_t matrix;
-	//		Math::ConcatTransforms(boneMatrix[hitbox->bone], rot_matrix, matrix);
-
-	//		// extract origin from matrix.
-	//		const Vector origin = matrix.GetOrigin();
-
-	//		// compute raw center point.
-	//		Vector center = (hitbox->bbmin + hitbox->bbmax) / 2.f;
-
-	//		// the feet hiboxes have a side, heel and the toe.
-	//		if (hitboxIndex == HITBOX_RIGHT_FOOT || hitboxIndex == HITBOX_LEFT_FOOT) {
-	//			const float d2 = (hitbox->bbmin.x - center.x) * pointScale;
-	//			const float d3 = (hitbox->bbmax.x - center.x) * pointScale;
-
-	//			// heel.
-	//			AddPoint(points, Vector(center.x + d2, center.y, center.z), true);
-
-	//			// toe.
-	//			AddPoint(points, Vector(center.x + d3, center.y, center.z), true);
-	//		}
-
-	//		// nothing to do here we are done.
-	//		if (points.empty())
-	//			return;
-
-	//		// rotate our bbox points by their correct angle
-	//		// and convert our points to world space.
-	//		for (auto& p : points) {
-	//			// VectorRotate.
-	//			// rotate point by angle stored in matrix.
-	//			p.first = { p.first.Dot(matrix[0]), p.first.Dot(matrix[1]), p.first.Dot(matrix[2]) };
-
-	//			// transform point to world space.
-	//			p.first += origin;
-	//		}
-	//	}
-	//	else {
-	//		if (hitboxIndex == HITBOX_HEAD) {
-	//			Vector middle = (right.Normalized() + up.Normalized()) * 0.5f;
-	//			Vector middle2 = (right.Normalized() - up.Normalized()) * 0.5f;
-
-	//			RayTracer::Ray ray = RayTracer::Ray(aeye, centerTrans + (middle * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//			ray = RayTracer::Ray(aeye, centerTrans - (middle2 * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//			ray = RayTracer::Ray(aeye, centerTrans + (up * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//			ray = RayTracer::Ray(aeye, centerTrans - (up * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//		}
-	//		else {
-	//			RayTracer::Ray ray = RayTracer::Ray(aeye, centerTrans - ((vertical ? cr : up) * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//			ray = RayTracer::Ray(aeye, centerTrans + ((vertical ? up : up) * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-	//		}
-
-	//		for (size_t i = 1; i < points.size(); ++i) {
-	//			auto delta_center = points[i].first - centerTrans;
-	//			points[i].first = centerTrans + delta_center * pointScale;
-	//		}
-	//	}
-	//}
 
 	bool C_Ragebot::SetupTargets() {
 		m_rage_data->m_targets.clear();

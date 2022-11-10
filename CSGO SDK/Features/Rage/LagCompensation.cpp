@@ -335,7 +335,7 @@ namespace Engine
 
 		// did player update?
 		//float simTime = player->m_flSimulationTime( );
-		//if( pThis->m_last_update_time >= simTime ) {
+		//if( pThis->m_flLastUpdateTime >= simTime ) {
 		//	return;
 		//}
 
@@ -380,9 +380,9 @@ namespace Engine
 		record->m_bIsShoting = anim_record->m_bIsShoting;
 		record->m_bIsValid = !anim_record->m_bIsInvalid;
 		record->m_bBonesCalculated = anim_data->m_bBonesCalculated;
-		record->m_flAnimationVelocity = player->m_PlayerAnimState( )->m_velocity_length_xy;
+		record->m_flAnimationVelocity = player->m_PlayerAnimState( )->m_velocity;
 		record->m_bTeleportDistance = anim_record->m_bTeleportDistance;
-		record->m_flAbsRotation = player->m_PlayerAnimState( )->m_abs_yaw;
+		record->m_flAbsRotation = player->m_PlayerAnimState( )->m_flAbsRotation;
 		record->m_iLaggedTicks = TIME_TO_TICKS( player->m_flSimulationTime( ) - player->m_flOldSimulationTime( ) );
 		record->m_bResolved = anim_record->m_bResolved;
 		record->m_iResolverMode = anim_record->m_iResolverMode;
@@ -561,7 +561,7 @@ namespace Engine
 		this->m_vecOrigin = player->m_vecOrigin( );
 
 		if( player->m_PlayerAnimState( ) != nullptr )
-			this->m_flAbsRotation = player->m_PlayerAnimState( )->m_abs_yaw;
+			this->m_flAbsRotation = player->m_PlayerAnimState( )->m_flAbsRotation;
 
 		std::memcpy( this->m_BoneMatrix, player->m_CachedBoneData( ).Base( ),
 			player->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );
@@ -579,7 +579,7 @@ namespace Engine
 		player->SetAbsOrigin( this->m_vecOrigin );
 
 		if( player->m_PlayerAnimState( ) != nullptr )
-			player->m_PlayerAnimState( )->m_abs_yaw = this->m_flAbsRotation;
+			player->m_PlayerAnimState( )->m_flAbsRotation = this->m_flAbsRotation;
 
 		std::memcpy( player->m_CachedBoneData( ).Base( ), this->m_BoneMatrix,
 			player->m_CachedBoneData( ).Count( ) * sizeof( matrix3x4_t ) );

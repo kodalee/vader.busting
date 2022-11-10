@@ -466,7 +466,7 @@ namespace Interfaces
 		if( !animState )
 			return;
 
-		m_movement_data->m_pLocal->SetAbsAngles( QAngle( 0.f, animState->m_abs_yaw, 0.f ) );
+		m_movement_data->m_pLocal->SetAbsAngles( QAngle( 0.f, animState->m_flAbsRotation, 0.f ) );
 		m_movement_data->m_pLocal->InvalidateBoneCache( );
 
 		const float PitchPosBackup = *( float* )( uintptr_t( m_movement_data->m_pLocal ) + Engine::Displacement.DT_BaseAnimating.m_flPoseParameter + 48 );

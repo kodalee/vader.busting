@@ -541,7 +541,7 @@ namespace Interfaces
 			return false;
 
 		auto animState = local->m_PlayerAnimState( );
-		auto velocity = Math::GetSmoothedVelocity( Interfaces::m_pGlobalVars->interval_per_tick * 2000.0f, local->m_vecVelocity( ), animState->m_velocity );
+		auto velocity = Math::GetSmoothedVelocity( Interfaces::m_pGlobalVars->interval_per_tick * 2000.0f, local->m_vecVelocity( ), animState->m_vecVelocity );
 
 		bool moving = velocity.Length( ) >= 1.2f;
 		bool air = !( local->m_fFlags( ) & FL_ONGROUND );
