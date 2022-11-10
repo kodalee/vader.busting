@@ -171,9 +171,18 @@ public:
 
 	ClientClass* GetClientClass( );
 	bool IsDormant( );
+	void SetPropInt(std::string& table, std::string& var, int val);
+	void SetPropFloat(std::string& table, std::string& var, float val);
+	void SetPropBool(std::string& table, std::string& var, bool val);
+	void SetPropString(std::string& table, std::string& var, std::string val);
+	int GetPropInt(std::string& table, std::string& var);
+	float GetPropFloat(std::string& table, std::string& var);
+	bool GetPropBool(std::string& table, std::string& var);
+	std::string GetPropString(std::string& table, std::string& var);
 	int EntIndex( );
 
 	const model_t* GetModel( );
+	bool is_breakable();
 	bool SetupBones( matrix3x4_t* pBoneToWorld, int nMaxBones, int boneMask, float currentTime );
 };
 

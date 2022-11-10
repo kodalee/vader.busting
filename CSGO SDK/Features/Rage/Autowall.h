@@ -44,10 +44,10 @@ namespace Autowall
 	bool IsBreakable( C_BaseEntity* entity );
 	bool IsArmored( C_CSPlayer* player, int hitgroup );
 	float ScaleDamage( C_CSPlayer* player, float damage, float armor_ratio, int hitgroup );
-	void TraceLine( const Vector& start, const Vector& end, uint32_t mask, ITraceFilter* ignore, CGameTrace* ptr );
+	void TraceLine( const Vector& start, const Vector& end, uint32_t mask, C_BasePlayer* ignore, CGameTrace* ptr );
 	void ClipTraceToPlayers( const Vector& vecAbsStart, const Vector& vecAbsEnd, uint32_t mask, ITraceFilter* filter, CGameTrace* tr, float flMaxRange = 60.0f, float flMinRange = 0.0f );
 	void ClipTraceToPlayer( const Vector vecAbsStart, const Vector& vecAbsEnd, uint32_t mask, ITraceFilter* filter, CGameTrace* tr, Encrypted_t<Autowall::C_FireBulletData> data );
-	bool TraceToExit( CGameTrace* enter_trace, Vector start, Vector direction, CGameTrace* exit_trace );
+	bool TraceToExit( CGameTrace* enter_trace, Vector start, Vector direction, CGameTrace* exit_trace, Vector out );
 	bool HandleBulletPenetration( Encrypted_t<C_FireBulletData> data );
 	float FireBullets( Encrypted_t<C_FireBulletData> data );
 }

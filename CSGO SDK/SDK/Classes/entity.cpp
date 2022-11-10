@@ -168,6 +168,48 @@ bool IClientEntity::IsDormant( ) {
 	return networkable->IsDormant( );
 }
 
+void IClientEntity::SetPropInt(std::string& table, std::string& var, int val)
+{
+	*reinterpret_cast<int*>(uintptr_t(this) + (int)Engine::PropManager::Instance()->GetOffset(table.c_str(), var.c_str())) = val;
+}
+void IClientEntity::SetPropFloat(std::string& table, std::string& var, float val)
+{
+	*reinterpret_cast<float*>(uintptr_t(this) + (int)Engine::PropManager::Instance()->GetOffset(table.c_str(), var.c_str())) = val;
+}
+void IClientEntity::SetPropBool(std::string& table, std::string& var, bool val)
+{
+	*reinterpret_cast<float*>(uintptr_t(this) + (int)Engine::PropManager::Instance()->GetOffset(table.c_str(), var.c_str())) = val;
+}
+void IClientEntity::SetPropString(std::string& table, std::string& var, std::string val)
+{
+	*reinterpret_cast<float*>(uintptr_t(this) + (int)Engine::PropManager::Instance()->GetOffset(table.c_str(), var.c_str())) = *val.c_str();
+}
+
+int IClientEntity::GetPropInt(std::string& table, std::string& var)
+{
+	static auto offset = Engine::PropManager::Instance()->GetOffset(table.c_str(), var.c_str());
+	int val = *(int*)(uintptr_t(this) + (int)offset);
+	return val;
+}
+float IClientEntity::GetPropFloat(std::string& table, std::string& var)
+{
+	static auto offset = Engine::PropManager::Instance()->GetOffset(table.c_str(), var.c_str());
+	float val = *(float*)(uintptr_t(this) + (int)offset);
+	return val;
+}
+bool IClientEntity::GetPropBool(std::string& table, std::string& var)
+{
+	static auto offset = Engine::PropManager::Instance()->GetOffset(table.c_str(), var.c_str());
+	bool val = *(bool*)(uintptr_t(this) + (int)offset);
+	return val;
+}
+std::string IClientEntity::GetPropString(std::string& table, std::string& var)
+{
+	static auto offset = Engine::PropManager::Instance()->GetOffset(table.c_str(), var.c_str());
+	char* val = (char*)(uintptr_t(this) + (int)offset);
+	return std::string(val);
+}
+
 int IClientEntity::EntIndex( ) {
 	auto networkable = GetClientNetworkable( );
 	if( !networkable )
@@ -182,6 +224,68 @@ const model_t* IClientEntity::GetModel( ) {
 		return nullptr;
 
 	return renderable->GetModel( );
+}
+
+bool IClientEntity::is_breakable()
+{
+	//if (!this)
+	//	return false;
+
+	static auto is_breakable_fn = reinterpret_cast<bool(__thiscall*)(IClientEntity*)>(Engine::Displacement.Function.m_uIsBreakable);
+
+	//const auto result = is_breakable_fn(this);
+
+	//if (!result && GetClientClass() != nullptr &&
+	//	(GetClientClass()->m_ClassID == class_ids::CBaseDoor ||
+	//		GetClientClass()->m_ClassID == class_ids::CBreakableSurface ||
+	//		(GetClientClass()->m_ClassID == class_ids::CBaseEntity && GetCollideable() != nullptr && GetCollideable()->GetSolidType() == solid_bsp/*solid_bsp*/)))
+	//	return true;
+
+	//return result;
+
+	if (!this || !GetCollideable() || !GetClientClass())
+		return false;
+
+	auto client_class = GetClientClass();
+
+	if (this->EntIndex() > 0) {
+		if (client_class)
+		{
+			auto v3 = (int)client_class->m_pNetworkName;
+			if (*(DWORD*)v3 == 0x65724243)
+			{
+				if (*(DWORD*)(v3 + 7) == 0x53656C62)
+					return 1;
+			}
+			if (*(DWORD*)v3 == 0x73614243)
+			{
+				if (*(DWORD*)(v3 + 7) == 0x79746974)
+					return 1;
+			}
+
+			return is_breakable_fn(this);
+		}
+
+		return is_breakable_fn(this);
+	}
+	return 0;
+
+	//auto m_take_damage = *(uintptr_t*)((uintptr_t)Engine::Displacement::Signatures[c_signatures::BREAKABLE] + 38);
+	//auto backup = *(uint8_t*)(uintptr_t(this) + m_take_damage);
+
+	//// fix world desync between server and client ds
+
+	//auto hash_name = hash_32_fnv1a_const(client_class->m_pNetworkName);
+	//if (hash_name == hash_32_fnv1a_const("CBreakableSurface"))
+	//	* (uint8_t*)(uintptr_t(this) + m_take_damage) = 2; // DAMAGE_YES
+	//else if (hash_name == hash_32_fnv1a_const("CBaseDoor") || hash_name == hash_32_fnv1a_const(("CDynamicProp")))
+	//	* (uint8_t*)(uintptr_t(this) + m_take_damage) = 0; // DAMAGE_NO	
+
+	//using fn_t = bool(__thiscall*)(IClientEntity*);
+	//auto result = ((fn_t)Engine::Displacement::Signatures[c_signatures::BREAKABLE])(this);
+	//*(uint8_t*)(uintptr_t(this) + m_take_damage) = backup;
+
+	//return result;
 }
 
 bool IClientEntity::SetupBones( matrix3x4_t* pBoneToWorld, int nMaxBones, int boneMask, float currentTime ) {

@@ -915,7 +915,7 @@ float GetPenetrationDamage( C_CSPlayer* local, C_WeaponCSBaseGun* pWeapon ) {
 
 	Vector end = data.m_vecStart + data.m_vecDirection * weaponInfo->m_flWeaponRange;
 
-	Autowall::TraceLine( data.m_vecStart, end, MASK_SHOT_HULL | CONTENTS_HITBOX, &filter, &data.m_EnterTrace );
+	Autowall::TraceLine( data.m_vecStart, end, MASK_SHOT_HULL | CONTENTS_HITBOX, local, &data.m_EnterTrace );
 	Autowall::ClipTraceToPlayers( data.m_vecStart, end + data.m_vecDirection * 40.0f, MASK_SHOT_HULL | CONTENTS_HITBOX, &filter, &data.m_EnterTrace );
 	if( data.m_EnterTrace.fraction == 1.f )
 		return -1.0f;
