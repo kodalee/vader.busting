@@ -945,6 +945,8 @@ public:
 	config_option( bool, enabled, false );
 
 	config_option(bool, edge_aa, false);
+	config_option(bool, condition_specific, false);
+	config_option(float, stand_velocity_threshold, 0.1f);
 
 	config_option( bool, manual, false );
 	config_option(bool, manual_arrows, false);

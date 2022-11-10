@@ -1562,9 +1562,12 @@ void Menu::AntiAim() {
 			ImGui::SetCursorPos(ImVec2(457.f, 135.f));
 			ImGui::BeginGroupBox(XorStr("Misc"), ImVec2(244.f, 366.f)); {
 
+				ImGui::Checkbox(XorStr("Condition specific"), &g_Vars.antiaim.condition_specific);
+				ImGui::SliderFloat(XorStr("Stand velocity threshold"), &g_Vars.antiaim.stand_velocity_threshold, 0.1f, 250.0f, XorStr("%.1f"));
+
 				ImGui::Checkbox(XorStr("Distortion"), &g_Vars.antiaim.distort);
 				if (g_Vars.antiaim.distort) {
-					ImGui::Checkbox(XorStr("Override Manual Distortion"), &g_Vars.antiaim.distort_manual_aa);
+					ImGui::Checkbox(XorStr("Override manual distortion"), &g_Vars.antiaim.distort_manual_aa);
 					ImGui::Checkbox(XorStr("Force turn"), &g_Vars.antiaim.distort_twist);
 					ImGui::SliderFloat(XorStr("Speed"), &g_Vars.antiaim.distort_speed, 1.f, 10.f, XorStr("%.1fs"));
 					ImGui::SliderFloat(XorStr("Max time"), &g_Vars.antiaim.distort_max_time, 0.f, 10.f, XorStr("%.f"));
@@ -1601,8 +1604,8 @@ void Menu::AntiAim() {
 
 				ImGui::Checkbox(XorStr("Draw antiaim angles"), &g_Vars.esp.draw_antiaim_angles);
 				if (g_Vars.esp.draw_antiaim_angles) {
-					ColorPicker_w_name(XorStr("Real Color"), g_Vars.esp.draw_antiaim_angles_real, false, false);
-					ColorPicker_w_name(XorStr("Lby Color"), g_Vars.esp.draw_antiaim_angles_lby, false, false);
+					ColorPicker_w_name(XorStr("Real color"), g_Vars.esp.draw_antiaim_angles_real, false, false);
+					ColorPicker_w_name(XorStr("Lby color"), g_Vars.esp.draw_antiaim_angles_lby, false, false);
 				}
 
 				ImGui::Spacing();

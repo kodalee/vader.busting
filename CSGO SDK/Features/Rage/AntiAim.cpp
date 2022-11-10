@@ -921,11 +921,13 @@ namespace Interfaces
 
 		Encrypted_t<CVariables::ANTIAIM_STATE> m_mode = &g_Vars.antiaim_stand;
 
-		if ((cmd->buttons & IN_JUMP) || !(LocalPlayer->m_fFlags() & FL_ONGROUND))
-			m_mode = &g_Vars.antiaim_air;
+		if (g_Vars.antiaim.condition_specific) {
+			if ((cmd->buttons & IN_JUMP) || !(LocalPlayer->m_fFlags() & FL_ONGROUND))
+				m_mode = &g_Vars.antiaim_air;
 
-		else if (LocalPlayer->m_vecVelocity().Length2D() > 0.1f)
-			m_mode = &g_Vars.antiaim_move;
+			else if (LocalPlayer->m_vecVelocity().Length2D() > g_Vars.antiaim.stand_velocity_threshold)
+				m_mode = &g_Vars.antiaim_move;
+		}
 
 		Encrypted_t<CVariables::ANTIAIM_STATE> settings(m_mode);
 
