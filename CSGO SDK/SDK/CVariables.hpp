@@ -1691,8 +1691,9 @@ public:
 	config_option(int, gloves_skin, 0);
 
 	config_option(bool, enable_skins, false);
-	config_option(int, knife_model, 1);
+	config_option(int, knife_model, 0);
 	config_option(int, knife_skin, 1);
+	config_option(int, weapon_select, 1);
 	config_option(int, usp_skin, 1);
 	config_option(int, p2k_skin, 1);
 	config_option(int, glock_skin, 1);

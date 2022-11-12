@@ -16,6 +16,7 @@
 #include "../Utils/lazy_importer.hpp"
 #include "../SDK/CVariables.hpp"
 #include "IMGAY/imfont.h"
+#include "../Features/Miscellaneous/KitParser.hpp"
 
 #define ALPHA (ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar| ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_Float)
 #define NOALPHA (ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_Float)
@@ -2332,7 +2333,7 @@ void Menu::Skins() {
 			ImGui::Checkbox(XorStr("Enable"), &g_Vars.misc.enable_skins);
 			if (g_Vars.misc.enable_skins) {
 				ImGui::Combo(XorStr("Knife Model"), &g_Vars.misc.knife_model, knife_models, IM_ARRAYSIZE(knife_models));
-				ImGui::InputInt(XorStr("Knife Skin"), &g_Vars.misc.knife_skin);
+				//ImGui::InputInt(XorStr("Knife Skin"), &g_Vars.misc.knife_skin);
 
 				ImGui::Checkbox(XorStr("Enable Gloves"), &g_Vars.misc.enable_gloves);
 
@@ -2378,40 +2379,1012 @@ void Menu::Skins() {
 	ImGui::SetCursorPos(ImVec2(457.f, 21.f));
 	ImGui::BeginGroup(); {
 		ImGui::BeginGroupBox(XorStr("Weapon skins"), ImVec2(244.f, 480.f)); {
-			if (g_Vars.misc.enable_skins) {
-				ImGui::InputInt(XorStr("Usp Skin"), &g_Vars.misc.usp_skin);
-				ImGui::InputInt(XorStr("P2000 Skin"), &g_Vars.misc.p2k_skin);
-				ImGui::InputInt(XorStr("Glock Skin"), &g_Vars.misc.glock_skin);
-				ImGui::InputInt(XorStr("P250 Skin"), &g_Vars.misc.p250_skin);
-				ImGui::InputInt(XorStr("Five7 Skin"), &g_Vars.misc.fiveseven_skin);
-				ImGui::InputInt(XorStr("Tec9 Skin"), &g_Vars.misc.tec9_skin);
-				ImGui::InputInt(XorStr("CZ75A Skin"), &g_Vars.misc.cz75a_skin);
-				ImGui::InputInt(XorStr("Elite Skin"), &g_Vars.misc.elite_skin);
-				ImGui::InputInt(XorStr("Deagle Skin"), &g_Vars.misc.deagle_skin);
-				ImGui::InputInt(XorStr("R8 Skin"), &g_Vars.misc.revolver_skin);
-				ImGui::InputInt(XorStr("Famas Skin"), &g_Vars.misc.famas_skin);
-				ImGui::InputInt(XorStr("Galil Skin"), &g_Vars.misc.galilar_skin);
-				ImGui::InputInt(XorStr("M4a1 Skin"), &g_Vars.misc.m4a1_skin);
-				ImGui::InputInt(XorStr("M4a1s Skin"), &g_Vars.misc.m4a1s_skin);
-				ImGui::InputInt(XorStr("Ak47 Skin"), &g_Vars.misc.ak47_skin);
-				ImGui::InputInt(XorStr("Sg556 Skin"), &g_Vars.misc.sg556_skin);
-				ImGui::InputInt(XorStr("Aug Skin"), &g_Vars.misc.aug_skin);
-				ImGui::InputInt(XorStr("Ssg08 Skin"), &g_Vars.misc.ssg08_skin);
-				ImGui::InputInt(XorStr("Awp Skin"), &g_Vars.misc.awp_skin);
-				ImGui::InputInt(XorStr("Scar20 Skin"), &g_Vars.misc.scar20_skin);
-				ImGui::InputInt(XorStr("G3sg1 Skin"), &g_Vars.misc.g3sg1_skin);
-				ImGui::InputInt(XorStr("Sawoff Skin"), &g_Vars.misc.sawedoff_skin);
-				ImGui::InputInt(XorStr("M249 Skin"), &g_Vars.misc.m249_skin);
-				ImGui::InputInt(XorStr("Negev Skin"), &g_Vars.misc.negev_skin);
-				ImGui::InputInt(XorStr("Mag7 Skin"), &g_Vars.misc.mag7_skin);
-				ImGui::InputInt(XorStr("Xm Skin"), &g_Vars.misc.xm1014_skin);
-				ImGui::InputInt(XorStr("Nova Skin"), &g_Vars.misc.nova_skin);
-				ImGui::InputInt(XorStr("Bizon Skin"), &g_Vars.misc.bizon_skin);
-				ImGui::InputInt(XorStr("Mp7 Skin"), &g_Vars.misc.mp7_skin);
-				ImGui::InputInt(XorStr("Mp9 Skin"), &g_Vars.misc.mp9_skin);
-				ImGui::InputInt(XorStr("Mac10 Skin"), &g_Vars.misc.mac10_skin);
-				ImGui::InputInt(XorStr("P90 Skin"), &g_Vars.misc.p90_skin);
-				ImGui::InputInt(XorStr("Ump45 Skin"), &g_Vars.misc.ump45_skin);
+			if (g_Vars.misc.enable_skins) { // retarded ass code dont look :D
+				const char* weapon_list[]{ XorStr("Glock-18"), XorStr("P2000"), XorStr("USP-S"), XorStr("P250"), XorStr("Dual Berettas"), XorStr("Tec-9"), XorStr("Five-SeveN"), XorStr("CZ75-Auto"), XorStr("Desert Eagle"), XorStr("R8 Revolver"), XorStr("Nova"), XorStr("XM1014"), XorStr("MAG-7"), XorStr("Sawed-Off"), XorStr("MAC-10"), XorStr("MP9"), XorStr("UMP-45"), XorStr("MP7"), XorStr("PP-Bizon"), XorStr("P90"), XorStr("Galil AR"), XorStr("FAMAS"), XorStr("AK-47"), XorStr("M4A4"), XorStr("M4A1-S"), XorStr("SG 553"), XorStr("AUG"), XorStr("SSG 08"), XorStr("AWP"), XorStr("G3SG1"), XorStr("SCAR-20"), XorStr("M249"), XorStr("Negev"), XorStr("Knife") };
+
+				ImGui::Combo(XorStr("Weapon"), &g_Vars.misc.weapon_select, weapon_list, IM_ARRAYSIZE(weapon_list));
+
+				static char uname[128];
+				ImGui::InputText(XorStr("search"), uname, 128);
+
+				ImGui::ListBoxHeader(XorStr("##skins"), ImVec2(250, ImGui::GetWindowSize().y - 80));
+
+				if (!skin_kits.empty())
+				{
+					std::sort(skin_kits.begin(), skin_kits.end());
+
+					switch (g_Vars.misc.weapon_select) {
+					case 0:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.glock_skin = skin_kits[selected_skin].id;
+						}
+
+						break;
+					case 1:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.p2k_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 2:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.usp_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 3:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.p250_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 4:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.elite_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 5:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.tec9_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 6:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.fiveseven_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 7:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.cz75a_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 8:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.deagle_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 10:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.revolver_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 11:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.nova_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 12:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.xm1014_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 13:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.mag7_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 14:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.sawedoff_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 15:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.mac10_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 16:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.mp9_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 17:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.ump45_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 18:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.mp7_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 19:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.bizon_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 20:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.p90_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 21:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.galilar_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 22:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.famas_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 23:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.ak47_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 24:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.m4a1_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 25:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.m4a1s_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 26:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.sg556_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 27:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.aug_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 28:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.ssg08_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 29:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.awp_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 30:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.g3sg1_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 31:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.scar20_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 32:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.m249_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 33:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.negev_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					case 34:
+						for (auto i = 0; i < skin_kits.size(); ++i) {
+							static int selected_skin = 0;
+
+							const auto item_selected = (i == selected_skin);
+
+							auto search = std::string(uname);
+							auto name = std::string(skin_kits[i].name);
+
+							std::transform(search.begin(), search.end(), search.begin(), ::tolower);
+							std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+							if (search != XorStr("") && name.find(search) == std::string::npos)
+								continue;
+
+							if (skin_kits[i].name == XorStr("-"))
+								continue;
+
+							ImGui::PushID(i);
+							if (ImGui::Selectable(skin_kits[i].name.c_str(), item_selected))
+							{
+								selected_skin = i;
+							}
+							ImGui::PopID();
+
+							g_Vars.misc.knife_skin = skin_kits[selected_skin].id;
+						}
+						break;
+					}
+				}
+
+				ImGui::ListBoxFooter();
+
+				//ImGui::InputInt(XorStr("Usp Skin"), &g_Vars.misc.usp_skin);
+				//ImGui::InputInt(XorStr("P2000 Skin"), &g_Vars.misc.p2k_skin);
+				//ImGui::InputInt(XorStr("Glock Skin"), &g_Vars.misc.glock_skin);
+				//ImGui::InputInt(XorStr("P250 Skin"), &g_Vars.misc.p250_skin);
+				//ImGui::InputInt(XorStr("Five7 Skin"), &g_Vars.misc.fiveseven_skin);
+				//ImGui::InputInt(XorStr("Tec9 Skin"), &g_Vars.misc.tec9_skin);
+				//ImGui::InputInt(XorStr("CZ75A Skin"), &g_Vars.misc.cz75a_skin);
+				//ImGui::InputInt(XorStr("Elite Skin"), &g_Vars.misc.elite_skin);
+				//ImGui::InputInt(XorStr("Deagle Skin"), &g_Vars.misc.deagle_skin);
+				//ImGui::InputInt(XorStr("R8 Skin"), &g_Vars.misc.revolver_skin);
+				//ImGui::InputInt(XorStr("Famas Skin"), &g_Vars.misc.famas_skin);
+				//ImGui::InputInt(XorStr("Galil Skin"), &g_Vars.misc.galilar_skin);
+				//ImGui::InputInt(XorStr("M4a1 Skin"), &g_Vars.misc.m4a1_skin);
+				//ImGui::InputInt(XorStr("M4a1s Skin"), &g_Vars.misc.m4a1s_skin);
+				//ImGui::InputInt(XorStr("Ak47 Skin"), &g_Vars.misc.ak47_skin);
+				//ImGui::InputInt(XorStr("Sg556 Skin"), &g_Vars.misc.sg556_skin);
+				//ImGui::InputInt(XorStr("Aug Skin"), &g_Vars.misc.aug_skin);
+				//ImGui::InputInt(XorStr("Ssg08 Skin"), &g_Vars.misc.ssg08_skin);
+				//ImGui::InputInt(XorStr("Awp Skin"), &g_Vars.misc.awp_skin);
+				//ImGui::InputInt(XorStr("Scar20 Skin"), &g_Vars.misc.scar20_skin);
+				//ImGui::InputInt(XorStr("G3sg1 Skin"), &g_Vars.misc.g3sg1_skin);
+				//ImGui::InputInt(XorStr("Sawoff Skin"), &g_Vars.misc.sawedoff_skin);
+				//ImGui::InputInt(XorStr("M249 Skin"), &g_Vars.misc.m249_skin);
+				//ImGui::InputInt(XorStr("Negev Skin"), &g_Vars.misc.negev_skin);
+				//ImGui::InputInt(XorStr("Mag7 Skin"), &g_Vars.misc.mag7_skin);
+				//ImGui::InputInt(XorStr("Xm Skin"), &g_Vars.misc.xm1014_skin);
+				//ImGui::InputInt(XorStr("Nova Skin"), &g_Vars.misc.nova_skin);
+				//ImGui::InputInt(XorStr("Bizon Skin"), &g_Vars.misc.bizon_skin);
+				//ImGui::InputInt(XorStr("Mp7 Skin"), &g_Vars.misc.mp7_skin);
+				//ImGui::InputInt(XorStr("Mp9 Skin"), &g_Vars.misc.mp9_skin);
+				//ImGui::InputInt(XorStr("Mac10 Skin"), &g_Vars.misc.mac10_skin);
+				//ImGui::InputInt(XorStr("P90 Skin"), &g_Vars.misc.p90_skin);
+				//ImGui::InputInt(XorStr("Ump45 Skin"), &g_Vars.misc.ump45_skin);
 			}
 			ImGui::Spacing();
 			ImGui::EndGroupBox();
