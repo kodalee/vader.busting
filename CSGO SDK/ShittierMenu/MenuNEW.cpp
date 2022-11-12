@@ -2647,7 +2647,7 @@ void Menu::Skins() {
 							g_Vars.misc.deagle_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 10:
+					case 9:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2675,7 +2675,7 @@ void Menu::Skins() {
 							g_Vars.misc.revolver_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 11:
+					case 10:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2703,7 +2703,7 @@ void Menu::Skins() {
 							g_Vars.misc.nova_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 12:
+					case 11:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2731,7 +2731,7 @@ void Menu::Skins() {
 							g_Vars.misc.xm1014_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 13:
+					case 12:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2759,7 +2759,7 @@ void Menu::Skins() {
 							g_Vars.misc.mag7_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 14:
+					case 13:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2787,7 +2787,7 @@ void Menu::Skins() {
 							g_Vars.misc.sawedoff_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 15:
+					case 14:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2815,7 +2815,7 @@ void Menu::Skins() {
 							g_Vars.misc.mac10_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 16:
+					case 15:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2843,7 +2843,7 @@ void Menu::Skins() {
 							g_Vars.misc.mp9_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 17:
+					case 16:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2871,7 +2871,7 @@ void Menu::Skins() {
 							g_Vars.misc.ump45_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 18:
+					case 17:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2899,7 +2899,7 @@ void Menu::Skins() {
 							g_Vars.misc.mp7_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 19:
+					case 18:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2927,7 +2927,7 @@ void Menu::Skins() {
 							g_Vars.misc.bizon_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 20:
+					case 19:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2955,7 +2955,7 @@ void Menu::Skins() {
 							g_Vars.misc.p90_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 21:
+					case 20:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -2983,7 +2983,7 @@ void Menu::Skins() {
 							g_Vars.misc.galilar_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 22:
+					case 21:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3011,7 +3011,7 @@ void Menu::Skins() {
 							g_Vars.misc.famas_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 23:
+					case 22:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3039,7 +3039,7 @@ void Menu::Skins() {
 							g_Vars.misc.ak47_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 24:
+					case 23:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3067,7 +3067,7 @@ void Menu::Skins() {
 							g_Vars.misc.m4a1_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 25:
+					case 24:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3095,7 +3095,7 @@ void Menu::Skins() {
 							g_Vars.misc.m4a1s_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 26:
+					case 25:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3123,7 +3123,7 @@ void Menu::Skins() {
 							g_Vars.misc.sg556_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 27:
+					case 26:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3151,7 +3151,7 @@ void Menu::Skins() {
 							g_Vars.misc.aug_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 28:
+					case 27:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3179,7 +3179,7 @@ void Menu::Skins() {
 							g_Vars.misc.ssg08_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 29:
+					case 28:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3207,7 +3207,7 @@ void Menu::Skins() {
 							g_Vars.misc.awp_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 30:
+					case 29:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3235,7 +3235,7 @@ void Menu::Skins() {
 							g_Vars.misc.g3sg1_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 31:
+					case 30:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3263,7 +3263,7 @@ void Menu::Skins() {
 							g_Vars.misc.scar20_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 32:
+					case 31:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3291,7 +3291,7 @@ void Menu::Skins() {
 							g_Vars.misc.m249_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 33:
+					case 32:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
@@ -3319,7 +3319,7 @@ void Menu::Skins() {
 							g_Vars.misc.negev_skin = skin_kits[selected_skin].id;
 						}
 						break;
-					case 34:
+					case 33:
 						for (auto i = 0; i < skin_kits.size(); ++i) {
 							static int selected_skin = 0;
 
