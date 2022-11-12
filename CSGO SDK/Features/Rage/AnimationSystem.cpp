@@ -928,11 +928,11 @@ namespace Engine
 				if (((*Interfaces::m_pPlayerResource.Xor())->GetPlayerPing(local->EntIndex())) < 199) {
 					if (record->m_vecVelocity.Length2D() >= 100.f)
 					{
-						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 4);
+						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), fPreviousFlags & FL_ONGROUND, 8);
 					}
 					if (record->m_vecVelocity.z > 0)
 					{
-						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 4);
+						player_extrapolation(player, vecPreviousOrigin, record->m_vecVelocity, player->m_fFlags(), !(fPreviousFlags & FL_ONGROUND), 3);
 					}
 				}
 			}
