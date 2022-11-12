@@ -279,7 +279,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		int start = *(int*)((size_t)g_pLocal + OFFSET_TICKBASE);
 		bool bPred = s_bBuilding && s_nExtraProcessingTicks > 0;
 
-		if (bPred)
+		if (bPred && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
 		{
 			s_bInMove = true;
 			s_iMoveTickBase = start;
@@ -303,7 +303,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 		Hooked::oCL_Move(bFinalTick, accumulated_extra_samples);
 
 #ifndef STANDALONE_CSGO
-		if (bPred)
+		if (bPred && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
 		{
 			s_bInMove = false;
 			*(int*)((size_t)g_pLocal + OFFSET_TICKBASE) = start;
@@ -328,7 +328,7 @@ void TickbaseSystem::OnCLMove(bool bFinalTick, float accumulated_extra_samples) 
 						if (!weaponInfo.IsValid())
 							return;
 
-						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && Weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && Weapon->m_iItemDefinitionIndex() != WEAPON_C4 && m_bForceUnChargeState && !(g_Vars.misc.mind_trick && g_Vars.misc.mind_trick_bind.enabled && g_Vars.misc.mind_trick_mode == 1))
+						if (cmd->buttons & (1 << 0) && weaponInfo->m_iWeaponType != WEAPONTYPE_GRENADE && Weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && Weapon->m_iItemDefinitionIndex() != WEAPON_C4 && m_bForceUnChargeState)
 						{
 							if (g_Vars.rage.double_tap_type == 0) {
 								copy_command(cmd, s_nSpeed);
