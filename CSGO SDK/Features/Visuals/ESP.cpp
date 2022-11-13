@@ -32,6 +32,7 @@
 #include "../Miscellaneous/walkbot.h"
 #include "gh.h"
 #include "../Miscellaneous/MusicPlayer.hpp"
+#include "../../ShittierMenu/ImGuiRenderer.h"
 
 #include <iomanip>
 
@@ -1440,18 +1441,6 @@ void CEsp::Main( ) {
 	dlight_players();
 
 	//walkbot::Instance().update(false);
-
-	bool condition = g_Vars.misc.autopeek && !AutoPeekPos.IsZero() && g_Vars.misc.autopeek_bind.enabled;
-
-	static Vector last_autopeek_pos = AutoPeekPos;
-	if (!AutoPeekPos.IsZero()) {
-		last_autopeek_pos = AutoPeekPos;
-	}
-
-	if (condition) {
-		Render::Engine::WorldCircle(AutoPeekPos.IsZero() ? last_autopeek_pos : AutoPeekPos, 15.f * 1.0f,
-			Color(0, 0, 0, 0), g_Vars.misc.autopeek_color.ToRegularColor().OverrideAlpha(g_Vars.misc.autopeek_color.ToRegularColor().a() * 0.5f, true));
-	}
 
 	if( !g_Vars.esp.esp_enable )
 		return;

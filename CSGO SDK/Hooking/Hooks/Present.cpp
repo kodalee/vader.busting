@@ -11,6 +11,7 @@
 #include "../../ShittierMenu/IMGAY/imgui_internal.h"
 #include "../../ShittierMenu/IMGAY/impl/imgui_impl_dx9.h"
 #include "../../ShittierMenu/IMGAY/impl/imgui_impl_win32.h"
+#include "../../ShittierMenu/ImGuiRenderer.h"
 
 DWORD dwOld_D3DRS_COLORWRITEENABLE;
 IDirect3DVertexDeclaration9* vertDec;
@@ -170,6 +171,8 @@ HRESULT __stdcall Hooked::Present( LPDIRECT3DDEVICE9 pDevice, const RECT* pSourc
 
 		/*render stuff*/
 		{
+			g_ImGuiRender->BeginScene();
+			g_ImGuiRender->EndScene();
 			Menu::Render();
 		}
 

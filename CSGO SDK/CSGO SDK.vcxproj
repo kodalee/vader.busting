@@ -85,15 +85,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Stable build|Win32'">
-    <IncludePath>C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\VMProtect;C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\include\curl;D:\Programs\DX9 SDK\Include;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(ProjectDir)Libraries\Freetype\include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\VMProtect;C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\lib;D:\Programs\DX9 SDK\lib;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\VMProtect;C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\include\curl;D:\Programs\DX9 SDK\Include;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(ProjectDir)Libraries\Freetype\include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\VMProtect;C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\lib;D:\Programs\DX9 SDK\lib;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
     <TargetExt>.dll</TargetExt>
     <IntDir>$(SolutionDir)$(Configuration)\Intermediate\</IntDir>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
-    <IncludePath>C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\VMProtect;C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\include\curl;D:\Programs\DX9 SDK\Include;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\VMProtect;C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\lib;D:\Programs\DX9 SDK\lib;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\VMProtect;C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\include\curl;D:\Programs\DX9 SDK\Include;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\VMProtect;C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\lib;D:\Programs\DX9 SDK\lib;$(ProjectDir)Libraries;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(ProjectDir)Libraries\cryptopp\Win32\Output\Release;$(ProjectDir)Libraries\Freetype;$(NETFXKitsDir)Lib\um\x86;D:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
     <TargetExt>.dll</TargetExt>
     <IntDir>$(SolutionDir)$(Configuration)\Intermediate\</IntDir>
   </PropertyGroup>
@@ -135,7 +135,7 @@
     <Link>
       <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>Normaliz.lib;Ws2_32.lib;Wldap32.lib;Crypt32.lib;advapi32.lib;C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\lib\libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Normaliz.lib;Ws2_32.lib;Wldap32.lib;Crypt32.lib;advapi32.lib;C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\lib\libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
@@ -156,7 +156,7 @@
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <AdditionalDependencies>Normaliz.lib;Ws2_32.lib;Wldap32.lib;Crypt32.lib;advapi32.lib;C:\Users\Geico\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\lib\libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Normaliz.lib;Ws2_32.lib;Wldap32.lib;Crypt32.lib;advapi32.lib;C:\Users\User\Documents\GitHub\vader.busting\CSGO SDK\Utils\curl-7.75.0\x86 Release\lib\libcurl_a.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Beta|Win32'">
@@ -248,6 +248,7 @@
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_dx9.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\impl\imgui_impl_win32.cpp" />
     <ClCompile Include="ShittierMenu\IMGAY\PostProcessing.cpp" />
+    <ClCompile Include="ShittierMenu\ImGuiRenderer.cpp" />
     <ClCompile Include="ShittierMenu\menu.cpp" />
     <ClCompile Include="ShittierMenu\MenuNEW.cpp" />
     <ClCompile Include="Utils\CrashHandler.cpp" />
@@ -438,6 +439,7 @@
     <ClInclude Include="ShittierMenu\IMGAY\imstb_truetype.h" />
     <ClInclude Include="ShittierMenu\IMGAY\misc\ft2build.h" />
     <ClInclude Include="ShittierMenu\IMGAY\PostProcessing.h" />
+    <ClInclude Include="ShittierMenu\ImGuiRenderer.h" />
     <ClInclude Include="ShittierMenu\menu.hpp" />
     <ClInclude Include="ShittierMenu\MenuNEW.h" />
     <ClInclude Include="Utils\address.h" />
