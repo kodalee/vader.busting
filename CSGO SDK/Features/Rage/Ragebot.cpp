@@ -2754,10 +2754,11 @@ namespace Interfaces
 			{
 				auto record = &lagData->m_History.at(i);
 
-				if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f 
-					&& !(g_Vars.rage.exploit || g_Vars.rage.key_dt.enabled) 
+				if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f
+					&& !(g_Vars.rage.exploit || g_Vars.rage.key_dt.enabled)
 					&& !(g_Vars.misc.extended_backtrack_key.enabled || g_Vars.misc.extended_backtrack)
-					&& front_record.m_bIsRunning) {
+					&& front_record.m_bIsRunning
+					&& front_record.m_iFlags & FL_ONGROUND) {
 					return &front_record;
 				}
 
@@ -2788,7 +2789,8 @@ namespace Interfaces
 			if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f
 				&& !(g_Vars.rage.exploit || g_Vars.rage.key_dt.enabled)
 				&& !(g_Vars.misc.extended_backtrack_key.enabled || g_Vars.misc.extended_backtrack)
-				&& front_record.m_bIsRunning) {
+				&& front_record.m_bIsRunning
+				&& front_record.m_iFlags & FL_ONGROUND) {
 				return &front_record;
 			}
 
