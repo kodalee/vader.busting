@@ -2279,8 +2279,8 @@ namespace Interfaces
 								if (bestPoint->target->record->m_bIsWalking)
 									flags.push_back(XorStr("W"));
 
-								if (bestPoint->target->record->m_bIsRunning)
-									flags.push_back(XorStr("R"));
+								//if (bestPoint->target->record->m_bIsRunning)
+								//	flags.push_back(XorStr("R"));
 
 								if (bestPoint->target->preferBody)
 									flags.push_back(XorStr("PB"));
@@ -2754,7 +2754,10 @@ namespace Interfaces
 			{
 				auto record = &lagData->m_History.at(i);
 
-				if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f && !(g_Vars.rage.exploit || g_Vars.rage.key_dt.enabled)) {
+				if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f 
+					&& !(g_Vars.rage.exploit || g_Vars.rage.key_dt.enabled) 
+					&& !(g_Vars.misc.extended_backtrack_key.enabled || g_Vars.misc.extended_backtrack)
+					&& front_record.m_bIsRunning) {
 					return &front_record;
 				}
 
@@ -2782,7 +2785,10 @@ namespace Interfaces
 		{
 			auto record = &lagData->m_History.at(optimized_record.i);
 			
-			if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f) {
+			if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f
+				&& !(g_Vars.rage.exploit || g_Vars.rage.key_dt.enabled)
+				&& !(g_Vars.misc.extended_backtrack_key.enabled || g_Vars.misc.extended_backtrack)
+				&& front_record.m_bIsRunning) {
 				return &front_record;
 			}
 
