@@ -169,6 +169,7 @@ namespace Render {
 		void RectFilled( int x, int y, int w, int h, Color color );
 		void RectFilled( Vector2D pos, Vector2D size, Color color );
 		void RectOutlined( int x, int y, int w, int h, Color color, Color color2 );
+		void Circle(int x, int y, float radius, int segments, Color color);
 		void CircleFilled( int x, int y, float radius, int segments, Color color );
 		void Gradient( int x, int y, int w, int h, Color color, Color color2, bool horizontal = false );
 		void draw_arc( int x, int y, int radius, int start_angle, int percent, int thickness, Color color );

@@ -2729,10 +2729,35 @@ void CEsp::DrawLocalSkeleton() {
 		if (!pLocal->SetupBones(matrix, 128, BONE_USED_BY_ANYTHING, Interfaces::m_pGlobalVars->curtime))
 			return;
 
-		for (int i{ }; i < hdr->numbones; ++i) {
+		//for (int i{ }; i < hdr->numbones; ++i) {
+		//	// get bone.
+		//	bone = hdr->pBone(i);
+		//	if (!bone || !(bone->flags & BONE_USED_BY_HITBOX))
+		//		continue;
+
+		//	// get parent bone.
+		//	parent = bone->parent;
+		//	if (parent == -1)
+		//		continue;
+
+		//	// resolve main bone and parent bone positions.
+		//	matrix->GetBone(bone_pos, i);
+		//	matrix->GetBone(parent_pos, parent);
+
+		//	Color clr = g_Vars.esp.local_skeleton_color.ToRegularColor();
+
+		//	// world to screen both the bone parent bone then draw.
+		//	if (Render::Engine::WorldToScreen(bone_pos, bone_pos_screen) && Render::Engine::WorldToScreen(parent_pos, parent_pos_screen))
+		//		Render::Engine::Line(bone_pos_screen.x, bone_pos_screen.y, parent_pos_screen.x, parent_pos_screen.y, clr);
+		//}
+
+		for (int j = 0; j < hdr->numbones; j++) // fixed shoulders but because of that breaks head bone.
+		{
+			mstudiobone_t* pBone = hdr->pBone(j);
+
 			// get bone.
-			bone = hdr->pBone(i);
-			if (!bone || !(bone->flags & BONE_USED_BY_HITBOX))
+			bone = hdr->pBone(j);
+			if (!bone || !(bone->flags & BONE_USED_BY_HITBOX | BONE_USED_BY_ATTACHMENT))
 				continue;
 
 			// get parent bone.
@@ -2740,49 +2765,43 @@ void CEsp::DrawLocalSkeleton() {
 			if (parent == -1)
 				continue;
 
+			if(j == 83 || j == 85 || j == 76 || j == 75 || j == 68 || j == 69 || j == 9 || j == 37 || j == 87 || j == 88)
+				continue;
+
 			// resolve main bone and parent bone positions.
-			matrix->GetBone(bone_pos, i);
+			matrix->GetBone(bone_pos, j);
 			matrix->GetBone(parent_pos, parent);
+
+			//bone_pos = pLocal->GetBonePos(j);
+			//parent_pos = pLocal->GetBonePos(pBone->parent);
+
+			int iChestBone = 6;  // Parameter of relevant Bone number
+			Vector vBreastBone; // New reference Point for connecting many bones
+			Vector vUpperDirection = pLocal->GetBonePos(iChestBone + 1) - pLocal->GetBonePos(iChestBone); // direction vector from chest to neck
+			vBreastBone = pLocal->GetBonePos(iChestBone) + vUpperDirection / 2;
+			Vector vDeltaChild = bone_pos - vBreastBone; // Used to determine close bones to the reference point
+			Vector vDeltaParent = parent_pos - vBreastBone;
+
+			// Eliminating / Converting all disturbing bone positions in three steps.
+			if ((vDeltaParent.Length() < 10 && vDeltaChild.Length() < 10) && !(j == 63 || j == 35))
+				parent_pos = vBreastBone;
+
+			if (j == iChestBone - 1)
+				bone_pos = vBreastBone;
+
+			if (j == iChestBone || j == 7)
+				continue;
+
+			//if ((pBone->flags & BONE_USED_BY_HITBOX ^ BONE_USED_BY_HITBOX) && (vDeltaParent.Length() < 19 && vDeltaChild.Length() < 19))
+			//	continue;
 
 			Color clr = g_Vars.esp.local_skeleton_color.ToRegularColor();
 
-			// world to screen both the bone parent bone then draw.
-			if (Render::Engine::WorldToScreen(bone_pos, bone_pos_screen) && Render::Engine::WorldToScreen(parent_pos, parent_pos_screen))
+			if (Render::Engine::WorldToScreen(bone_pos, bone_pos_screen) && Render::Engine::WorldToScreen(parent_pos, parent_pos_screen)) {
 				Render::Engine::Line(bone_pos_screen.x, bone_pos_screen.y, parent_pos_screen.x, parent_pos_screen.y, clr);
+				//Render::Engine::esp.string(bone_pos_screen.x, bone_pos_screen.y, Color(255, 0, 25, 255), std::to_string(j));
+			}
 		}
-
-		//for (int j = 0; j < hdr->numbones; j++) // fixed shoulders but because of that breaks head bone.
-		//{
-		//	mstudiobone_t* pBone = hdr->pBone(j);
-
-		//	if (pBone && (pBone->flags & BONE_USED_BY_HITBOX) && (pBone->parent != -1))
-		//	{
-		//		bone_pos = pLocal->GetBonePos(j);
-		//		parent_pos = pLocal->GetBonePos(pBone->parent);
-
-		//		int iChestBone = 6;  // Parameter of relevant Bone number
-		//		Vector vBreastBone; // New reference Point for connecting many bones
-		//		Vector vUpperDirection = pLocal->GetBonePos(iChestBone + 1) - pLocal->GetBonePos(iChestBone); // direction vector from chest to neck
-		//		vBreastBone = pLocal->GetBonePos(iChestBone) + vUpperDirection / 2;
-		//		Vector vDeltaChild = bone_pos - vBreastBone; // Used to determine close bones to the reference point
-		//		Vector vDeltaParent = parent_pos - vBreastBone;
-
-		//		// Eliminating / Converting all disturbing bone positions in three steps.
-		//		if ((vDeltaParent.Length() < 9 && vDeltaChild.Length() < 9))
-		//			parent_pos = vBreastBone;
-
-		//		if (j == iChestBone - 1)
-		//			bone_pos = vBreastBone;
-
-		//		if (abs(vDeltaChild.z) < 5 && (vDeltaParent.Length() < 5 && vDeltaChild.Length() < 5) || j == iChestBone)
-		//			continue;
-
-		//		Color clr = g_Vars.esp.local_skeleton_color.ToRegularColor();
-
-		//		if (Render::Engine::WorldToScreen(bone_pos, bone_pos_screen) && Render::Engine::WorldToScreen(parent_pos, parent_pos_screen))
-		//			Render::Engine::Line(bone_pos_screen.x, bone_pos_screen.y, parent_pos_screen.x, parent_pos_screen.y, clr);
-		//	}
-		//}
 
 	}
 }

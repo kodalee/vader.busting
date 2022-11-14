@@ -712,6 +712,26 @@ void Render::Engine::RectOutlined( int x, int y, int w, int h, Color color, Colo
 	Rect( x + 1, y + 1, w - 2, h - 2, color2 );
 }
 
+void Render::Engine::Circle(int x, int y, float radius, int segments, Color color)
+{
+	static int texture = Interfaces::m_pSurface->CreateNewTextureID(true);
+
+	Interfaces::m_pSurface->DrawSetTextureRGBA(texture, Color::White().RGBA, 1, 1);
+	Interfaces::m_pSurface->DrawSetColor(color);
+	Interfaces::m_pSurface->DrawSetTexture(texture);
+
+	std::vector< Vertex_t > vertices{ };
+
+	//float step = (M_PI * 2.f) / segments;
+	//for (float i{ 0.f }; i < (M_PI * 2.f); i += step)
+	//	vertices.emplace_back(Vector2D{ x + (radius * std::cos(i)), y + (radius * std::sin(i)) });
+
+	//Interfaces::m_pSurface->DrawTexturedPolygon(vertices.size(), vertices.data());
+
+	Interfaces::m_pSurface->DrawSetColor(color);
+	Interfaces::m_pSurface->DrawOutlinedCircle(x, y, radius, segments);
+}
+
 // thanks nitro
 void Render::Engine::CircleFilled( int x, int y, float radius, int segments, Color color )
 {
