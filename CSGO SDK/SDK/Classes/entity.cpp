@@ -672,6 +672,22 @@ float C_Inferno::m_flSpawnTime( ) {
 	return *( float* )( ( uintptr_t )this + 0x20 );
 }
 
+int C_Inferno::m_fireCount() {
+	return *(int*)((uintptr_t)this + Engine::PropManager::Instance()->GetOffset(XorStr("DT_Inferno"), XorStr("m_fireCount")));
+}
+
+int* C_Inferno::m_fireXDelta() {
+	return (int*)((uintptr_t)this + Engine::PropManager::Instance()->GetOffset(XorStr("DT_Inferno"), XorStr("m_fireXDelta")));
+}
+
+int* C_Inferno::m_fireYDelta() {
+	return (int*)((uintptr_t)this + Engine::PropManager::Instance()->GetOffset(XorStr("DT_Inferno"), XorStr("m_fireYDelta")));
+}
+
+int* C_Inferno::m_fireZDelta() {
+	return (int*)((uintptr_t)this + Engine::PropManager::Instance()->GetOffset(XorStr("DT_Inferno"), XorStr("m_fireZDelta")));
+}
+
 int C_SmokeGrenadeProjectile::m_nSmokeEffectTickBegin( ) {
 	return *( int* )( ( uintptr_t )this + Engine::Displacement.DT_SmokeGrenadeProjectile.m_nSmokeEffectTickBegin );
 }

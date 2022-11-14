@@ -370,6 +370,14 @@ class C_Inferno : public C_BaseEntity {
 public:
 	float m_flSpawnTime( ); // 0x20
 
+	int m_fireCount();
+
+	int* m_fireXDelta();
+
+	int* m_fireYDelta();
+
+	int* m_fireZDelta();
+
 	static float GetExpiryTime( ) {
 		return 7.f;
 	}
