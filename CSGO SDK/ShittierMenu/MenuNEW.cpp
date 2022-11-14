@@ -1175,6 +1175,9 @@ void Menu::Ragebot() {
 
 			const char* TargetSelection[] = { XorStr("Highest damage"), XorStr("Nearest to crosshair"), XorStr("Lowest health"), XorStr("Lowest distance"), XorStr("Lowest latency") };
 
+			const char* MultipointIntensity[] = { XorStr("Low"), XorStr("Medium"), XorStr("High"), XorStr("Intense") };
+
+
 			std::vector<MultiItem_t> hitboxes = {
 				{ XorStr("Head"), &rbot->hitboxes_head },
 				{ XorStr("Neck"), &rbot->hitboxes_neck },
@@ -1232,7 +1235,8 @@ void Menu::Ragebot() {
 				ImGui::Checkbox(XorStr("Enable"), &rbot->active);
 				ImGui::Combo(XorStr("Target selection"), &rbot->target_selection, TargetSelection, IM_ARRAYSIZE(TargetSelection));
 				ImGui::MultiCombo(XorStr("Hitboxes"), hitboxes);
-				//ImGui::MultiCombo(XorStr("Multipoints"), multipoints);
+				ImGui::MultiCombo(XorStr("Multipoints"), multipoints);
+				ImGui::Combo(XorStr("Multipoint Intensity"), &rbot->multipoint_intensity, MultipointIntensity, IM_ARRAYSIZE(MultipointIntensity));
 				ImGui::Checkbox(XorStr("Prefer body-aim"), &rbot->prefer_body);
 				if (rbot->prefer_body) {
 					ImGui::MultiCombo(XorStr("Prefer body-aim conditions"), prefer_body_cond);

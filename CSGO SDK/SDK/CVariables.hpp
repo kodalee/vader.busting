@@ -800,6 +800,7 @@ public:
 	config_option( int, autoscope, 0 );
 	config_option( bool, autoscope_hc, false );
 	config_option( int, target_selection, 0 );
+	config_option( int, multipoint_intensity, 0 );
 	config_option( int, autostop, 0 );//XD
 	config_option( bool, autostop_check, false ); 
 	config_option( bool, delay_shots_triggers_check, false ); 

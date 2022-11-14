@@ -1484,27 +1484,105 @@ namespace Interfaces
 		// little multipoint check ya know
 		bool runMultipoint = false;
 		if (hitboxIndex == HITBOX_HEAD && m_rage_data->rbot->mp_hitboxes_head) {
-			pointAmount = 8;
+			switch (m_rage_data->rbot->multipoint_intensity % 4) {
+			case 0:
+				pointAmount = 4;
+				break;
+			case 1:
+				pointAmount = 6;
+				break;
+			case 2:
+				pointAmount = 8;
+				break;
+			case 3:
+				pointAmount = 10;
+				break;
+			}
 			runMultipoint = true;
 		}
 		else if (hitboxIndex == HITBOX_CHEST && m_rage_data->rbot->mp_hitboxes_chest) {
-			pointAmount = 8;
+			switch (m_rage_data->rbot->multipoint_intensity % 4) {
+			case 0:
+				pointAmount = 4;
+				break;
+			case 1:
+				pointAmount = 6;
+				break;
+			case 2:
+				pointAmount = 8;
+				break;
+			case 3:
+				pointAmount = 10;
+				break;
+			}
 			runMultipoint = true;
 		}
 		else if (hitboxIndex == HITBOX_UPPER_CHEST && m_rage_data->rbot->mp_hitboxes_chest) {
-			pointAmount = 8;
+			switch (m_rage_data->rbot->multipoint_intensity % 4) {
+			case 0:
+				pointAmount = 4;
+				break;
+			case 1:
+				pointAmount = 6;
+				break;
+			case 2:
+				pointAmount = 8;
+				break;
+			case 3:
+				pointAmount = 10;
+				break;
+			}
 			runMultipoint = true;
 		}
 		else if (hitboxIndex == HITBOX_STOMACH && m_rage_data->rbot->mp_hitboxes_stomach) {
-			pointAmount = 8;
+			switch (m_rage_data->rbot->multipoint_intensity % 4) {
+			case 0:
+				pointAmount = 4;
+				break;
+			case 1:
+				pointAmount = 6;
+				break;
+			case 2:
+				pointAmount = 8;
+				break;
+			case 3:
+				pointAmount = 10;
+				break;
+			}
 			runMultipoint = true;
 		}
 		else if (hitboxIndex == HITBOX_LOWER_CHEST && m_rage_data->rbot->mp_hitboxes_stomach) {
-			pointAmount = 8;
+			switch (m_rage_data->rbot->multipoint_intensity % 4) {
+			case 0:
+				pointAmount = 4;
+				break;
+			case 1:
+				pointAmount = 6;
+				break;
+			case 2:
+				pointAmount = 8;
+				break;
+			case 3:
+				pointAmount = 10;
+				break;
+			}
 			runMultipoint = true;
 		}
 		else if ((hitboxIndex == HITBOX_LEFT_CALF || hitboxIndex == HITBOX_RIGHT_CALF || hitboxIndex == HITBOX_LEFT_THIGH || hitboxIndex == HITBOX_RIGHT_THIGH) && m_rage_data->rbot->mp_hitboxes_legs) {
-			pointAmount = 4;
+			switch (m_rage_data->rbot->multipoint_intensity % 4) {
+			case 0:
+				pointAmount = 1;
+				break;
+			case 1:
+				pointAmount = 2;
+				break;
+			case 2:
+				pointAmount = 4;
+				break;
+			case 3:
+				pointAmount = 6;
+				break;
+			}
 			runMultipoint = true;
 		}
 		else if ((hitboxIndex == HITBOX_LEFT_FOOT || hitboxIndex == HITBOX_RIGHT_FOOT) && m_rage_data->rbot->mp_hitboxes_feets) {
@@ -1602,6 +1680,9 @@ namespace Interfaces
 
 
 	//void C_Ragebot::Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& pointScale, int hitboxIndex) {
+	//	if (!record || !record->m_bIsValid)
+	//		return;
+	//	
 	//	auto boneMatrix = record->GetBoneMatrix();
 
 	//	points.clear();
@@ -2673,7 +2754,7 @@ namespace Interfaces
 			{
 				auto record = &lagData->m_History.at(i);
 
-				if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f) {
+				if (front_record.m_vecVelocity.Length2D() < 110.f && front_record.m_vecVelocity.Length2D() > 5.f && !(g_Vars.rage.exploit || g_Vars.rage.key_dt.enabled)) {
 					return &front_record;
 				}
 
