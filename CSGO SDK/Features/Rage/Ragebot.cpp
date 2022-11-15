@@ -1896,7 +1896,7 @@ namespace Interfaces
 		for (auto& target : m_rage_data->m_targets) {
 			std::vector<C_AimPoint> tempPoints;
 
-			if (!target.player || !target.player->IsAlive() || target.player->IsDormant())
+			if (!target.player || !target.player->IsAlive())
 				continue;
 
 			if (target.player->IsTeammate(m_rage_data->m_pLocal))
