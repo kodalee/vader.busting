@@ -1417,7 +1417,7 @@ namespace Interfaces
 		auto boneMatrix = record->GetBoneMatrix();
 		auto boneMatrix2 = record->GetBoneMatrix();
 
-		points.clear();
+		//points.clear();
 
 		if (!hitbox || !boneMatrix || !hitboxSet)
 			return;
