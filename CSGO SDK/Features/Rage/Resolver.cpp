@@ -80,30 +80,8 @@ namespace Engine {
 			if (!anim_data->m_AnimationRecord.empty() && player->m_flSimulationTime() - anim_data->m_AnimationRecord[0].m_flSimulationTime == 0)
 				continue;
 
-			//if (anim_data->m_AnimationRecord[0].m_vecLastNonDormantOrig != player->m_vecOrigin() && local->IsAlive())
-			//{
-			//	g_ResolverData[player->EntIndex()].m_iMode = 1;
-			//}
-			//else {
-			//	g_ResolverData[player->EntIndex()].m_iMode = 0;
-			//}
-
-			//if (player->m_flSimulationTime() - anim_data->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && log.m_vecLastNonDormantOrig == player->get_origin() && log.m_iMode == RMODE_MOVING)
-			//{
-			//	if (player->get_simtime() - log.m_flLastLowerBodyYawTargetUpdateTime > 1.65f)
-			//	{
-			//		log.m_iMode = RMODE_WALL;
-			//	}
-			//}
-
-			//if (g_ResolverData[player->EntIndex()].m_iMode == 1)
-			//{
 			QAngle at_target_angle = Math::CalcAngle(player->m_vecOrigin(), last_eye);
 
-			//Vector left_dir, right_dir, back_dir;
-			//Math::angle_vectors(Vector(0.f, at_target_angle.y - 90.f, 0.f), &left_dir);
-			//Math::angle_vectors(Vector(0.f, at_target_angle.y + 90.f, 0.f), &right_dir);
-			//Math::angle_vectors(Vector(0.f, at_target_angle.y + 180.f, 0.f), &back_dir);
 
 
 			Vector direction_1, direction_2, direction_3;
@@ -117,17 +95,8 @@ namespace Engine {
 			const auto right_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_2 * 16.f);
 			const auto back_eye_pos = player->m_vecOrigin() + Vector(0, 0, height) + (direction_3 * 16.f);
 
-			//log.anti_freestanding_record.left_damage = penetration::get().get_damage(latency_based_eye_pos,
 			anti_freestanding_record.left_damage = Autowall::ScaleDamage(player, left_damage[i], 1.f, Hitgroup_Head);
-
-			//anti_freestanding_record.left_damage = penetration::scale(player, &left_damage[i],
-			//	HITGROUP_CHEST);
-			//data->anti_freestanding_record.right_damage = FEATURES::RAGEBOT::autowall.CalculateDamage(latency_based_eye_pos,
-			//	right_eye_pos, local_player, entity, 1).damage;
 			anti_freestanding_record.right_damage = Autowall::ScaleDamage(player, right_damage[i], 1.f, Hitgroup_Head);
-			//penetration::get().get_damage(g_cl.m_local, player, right_eye_pos, &right_damage[i],
-			//get_big_fucking_gun(), &latency_based_eye_pos);
-		//BACKWARDS
 			anti_freestanding_record.back_damage = Autowall::ScaleDamage(player, back_damage[i], 1.f, Hitgroup_Head);
 
 			Ray_t ray;
@@ -145,27 +114,6 @@ namespace Engine {
 			Ray_t third_ray(back_eye_pos, latency_based_eye_pos);
 			Interfaces::m_pEngineTrace->TraceRay(third_ray, MASK_ALL, &filter, &trace);
 			anti_freestanding_record.back_fraction = trace.fraction;
-
-			//const auto eye_pos = player->get_eye_pos();
-			//auto left_eye_pos = eye_pos + (left_dir * 16.f);
-			//auto right_eye_pos = eye_pos + (right_dir * 16.f);
-			//auto back_eye_pos = eye_pos + (back_dir * 16.f);
-
-			//static CCSWeaponData big_fucking_gun{};
-			//auto get_big_fucking_gun = [&]() -> CCSWeaponData*
-			//{
-			//	big_fucking_gun.iDamage = 200;
-			//	big_fucking_gun.flRangeModifier = 1.0f;
-			//	big_fucking_gun.flPenetration = 6.0f;
-			//	big_fucking_gun.flArmorRatio = 2.0f;
-			//	big_fucking_gun.flRange = 8192.f;
-			//	return &big_fucking_gun;
-			//};
-
-			//penetration::get().get_damage(g_pLocalPlayer, player, left_eye_pos, &left_damage[i], get_big_fucking_gun(), &last_eye);
-			//penetration::get().get_damage(g_pLocalPlayer, player, right_eye_pos, &right_damage[i], get_big_fucking_gun(), &last_eye);
-			//penetration::get().get_damage(g_pLocalPlayer, player, back_eye_pos, &back_damage[i], get_big_fucking_gun(), &last_eye);
-		//}
 		}
 	}
 
@@ -182,7 +130,7 @@ namespace Engine {
 			{
 				float flanimTime = currentLayer.m_flCycle, flsimtime = pEntity->m_flSimulationTime();
 
-				return true;//force lby-180?
+				return true;
 			}
 			prevlayer = currentLayer;
 			return false;
@@ -201,7 +149,7 @@ namespace Engine {
 			uint32_t norder = currentLayer.m_nOrder;
 			if (activity == 979 && currentLayer.m_flWeight == 0.f && currentLayer.m_flPrevCycle != currentLayer.m_flCycle)
 			{
-				return true;//bruteeee because breaking lby <120 
+				return true;
 			}
 			prevlayer = currentLayer;
 		}
@@ -215,11 +163,6 @@ namespace Engine {
 
 		if (!local->IsAlive())
 			return false;
-
-		//if (player == local)
-		//	return false;
-
-		//printf("BALLS\n");
 
 		QAngle at_target_angle = Math::CalcAngle(record->m_vecOrigin, last_eye);
 
@@ -399,7 +342,6 @@ namespace Engine {
 					if (abs(simulation_ticks - shot_tick) > record->m_iChokeTicks + 2) {
 						if (m_shot != 1) { // lets not save angle while hes shooting
 							m_last_nonshot_pitch = data->m_angEyeAngles().x;
-							//ILoggerEvent::Get()->PushEvent("last = x", FloatColor(1.f, 1.f, 1.f), true, "");
 						}
 					}
 				}
@@ -408,43 +350,9 @@ namespace Engine {
 			if (m_shot == 1) {
 				if (record->m_iChokeTicks > 2) {
 					record->m_angEyeAngles.x = m_last_nonshot_pitch;
-					//ILoggerEvent::Get()->PushEvent("set angle", FloatColor(1.f, 1.f, 1.f), true, "");
 				}
-				//else
-					//ILoggerEvent::Get()->PushEvent("we returned :)", FloatColor(1.f, 1.f, 1.f), true, "");
 			}
 		}
-
-		//float shoot_time = -1.f;
-
-		//auto weapon = (C_WeaponCSBaseGun*)(data->m_hActiveWeapon().Get());
-		//if (weapon) {
-		//	// with logging this time was always one tick behind.
-		//	// so add one tick to the last shoot time.
-		//	shoot_time = weapon->m_fLastShotTime() + Interfaces::m_pGlobalVars->interval_per_tick;
-		//}
-
-		//// this record has a shot on it.
-		//if (TIME_TO_TICKS(shoot_time) == TIME_TO_TICKS(record->m_flSimulationTime)) {
-		//	ILoggerEvent::Get()->PushEvent("shot", FloatColor(1.f, 1.f, 1.f), true, "");
-
-		//	if (record->m_iChokeTicks <= 2) {
-		//		ILoggerEvent::Get()->PushEvent("shot return", FloatColor(1.f, 1.f, 1.f), true, "");
-		//		return; // shot
-		//	}
-
-		//	// more then 1 choke, cant hit pitch, apply prev pitch.
-		//	else if (anim_data->m_AnimationRecord.size() >= 2) {
-		//		C_AnimationRecord* previous = &anim_data->m_AnimationRecord.at(1);
-
-		//		if (previous && !previous->m_bIsInvalid) {
-		//			//data->m_angEyeAngles().x = previous->m_angEyeAngles.x;
-		//			record->m_angEyeAngles.x = previous->m_angEyeAngles.x;
-		//			//ILoggerEvent::Get()->PushEvent(std::to_string(previous->m_angEyeAngles.x), FloatColor(1.f, 1.f, 1.f), true, "");
-		//			//ILoggerEvent::Get()->PushEvent("applied prev", FloatColor(1.f, 1.f, 1.f), true, "");
-		//		}
-		//	}
-		//}
 	}
 
 	static float NextLBYUpdate[65];
@@ -513,31 +421,10 @@ namespace Engine {
 			Engine::g_ResolverData[player->EntIndex()].m_flNextBodyUpdate = 0.f;
 		}
 
-		//if (is_flicking) {
-		//	static bool ran = false;
-		//	static float flCurtime = Interfaces::m_pGlobalVars->curtime + 0.22f;
-
-		//	if (!ran) {
-		//		flCurtime = Interfaces::m_pGlobalVars->curtime + 0.22f;
-		//		ran = true;
-		//	}
-
-		//	if (flCurtime >= Interfaces::m_pGlobalVars->curtime && ran) {
-		//		ran = false;
-		//		is_flicking = false;
-		//	}
-
-		//}
-
 		C_AnimationLayer* curr = &record->m_serverAnimOverlays[3];
 		const int activity = player->GetSequenceActivity(curr->m_nSequence);
 		float delta = record->m_anim_time - move->m_anim_time;
 
-		//if (g_Vars.rage.override_reoslver.enabled && (speed <= 20.f || record->m_bFakeWalking))
-		//	record->m_iResolverMode = RESOLVE_OVERRIDE;
-		//else if (pLagData->m_iMissedShotsNOLBY < 1 && IsResolvableByLBY(player) && !record->m_bIsFakeFlicking) {
-		//	record->m_iResolverMode = NOLBY;
-		//}
 		if (record->m_fFlags & FL_ONGROUND && (record->m_vecVelocity.Length2D() < 0.1f || record->m_bFakeWalking)) {
 
 			if (is_flicking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && !record->m_bFakeWalking && pLagData->m_iMissedShotsLBY < 1) {
@@ -563,9 +450,6 @@ namespace Engine {
 			else if (record->m_moved && record->m_iDistorting[player->EntIndex()] && pLagData->m_iMissedShotsDistort < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (activity == 979 && curr->m_flWeight == 0 && delta > .22f)) {
 				record->m_iResolverMode = DISTORTINGLMOVE;
 			}
-			//else if (is_spin(record, player)) {
-			//	record->m_iResolverMode = SPIN;
-			//}
 			else if (ShouldUseFreestand(record, player) && pLagData->m_iMissedShotsFreestand < 1) {
 				record->m_iResolverMode = ANTIFREESTAND;
 			}
@@ -578,10 +462,6 @@ namespace Engine {
 			}
 		}
 
-		// if on ground, not moving or fakewalking.
-		//else if ((record->m_fFlags & FL_ONGROUND) && (speed <= 0.1f || record->m_bFakeWalking))
-		//	record->m_iResolverMode = LASTMOVE;
-
 		// if not on ground.
 		else if (!(player->m_fFlags() & FL_ONGROUND) && record->m_vecVelocity.Length2D() > 60.f)
 			record->m_iResolverMode = AIR;
@@ -590,7 +470,7 @@ namespace Engine {
 			record->m_iResolverMode = AIRSTAND;
 
 		// if on ground, moving, and not fakewalking.
-		else /*if ((record->m_fFlags & FL_ONGROUND || player->m_fFlags() & FL_ONGROUND) && speed > 0.1f && !record->m_bFakeWalking && !record->m_bIsFakeFlicking)*/
+		else 
 			record->m_iResolverMode = MOVING;
 	}
 
@@ -675,48 +555,7 @@ namespace Engine {
 			return;
 		}
 
-		//for (int i = 1; i <= Interfaces::m_pGlobalVars->maxClients; i++) {
-		//	C_CSPlayer* player = (C_CSPlayer*)Interfaces::m_pEntList->GetClientEntity(i);
-		//	if (!player
-		//		|| player->IsDead()
-		//		|| player->IsDormant()
-		//		|| !player->IsPlayer()
-		//		|| player->m_iTeamNum() == local->m_iTeamNum())
-		//		continue;
-
-		//	if (g_Vars.globals.player_list.override_pitch[i]) {
-		//		record->m_angEyeAngles.x = g_Vars.globals.player_list.override_pitch_slider[i];
-		//	}
-		//}
-
-		//if (g_Vars.globals.player_list.override_pitch[player->EntIndex()]) {
-		//	record->m_angEyeAngles.x = g_Vars.globals.player_list.override_pitch_slider[player->EntIndex()];
-		//}
-
 		C_AnimationRecord* move = &pLagData->m_walk_record;
-
-		//if (HasStaticRealAngle(anim_data->m_AnimationRecord, 10)) {
-		//	printf("I am ~static\n");
-		//}
-		//else {
-		//	printf("Hey! Something changed and i am not static anymore!\n");
-		//}
-
-		//if (DeltaKeepsChanging(anim_data->m_AnimationRecord, 10)) {
-		//	printf("Delta Is goin crazy\n");
-		//}
-
-		//if (LBYKeepsChanging(anim_data->m_AnimationRecord, 10)) {
-		//	printf("LBY Is goin crazy\n");
-		//}
-
-		//if (HasStaticYawDifference(anim_data->m_AnimationRecord, 10)) {
-		//	printf("Static yaw diff\n");
-		//}
-
-		//if (player->IsAlive() && !player->IsDormant()) {
-		//	player->m_PlayerAnimState()->m_flAbsRotation = Math::normalize_angle(pLagData->m_body);
-		//}
 
 		static int m_iFakeFlickCheck = 0;
 		static int m_iFakeFlickResetCheck = 0;
@@ -744,8 +583,6 @@ namespace Engine {
 		if (m_flLastResetTime1 >= m_flMaxResetTime1 && record->m_bUnsafeVelocityTransition && record->m_vecVelocity.Length2D() < 30.f) {
 			m_iFakeFlickCheck++;
 			m_iFakeFlickResetCheck = 0;
-			//printf(std::to_string(m_iFakeFlickCheck).c_str());
-			//printf(" < fake flick check hit\n");
 		}
 		else if (m_flLastResetTime1 >= m_flMaxResetTime1 && m_iFakeFlickCheck >= 0) {
 			m_iFakeFlickResetCheck++;
@@ -753,13 +590,11 @@ namespace Engine {
 
 		if (m_iFakeFlickCheck >= 10) {
 			record->m_bIsFakeFlicking = true;
-			//printf("fakeflicking \n");
 		}
 
 		if (record->m_vecVelocity.Length2D() >= 30.f) {
 			record->m_bIsFakeFlicking = false;
 			m_iFakeFlickCheck = 0;
-			//printf("fake flick reset due to speed \n");
 			m_flMaxResetTime1 = Interfaces::m_pGlobalVars->curtime + 1.f;
 		}
 		else if (m_iFakeFlickResetCheck >= 50) {
@@ -774,7 +609,6 @@ namespace Engine {
 				Vector delta = move->m_vecOrigin - record->m_vecOrigin;
 				if (delta.Length() <= 128.f && record->m_fFlags & FL_ONGROUND) {
 					record->m_moved = true;
-					//printf("move true 2\n");
 				}
 			}
 		}
@@ -784,14 +618,9 @@ namespace Engine {
 
 		if (pLagData->m_bRoundStart) {
 			record->m_moved = false;
-			//printf("move reset\n");
 		}
 
 		float delta = record->m_anim_time - move->m_anim_time;
-
-		//if (activity == 979 && curr->m_flWeight == 0 && delta > .22f && record->m_anim_time < NextLBYUpdate[player->EntIndex()]) {
-		//	printf("distorting/jittering\n");
-		//}
 
 		static bool m_iFirstCheck = true;
 		static bool m_iRestartDistortCheck = true;
@@ -806,8 +635,6 @@ namespace Engine {
 
 		if ((m_iRestartDistortCheck || m_iFirstCheck) && local->IsAlive()) {
 			record->m_iDistortTiming = Interfaces::m_pGlobalVars->curtime + 0.15f;
-			//printf(std::to_string(m_iDistortCheck).c_str());
-			//printf(" < Restart check ran\n");
 			m_iRestartDistortCheck = false;
 			m_iFirstCheck = false;
 		}
@@ -824,12 +651,8 @@ namespace Engine {
 			if (m_flLastDistortTime >= m_flMaxDistortTime) {
 				m_iDistortCheck++;
 				m_iResetCheck = 0;
-				//m_iRestartDistortCheck = true;
 				sugma = false;
 			}
-
-			//printf(std::to_string(m_iDistortCheck).c_str());
-			//printf(" < animlayer check ran\n");
 		}
 		else {
 			sugma = false;
@@ -838,7 +661,6 @@ namespace Engine {
 		if (player->m_AnimOverlay()[3].m_flCycle >= 0.1f && player->m_AnimOverlay()[3].m_flCycle <= 0.99999f && player->m_vecVelocity().Length2D() < 0.01f && record->m_vecVelocity.Length2D() < 0.1f) {
 			if (!balls) {
 				m_flMaxResetTime = Interfaces::m_pGlobalVars->curtime + 0.85f;
-				//printf("balls was false\n");
 				balls = true;
 			}
 
@@ -846,8 +668,6 @@ namespace Engine {
 
 			if (m_flLastResetTime >= m_flMaxResetTime) {
 				m_iResetCheck++;
-				//printf(std::to_string(m_iResetCheck).c_str());
-				//printf("\n");
 				balls = false;
 			}
 		}
@@ -862,14 +682,8 @@ namespace Engine {
 			record->m_iDistorting[player->EntIndex()] = false;
 		}
 
-		//if (record->m_vecVelocity.Length2D() > 0.1f) {
-		//	m_iDistortCheck = 0;
-		//	m_iRestartDistortCheck = true;
-		//}
-
 		if (m_iDistortCheck >= 2) {
 			record->m_iDistorting[player->EntIndex()] = true;
-			//printf("Player is distorting\n");
 		}
 
 		const auto simtime = record->m_flSimulationTime;
@@ -882,19 +696,6 @@ namespace Engine {
 
 		// next up mark this record with a resolver mode that will be used.
 		SetMode(player, record);
-
-		// if we are in nospread mode, force all players pitches to down.
-		// TODO; we should check thei actual pitch and up too, since those are the other 2 possible angles.
-		// this should be somehow combined into some iteration that matches with the air angle iteration.
-
-		//static float test = 0.f;
-
-		//if (player->m_vecVelocity().Length2D() < 0.1f)
-			//test = player->m_AnimOverlay()[3].m_flCycle;
-
-		//printf(std::to_string(test).c_str());
-
-		//printf(std::to_string(record->m_anim_time > record->m_body_update).c_str());
 
 		// we arrived here we can do the acutal resolve.
 		if (record->m_iResolverMode == MOVING && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition)
@@ -916,15 +717,6 @@ namespace Engine {
 		if (animstate && !is_flicking) {
 			absrotation_before_flick = animstate->m_flAbsRotation;
 		}
-
-		//if (Math::normalize_float(absrotation_before_flick) < 0.0f) {
-		//	printf("POSITIVE\n");
-		//}
-		//else
-		//	printf("NEGATIVE\n");
-
-		//if (record->m_body != player->m_flLowerBodyYawTarget())
-		//	printf("LBY TICK DETECTED\n");
 
 		// normalize the eye angles, doesn't really matter but its clean.
 		Math::NormalizeAngle(record->m_angEyeAngles.y);
@@ -953,11 +745,7 @@ namespace Engine {
 
 		if (is_flicking && pLagData->m_iMissedShotsLBY < 1 && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition && (record->m_vecVelocity.Length2D() < 0.01f || record->m_bFakeWalking))
 		{
-			//m_iMode = 0;
 			record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
-
-			//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
-
 			record->m_iResolverMode = FLICK;
 			record->m_iResolverText = XorStr("UPDATE");
 		}
@@ -1013,12 +801,8 @@ namespace Engine {
 						record->m_iResolverText = XorStr("+LBY LOGGED");
 					}
 				}
-				//else if (!HasStaticRealAngle(anim_data->m_AnimationRecord, 10) && g_Vars.misc.expermimental_resolver) {
-				//	record->m_angEyeAngles.y = at_target_yaw + 180.f;
-				//	record->m_iResolverText = XorStr("INVALID LASTMOVE");
-				//}
 				else {
-					record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget; // geico please stop using the other one it literally sets to lby every time i use it. (even in local server)
+					record->m_angEyeAngles.y = move->m_flLowerBodyYawTarget;
 					record->m_iResolverText = XorStr("LASTMOVE");
 				}
 			}
@@ -1030,24 +814,8 @@ namespace Engine {
 				record->m_angEyeAngles.y = at_target_yaw + 180.f;
 				record->m_iResolverText = XorStr("DISTORTION");
 			}
-			//else if (record->m_iResolverMode == SPIN) {
-			//	record->m_angEyeAngles.y = (record->spinbody + record->spindelta * record->m_iChokeTicks) * record->step++;
-			//}
 			else if (record->m_iResolverMode == ANTIFREESTAND && pLagData->m_iMissedShotsFreestand < 1) {
 				record->m_iResolverText = XorStr("FREESTAND");
-				//if (ShouldUseFreestand(record, player)) {
-				//	if (bFacingleft) {
-				//		record->m_angEyeAngles.y = at_target_yaw - 90.f;
-				//		record->m_iResolverText = XorStr("FREESTANDCUSTOM1");
-				//	}
-				//	else if (bFacingright) {
-				//		record->m_angEyeAngles.y = at_target_yaw + 90.f;
-				//		record->m_iResolverText = XorStr("FREESTANDCUSTOM2");
-				//	}
-				//	else
-				//		AntiFreestand(record, player);
-				//}
-				//else
 				AntiFreestand(record, player);
 			}
 			else if (record->m_iResolverMode == STAND) {
@@ -1162,55 +930,6 @@ namespace Engine {
 
 		oldBodyYaw = pLagData->m_body;
 
-		//if (entity != g_pLocalPlayer)
-		//{
-		//	nextPredictedSimtimeAccurate = entity->get_simtime() + g_pGlobals->interval_per_tick;
-
-		//	nextPredictedSimtime = entity->get_oldsimtime() + g_pGlobals->interval_per_tick;
-
-		//	if (entity->get_flags() & FL_ONGROUND) {
-
-		//		if (nextPredictedSimtimeAccurate >= NextLBYUpdate && !entity->IsDormant()) {
-		//			//CurrentRecord.PredLBYFlick = true;
-		//			PlayerRecord->LBYFLICK = true;
-		//			Add = 1.1f;
-		//			NextLBYUpdate = entity->get_simtime() + Add;
-		//			nextBodyUpdate = NextLBYUpdate;
-		//		}
-		//		else {
-		//			PlayerRecord->LBYFLICK = false;
-		//		}
-
-		//		if (oldBodyYaw != *LowerBodyYaw && fabs(math::get().NormalizeYaw(*LowerBodyYaw - oldBodyYaw)) > 5.f && !entity->IsDormant()) {
-		//			//CurrentRecord.LBYFlick = true;
-		//			PlayerRecord->LBYFLICK = true;
-		//			Add = 1.1f;
-		//			NextLBYUpdate = nextPredictedSimtimeAccurate + Add;
-		//			nextBodyUpdate = NextLBYUpdate;
-		//		}
-		//		else {
-		//			PlayerRecord->LBYFLICK = false;
-		//		}
-
-		//		if (entity->get_velocity().Length2D() > 0.1f && !PlayerRecord->fakewalking) {
-		//			Add = 0.22f;
-		//			NextLBYUpdate = entity->get_simtime() + Add;
-		//			nextBodyUpdate = NextLBYUpdate;
-		//		}
-
-		//		//if (PlayerRecord->nextBodyUpdate <= nextPredictedSimtimeAccurate)
-		//		//	nextBodyUpdate = nextPredictedSimtimeAccurate + 1.1f;
-
-		//		if (nextBodyUpdate != 0.f)
-		//			PlayerRecord->nextBodyUpdate = nextBodyUpdate;
-
-		//	}
-
-		//	PlayerRecord->m_flLastLowerBodyYawTargetUpdateTime = entity->get_oldsimtime() + g_pGlobals->interval_per_tick;
-		//	PlayerRecord->m_flOldLowerBodyYawTarget = oldBodyYaw;
-		//	PlayerRecord->m_flLowerBodyYawTarget = math::normalize_float(*LowerBodyYaw);
-		//}
-
 		if (oldBodyYaw != *LowerBodyYaw)
 		{
 			if (entity != local && entity->m_fFlags() & FL_ONGROUND)
@@ -1284,16 +1003,12 @@ namespace Engine {
 		float speed = record->m_vecVelocity.Length2D();
 
 		if (record->m_fFlags & FL_ONGROUND && speed > 1.f && data->m_fFlags() & FL_ONGROUND && !record->m_bFakeWalking && !record->m_bIsFakeFlicking && !record->m_bUnsafeVelocityTransition) {
-			//printf("move true 1\n");
 			record->m_moved = true;
 		}
-
-		//record->m_moved = true;
 
 		pLagData->m_iMissedShots = 0;
 		pLagData->m_iMissedShotsInAir = 0;
 		pLagData->m_iMissedBruteShots = 0;
-		//pLagData->m_iMissedLBYLog = 0;
 		pLagData->m_iMissedShotsDistort = 0;
 		pLagData->m_iMissedShotsFreestand = 0;
 		pLagData->m_iMissedShotsLBYTEST = 0;
@@ -1342,32 +1057,6 @@ namespace Engine {
 		//if( g_cl.m_net_pos.empty( ) ) {
 		Math::VectorAngles(local->m_vecOrigin() - record->m_vecOrigin, away);
 		return away.y;
-		//}
-
-		// half of our rtt.
-		// also known as the one-way delay.
-		//float owd = ( g_cl.m_latency / 2.f );
-
-		// since our origins are computed here on the client
-		// we have to compensate for the delay between our client and the server
-		// therefore the OWD should be subtracted from the target time.
-		//float target = record->m_pred_time; //- owd;
-
-		// iterate all.
-		//for( const auto &net : g_cl.m_net_pos ) {
-			// get the delta between this records time context
-			// and the target time.
-		//	float dt = std::abs( target - net.m_time );
-
-			// the best origin.
-		//	if( dt < delta ) {
-		//		delta = dt;
-		//		pos   = net.m_pos;
-		//	}
-		//}
-
-		//math::VectorAngles( pos - record->m_pred_origin, away );
-		//return away.y;
 	}
 
 	bool CResolver::AntiFreestanding(C_CSPlayer* entity, float& yaw)
@@ -1414,58 +1103,6 @@ namespace Engine {
 
 		return true;
 	}
-
-	//bool CResolver::is_spin(C_AnimationRecord* record, C_CSPlayer* player)
-	//{
-	//	auto local = C_CSPlayer::GetLocalPlayer();
-	//	if (!local)
-	//		return false;
-
-	//	auto lag_data = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
-	//	if (!lag_data.IsValid() || lag_data->m_History.empty())
-	//		return false;
-
-	//	if (player == local)
-	//		return false;
-
-	//	if (lag_data->m_History.size() < 3 || lag_data->m_History.empty())
-	//		return false;
-
-	//	record->step = 0;
-
-	//	record->spindelta = (record[0].m_body - record[1].m_body) / record[1].m_iChokeTicks;
-	//	record->spinbody = record[0].m_body;
-	//	const auto delta2 = (record[1].m_body - record[2].m_body) / record[2].m_iChokeTicks;
-
-	//	return false;
-
-	//	return record->spindelta == delta2 && record->spindelta > 0.5f;
-
-
-	//	//record->step = 0;
-
-	//	//size_t size{};
-
-	//	//for (const auto& it : lag_data->m_History) {
-	//	//	if (it.player->IsDormant()) {
-	//	//		break;
-	//	//	}
-
-	//	//	++size;
-	//	//}
-
-	//	//if (size > 2) {
-
-	//	//	record->spindelta = (record[0].m_body - record[1].m_body) / record[1].m_iChokeTicks;
-	//	//	record->spinbody = record->m_body;
-	//	//	float delta2 = (record[1].m_body - record[2].m_body) / record[2].m_iChokeTicks;
-
-	//	//	return record->spindelta == delta2 && record->spindelta > 0.5f;
-
-	//	//}
-	//	//else
-	//	//	return false;
-	//}
 
 	bool CResolver::ShouldUseFreestand(C_AnimationRecord* record, C_CSPlayer* player) // allows freestanding if not in open
 	{
@@ -1517,6 +1154,7 @@ namespace Engine {
 			return false;
 	}
 
+	// Use this resolver for players who are in air moving < 60 units per second
 	void CResolver::LastMoveLby(C_AnimationRecord* record, C_CSPlayer* player)
 	{
 		Encrypted_t<Engine::C_EntityLagData> pLagData = Engine::LagCompensation::Get()->GetLagData(player->m_entIndex);
@@ -1544,10 +1182,6 @@ namespace Engine {
 
 		float diff = Math::NormalizedAngle(record->m_flLowerBodyYawTarget - move->m_flLowerBodyYawTarget);
 		float delta = record->m_anim_time - move->m_anim_time;
-
-		//if (diff < -35.f || diff > 35.f)
-		//	printf("Not breaking\n");
-
 		QAngle vAngle = QAngle(0, 0, 0);
 		Math::CalcAngle3(player->m_vecOrigin(), local->m_vecOrigin(), vAngle);
 
@@ -1569,120 +1203,24 @@ namespace Engine {
 			}
 		}
 
-		//if (is_flicking) {
-		//	record->m_iResolverMode = FLICK;
-		//}
-		//if (record->m_moved /* && distortion check here*/) {
-		//	record->m_iResolverMode = LASTMOVE;
-		//}
-		//if (is_spin(record, player)) {
-		//	m_iMode = SPIN;
-		//}
-		//if (ShouldUseFreestand(record, player)) {
-		//	record->m_iResolverMode = ANTIFREESTAND;
-		//}
-
-		//if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.35f && record->m_vecLastNonDormantOrig == record->m_vecOrigin)
-		//{
-		//	if (simtime - pLagData->m_flLastLowerBodyYawTargetUpdateTime > 1.65f)
-		//	{
-		//		record->m_iResolverMode = ANTIFREESTAND;
-		//	}
-		//	else
-		//	{
-		//		record->m_iResolverMode = LBYDELTA;
-		//		pLagData->m_flSavedLbyDelta = pLagData->m_flLowerBodyYawTarget - pLagData->m_flOldLowerBodyYawTarget;
-		//	}
-		//}
-
-		//if (hitPlayer[index] && (player->m_vecVelocity().length_2d() < 1.f || player->m_vecVelocity().length_2d() > 1.f && record->m_bFakeWalking)) {
-		//	static bool repeat[64];
-		//	if (!repeat[index]) {
-		//		data->storedLbyDelta[index] = math::normalize_float(record->m_angEyeAngles.y - data->m_flLowerBodyYawTarget);
-		//		data->hasStoredLby[index] = true;
-		//		repeat[index] = true;
-
-		//	}
-		//	if (repeat[index]) {
-		//		data->hasStoredLby[index] = true;
-		//	}
-		//}
-		//else {
-		//	data->hasStoredLby[index] = false;
-		//}
-
-		//if (data->hasStoredLby[index] && (player->m_vecVelocity().length_2d() < 1.f || player->m_vecVelocity().length_2d() > 1.f && record->m_bFakeWalking) && data->m_delta_index == 0 /*&& !CResolver::get().update_lby_timer(pEntity)*/) {
-		//	record->m_iResolverMode = RESOLVE_DELTA;
-		//	record->resolver_text = "DELTA";
-		//	record->m_angEyeAngles.y = math::normalize_float(data->m_flLowerBodyYawTarget + data->storedLbyDelta[index]);
-		//}
-
-
-
-		//if (diff > 35.f || diff < -35.f && pLagData->m_lby_index < 1)
-		//{
-		//	record->m_angEyeAngles.y = record->m_flLowerBodyYawTarget;
-		//	record->m_iResolverText = "LBY";
-		//}
-		//else {
-
-		//C_AnimationRecord* previous = &anim_data->m_AnimationRecord[1];
-		//if (previous) {
-		//	if (record->m_flLowerBodyYawTarget == previous->m_flLowerBodyYawTarget)
-		//		printf("Not breaking\n");
-		//}
-
-
-
 			if (!record->m_moved) {
 
 				record->m_iResolverMode = STAND;
-				//record->m_iResolverText = XorStr("STAND");
 
 
 				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 				if (is_flicking && pLagData->m_iMissedShotsLBY < 1 /* && !record->m_bFakeWalking*/)
 				{
-					//m_iMode = 0;
 					record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
-
-					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
-
 					record->m_iResolverMode = FLICK;
 					record->m_iResolverText = XorStr("UPDATE");
 				}
 				else {
 					switch (pLagData->m_unknown_move % 4) {
 					case 0:
-						//AntiFreestand(record, player);
-						//m_iMode = 1;
-						//record->m_iResolverText = XorStr("FREESTAND");
-						//if (g_ResolverData->hitPlayer[index] && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking)) {
-						//	static bool repeat[64];
-						//	if (!repeat[index]) {
-						//		g_ResolverData->storedLbyDelta[index] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
-						//		g_ResolverData->hasStoredLby[index] = true;
-						//		repeat[index] = true;
-						//	}
-						//	if (repeat[index]) {
-						//		g_ResolverData->hasStoredLby[index] = true;
-						//	}
-						//}
-						//else {
-						//	g_ResolverData->hasStoredLby[index] = false;
-						//}
-
-						//if (g_ResolverData->hasStoredLby[index] && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
-						//	record->m_angEyeAngles.y = Math::normalize_float(record->m_body + g_ResolverData->storedLbyDelta[index]);
-						//	record->m_iResolverText = XorStr("LBY LOGGED");
-						//	g_ResolverData->m_iMode = 32;
-						//}
-						//else {
 						AntiFreestand(record, player);
 						m_iMode = 1;
-							//record->m_iResolverText = XorStr("FREESTAND");
-						//}
 						break;
 					case 1:
 						record->m_angEyeAngles.y = at_target_yaw + 180.f;
@@ -1701,15 +1239,6 @@ namespace Engine {
 						break;
 					}
 				}
-
-				//if (AntiFreestanding(player, data, record->m_angEyeAngles.y)) {
-				//	m_iMode = 1;
-				//	//g_notify.add(XOR("ANTIFREESTANDING\n"));
-				//}
-				//else
-				//	m_iMode = 0;
-				////SupremAntiFreestanding(record);
-
 			}
 			else if (record->m_moved) {
 				float diff = Math::NormalizedAngle(record->m_flLowerBodyYawTarget - move->m_flLowerBodyYawTarget);
@@ -1719,47 +1248,20 @@ namespace Engine {
 
 
 				record->m_iResolverMode = LASTMOVE;
-				//record->m_iResolverText = XorStr("LASTMOVE");
 
 				float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 				if (is_flicking && pLagData->m_iMissedShotsLBY < 1/* && !record->m_bFakeWalking*/)
 				{
-					//printf("break detection\n");
-					//printf("1\n");
 					record->m_angEyeAngles.y = pLagData->m_flLowerBodyYawTarget;
-
-					//data->m_flLowerBodyYawTarget_update = record->m_anim_time + 1.1f;
 					record->m_iResolverMode = FLICK;
 					record->m_iResolverText = XorStr("UPDATE");
 				}
 				else {
 					switch (pLagData->m_last_move % 5) {
 					case 0:
-						//if (g_ResolverData->hitPlayer[index] && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 0.1f && record->m_bFakeWalking)) {
-						//	static bool repeat[64];
-						//	if (!repeat[index]) {
-						//		g_ResolverData->storedLbyDelta[index] = Math::normalize_float(record->m_angEyeAngles.y - record->m_body);
-						//		g_ResolverData->hasStoredLby[index] = true;
-						//		repeat[index] = true;
-						//	}
-						//	if (repeat[index]) {
-						//		g_ResolverData->hasStoredLby[index] = true;
-						//	}
-						//}
-						//else {
-						//	g_ResolverData->hasStoredLby[index] = false;
-						//}
-
-						//if (g_ResolverData->hasStoredLby[index] && (player->m_vecVelocity().Length2D() < 0.1f || player->m_vecVelocity().Length2D() > 5.f && record->m_bFakeWalking) /*&& !resolver::get().update_lby_timer(pEntity)*/) {
-						//	record->m_angEyeAngles.y = Math::normalize_float(record->m_body + g_ResolverData->storedLbyDelta[index]);
-						//	record->m_iResolverText = XorStr("LBY LOGGED");
-						//	g_ResolverData->m_iMode = 32;
-						//}
-						//else {
 						AntiFreestand(record, player);
 						m_iMode = 1;
-						//}
 						break;
 					case 1:
 						if (AntiFreestanding(player, record->m_angEyeAngles.y) && pLagData->m_iMissedShotsFreestand < 1) { // using same freestand twice might not be a good idea so i switched to fatal here
@@ -1790,21 +1292,7 @@ namespace Engine {
 					}
 				}
 			}
-		//}
 	}
-
-	//void CResolver::ResolvePoses(C_CSPlayer* player, C_AnimationRecord* record) {
-	//	// only do this bs when in air.
-	//	if (record->m_iResolverMode == RESOLVE_AIR) {
-	//		// ang = pose min + pose val x ( pose range )
-
-	//		// lean_yaw
-	//		player->m_flPoseParameter()[2] = RandomInt(0, 4) * 0.25f;
-
-	//		// body_yaw
-	//		player->m_flPoseParameter()[11] = RandomInt(1, 3) * 0.25f;
-	//	}
-	//}
 
 	void CResolver::ResolveAir(C_CSPlayer* player, C_AnimationRecord* record) {
 		// get lag data.
@@ -1825,9 +1313,6 @@ namespace Engine {
 
 			// invoke our stand resolver.
 			LastMoveLby(record, player);
-
-			//// we are done.
-			//return;
 		}
 		else {
 			float away = GetAwayAngle(record);
@@ -1887,7 +1372,6 @@ namespace Engine {
 		if (g_Vars.rage.override_reoslver.enabled) {
 			QAngle viewangles = g_Vars.globals.CurrentLocalViewAngles;
 
-			//auto yaw = math::clamp (g_cl.m_local->GetAbsOrigin(), Player->origin()).y;
 			const float at_target_yaw = Math::CalcAngle(local->m_vecOrigin(), player->m_vecOrigin()).y;
 
 			if (fabs(Math::NormalizedAngle(viewangles.y - at_target_yaw)) > 30.f) {
@@ -1895,11 +1379,7 @@ namespace Engine {
 			}
 
 			Engine::g_ResolverData->m_bInOverride[player->EntIndex()] = true;
-
 			record->m_angEyeAngles.y = (Math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f;
-
-			//UTILS::GetLBYRotatedYaw(entity->m_flLowerBodyYawTarget(), (math::NormalizedAngle(viewangles.y - at_target_yaw) > 0) ? at_target_yaw + 90.f : at_target_yaw - 90.f);
-
 			record->m_iResolverMode = RESOLVE_OVERRIDE;
 			record->m_iResolverText = XorStr("OVERRIDE");
 		}

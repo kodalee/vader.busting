@@ -161,14 +161,6 @@ namespace Engine
 		if (!pLocal)
 			return false;
 
-		////use prediction curtime for this.
-		//float curtime = TICKS_TO_TIME(pLocal->m_nTickBase());
-
-		//// correct is the amount of time we have to correct game time,
-		//float correct = lagData.Xor()->m_flLerpTime + lagData.Xor()->m_flServerLatency;
-
-		//correct += lagData.Xor()->m_flOutLatency;
-
 		// use prediction curtime for this.
 		float curtime = TICKS_TO_TIME(pLocal->m_nTickBase() + g_TickbaseController.s_nExtraProcessingTicks);
 
@@ -181,32 +173,11 @@ namespace Engine
 		// check bounds [ 0, sv_maxunlag ]
 		Math::Clamp(correct, 0.f, 1.0f);
 
-		//auto weapon = (C_WeaponCSBaseGun*)pLocal->m_hActiveWeapon().Get();
-		//if (weapon) {
-		//	auto weaponData = weapon->GetCSWeaponData();
-		//	if (weaponData.IsValid()) {
-		//		if (weaponData.Xor()->m_iWeaponType != WEAPONTYPE_KNIFE) {
-		//			if (/*g_Vars.misc.disablebtondt &&*/ (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit))
-		//				correct -= g_TickbaseController.s_nExtraProcessingTicks;
-		//		}
-		//	}
-		//}
-
-		// calculate difference between tick sent by player and our latency based tick.
-		// ensure this record isn't too old.
-		//return std::fabsf(correct - (curtime - record.m_flSimulationTime)) <= flTargetTime;
-
 		float time_delta = std::abs(correct - (curtime - record.m_flSimulationTime));
 
 		if (time_delta > 0.2f) // do we want todo 0.19f or 0.2f? 0.19f might be more accurate and more "safe"
 			return false;
 		
-		//auto server_tickcount = Interfaces::m_pGlobalVars->tickcount + TIME_TO_TICKS(pNetChannel->GetLatency(FLOW_OUTGOING) + pNetChannel->GetLatency(FLOW_INCOMING));
-		//auto dead_time = (int)(TICKS_TO_TIME(server_tickcount) - 1.0f);
-
-		//if (record.m_flSimulationTime < (float)dead_time)
-		//	return false;
-
 		// calculate difference between tick sent by player and our latency based tick.
 		// ensure this record isn't too old.
 		return true;
@@ -327,18 +298,6 @@ namespace Engine
 		pThis->m_sim_cycle = player->GetAnimLayer(11).m_flCycle;
 		pThis->m_sim_rate = player->GetAnimLayer(11).m_flPlaybackRate;
 
-		// this is the first data update we are receving
-		// OR we received data with a newer simulation context.
-		//if (player->m_flOldSimulationTime() == player->m_flSimulationTime()) {
-		//	return;
-		//}
-
-		// did player update?
-		//float simTime = player->m_flSimulationTime( );
-		//if( pThis->m_flLastUpdateTime >= simTime ) {
-		//	return;
-		//}
-
 		auto anim_data = AnimationSystem::Get( )->GetAnimationData( player->m_entIndex );
 		if( !anim_data )
 			return;
@@ -361,8 +320,7 @@ namespace Engine
 			anim_record->m_bTeleportDistance = true;
 		}
 
-		//LOOK AT THIS LATER GEICO FROM FUTURE (exploiting players?)
-		//// invalidate all records, if player abusing teleport distance
+		// invalidate all records, if player abusing teleport distance
 		if( !anim_record->m_bIsInvalid && anim_record->m_bTeleportDistance && pThis->m_History.size( ) > 0 ) {
 			for( auto& record : pThis->m_History )
 				record.m_bSkipDueToResolver = true;

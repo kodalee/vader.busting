@@ -33,10 +33,6 @@
 
 extern int LastShotTime;
 
-// TODO: 
-// Refactoring
-// Rework exploits
-
 enum OverrideConditions {
 	OnShot,
 	Running,
@@ -492,7 +488,6 @@ namespace Interfaces
 			if (FakeLag::Get()->IsPeeking(cmd) || g_Vars.globals.WasShootingInPeek) {
 				DefensiveCounter++;
 				AppliedShift = min2(DefensiveCounter, 14);//14
-				//printf(XorStr("shot\n"));
 			}
 			else
 				DefensiveCounter = 2;
@@ -513,17 +508,9 @@ namespace Interfaces
 			return false;
 		}
 
-		//if (!g_Vars.globals.bCanWeaponFire)
-		//	return false;
-
-		//else if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit && g_TickbaseController.s_bBuilding && g_TickbaseController.s_nExtraProcessingTicks < g_TickbaseController.s_nSpeed) {
-		//	*sendPacket = false;
-		//	StripAttack(cmd);
-		//}
 
 		if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) {
 			*sendPacket = true;
-			//printf("setting send packet to true\n");
 		}
 
 		if (!SetupRageOptions())
@@ -657,12 +644,7 @@ namespace Interfaces
 		m_rage_data->m_flSpread = Engine::Prediction::Instance()->GetSpread();
 		m_rage_data->m_flInaccuracy = Engine::Prediction::Instance()->GetInaccuracy();
 
-		//ILoggerEvent::Get( )->PushEvent( std::to_string( m_rage_data->m_flInaccuracy ), FloatColor::White, true, "debug" );
-
 		auto success = RunHitscan();
-		//if( success.first ) {
-		//	m_rage_data->m_bResetCmd = false;
-		//}
 
 		const bool bOnLand = !(Engine::Prediction::Instance().GetFlags() & FL_ONGROUND) && m_rage_data->m_pLocal->m_fFlags() & FL_ONGROUND;
 
@@ -710,9 +692,6 @@ namespace Interfaces
 			else {
 				m_rage_data->m_bNoNeededScope = false;
 			}
-
-			//if (g_Vars.misc.fakeduck && g_Vars.misc.fakeduck_bind.enabled) // you cant fakeduck while doubletapping -__-
-			//	m_rage_data->m_bNoNeededScope = false;
 		}
 
 		if (m_rage_data->rbot->autoscope == 2 &&
@@ -1036,11 +1015,6 @@ namespace Interfaces
 
 				// calculate end point
 				Vector vecEnd = vecStart + vecDirection * m_rage_data->m_pWeaponInfo->m_flWeaponRange;
-
-				//GEICO FROM FUTURE
-				//if( !bIsCapsule ) {
-				//	Interfaces::m_pEngineTrace->ClipRayToEntity( Ray_t( m_rage_data->m_vecEyePos, vecEnd ), MASK_SHOT, pPoint->target->player, &tr );
-				//}
 
 				auto bHit = bIsCapsule ?
 					Math::IntersectSegmentToSegment(m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax, flHitboxRadius) : Math::IntersectionBoundingBox(m_rage_data->m_vecEyePos, vecEnd, vecMin, vecMax); //: ( tr.hit_entity == pPoint->target->player && ( tr.hitgroup >= Hitgroup_Head && tr.hitgroup <= Hitgroup_RightLeg ) || tr.hitgroup == Hitgroup_Gear );
@@ -1678,175 +1652,6 @@ namespace Interfaces
 		}
 	}
 
-
-	//void C_Ragebot::Multipoint(C_CSPlayer* player, Engine::C_LagRecord* record, int side, std::vector<std::pair<Vector, bool>>& points, mstudiobbox_t* hitbox, mstudiohitboxset_t* hitboxSet, float& pointScale, int hitboxIndex) {
-	//	if (!record || !record->m_bIsValid)
-	//		return;
-	//	
-	//	auto boneMatrix = record->GetBoneMatrix();
-
-	//	points.clear();
-
-	//	if (!hitbox || !boneMatrix)
-	//		return;
-
-	//	if (!hitboxSet)
-	//		return;
-
-	//	auto local = C_CSPlayer::GetLocalPlayer();
-	//	if (!local || local->IsDead())
-	//		return;
-
-	//	Vector min, max;
-	//	Math::VectorTransform2(hitbox->bbmin, boneMatrix[hitbox->bone], min);
-	//	Math::VectorTransform2(hitbox->bbmax, boneMatrix[hitbox->bone], max);
-
-	//	//Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
-	//	//Vector centerTrans = center.Transform(boneMatrix[hitbox->bone]);
-
-	//	Vector center = (hitbox->bbmax + hitbox->bbmin) * 0.5f;
-	//	Vector centerTrans = center;
-	//	Math::VectorTransform2(centerTrans, boneMatrix[hitbox->bone], centerTrans);
-
-	//	AddPoint(points, centerTrans, false);
-
-	//	auto aeye = local->GetEyePosition();
-
-	//	auto delta = centerTrans - aeye;
-	//	delta.Normalized();
-
-	//	auto max_min = max - min;
-	//	max_min.Normalized();
-
-	//	auto cr = max_min.Cross(delta);
-
-	//	QAngle d_angle;
-	//	Math::VectorAngles(delta, d_angle);
-
-	//	bool vertical = hitboxIndex == HITBOX_HEAD;
-
-	//	Vector right, up;
-	//	if (vertical) {
-	//		QAngle cr_angle;
-	//		Math::VectorAngles(cr, cr_angle);
-	//		cr_angle.ToVectors(&right, &up);
-	//		cr_angle.z = d_angle.x;
-
-	//		Vector _up = up, _right = right, _cr = cr;
-	//		cr = _right;
-	//		right = _cr;
-	//	}
-	//	else {
-	//		Math::VectorVectors(delta, up, right);
-	//	}
-
-	//	RayTracer::Hitbox box(min, max, hitbox->m_flRadius);
-	//	RayTracer::Trace trace;
-
-	//	if (!m_rage_data->rbot->static_point_scale && m_rage_data->m_pWeapon && hitbox->m_flRadius > 0.0f) {
-	//		pointScale = 0.91f; // we can go high here because the new multipoint is perfect
-
-	//		float spreadCone = Engine::Prediction::Instance()->GetSpread() + Engine::Prediction::Instance()->GetInaccuracy();
-	//		float dist = centerTrans.Distance(m_rage_data->m_vecEyePos);
-
-	//		dist /= sinf(DEG2RAD(90.0f - RAD2DEG(spreadCone)));
-
-	//		spreadCone = sinf(spreadCone);
-
-	//		float radiusScaled = (hitbox->m_flRadius - (dist * spreadCone));
-	//		if (radiusScaled < 0.0f) {
-	//			radiusScaled *= -1.f;
-	//		}
-
-	//		float ps = pointScale;
-	//		pointScale = (radiusScaled / hitbox->m_flRadius);
-	//		pointScale = Math::Clamp(pointScale, 0.0f, ps);
-	//	}
-
-	//	if (pointScale <= 0.0f)
-	//		return;
-
-	//	if (hitbox->m_flRadius == -1.f) {
-	//		// convert rotation angle to a matrix.
-	//		matrix3x4_t rot_matrix;
-	//		Math::AngleMatrix(hitbox->m_angAngles, rot_matrix);
-
-	//		// apply the rotation to the entity input space (local).
-	//		matrix3x4_t matrix;
-	//		Math::ConcatTransforms(boneMatrix[hitbox->bone], rot_matrix, matrix);
-
-	//		// extract origin from matrix.
-	//		const Vector origin = matrix.GetOrigin();
-
-	//		// compute raw center point.
-	//		Vector center = (hitbox->bbmin + hitbox->bbmax) / 2.f;
-
-	//		// the feet hiboxes have a side, heel and the toe.
-	//		if (hitboxIndex == HITBOX_RIGHT_FOOT || hitboxIndex == HITBOX_LEFT_FOOT) {
-	//			const float d2 = (hitbox->bbmin.x - center.x) * pointScale;
-	//			const float d3 = (hitbox->bbmax.x - center.x) * pointScale;
-
-	//			// heel.
-	//			AddPoint(points, Vector(center.x + d2, center.y, center.z), true);
-
-	//			// toe.
-	//			AddPoint(points, Vector(center.x + d3, center.y, center.z), true);
-	//		}
-
-	//		// nothing to do here we are done.
-	//		if (points.empty())
-	//			return;
-
-	//		// rotate our bbox points by their correct angle
-	//		// and convert our points to world space.
-	//		for (auto& p : points) {
-	//			// VectorRotate.
-	//			// rotate point by angle stored in matrix.
-	//			p.first = { p.first.Dot(matrix[0]), p.first.Dot(matrix[1]), p.first.Dot(matrix[2]) };
-
-	//			// transform point to world space.
-	//			p.first += origin;
-	//		}
-	//	}
-	//	else {
-	//		if (hitboxIndex == HITBOX_HEAD) {
-	//			Vector middle = (right.Normalized() + up.Normalized()) * 0.5f;
-	//			Vector middle2 = (right.Normalized() - up.Normalized()) * 0.5f;
-
-	//			RayTracer::Ray ray = RayTracer::Ray(aeye, centerTrans + (middle * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//			ray = RayTracer::Ray(aeye, centerTrans - (middle2 * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//			ray = RayTracer::Ray(aeye, centerTrans + (up * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//			ray = RayTracer::Ray(aeye, centerTrans - (up * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//		}
-	//		else {
-	//			RayTracer::Ray ray = RayTracer::Ray(aeye, centerTrans - ((vertical ? cr : up) * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-
-	//			ray = RayTracer::Ray(aeye, centerTrans + ((vertical ? up : up) * 1000.0f));
-	//			RayTracer::TraceFromCenter(ray, box, trace, RayTracer::Flags_RETURNEND);
-	//			AddPoint(points, trace.m_traceEnd, true);
-	//		}
-
-	//		for (size_t i = 1; i < points.size(); ++i) {
-	//			auto delta_center = points[i].first - centerTrans;
-	//			points[i].first = centerTrans + delta_center * pointScale;
-	//		}
-	//	}
-	//}
-
 	bool C_Ragebot::SetupTargets() {
 		m_rage_data->m_targets.clear();
 		m_rage_data->m_aim_points.clear();
@@ -1872,26 +1677,6 @@ namespace Interfaces
 
 			return false;
 		}
-
-		//if (m_rage_data->m_targets.size() >= 5)/// target limit. selects a random target if we have >= targets
-		//{
-		//	auto first = rand() % m_rage_data->m_targets.size();
-		//	auto second = rand() % m_rage_data->m_targets.size();
-		//	auto third = rand() % m_rage_data->m_targets.size();
-
-		//	for (auto i = 0; i < m_rage_data->m_targets.size(); ++i)
-		//	{
-		//		if (i == first || i == second || i == third)
-		//			continue;
-
-		//		m_rage_data->m_targets.erase(m_rage_data->m_targets.begin() + i);
-
-		//		if (i > 0)
-		//			--i;
-		//	}
-		//}
-
-		//printf(std::to_string(m_rage_data->m_targets.size()).c_str());
 
 		for (auto& target : m_rage_data->m_targets) {
 			std::vector<C_AimPoint> tempPoints;
@@ -2093,15 +1878,6 @@ namespace Interfaces
 			return { false, C_AimPoint() }; // return here so when scoping dont shooting!!!
 		}
 
-		//for( auto& p : m_rage_data->m_aim_points ) {
-		//	Interfaces::m_pDebugOverlay->AddBoxOverlay( p.position, Vector( -0.7, -0.7, -0.7 ), Vector( 0.7, 0.7, 0.7 ), QAngle( ), 0, 255, 255, 255, Interfaces::m_pGlobalVars->interval_per_tick * 2 );
-		//}
-
-		//bool fakeDucking = g_Vars.misc.fakeduck_bind.enabled;
-
-		//if (fakeDucking && C_CSPlayer::GetLocalPlayer()->m_flDuckAmount() != 0)
-		//	return { false, C_AimPoint() };
-
 		C_AimPoint* bestPoint = nullptr;
 		bool doubleTap = /*( g_TickbaseController.bExploiting || g_TickbaseController.bUseDoubletapHitchance ) && */g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit;
 		for (auto& p : m_rage_data->m_aim_points) {
@@ -2194,12 +1970,7 @@ namespace Interfaces
 						auto lerp = std::max(g_Vars.cl_interp->GetFloat(), g_Vars.cl_interp_ratio->GetFloat() / g_Vars.cl_updaterate->GetFloat());
 						auto targedt = TIME_TO_TICKS(bestPoint->target->record->m_flSimulationTime + Engine::LagCompensation::Get()->GetLerp());
 
-						//if( g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit )
-						//	targedt -= 3;
-
 						m_rage_data->m_pCmd->tick_count = targedt;
-
-						//printf( "tickcount %i\n", m_rage_data->m_pCmd->tick_count );
 
 						if (m_lag_data.IsValid()) {
 							std::stringstream msg;
@@ -2705,8 +2476,6 @@ namespace Interfaces
 			auto first_pitch = Math::normalize_pitch(first.angles);
 			auto second_pitch = Math::normalize_pitch(second.angles);
 
-			//if (fabs(first_pitch - second_pitch) > 15.0f)
-			//	return fabs(first_pitch) < fabs(second_pitch);
 			if (first.duck_amount != second.duck_amount)
 				return first.duck_amount < second.duck_amount;
 			else if (first.origin != second.origin)
@@ -2727,10 +2496,6 @@ namespace Interfaces
 		if (!front_record.m_bIsValid) {
 			return nullptr;
 		}
-
-		//if (g_Vars.rage.key_dt.enabled && g_Vars.rage.exploit) { // we doubletappin? go for first record$$$
-		//	return &record;
-		//}
 
 		std::deque <optimized_adjust_data> optimized_records;
 		for (auto i = 0; i < lagData->m_History.size(); ++i)
