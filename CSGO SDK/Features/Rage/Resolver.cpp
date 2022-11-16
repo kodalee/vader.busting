@@ -962,11 +962,15 @@ namespace Engine {
 			record->m_iResolverText = XorStr("UPDATE");
 		}
 		else {
+			auto animstate = player->m_PlayerAnimState();
+
 			if (record->m_bIsFakeFlicking || record->m_bUnsafeVelocityTransition) {
+				if (animstate) {
+					animstate->m_flAbsRotation = Math::normalize_angle(pLagData->m_body);
+				}
 				AntiFreestand(record, player);
 			}
 			else if (record->m_iResolverMode == LASTMOVE) {
-				auto animstate = player->m_PlayerAnimState();
 				static float absrotation_before_flick;
 
 				if (animstate && !is_flicking) {
