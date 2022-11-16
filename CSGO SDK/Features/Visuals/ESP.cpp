@@ -1320,10 +1320,6 @@ void CEsp::Main( ) {
 
 	m_LocalPlayer = C_CSPlayer::GetLocalPlayer( );
 	if( !g_Vars.globals.HackIsReady || !m_LocalPlayer || !Interfaces::m_pEngine->IsInGame( ) ) {
-		g_Vars.globals.vader_user.clear( );
-		g_Vars.globals.vader_beta.clear( );
-		g_Vars.globals.vader_dev.clear( );
-		g_Vars.globals.vader_crack.clear( );
 		return;
 	}
 
@@ -2636,34 +2632,6 @@ void CEsp::DrawTeamName(C_CSPlayer* player, BBox_t bbox, player_info_t player_in
 
 	name += XorStr("[TEAMMATE] ");
 
-	if (!g_Vars.globals.vader_user.empty()) {
-		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player_info.userId) != g_Vars.globals.vader_user.end()) {
-
-			name += XorStr("[vader] ");
-		}
-	}
-
-	if (!g_Vars.globals.vader_beta.empty()) {
-		if (std::find(g_Vars.globals.vader_beta.begin(), g_Vars.globals.vader_beta.end(), player_info.userId) != g_Vars.globals.vader_beta.end()) {
-
-			name += XorStr("[vader beta] ");
-		}
-	}
-
-	if (!g_Vars.globals.vader_dev.empty()) {
-		if (std::find(g_Vars.globals.vader_dev.begin(), g_Vars.globals.vader_dev.end(), player_info.userId) != g_Vars.globals.vader_dev.end()) {
-
-			name += XorStr("[vader dev] ");
-		}
-	}
-
-	if (!g_Vars.globals.vader_crack.empty()) {
-		if (std::find(g_Vars.globals.vader_crack.begin(), g_Vars.globals.vader_crack.end(), player_info.userId) != g_Vars.globals.vader_crack.end()) {
-
-			name += XorStr("[crack] ");
-		}
-	}
-
 	name += std::string(player_info.szName).substr(0, 24);
 
 	//#if defined (DEV)
@@ -2710,34 +2678,6 @@ void CEsp::DrawName( C_CSPlayer* player, BBox_t bbox, player_info_t player_info 
 	// the point of this is overflowing unicode compares with hardcoded buffers, good hvh strat
 
 	std::string name;
-
-	if (!g_Vars.globals.vader_user.empty()) {
-		if (std::find(g_Vars.globals.vader_user.begin(), g_Vars.globals.vader_user.end(), player_info.userId) != g_Vars.globals.vader_user.end()) {
-
-			name += XorStr("[vader] ");
-		}
-	}
-
-	if (!g_Vars.globals.vader_beta.empty()) {
-		if (std::find(g_Vars.globals.vader_beta.begin(), g_Vars.globals.vader_beta.end(), player_info.userId) != g_Vars.globals.vader_beta.end()) {
-
-			name += XorStr("[vader beta] ");
-		}
-	}
-
-	if (!g_Vars.globals.vader_dev.empty()) {
-		if (std::find(g_Vars.globals.vader_dev.begin(), g_Vars.globals.vader_dev.end(), player_info.userId) != g_Vars.globals.vader_dev.end()) {
-
-			name += XorStr("[vader dev] ");
-		}
-	}
-
-	if (!g_Vars.globals.vader_crack.empty()) {
-		if (std::find(g_Vars.globals.vader_crack.begin(), g_Vars.globals.vader_crack.end(), player_info.userId) != g_Vars.globals.vader_crack.end()) {
-
-			name += XorStr("[crack] ");
-		}
-	}
 
 	name += std::string( player_info.szName ).substr( 0, 24 );
 
