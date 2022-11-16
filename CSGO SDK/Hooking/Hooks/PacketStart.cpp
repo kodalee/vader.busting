@@ -8,8 +8,12 @@
 void __fastcall Hooked::PacketStart(void* ecx, void*, int incoming_sequence, int outgoing_acknowledged) {
 	g_Vars.globals.szLastHookCalled = XorStr("19");
 
+
+	if(!Interfaces::m_pEngine->IsInGame() || g_Vars.globals.cmds.empty())
+		return oPacketStart(ecx, incoming_sequence, outgoing_acknowledged);
+
 	C_CSPlayer* local = C_CSPlayer::GetLocalPlayer();
-	if (!local || local->IsDead() || !Interfaces::m_pEngine->IsInGame() || g_Vars.globals.cmds.empty())
+	if (!local || local->IsDead())
 		return oPacketStart(ecx, incoming_sequence, outgoing_acknowledged);
 
 	for (auto it = g_Vars.globals.cmds.begin(); it != g_Vars.globals.cmds.end(); ++it) {

