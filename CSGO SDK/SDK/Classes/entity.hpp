@@ -379,6 +379,6 @@ public:
 	int* m_fireZDelta();
 
 	static float GetExpiryTime( ) {
-		return 7.f;
+		return 7.03125f;
 	}
 };

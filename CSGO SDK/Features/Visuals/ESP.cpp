@@ -49,6 +49,7 @@ public:
 	void DrawZeusDistance( );
 	void IndicateAngles();
 	void SpreadCrosshair();
+	void RenderImGuiNades() override;
 	void Main( ) override;
 	void SetAlpha( int idx ) override;
 	float GetAlpha( int idx ) override;
@@ -1344,8 +1345,8 @@ void CEsp::Main( ) {
 
 	IndicateAngles( );
 
-	if( !m_LocalPlayer->IsDead( ) )
-		Indicators( );
+	//if( !m_LocalPlayer->IsDead( ) )
+	//	Indicators( );
 
 	auto& predicted_nades = g_grenades_pred.get_list();
 
@@ -1467,217 +1468,217 @@ void CEsp::Main( ) {
 		if( !entity->GetClientClass( ) /*|| !entity->GetClientClass( )->m_ClassID*/ )
 			continue;
 
-		if (g_Vars.esp.nades) {
+		//if (g_Vars.esp.nades) {
 
-			if (entity->GetClientClass()->m_ClassID == CInferno) {
-				C_Inferno* pInferno = reinterpret_cast<C_Inferno*>(entity);
-				C_CSPlayer* player = (C_CSPlayer*)entity->m_hOwnerEntity().Get();
+		//	if (entity->GetClientClass()->m_ClassID == CInferno) {
+		//		C_Inferno* pInferno = reinterpret_cast<C_Inferno*>(entity);
+		//		C_CSPlayer* player = (C_CSPlayer*)entity->m_hOwnerEntity().Get();
 
-				int dist = m_LocalPlayer->GetAbsOrigin().Distance(pInferno->GetAbsOrigin());
+		//		int dist = m_LocalPlayer->GetAbsOrigin().Distance(pInferno->GetAbsOrigin());
 
-				if (dist > 2000)
-					return;
+		//		if (dist > 2000)
+		//			return;
 
-				if (player) {
-					FloatColor color;
+		//		if (player) {
+		//			FloatColor color;
 
-					if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex()) {
-						color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.8f);
-					}
-					else {
-						color = FloatColor(1.f, 0.f, 0.f, 0.8f);
-					}
+		//			if (player->m_iTeamNum() == m_LocalPlayer->m_iTeamNum() && player->EntIndex() != m_LocalPlayer->EntIndex()) {
+		//				color = FloatColor(66.f / 255.f, 123.f / 255.f, 245.f / 255.f, 0.8f);
+		//			}
+		//			else {
+		//				color = FloatColor(1.f, 0.f, 0.f, 0.8f);
+		//			}
 
-					const Vector origin = pInferno->GetAbsOrigin();
-					Vector2D screen_origin = Vector2D();
+		//			const Vector origin = pInferno->GetAbsOrigin();
+		//			Vector2D screen_origin = Vector2D();
 
-					if (WorldToScreen(origin, screen_origin)) {
-						struct s {
-							Vector2D a, b, c;
-						};
-						std::vector<int> excluded_ents;
-						std::vector<s> valid_molotovs;
+		//			if (WorldToScreen(origin, screen_origin)) {
+		//				struct s {
+		//					Vector2D a, b, c;
+		//				};
+		//				std::vector<int> excluded_ents;
+		//				std::vector<s> valid_molotovs;
 
-						const auto spawn_time = pInferno->m_flSpawnTime();
-						const auto time = ((spawn_time + C_Inferno::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime);
+		//				const auto spawn_time = pInferno->m_flSpawnTime();
+		//				const auto time = ((spawn_time + C_Inferno::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime);
 
-						if (time > 0.05f) {
-							static const auto size = Vector2D(70.f, 4.f);
+		//				if (time > 0.05f) {
+		//					static const auto size = Vector2D(70.f, 4.f);
 
-							auto new_pos = Vector2D(screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5);
+		//					auto new_pos = Vector2D(screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5);
 
-							Vector min, max;
-							entity->GetClientRenderable()->GetRenderBounds(min, max);
+		//					Vector min, max;
+		//					entity->GetClientRenderable()->GetRenderBounds(min, max);
 
-							auto radius = (max - min).Length2D() * 0.5f;
-							Vector boundOrigin = Vector((min.x + max.x) * 0.5f, (min.y + max.y) * 0.5f, min.z + 5) + origin;
-							const int accuracy = 25;
-							const float step = DirectX::XM_2PI / accuracy;
-							for (float a = 0.0f; a < DirectX::XM_2PI; a += step) {
-								float a_c, a_s, as_c, as_s;
-								DirectX::XMScalarSinCos(&a_s, &a_c, a);
-								DirectX::XMScalarSinCos(&as_s, &as_c, a + step);
+		//					auto radius = (max - min).Length2D() * 0.5f;
+		//					Vector boundOrigin = Vector((min.x + max.x) * 0.5f, (min.y + max.y) * 0.5f, min.z + 5) + origin;
+		//					const int accuracy = 25;
+		//					const float step = DirectX::XM_2PI / accuracy;
+		//					for (float a = 0.0f; a < DirectX::XM_2PI; a += step) {
+		//						float a_c, a_s, as_c, as_s;
+		//						DirectX::XMScalarSinCos(&a_s, &a_c, a);
+		//						DirectX::XMScalarSinCos(&as_s, &as_c, a + step);
 
-								Vector startPos = Vector(a_c * radius + boundOrigin.x, a_s * radius + boundOrigin.y, boundOrigin.z);
-								Vector endPos = Vector(as_c * radius + boundOrigin.x, as_s * radius + boundOrigin.y, boundOrigin.z);
+		//						Vector startPos = Vector(a_c * radius + boundOrigin.x, a_s * radius + boundOrigin.y, boundOrigin.z);
+		//						Vector endPos = Vector(as_c * radius + boundOrigin.x, as_s * radius + boundOrigin.y, boundOrigin.z);
 
-								Vector2D start2d, end2d, boundorigin2d;
-								if (!WorldToScreen(startPos, start2d) || !WorldToScreen(endPos, end2d) || !WorldToScreen(boundOrigin, boundorigin2d)) {
-									excluded_ents.push_back(i);
-									continue;
-								}
+		//						Vector2D start2d, end2d, boundorigin2d;
+		//						if (!WorldToScreen(startPos, start2d) || !WorldToScreen(endPos, end2d) || !WorldToScreen(boundOrigin, boundorigin2d)) {
+		//							excluded_ents.push_back(i);
+		//							continue;
+		//						}
 
-								s n;
-								n.a = start2d;
-								n.b = end2d;
-								n.c = boundorigin2d;
-								valid_molotovs.push_back(n);
-							}
+		//						s n;
+		//						n.a = start2d;
+		//						n.b = end2d;
+		//						n.c = boundorigin2d;
+		//						valid_molotovs.push_back(n);
+		//					}
 
-							if (!excluded_ents.empty()) {
-								for (int v = 0; v < excluded_ents.size(); ++v) {
-									auto bbrr = excluded_ents[v];
-									if (bbrr == i)
-										continue;
+		//					if (!excluded_ents.empty()) {
+		//						for (int v = 0; v < excluded_ents.size(); ++v) {
+		//							auto bbrr = excluded_ents[v];
+		//							if (bbrr == i)
+		//								continue;
 
-									if (!valid_molotovs.empty())
-										for (int m = 0; m < valid_molotovs.size(); ++m) {
-											auto ba = valid_molotovs[m];
-											//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
-											if (g_Vars.esp.molotov_radius) {
-												Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
-											}
-										}
-								}
-							}
-							else {
-								if (!valid_molotovs.empty())
-									for (int m = 0; m < valid_molotovs.size(); ++m) {
-										auto ba = valid_molotovs[m];
-										//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
-										if (g_Vars.esp.molotov_radius) {
-											Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
-										}
-									}
-							}
+		//							if (!valid_molotovs.empty())
+		//								for (int m = 0; m < valid_molotovs.size(); ++m) {
+		//									auto ba = valid_molotovs[m];
+		//									//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
+		//									if (g_Vars.esp.molotov_radius) {
+		//										Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
+		//									}
+		//								}
+		//						}
+		//					}
+		//					else {
+		//						if (!valid_molotovs.empty())
+		//							for (int m = 0; m < valid_molotovs.size(); ++m) {
+		//								auto ba = valid_molotovs[m];
+		//								//Render::Engine::FilledTriangle( ba.c, ba.a, ba.b, color.ToRegularColor( ).OverrideAlpha( 45 ) );
+		//								if (g_Vars.esp.molotov_radius) {
+		//									Render::Engine::Line(ba.a, ba.b, color.ToRegularColor().OverrideAlpha(220));
+		//								}
+		//							}
+		//					}
 
-							char buf[128] = { };
-							sprintf(buf, XorStr(" - %.2fs"), time);
-							//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
-							//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
+		//					char buf[128] = { };
+		//					sprintf(buf, XorStr(" - %.2fs"), time);
+		//					//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
+		//					//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-							if (g_Vars.esp.molotov_timer) {
-								Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "n", Render::Engine::ALIGN_CENTER);
-								Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
-							}
+		//					if (g_Vars.esp.molotov_timer) {
+		//						Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "n", Render::Engine::ALIGN_CENTER);
+		//						Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+		//					}
 
-						}
-						else {
-							if (!valid_molotovs.empty())
-								valid_molotovs.erase(valid_molotovs.begin() + i);
+		//				}
+		//				else {
+		//					if (!valid_molotovs.empty())
+		//						valid_molotovs.erase(valid_molotovs.begin() + i);
 
-							if (!excluded_ents.empty())
-								excluded_ents.erase(excluded_ents.begin() + i);
-						}
-					}
-				}
-			}
+		//					if (!excluded_ents.empty())
+		//						excluded_ents.erase(excluded_ents.begin() + i);
+		//				}
+		//			}
+		//		}
+		//	}
 
-			C_SmokeGrenadeProjectile* pSmokeEffect = reinterpret_cast<C_SmokeGrenadeProjectile*>(entity);
-			if (pSmokeEffect->GetClientClass()->m_ClassID == CSmokeGrenadeProjectile) {
-				const Vector origin = pSmokeEffect->GetAbsOrigin();
-				Vector2D screen_origin = Vector2D();
+		//	C_SmokeGrenadeProjectile* pSmokeEffect = reinterpret_cast<C_SmokeGrenadeProjectile*>(entity);
+		//	if (pSmokeEffect->GetClientClass()->m_ClassID == CSmokeGrenadeProjectile) {
+		//		const Vector origin = pSmokeEffect->GetAbsOrigin();
+		//		Vector2D screen_origin = Vector2D();
 
-				int dist = m_LocalPlayer->GetAbsOrigin().Distance(origin);
+		//		int dist = m_LocalPlayer->GetAbsOrigin().Distance(origin);
 
-				if (dist > 2000)
-					return;
+		//		if (dist > 2000)
+		//			return;
 
-				if (WorldToScreen(origin, screen_origin)) {
-					struct s {
-						Vector2D a, b;
-					};
-					std::vector<int> excluded_ents;
-					std::vector<s> valid_smokes;
-					const auto spawn_time = TICKS_TO_TIME(pSmokeEffect->m_nSmokeEffectTickBegin());
-					const auto time = (spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime;
+		//		if (WorldToScreen(origin, screen_origin)) {
+		//			struct s {
+		//				Vector2D a, b;
+		//			};
+		//			std::vector<int> excluded_ents;
+		//			std::vector<s> valid_smokes;
+		//			const auto spawn_time = TICKS_TO_TIME(pSmokeEffect->m_nSmokeEffectTickBegin());
+		//			const auto time = (spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime()) - Interfaces::m_pGlobalVars->curtime;
 
-					static const auto size = Vector2D(70.f, 4.f);
+		//			static const auto size = Vector2D(70.f, 4.f);
 
-					auto new_pos = Vector2D(screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5);
-					if (time > 0.f) {
-						auto radius = 120.f;
+		//			auto new_pos = Vector2D(screen_origin.x - size.x * 0.5, screen_origin.y - size.y * 0.5);
+		//			if (time > 0.f) {
+		//				auto radius = 120.f;
 
-						const int accuracy = 25;
-						const float step = DirectX::XM_2PI / accuracy;
-						for (float a = 0.0f; a < DirectX::XM_2PI; a += step) {
-							float a_c, a_s, as_c, as_s;
-							DirectX::XMScalarSinCos(&a_s, &a_c, a);
-							DirectX::XMScalarSinCos(&as_s, &as_c, a + step);
+		//				const int accuracy = 25;
+		//				const float step = DirectX::XM_2PI / accuracy;
+		//				for (float a = 0.0f; a < DirectX::XM_2PI; a += step) {
+		//					float a_c, a_s, as_c, as_s;
+		//					DirectX::XMScalarSinCos(&a_s, &a_c, a);
+		//					DirectX::XMScalarSinCos(&as_s, &as_c, a + step);
 
-							Vector startPos = Vector(a_c * radius + origin.x, a_s * radius + origin.y, origin.z + 5);
-							Vector endPos = Vector(as_c * radius + origin.x, as_s * radius + origin.y, origin.z + 5);
+		//					Vector startPos = Vector(a_c * radius + origin.x, a_s * radius + origin.y, origin.z + 5);
+		//					Vector endPos = Vector(as_c * radius + origin.x, as_s * radius + origin.y, origin.z + 5);
 
-							Vector2D start2d, end2d;
-							if (!WorldToScreen(startPos, start2d) || !WorldToScreen(endPos, end2d)) {
-								excluded_ents.push_back(i);
-								continue;
-							}
+		//					Vector2D start2d, end2d;
+		//					if (!WorldToScreen(startPos, start2d) || !WorldToScreen(endPos, end2d)) {
+		//						excluded_ents.push_back(i);
+		//						continue;
+		//					}
 
-							s n;
-							n.a = start2d;
-							n.b = end2d;
-							valid_smokes.push_back(n);
-						}
+		//					s n;
+		//					n.a = start2d;
+		//					n.b = end2d;
+		//					valid_smokes.push_back(n);
+		//				}
 
-						if (!excluded_ents.empty()) {
-							for (int v = 0; v < excluded_ents.size(); ++v) {
-								auto bbrr = excluded_ents[v];
-								if (bbrr == i)
-									continue;
+		//				if (!excluded_ents.empty()) {
+		//					for (int v = 0; v < excluded_ents.size(); ++v) {
+		//						auto bbrr = excluded_ents[v];
+		//						if (bbrr == i)
+		//							continue;
 
-								if (!valid_smokes.empty())
-									for (int m = 0; m < valid_smokes.size(); ++m) {
-										auto ba = valid_smokes[m];
-										//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
-										if (g_Vars.esp.smoke_radius) {
-											Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
-										}
-									}
-							}
-						}
-						else {
-							if (!valid_smokes.empty())
-								for (int m = 0; m < valid_smokes.size(); ++m) {
-									auto ba = valid_smokes[m];
-									//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
-									if (g_Vars.esp.smoke_radius) {
-										Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
-									}
-								}
-						}
+		//						if (!valid_smokes.empty())
+		//							for (int m = 0; m < valid_smokes.size(); ++m) {
+		//								auto ba = valid_smokes[m];
+		//								//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
+		//								if (g_Vars.esp.smoke_radius) {
+		//									Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
+		//								}
+		//							}
+		//					}
+		//				}
+		//				else {
+		//					if (!valid_smokes.empty())
+		//						for (int m = 0; m < valid_smokes.size(); ++m) {
+		//							auto ba = valid_smokes[m];
+		//							//Render::Engine::FilledTriangle( screen_origin, ba.a, ba.b, Color( 220, 220, 220, 25 ) );
+		//							if (g_Vars.esp.smoke_radius) {
+		//								Render::Engine::Line(ba.a, ba.b, Color(220, 220, 220, 220));
+		//							}
+		//						}
+		//				}
 
-						char buf[128] = { };
-						sprintf(buf, XorStr(" - %.2fs"), time);
-						//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
-						//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
+		//				char buf[128] = { };
+		//				sprintf(buf, XorStr(" - %.2fs"), time);
+		//				//Render::Engine::RectFilled( Vector2D( new_pos.x - 2, new_pos.y - 15 ),
+		//				//	Vector2D( Render::Engine::segoe.size( buf ).m_width + 4, Render::Engine::segoe.size( buf ).m_height ), Color( 0, 0, 0, 200 ) );
 
-						if (g_Vars.esp.smoke_timer) {
-							Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "m", Render::Engine::ALIGN_CENTER);
-							Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
-						}
+		//				if (g_Vars.esp.smoke_timer) {
+		//					Render::Engine::cs_huge.string(new_pos.x + 35 - (Render::Engine::grenades.size(buf).m_width * 0.6f), new_pos.y - 23, Color(255, 255, 255, 255), "m", Render::Engine::ALIGN_CENTER);
+		//					Render::Engine::grenades.string(new_pos.x + 35, new_pos.y - 15, Color(255, 255, 255, 255), buf, Render::Engine::ALIGN_CENTER);
+		//				}
 
-					}
-					else {
-						if (!valid_smokes.empty())
-							valid_smokes.erase(valid_smokes.begin() + i);
+		//			}
+		//			else {
+		//				if (!valid_smokes.empty())
+		//					valid_smokes.erase(valid_smokes.begin() + i);
 
-						if (!excluded_ents.empty())
-							excluded_ents.erase(excluded_ents.begin() + i);
-					}
-				}
-			}
-		}
+		//				if (!excluded_ents.empty())
+		//					excluded_ents.erase(excluded_ents.begin() + i);
+		//			}
+		//		}
+		//	}
+		//}
 
 		auto player = ToCSPlayer( entity );
 
@@ -2074,6 +2075,172 @@ void CEsp::RenderNades(C_WeaponCSBaseGun* nade) {
 		return;
 
 	Render::Engine::cs_huge.string(size.x + 10, size.y - 15, Color(255, 255, 255, 220), Name.c_str(), Render::Engine::ALIGN_CENTER);
+}
+
+int orientation(ImVec2 p, ImVec2 q, ImVec2 r)
+{
+	int val = (q.y - p.y) * (r.x - q.x) -
+		(q.x - p.x) * (r.y - q.y);
+
+	if (val == 0) return 0;
+	return (val > 0) ? 1 : 2;
+}
+
+std::vector<ImVec2> convexHull(std::vector<ImVec2> points, int n)
+{
+	std::vector<ImVec2> hull;
+
+	if (n < 3) return hull;
+
+	int l = 0;
+	for (int i = 1; i < n; i++)
+		if (points[i].x < points[l].x)
+			l = i;
+	int p = l, q;
+	do
+	{
+		hull.push_back(points[p]);
+
+		q = (p + 1) % n;
+		for (int i = 0; i < n; i++)
+		{
+			if (orientation(points[p], points[i], points[q]) == 2)
+				q = i;
+		}
+		p = q;
+
+	} while (p != l);
+
+	return hull;
+}
+
+
+void CEsp::RenderImGuiNades() {
+
+	for (int i = 0; i <= Interfaces::m_pEntList->GetHighestEntityIndex(); ++i) {
+		auto entity = (C_BaseEntity*)Interfaces::m_pEntList->GetClientEntity(i);
+
+		auto local = C_CSPlayer::GetLocalPlayer();
+
+		if (!local)
+			return;
+
+		if (!entity)
+			continue;
+
+		if (!entity->GetClientClass() /*|| !entity->GetClientClass( )->m_ClassID*/)
+			continue;
+
+		if (g_Vars.esp.nades) {
+
+			if (entity->GetClientClass()->m_ClassID == CInferno) {
+				C_Inferno* pInferno = reinterpret_cast<C_Inferno*>(entity);
+				C_CSPlayer* player = (C_CSPlayer*)entity->m_hOwnerEntity().Get();
+				auto origin = pInferno->GetAbsOrigin();
+				auto spawn_time = pInferno->m_flSpawnTime();
+				auto factor = (spawn_time + C_Inferno::GetExpiryTime() - Interfaces::m_pGlobalVars->curtime) / C_Inferno::GetExpiryTime();
+				Color col;
+				if (player) {
+					if (player->m_iTeamNum() == local->m_iTeamNum() && player->EntIndex() != local->EntIndex()) {
+						col = Color(66, 123, 245, 204);
+					}
+					else {
+						col = Color(255, 0, 0, 204);
+					}
+				}
+				else
+					col = Color(255, 0, 0, 204); // no player? wtf?
+
+				auto dpos = origin;
+				Vector mins, maxs;
+				pInferno->GetClientRenderable()->GetRenderBounds(mins, maxs);
+
+				int* m_fireXDelta = pInferno->m_fireXDelta();
+				int* m_fireYDelta = pInferno->m_fireYDelta();
+				int* m_fireZDelta = pInferno->m_fireZDelta();
+
+				int dist = local->GetAbsOrigin().Distance(origin);
+
+				if (dist > 2000)
+					return;
+
+				static const auto flame_polygon = [] {
+					std::array<Vector, 3> points;
+					for (std::size_t i = 0; i < points.size(); ++i) {
+						points[i] = Vector{ 60.0f * std::cos(DEG2RAD(i * (360.0f / points.size()))),
+											60.0f * std::sin(DEG2RAD(i * (360.0f / points.size()))),
+											0.0f };
+					}
+					return points;
+				}();
+
+				std::vector<Vector> points;
+
+				for (int i = 0; i <= pInferno->m_fireCount(); i++)
+					points.push_back(entity->m_vecOrigin() + Vector(m_fireXDelta[i], m_fireYDelta[i], m_fireZDelta[i]));
+
+				std::vector<ImVec2> screen_points;
+
+				for (const auto& pos : points) {
+					for (const auto& point : flame_polygon) {
+						Vector2D screen;
+
+						if (Render::Engine::WorldToScreen(pos + point, screen))
+							screen_points.push_back(ImVec2(screen.x, screen.y));
+					}
+				}
+				std::vector<ImVec2> hull_points;
+				hull_points = convexHull(screen_points, screen_points.size());
+				if (g_Vars.esp.molotov_radius) {
+					if (!hull_points.empty())
+						g_ImGuiRender->PolyLine(hull_points.data(), hull_points.size(), Color(col.r(), col.g(), col.b(), 255), true, 2.f, Color(col.r(), col.g(), col.b(), 35));
+					else {
+						auto usize = Vector(maxs - mins).Length2D() * 0.5;
+						g_ImGuiRender->DrawRing3D(dpos.x, dpos.y, dpos.z, usize, 360, Color(col.r(), col.g(), col.b(), 255), Color(col.r(), col.g(), col.b(), 35), 2, factor);
+					}
+				}
+
+				Vector2D screen_origin = Vector2D();
+
+				if (!Render::Engine::WorldToScreen(origin, screen_origin))
+					return;
+
+				static auto size = Vector2D(35.0f, 5.0f);
+				//g_Render->CircleFilled(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, 21, Color(25, 25, 25, col.a()), 60);
+				g_ImGuiRender->FilledRect(screen_origin.x - 18.0f, screen_origin.y - size.y * 0.5f - 12.f, 32.f, 4.f, Color(0, 0, 0, 100), 3.f);
+				g_ImGuiRender->FilledRect(screen_origin.x - 18.0f, screen_origin.y - size.y * 0.5f - 12.f, 32.f * factor, 4.f, Color(255, 255, 255), 3.f);
+				g_ImGuiRender->DrawString(screen_origin.x, screen_origin.y - size.y * 0.5f - 25, Color(255, 255, 255), render2::centered_x | render2::centered_y | render2::outline, Menu::fonts.cs_huge, XorStr("n"));
+			}
+
+			if (entity->GetClientClass()->m_ClassID == CSmokeGrenadeProjectile) {
+				C_SmokeGrenadeProjectile* smoke = reinterpret_cast<C_SmokeGrenadeProjectile*>(entity);
+
+				if (!smoke->m_nSmokeEffectTickBegin())
+					return;
+
+				auto spawn_time = TICKS_TO_TIME(smoke->m_nSmokeEffectTickBegin());
+				auto factor = (spawn_time + C_SmokeGrenadeProjectile::GetExpiryTime() - Interfaces::m_pGlobalVars->curtime) / C_SmokeGrenadeProjectile::GetExpiryTime();
+				auto origin = smoke->GetAbsOrigin();
+
+				int dist = local->GetAbsOrigin().Distance(origin);
+
+				if (dist > 2000)
+					return;
+
+				g_ImGuiRender->DrawRing3D(origin.x, origin.y, origin.z, 150, 360, Color(255, 255, 255, 255), Color(255, 255, 255, 35), 2, factor, true);
+				Vector2D screen_origin = Vector2D();
+
+				if (!Render::Engine::WorldToScreen(origin, screen_origin))
+					return;
+
+				static auto size = Vector2D(35.0f, 5.0f);
+				//g_ImGuiRender->CircleFilled(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, 19, Color(25, 25, 25, col.a()), 60);
+				//g_ImGuiRender->two_sided_arc(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, 18, 1.f - factor, Color(col.r(), col.g(), col.b()), 2);
+				g_ImGuiRender->DrawString(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, Color(255, 255, 255), render2::centered_x | render2::centered_y | render2::outline, Menu::fonts.cs_huge, XorStr("m"));
+
+			}
+		}
+	}
 }
 
 void CEsp::DrawBox( BBox_t bbox, const FloatColor& clr, C_CSPlayer* player ) {
@@ -2710,7 +2877,7 @@ void CEsp::DrawLocalSkeleton() {
 
 	auto pLocal = C_CSPlayer::GetLocalPlayer();
 
-	if (!pLocal->IsAlive())
+	if (!pLocal || !pLocal->IsAlive())
 		return;
 
 	if (g_Vars.misc.third_person_bind.enabled && g_Vars.misc.third_person && g_Vars.esp.local_skeleton) {

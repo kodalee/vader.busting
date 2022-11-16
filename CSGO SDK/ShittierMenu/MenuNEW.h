@@ -25,6 +25,8 @@ namespace Menu {
 		ImFont* StarWars;
 		ImFont* interfaces;
 		ImFont* watermark;
+		ImFont* cs;
+		ImFont* cs_huge;
 	} fonts;
 
 	void Loading() noexcept;

@@ -24,9 +24,9 @@
 // FIXME: cfg.OversampleH, OversampleV are not supported (but perhaps not so necessary with this rasterizer).
 
 #include "imgui_freetype.h"
-#include "imgui_internal.h"     // ImMin,ImMax,ImFontAtlasBuild*,
+#include "../imgui_internal.h"     // ImMin,ImMax,ImFontAtlasBuild*,
 #include <stdint.h>
-#include <ft2build.h>
+#include "ft2build.h"
 #include FT_FREETYPE_H          // <freetype/freetype.h>
 #include FT_MODULE_H            // <freetype/ftmodapi.h>
 #include FT_GLYPH_H             // <freetype/ftglyph.h>

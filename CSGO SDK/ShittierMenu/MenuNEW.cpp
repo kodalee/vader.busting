@@ -17,6 +17,7 @@
 #include "../SDK/CVariables.hpp"
 #include "IMGAY/imfont.h"
 #include "../Features/Miscellaneous/KitParser.hpp"
+#include "../Renderer/Textures/weaponicons.h"
 
 #define ALPHA (ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar| ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_Float)
 #define NOALPHA (ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_Float)
@@ -1038,6 +1039,11 @@ bool Menu::Initialize(IDirect3DDevice9* device) noexcept {
 		fonts.watermark = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedTTF(gravityb_compressed_data, gravityb_compressed_size,
 			16.f, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
 
+		fonts.cs = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(weaponicons, sizeof(weaponicons),
+			14.f, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
+
+		fonts.cs_huge = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(weaponicons, sizeof(weaponicons),
+			25.f, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
 
 		if(!logo_nuts)
 			D3DXCreateTextureFromFileInMemoryEx(device, vader_smaller_png, sizeof(vader_smaller_png), 50, 55, D3DUSAGE_DYNAMIC, 0, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &logo_nuts);
@@ -3453,15 +3459,15 @@ void Menu::Misc() {
 
 			ImGui::MultiCombo(XorStr("Local Extras"), local_extras);
 
-			std::vector<MultiItem_t> indicators = {
-				{ XorStr("PING"), &g_Vars.esp.indicator_ping },
-				{ XorStr("DT"), &g_Vars.esp.indicator_exploits },
-				{ XorStr("LBY"), &g_Vars.esp.indicator_lby },
-				{ XorStr("LC"), &g_Vars.esp.indicator_lagcomp },
-				{ XorStr("DMG"), &g_Vars.esp.indicator_mindmg },
-			};
+			//std::vector<MultiItem_t> indicators = {
+			//	{ XorStr("PING"), &g_Vars.esp.indicator_ping },
+			//	{ XorStr("DT"), &g_Vars.esp.indicator_exploits },
+			//	{ XorStr("LBY"), &g_Vars.esp.indicator_lby },
+			//	{ XorStr("LC"), &g_Vars.esp.indicator_lagcomp },
+			//	{ XorStr("DMG"), &g_Vars.esp.indicator_mindmg },
+			//};
 
-			ImGui::MultiCombo(XorStr("Indicators"), indicators);
+			//ImGui::MultiCombo(XorStr("Indicators"), indicators);
 
 			const char* models[]{ XorStr("Off"), XorStr("Darth Vader"), XorStr("StormTrooper"), XorStr("Custom") };
 

@@ -38,6 +38,7 @@ void ImGuiRendering::BeginScene()
 	if (Interfaces::m_pEngine->IsInGame() && Interfaces::m_pEngine->IsConnected())
 	{
 
+		IEsp::Get()->RenderImGuiNades();
 
 		{ // autopeek circle
 			bool condition = g_Vars.misc.autopeek && !AutoPeekPos.IsZero() && g_Vars.misc.autopeek_bind.enabled;

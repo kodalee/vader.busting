@@ -528,6 +528,8 @@ namespace Engine
 		// generate aimbot matrix
 		g_BoneSetup.SetupBonesRebuild( player, m_Bones, 128, BONE_USED_BY_ANYTHING & ~BONE_USED_BY_BONE_MERGE, player->m_flSimulationTime( ), BoneSetupFlags::UseCustomOutput );
 
+		FixBonesRotations(player, m_Bones);
+
 		// generate visual matrix
 		g_BoneSetup.SetupBonesRebuild( player, nullptr, 128, 0x7FF00, player->m_flSimulationTime( ), BoneSetupFlags::ForceInvalidateBoneCache | BoneSetupFlags::AttachmentHelper );
 
