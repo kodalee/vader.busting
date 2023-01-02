@@ -21,6 +21,22 @@ namespace Hooked
 		void SetHooks( );
 	};
 
+	struct Voice_Vader
+	{
+		char cheat_name[25];
+		int make_sure;
+		const char* username;
+	};
+
+	struct Voice_Crack
+	{
+		char cheat_name[25];
+		uint32_t xuid_high;
+		uint32_t sec_bytes;
+		uint32_t sec_number;
+		uint32_t sample_offset;
+	};
+
 	extern std::map< int, Hooked::PlayerHook > player_hooks;
 
 	using CreateMoveFn = bool( __stdcall* )( float, CUserCmd* );
